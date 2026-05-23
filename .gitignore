@@ -34,3 +34,6 @@ Thumbs.db
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
+
+# Docker local overrides
+compose.override.yaml
