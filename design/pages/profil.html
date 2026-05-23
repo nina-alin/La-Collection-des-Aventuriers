@@ -1,0 +1,3282 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mon Profil — La Collection des Aventuriers</title>
+  <link rel="stylesheet" href="../assets/tokens.css" />
+  <link rel="stylesheet" href="../assets/components.css" />
+  <link rel="stylesheet" href="../assets/search.css" />
+  <style>
+    /* ============================================================
+       CONTAINER + SESSION HEADER (cohérent catalogue / suggestions)
+       ============================================================ */
+    .container {
+      width: 100%;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding-left: var(--sp-4);
+      padding-right: var(--sp-4);
+    }
+    @media (min-width: 720px) { .container { padding-left: var(--sp-6); padding-right: var(--sp-6); } }
+
+    .session-header {
+      position: sticky; top: 0; z-index: 40;
+      background: color-mix(in oklab, var(--bg-page) 88%, transparent);
+      backdrop-filter: saturate(140%) blur(10px);
+      -webkit-backdrop-filter: saturate(140%) blur(10px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .sh-inner {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: var(--sp-4);
+      align-items: center;
+      padding: 12px 0;
+      min-height: 64px;
+    }
+    .sh-left { display: flex; align-items: center; gap: var(--sp-5); min-width: 0; }
+    .sh-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink-strong); }
+    .sh-brand:hover { text-decoration: none; }
+    .sh-sigil {
+      width: 36px; height: 36px;
+      display: grid; place-items: center;
+      border: 1.5px solid var(--cuir-500);
+      border-radius: 50%;
+      color: var(--cuir-500);
+      font-family: var(--font-display); font-weight: 700; font-size: 16px;
+      background: var(--bg-elevated);
+      letter-spacing: 0.04em; flex-shrink: 0; position: relative;
+    }
+    .sh-sigil::before { content: ""; position: absolute; inset: 3px; border: 1px dashed var(--cuir-300); border-radius: 50%; }
+    [data-theme="dark"] .sh-sigil { border-color: var(--or-400); color: var(--or-400); }
+    [data-theme="dark"] .sh-sigil::before { border-color: var(--or-700); }
+    .sh-brand-mark {
+      font-family: var(--font-display);
+      font-size: 14px; font-weight: 700; letter-spacing: 0.04em;
+      color: var(--ink-strong); white-space: nowrap;
+    }
+    @media (max-width: 720px) { .sh-brand-mark { display: none; } }
+
+    .sh-nav { display: flex; gap: 2px; }
+    @media (max-width: 879px) { .sh-nav { display: none; } }
+    .sh-nav a {
+      padding: 8px 14px;
+      font-family: var(--font-body); font-size: var(--fs-sm); font-weight: 500;
+      color: var(--ink-muted); text-decoration: none;
+      border-radius: var(--radius-sm);
+      transition: all var(--motion-fast) var(--motion-ease);
+      position: relative;
+    }
+    .sh-nav a:hover { color: var(--ink-strong); background: var(--bg-sunken); text-decoration: none; }
+    .sh-nav a[aria-current="page"] { color: var(--brand-primary); font-weight: 600; }
+    .sh-nav a[aria-current="page"]::after {
+      content: ""; position: absolute; left: 14px; right: 14px; bottom: -16px;
+      height: 2px; background: var(--brand-primary); border-radius: 2px 2px 0 0;
+    }
+
+    .sh-search {
+      flex: 1; max-width: 420px; justify-self: center; width: 100%;
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 12px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill);
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .sh-search:focus-within { border-color: var(--brand-primary); box-shadow: var(--ring-focus); }
+    .sh-search svg { width: 16px; height: 16px; stroke: var(--ink-muted); fill: none; stroke-width: 1.8; stroke-linecap: round; flex-shrink: 0; }
+    .sh-search input { flex: 1; border: 0; background: transparent; min-height: 32px; padding: 0; font-family: var(--font-body); font-size: var(--fs-sm); color: var(--ink-strong); outline: none; min-width: 0; }
+    .sh-search input::placeholder { color: var(--ink-muted); }
+    @media (max-width: 880px) { .sh-search { display: none; } }
+
+    .sh-right { display: flex; align-items: center; gap: var(--sp-2); justify-self: end; }
+    .sh-icon-btn {
+      position: relative; width: 40px; height: 40px;
+      display: grid; place-items: center;
+      background: transparent;
+      border: 1px solid var(--border-default);
+      border-radius: 50%;
+      color: var(--ink-default); cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .sh-icon-btn:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .sh-icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .sh-icon-btn .dot { position: absolute; top: 7px; right: 7px; width: 8px; height: 8px; border-radius: 50%; background: var(--danger); border: 2px solid var(--bg-page); }
+
+    .sh-user {
+      display: flex; align-items: center; gap: 10px;
+      padding: 4px 12px 4px 4px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--brand-primary);
+      box-shadow: 0 0 0 2px color-mix(in oklab, var(--brand-primary) 15%, transparent);
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+    }
+    .sh-user-text { display: flex; flex-direction: column; line-height: 1.1; }
+    @media (max-width: 600px) { .sh-user-text { display: none; } .sh-user { padding: 2px; } }
+    .sh-user-name { font-family: var(--font-body); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-strong); }
+    .sh-user-role { font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--info); }
+    .sh-user-chevron { color: var(--ink-muted); width: 14px; height: 14px; }
+    @media (max-width: 600px) { .sh-user-chevron { display: none; } }
+
+    /* ============================================================
+       1. PROFILE HERO — sceau héraldique + identité
+       ============================================================ */
+    .profile-hero {
+      position: relative;
+      padding: clamp(2rem, 5vw, 3rem) 0 var(--sp-6);
+    }
+    .profile-hero::before {
+      /* Bannière héraldique en fond (subtile) */
+      content: "";
+      position: absolute;
+      top: 0; left: -10%; right: -10%;
+      height: 220px;
+      background:
+        radial-gradient(circle at 18% 50%, color-mix(in oklab, var(--or-300) 22%, transparent), transparent 55%),
+        radial-gradient(circle at 82% 30%, color-mix(in oklab, var(--cuir-300) 26%, transparent), transparent 55%);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.7;
+    }
+    .hero-eyebrow {
+      position: relative; z-index: 1;
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+      margin-bottom: var(--sp-4);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .hero-eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--cuir-400); }
+    .hero-eyebrow .crumb-sep { color: var(--border-strong); }
+    .hero-eyebrow a { color: var(--ink-muted); text-decoration: none; }
+    .hero-eyebrow a:hover { color: var(--brand-primary); }
+
+    .hero-card {
+      position: relative; z-index: 1;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: var(--sp-5);
+      align-items: center;
+      padding: var(--sp-5) var(--sp-5) var(--sp-5);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+    /* coin de page haut-gauche */
+    .hero-card::before {
+      content: "";
+      position: absolute; top: 12px; left: 12px;
+      width: 14px; height: 14px;
+      border-top: 1.5px solid var(--cuir-400);
+      border-left: 1.5px solid var(--cuir-400);
+      pointer-events: none;
+    }
+    .hero-card::after {
+      content: "";
+      position: absolute; bottom: 12px; right: 12px;
+      width: 14px; height: 14px;
+      border-bottom: 1.5px solid var(--cuir-400);
+      border-right: 1.5px solid var(--cuir-400);
+      pointer-events: none;
+    }
+    [data-theme="dark"] .hero-card::before,
+    [data-theme="dark"] .hero-card::after { border-color: var(--or-500); }
+
+    @media (max-width: 880px) {
+      .hero-card { grid-template-columns: 1fr; padding: var(--sp-5) var(--sp-4) var(--sp-4); text-align: center; }
+    }
+
+    /* Avatar XL : sceau de cire */
+    .hero-seal {
+      position: relative;
+      width: 132px; height: 132px;
+      flex-shrink: 0;
+      display: grid; place-items: center;
+      background:
+        radial-gradient(circle at 30% 28%, color-mix(in oklab, var(--cuir-200) 60%, transparent), transparent 50%),
+        linear-gradient(135deg, var(--cuir-400), var(--cuir-600) 60%, var(--cuir-700));
+      border-radius: 50%;
+      border: 3px solid var(--bg-elevated);
+      box-shadow:
+        0 0 0 2px var(--cuir-500),
+        0 6px 18px -4px rgba(82, 40, 10, 0.45);
+      color: var(--parchemin-50);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 46px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      user-select: none;
+    }
+    .hero-seal::before {
+      /* couronne décorative — dashed ring intérieur */
+      content: "";
+      position: absolute;
+      inset: 9px;
+      border: 1.5px dashed rgba(245, 236, 217, 0.55);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .hero-seal::after {
+      /* monogramme — étoile/sceau */
+      content: "";
+      position: absolute;
+      width: 22px; height: 22px;
+      right: -4px; bottom: 6px;
+      background: var(--or-500);
+      clip-path: polygon(50% 0, 100% 14%, 100% 60%, 50% 100%, 0 60%, 0 14%);
+      border: 2px solid var(--bg-elevated);
+      box-shadow: var(--shadow-sm);
+    }
+    [data-theme="dark"] .hero-seal {
+      background:
+        radial-gradient(circle at 30% 28%, color-mix(in oklab, var(--cuir-300) 50%, transparent), transparent 50%),
+        linear-gradient(135deg, var(--cuir-500), var(--cuir-700));
+      box-shadow: 0 0 0 2px var(--cuir-400), 0 6px 18px -4px rgba(0,0,0,0.6);
+    }
+    @media (max-width: 880px) {
+      .hero-seal { margin: 0 auto; width: 110px; height: 110px; font-size: 38px; }
+    }
+
+    .hero-identity { min-width: 0; }
+    .hero-identity .role-line {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 8px;
+    }
+    @media (max-width: 880px) { .hero-identity .role-line { justify-content: center; flex-wrap: wrap; } }
+    .hero-identity .role-line .level {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--ink-muted);
+    }
+    .hero-identity .role-line .level strong { color: var(--ink-strong); font-weight: 600; }
+    .hero-identity h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 3.5vw + 0.5rem, 3rem);
+      font-weight: 700; letter-spacing: 0.04em;
+      color: var(--ink-strong);
+      line-height: 1.05;
+      margin: 0 0 var(--sp-3);
+    }
+    .hero-identity h1 .quill {
+      display: inline-block;
+      width: 14px; height: 14px;
+      vertical-align: 0.05em;
+      margin-left: 6px;
+      color: var(--or-500);
+    }
+    [data-theme="dark"] .hero-identity h1 .quill { color: var(--or-300); }
+    .hero-identity h1 .quill svg { width: 100%; height: 100%; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+    .hero-meta {
+      display: flex; flex-wrap: wrap; gap: 8px 10px;
+      align-items: center;
+    }
+    @media (max-width: 880px) { .hero-meta { justify-content: center; } }
+    .hero-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 12px;
+      background: var(--bg-page);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill);
+      font-family: var(--font-body);
+      font-size: var(--fs-xs);
+      color: var(--ink-default);
+      text-decoration: none;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .hero-chip svg {
+      width: 13px; height: 13px;
+      stroke: var(--ink-muted); fill: none;
+      stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+    .hero-chip strong { color: var(--ink-strong); font-weight: 600; }
+    .hero-chip.linkable:hover {
+      border-color: var(--brand-primary);
+      color: var(--brand-primary);
+      text-decoration: none;
+    }
+    .hero-chip.linkable:hover svg { stroke: var(--brand-primary); }
+    .hero-chip.taverne {
+      background: linear-gradient(135deg,
+        color-mix(in oklab, var(--info-bg) 80%, var(--bg-elevated)),
+        var(--bg-elevated) 70%);
+      border-color: var(--info-border);
+    }
+    .hero-chip.taverne svg { stroke: var(--info); }
+    .hero-chip.taverne strong { color: var(--info); }
+    [data-theme="dark"] .hero-chip.taverne strong { color: var(--encre-300); }
+    .hero-chip.taverne:hover {
+      border-color: var(--info);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+    .hero-chip .ext-arrow {
+      width: 11px; height: 11px;
+      color: var(--ink-subtle);
+      flex-shrink: 0;
+    }
+
+    .hero-actions {
+      display: flex; flex-direction: column; gap: 8px;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+    @media (max-width: 880px) {
+      .hero-actions { flex-direction: row; align-items: center; justify-content: center; width: 100%; }
+    }
+    @media (max-width: 540px) {
+      .hero-actions { flex-direction: column; }
+      .hero-actions .btn { width: 100%; }
+    }
+
+    /* ============================================================
+       2. STATS — grille héraldique
+       ============================================================ */
+    .stats-section {
+      margin-top: var(--sp-6);
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--sp-3);
+    }
+    @media (min-width: 720px) {
+      .stats-grid { grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); }
+    }
+    @media (max-width: 540px) {
+      /* Slider horizontal sur mobile */
+      .stats-grid {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: var(--sp-3);
+        padding-bottom: 8px;
+        margin: 0 calc(-1 * var(--sp-4));
+        padding-left: var(--sp-4);
+        padding-right: var(--sp-4);
+        scrollbar-width: none;
+      }
+      .stats-grid::-webkit-scrollbar { display: none; }
+      .stats-grid > .stat-card {
+        flex: 0 0 76%;
+        scroll-snap-align: start;
+      }
+    }
+
+    .stat-card {
+      position: relative;
+      padding: var(--sp-4) var(--sp-4) var(--sp-4) var(--sp-4);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: all var(--motion-fast) var(--motion-ease);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-height: 132px;
+    }
+    .stat-card:hover {
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: var(--accent, var(--cuir-500));
+      opacity: 0.85;
+    }
+    .stat-card .stat-head {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 12px;
+    }
+    .stat-card .stat-glyph {
+      width: 36px; height: 36px;
+      display: grid; place-items: center;
+      border-radius: 50%;
+      background: var(--bg-sunken);
+      color: var(--accent, var(--cuir-500));
+      flex-shrink: 0;
+    }
+    .stat-card .stat-glyph svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .stat-card .stat-delta {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--success);
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .stat-card .stat-delta::before {
+      content: ""; width: 0; height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-bottom: 5px solid currentColor;
+    }
+    .stat-card .stat-label {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+    }
+    .stat-card .stat-value {
+      font-family: var(--font-display);
+      font-size: var(--fs-4xl);
+      font-weight: 700;
+      color: var(--ink-strong);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.02em;
+      display: flex; align-items: baseline; gap: 6px;
+    }
+    .stat-card .stat-value .unit {
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      color: var(--ink-muted);
+      font-weight: 500;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .stat-card .stat-sub {
+      font-size: var(--fs-xs);
+      color: var(--ink-muted);
+      display: flex; align-items: center; gap: 6px;
+      margin-top: auto;
+    }
+    .stat-card .stat-sub .rating-stars { gap: 1px; }
+    .stat-card .stat-sub .rating-stars .star { --star-size: 11px; }
+    .stat-card .stat-sub strong { color: var(--ink-strong); font-weight: 600; }
+
+    /* Accent par stat */
+    .stat-card.collection { --accent: var(--cuir-500); }
+    .stat-card.ratings    { --accent: var(--or-500); }
+    .stat-card.suggestions { --accent: var(--mousse-500); }
+    .stat-card.streak     { --accent: var(--encre-500); }
+    [data-theme="dark"] .stat-card.collection { --accent: var(--cuir-400); }
+    [data-theme="dark"] .stat-card.ratings    { --accent: var(--or-400); }
+    [data-theme="dark"] .stat-card.suggestions { --accent: var(--mousse-300); }
+    [data-theme="dark"] .stat-card.streak     { --accent: var(--encre-300); }
+
+    /* ============================================================
+       3. TABS — onglets thématiques
+       ============================================================ */
+    .tabs-section {
+      margin-top: var(--sp-8);
+    }
+    .tabs-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: var(--sp-4);
+      margin-bottom: var(--sp-4);
+      flex-wrap: wrap;
+    }
+    .tabs-head h2 {
+      font-family: var(--font-display);
+      font-size: var(--fs-2xl);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--ink-strong);
+      margin: 0;
+    }
+    .tabs-head h2 .sub {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      font-weight: 500;
+      margin-left: 10px;
+    }
+
+    .tabs-bar {
+      position: relative;
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tabs-bar::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      appearance: none;
+      flex: 1;
+      min-width: max-content;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: transparent;
+      border: 0;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-family: var(--font-display);
+      font-size: var(--fs-sm);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--ink-muted);
+      transition: all var(--motion-fast) var(--motion-ease);
+      white-space: nowrap;
+      position: relative;
+    }
+    .tab-btn:hover { color: var(--ink-strong); background: var(--bg-sunken); }
+    .tab-btn .icn {
+      width: 16px; height: 16px;
+      display: grid; place-items: center;
+      flex-shrink: 0;
+    }
+    .tab-btn .icn svg { width: 100%; height: 100%; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .tab-btn .ct {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 7px;
+      background: var(--bg-sunken);
+      color: var(--ink-muted);
+      border-radius: 999px;
+      letter-spacing: 0;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .tab-btn[aria-selected="true"] {
+      background: var(--ink-strong);
+      color: var(--bg-page);
+    }
+    .tab-btn[aria-selected="true"] .ct {
+      background: var(--brand-primary);
+      color: var(--brand-primary-ink);
+    }
+    @media (max-width: 540px) {
+      .tab-btn { padding: 10px 12px; font-size: 12.5px; }
+      .tab-btn .ct { display: none; }
+    }
+
+    .tabs-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--sp-3);
+      margin: var(--sp-4) 0 var(--sp-3);
+      flex-wrap: wrap;
+    }
+    .tabs-toolbar .breadcrumb {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .tabs-toolbar .breadcrumb strong { color: var(--ink-strong); font-weight: 600; }
+    .tabs-toolbar .breadcrumb .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--border-strong); }
+    .tabs-toolbar .actions {
+      display: flex; gap: 8px; align-items: center;
+    }
+    .tabs-toolbar .select-sort {
+      appearance: none;
+      min-height: 36px;
+      padding: 6px 36px 6px 12px;
+      font-size: var(--fs-xs);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-default);
+      background: var(--bg-elevated);
+      color: var(--ink-default);
+      font-family: var(--font-body);
+      cursor: pointer;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--ink-muted) 50%),
+        linear-gradient(135deg, var(--ink-muted) 50%, transparent 50%);
+      background-position:
+        calc(100% - 16px) calc(50% - 2px),
+        calc(100% - 11px) calc(50% - 2px);
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+    }
+    .tabs-toolbar .view-switch {
+      display: inline-flex;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      background: var(--bg-elevated);
+      overflow: hidden;
+    }
+    .tabs-toolbar .view-switch button {
+      appearance: none;
+      width: 34px; height: 34px;
+      border: 0; background: transparent;
+      display: grid; place-items: center;
+      cursor: pointer;
+      color: var(--ink-muted);
+    }
+    .tabs-toolbar .view-switch button + button { border-left: 1px solid var(--border-default); }
+    .tabs-toolbar .view-switch button[aria-pressed="true"] {
+      background: var(--bg-sunken);
+      color: var(--brand-primary);
+    }
+    .tabs-toolbar .view-switch svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.7; }
+
+    /* ============================================================
+       TAB PANELS — grilles compactes de livres
+       ============================================================ */
+    .tab-panel { display: none; }
+    .tab-panel.is-active { display: block; }
+
+    /* Sub-tabs (Favoris : livres / auteurs / illustrateurs / éditeurs) */
+    .subtabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: var(--sp-4);
+    }
+    .subtab {
+      appearance: none;
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill);
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .subtab:hover { color: var(--ink-strong); border-color: var(--border-strong); }
+    .subtab .ct {
+      font-size: 9.5px;
+      padding: 1px 6px;
+      background: var(--bg-sunken);
+      color: var(--ink-muted);
+      border-radius: 999px;
+      letter-spacing: 0;
+    }
+    .subtab[aria-pressed="true"] {
+      background: var(--cuir-500);
+      color: var(--parchemin-50);
+      border-color: var(--cuir-500);
+    }
+    .subtab[aria-pressed="true"] .ct {
+      background: rgba(255,247,224,0.18);
+      color: var(--parchemin-50);
+    }
+    [data-theme="dark"] .subtab[aria-pressed="true"] {
+      background: var(--cuir-400);
+      color: var(--parchemin-900);
+      border-color: var(--cuir-400);
+    }
+
+    /* Grille de couvertures compacte */
+    .book-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--sp-3);
+    }
+    @media (min-width: 540px) { .book-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 720px) { .book-grid { grid-template-columns: repeat(4, 1fr); } }
+    @media (min-width: 1080px){ .book-grid { grid-template-columns: repeat(6, 1fr); gap: var(--sp-4); } }
+
+    .book-card {
+      position: relative;
+      display: flex; flex-direction: column;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      transition: all var(--motion-base) var(--motion-ease);
+    }
+    .book-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--border-strong);
+      text-decoration: none;
+    }
+    .book-card .cover {
+      position: relative;
+      aspect-ratio: 3 / 4;
+      padding: 10px;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      color: #fbf6e9;
+      background:
+        repeating-linear-gradient(45deg,
+          transparent 0, transparent 10px,
+          rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px),
+        linear-gradient(135deg, var(--cuir-300), var(--cuir-500));
+    }
+    [data-theme="dark"] .book-card .cover {
+      background:
+        repeating-linear-gradient(45deg,
+          transparent 0, transparent 10px,
+          rgba(0,0,0,0.18) 10px, rgba(0,0,0,0.18) 11px),
+        linear-gradient(135deg, var(--cuir-500), var(--cuir-800));
+    }
+    .book-card .cover .frame {
+      position: absolute; inset: 6px;
+      border: 1px solid rgba(245,236,217,0.45);
+      pointer-events: none;
+    }
+    .book-card .cover .ref {
+      position: absolute;
+      top: 8px; left: 8px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      opacity: 0.85;
+    }
+    .book-card .cover .bookmark {
+      position: absolute;
+      top: -2px; right: 14px;
+      width: 14px; height: 32px;
+      background: var(--or-500);
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%);
+    }
+    .book-card .cover .ttl {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: 0.02em;
+      max-width: 90%;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.22);
+      position: relative; z-index: 1;
+    }
+    .book-card .meta {
+      padding: 10px 12px;
+      display: flex; flex-direction: column; gap: 4px;
+      flex: 1;
+      border-top: 1px dashed var(--border-subtle);
+    }
+    .book-card .meta .t {
+      font-family: var(--font-display);
+      font-size: var(--fs-sm);
+      font-weight: 600;
+      color: var(--ink-strong);
+      line-height: 1.2;
+      letter-spacing: 0.01em;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .book-card .meta .a {
+      font-size: var(--fs-xs);
+      color: var(--ink-muted);
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .book-card .meta .foot {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 4px;
+    }
+    .book-card .meta .score {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      color: var(--ink-strong);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .book-card .meta .score svg {
+      width: 11px; height: 11px;
+      fill: var(--or-500);
+    }
+    [data-theme="dark"] .book-card .meta .score svg { fill: var(--or-400); }
+    .book-card .meta .badge-mini {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--ink-muted);
+    }
+
+    /* Marqueurs sur couverture */
+    .book-card .marks {
+      position: absolute;
+      top: 8px; right: 8px;
+      display: flex; gap: 4px;
+      z-index: 1;
+    }
+    .book-card .mark {
+      width: 22px; height: 22px;
+      display: grid; place-items: center;
+      border-radius: 50%;
+      background: rgba(20,13,7,0.50);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      color: #fbf6e9;
+      border: 1px solid rgba(245,236,217,0.30);
+    }
+    .book-card .mark svg { width: 11px; height: 11px; fill: currentColor; }
+    .book-card .mark.owned { background: var(--mousse-500); }
+    .book-card .mark.fav { background: var(--sang-500); }
+    .book-card .mark.wish { background: var(--ambre-700); }
+
+    /* Hover quick-action */
+    .book-card .quick {
+      position: absolute;
+      inset: auto 8px 80px 8px;
+      bottom: auto; top: 50%;
+      transform: translateY(-50%);
+      display: flex; gap: 4px;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--motion-fast) var(--motion-ease);
+    }
+    .book-card:hover .quick {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .book-card .quick button {
+      appearance: none;
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      box-shadow: var(--shadow-md);
+      color: var(--ink-default);
+      cursor: pointer;
+      display: grid; place-items: center;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .book-card .quick button:hover {
+      color: var(--brand-primary);
+      border-color: var(--brand-primary);
+      transform: translateY(-1px);
+    }
+    .book-card .quick button svg {
+      width: 14px; height: 14px;
+      stroke: currentColor; fill: none;
+      stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .book-card .quick button.danger:hover {
+      color: var(--danger);
+      border-color: var(--danger-border);
+      background: var(--danger-bg);
+    }
+
+    /* Pagination "see more" — partial reveal */
+    .grid-more {
+      display: flex; justify-content: center;
+      margin-top: var(--sp-5);
+    }
+
+    /* ============================================================
+       PERSON CARDS — auteurs / illustrateurs / éditeurs (Favoris)
+       ============================================================ */
+    .people-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--sp-3);
+    }
+    @media (min-width: 720px) { .people-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 1080px){ .people-grid { grid-template-columns: repeat(4, 1fr); } }
+
+    .person-card {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: var(--sp-3);
+      align-items: center;
+      padding: var(--sp-3);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      color: inherit;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .person-card:hover {
+      border-color: var(--brand-primary);
+      text-decoration: none;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+    .person-card .avatar { --av-size: 52px; border: 2px solid var(--bg-elevated); }
+    .person-card .info { min-width: 0; }
+    .person-card .info .role {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+      margin-bottom: 2px;
+    }
+    .person-card .info .name {
+      font-family: var(--font-display);
+      font-size: var(--fs-md);
+      font-weight: 600;
+      color: var(--ink-strong);
+      letter-spacing: 0.02em;
+      line-height: 1.15;
+      margin-bottom: 2px;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .person-card .info .meta {
+      font-size: var(--fs-xs); color: var(--ink-muted);
+    }
+    .person-card .unstar {
+      appearance: none;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      color: var(--sang-500);
+      display: grid; place-items: center;
+      flex-shrink: 0;
+    }
+    .person-card .unstar:hover { background: var(--sang-50); }
+    .person-card .unstar svg { width: 16px; height: 16px; fill: currentColor; }
+    [data-theme="dark"] .person-card .unstar { color: var(--sang-300); }
+    [data-theme="dark"] .person-card .unstar:hover { background: rgba(154,58,42,0.20); }
+
+    /* ============================================================
+       EMPTY STATE
+       ============================================================ */
+    .empty-state {
+      padding: var(--sp-7) var(--sp-5);
+      text-align: center;
+      background: var(--bg-elevated);
+      border: 1px dashed var(--border-strong);
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--sp-3);
+    }
+    .empty-crest {
+      position: relative;
+      width: 72px; height: 84px;
+      background: var(--bg-sunken);
+      clip-path: polygon(50% 0, 100% 14%, 100% 60%, 50% 100%, 0 60%, 0 14%);
+      display: grid; place-items: center;
+      color: var(--ink-muted);
+      margin-bottom: var(--sp-2);
+    }
+    .empty-crest::after {
+      content: "";
+      position: absolute; inset: 3px;
+      background: var(--bg-elevated);
+      clip-path: polygon(50% 0, 100% 14%, 100% 60%, 50% 100%, 0 60%, 0 14%);
+    }
+    .empty-crest svg {
+      width: 30px; height: 30px;
+      position: relative; z-index: 1;
+      stroke: var(--ink-muted); fill: none;
+      stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .empty-state .lg {
+      font-family: var(--font-display);
+      font-size: var(--fs-xl);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--ink-strong);
+      margin: 0;
+    }
+    .empty-state .desc {
+      color: var(--ink-muted);
+      font-size: var(--fs-sm);
+      max-width: 42ch;
+      margin: 0 auto;
+    }
+    .empty-state .actions {
+      display: flex; gap: var(--sp-2); flex-wrap: wrap; justify-content: center;
+      margin-top: var(--sp-2);
+    }
+
+    /* ============================================================
+       4. SETTINGS — Paramètres & Sécurité
+       ============================================================ */
+    .settings-section {
+      margin-top: var(--sp-8);
+      padding-top: var(--sp-6);
+      border-top: 1px solid var(--border-subtle);
+    }
+    .settings-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: var(--sp-3);
+      margin-bottom: var(--sp-5);
+      flex-wrap: wrap;
+    }
+    .settings-head .ttl {
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .settings-head .ttl::before { content: ""; width: 28px; height: 1px; background: var(--cuir-400); }
+    .settings-head h2 {
+      font-family: var(--font-display);
+      font-size: var(--fs-2xl);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--ink-strong);
+      margin: 4px 0 0;
+      width: 100%;
+    }
+    .settings-head .lede {
+      width: 100%;
+      color: var(--ink-muted);
+      font-size: var(--fs-sm);
+      max-width: 62ch;
+      margin: 0;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--sp-4);
+    }
+    @media (min-width: 880px) { .settings-grid { grid-template-columns: 1fr 1fr; } }
+
+    .settings-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .settings-card .head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--sp-3);
+      padding: var(--sp-4) var(--sp-5);
+      background: var(--bg-sunken);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .settings-card .head h3 {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--font-display);
+      font-size: var(--fs-lg);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--ink-strong);
+      margin: 0;
+    }
+    .settings-card .head h3 .num {
+      width: 24px; height: 24px;
+      display: grid; place-items: center;
+      border: 1.5px solid var(--cuir-500);
+      border-radius: 50%;
+      color: var(--cuir-500);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    [data-theme="dark"] .settings-card .head h3 .num { border-color: var(--or-400); color: var(--or-400); }
+    .settings-card .head .head-meta {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+    }
+    .settings-card .body { padding: var(--sp-4) var(--sp-5); }
+
+    /* Rangée param (label + value + action) */
+    .param-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--sp-3);
+      padding: 12px 0;
+      border-bottom: 1px dashed var(--border-subtle);
+      align-items: center;
+    }
+    .param-row:last-child { border-bottom: 0; padding-bottom: 0; }
+    .param-row:first-child { padding-top: 0; }
+    .param-row .label {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: 4px;
+    }
+    .param-row .value {
+      font-family: var(--font-body);
+      font-size: var(--fs-sm);
+      color: var(--ink-strong);
+      font-weight: 500;
+      display: flex; align-items: center; gap: 8px;
+      flex-wrap: wrap;
+    }
+    .param-row .value .verified {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--success);
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px;
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      border-radius: var(--radius-pill);
+    }
+    .param-row .value .verified::before {
+      content: "✓"; font-size: 10px;
+    }
+    .param-row .action {
+      align-self: center;
+    }
+    .btn-tiny {
+      appearance: none;
+      min-height: 32px;
+      padding: 6px 12px;
+      font-size: var(--fs-xs);
+      font-family: var(--font-body); font-weight: 600;
+      background: transparent;
+      color: var(--brand-primary);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .btn-tiny:hover { border-color: var(--brand-primary); background: color-mix(in oklab, var(--brand-primary) 6%, transparent); }
+
+    /* Liste des providers de connexion */
+    .login-providers {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .provider-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: var(--sp-3);
+      align-items: center;
+      padding: 12px 14px;
+      background: var(--bg-page);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+    }
+    .provider-row .icn {
+      width: 38px; height: 38px;
+      display: grid; place-items: center;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      flex-shrink: 0;
+    }
+    .provider-row .icn svg { width: 20px; height: 20px; }
+    .provider-row .info { min-width: 0; }
+    .provider-row .info .name {
+      font-family: var(--font-display);
+      font-size: var(--fs-sm);
+      font-weight: 600;
+      color: var(--ink-strong);
+      letter-spacing: 0.02em;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .provider-row .info .sub {
+      font-size: var(--fs-xs);
+      color: var(--ink-muted);
+      margin-top: 2px;
+      font-family: var(--font-mono);
+    }
+    .provider-row .badge-conn {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: var(--radius-pill);
+      border: 1px solid transparent;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .provider-row .badge-conn.on {
+      color: var(--success);
+      background: var(--success-bg);
+      border-color: var(--success-border);
+    }
+    .provider-row .badge-conn.on::before {
+      content: ""; width: 5px; height: 5px;
+      background: var(--success); border-radius: 50%;
+    }
+    .provider-row .badge-conn.off {
+      color: var(--ink-muted);
+      background: var(--bg-sunken);
+      border-color: var(--border-default);
+    }
+
+    /* Rôle — encart valorisé */
+    .role-card {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: var(--sp-4);
+      padding: var(--sp-4);
+      background:
+        linear-gradient(135deg, color-mix(in oklab, var(--info-bg) 80%, var(--bg-elevated)),
+        var(--bg-elevated) 70%);
+      border: 1px solid var(--info-border);
+      border-radius: var(--radius-md);
+      align-items: center;
+    }
+    [data-theme="dark"] .role-card {
+      background: linear-gradient(135deg, rgba(58,90,124,0.18), var(--bg-elevated) 70%);
+    }
+    .role-card .role-crest {
+      position: relative;
+      width: 56px; height: 64px;
+      background: var(--info);
+      clip-path: polygon(50% 0, 100% 14%, 100% 60%, 50% 100%, 0 60%, 0 14%);
+      display: grid; place-items: center;
+      flex-shrink: 0;
+    }
+    .role-card .role-crest::after {
+      content: "";
+      position: absolute; inset: 3px;
+      background: var(--bg-elevated);
+      clip-path: polygon(50% 0, 100% 14%, 100% 60%, 50% 100%, 0 60%, 0 14%);
+    }
+    .role-card .role-crest svg {
+      position: relative; z-index: 1;
+      width: 22px; height: 22px;
+      stroke: var(--info); fill: none;
+      stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .role-card .role-info .rank {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--info);
+    }
+    .role-card .role-info .ttl {
+      font-family: var(--font-display);
+      font-size: var(--fs-lg);
+      font-weight: 700;
+      color: var(--ink-strong);
+      letter-spacing: 0.02em;
+      margin: 2px 0 4px;
+    }
+    .role-card .role-info .desc {
+      font-size: var(--fs-xs);
+      color: var(--ink-muted);
+      line-height: 1.55;
+      margin: 0;
+    }
+    .role-permissions {
+      margin-top: var(--sp-4);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .perm {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 8px;
+      font-size: var(--fs-xs);
+      color: var(--ink-default);
+    }
+    .perm::before {
+      content: "✓";
+      flex-shrink: 0;
+      width: 16px; height: 16px;
+      display: grid; place-items: center;
+      background: var(--success);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .perm.no::before {
+      content: "—";
+      background: var(--bg-sunken);
+      color: var(--ink-subtle);
+      font-weight: 400;
+    }
+    .perm.no { color: var(--ink-muted); }
+
+    /* Zone de danger — déconnexion + suppression */
+    .danger-zone {
+      margin-top: var(--sp-4);
+      padding: var(--sp-4) var(--sp-5);
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-border);
+      border-radius: var(--radius-lg);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--sp-4);
+      align-items: center;
+    }
+    .danger-zone .dz-info .dz-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--danger);
+      margin-bottom: 4px;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .danger-zone .dz-info .dz-eyebrow::before {
+      content: ""; width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--danger);
+    }
+    .danger-zone .dz-info .dz-title {
+      font-family: var(--font-display);
+      font-size: var(--fs-md);
+      font-weight: 700;
+      color: var(--ink-strong);
+      letter-spacing: 0.02em;
+    }
+    .danger-zone .dz-info .dz-desc {
+      font-size: var(--fs-xs);
+      color: var(--ink-muted);
+      margin-top: 4px;
+      max-width: 56ch;
+    }
+    .danger-zone .dz-actions {
+      display: flex; gap: 8px;
+      flex-shrink: 0;
+    }
+    @media (max-width: 600px) {
+      .danger-zone { grid-template-columns: 1fr; }
+      .danger-zone .dz-actions { width: 100%; }
+      .danger-zone .dz-actions .btn { flex: 1; }
+    }
+
+    /* ============================================================
+       BOTTOM NAV (mobile)
+       ============================================================ */
+    .bottom-nav {
+      display: none;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--bg-elevated);
+      border-top: 1px solid var(--border-default);
+      box-shadow: 0 -2px 10px -4px rgba(45,24,16,0.10);
+      z-index: 48;
+      grid-template-columns: repeat(5, 1fr);
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+    @media (max-width: 879px) { .bottom-nav { display: grid; } main { padding-bottom: 80px; } }
+    [data-theme="dark"] .bottom-nav { box-shadow: 0 -2px 10px -4px rgba(0,0,0,0.4); }
+    .bottom-nav-item {
+      position: relative;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+      padding: 8px 4px 10px;
+      font-family: var(--font-body);
+      font-size: 10px; font-weight: 500;
+      color: var(--ink-subtle);
+      text-decoration: none;
+      min-height: 56px;
+    }
+    .bottom-nav-item svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .bottom-nav-item[aria-current="page"] { color: var(--brand-primary); }
+    .bottom-nav-item[aria-current="page"] svg { stroke-width: 2; }
+    .bottom-nav-item[aria-current="page"]::before {
+      content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 28px; height: 3px; background: var(--brand-primary);
+      border-radius: 0 0 999px 999px;
+    }
+    .bottom-nav-fab {
+      width: 48px; height: 48px;
+      margin-top: -16px;
+      background: var(--brand-primary);
+      color: var(--brand-primary-ink);
+      border-radius: 50%;
+      display: grid; place-items: center;
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ============================================================
+       DROPDOWN MENUS — Notifications + User
+       ============================================================ */
+
+    /* Wrapper sur le déclencheur — pour ancrer le menu */
+    .menu-anchor {
+      position: relative;
+    }
+
+    /* Backdrop (mobile only) */
+    .menu-backdrop {
+      position: fixed; inset: 0;
+      background: var(--bg-overlay);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--motion-base) var(--motion-ease);
+    }
+    .menu-backdrop.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    @media (min-width: 720px) {
+      /* Pas de backdrop visuel sur desktop (un click-outside JS suffit) */
+      .menu-backdrop { background: transparent; }
+    }
+
+    /* Carte de menu (desktop ancré, mobile bottom-sheet) */
+    .menu-card {
+      position: absolute;
+      top: calc(100% + 12px);
+      right: 0;
+      z-index: 101;
+      width: 380px;
+      max-width: calc(100vw - var(--sp-4) * 2);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl);
+      overflow: hidden;
+      transform-origin: top right;
+      opacity: 0;
+      transform: translateY(-8px) scale(0.98);
+      pointer-events: none;
+      transition:
+        opacity var(--motion-base) var(--motion-ease-out),
+        transform var(--motion-base) var(--motion-ease-out);
+    }
+    .menu-card.is-open {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+    /* Petite "flèche" pointant vers le déclencheur */
+    .menu-card::before {
+      content: "";
+      position: absolute;
+      top: -6px;
+      right: 16px;
+      width: 12px; height: 12px;
+      background: var(--bg-elevated);
+      border-top: 1px solid var(--border-default);
+      border-left: 1px solid var(--border-default);
+      transform: rotate(45deg);
+    }
+    .menu-card[data-anchor="user"]::before { right: 22px; }
+    .menu-card[data-anchor="notifications"]::before { right: 14px; }
+
+    /* === Mobile : bottom-sheet === */
+    @media (max-width: 719px) {
+      .menu-card {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-width: none;
+        max-height: 88vh;
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        border-bottom: 0;
+        transform: translateY(100%);
+        opacity: 1;
+        transition: transform var(--motion-slow) var(--motion-ease-out);
+        padding-bottom: env(safe-area-inset-bottom, 0);
+        display: flex;
+        flex-direction: column;
+      }
+      .menu-card.is-open {
+        transform: translateY(0);
+      }
+      .menu-card::before { display: none; }
+      .menu-card::after {
+        /* drag handle */
+        content: "";
+        position: absolute;
+        top: 8px; left: 50%;
+        transform: translateX(-50%);
+        width: 40px; height: 4px;
+        border-radius: 999px;
+        background: var(--border-strong);
+        opacity: 0.6;
+      }
+      .menu-card .menu-head {
+        padding-top: 22px;
+      }
+    }
+
+    /* En-tête du menu */
+    .menu-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--sp-3);
+      padding: var(--sp-4) var(--sp-4) var(--sp-3);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .menu-head .ttl {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--font-display);
+      font-size: var(--fs-md);
+      font-weight: 700;
+      color: var(--ink-strong);
+      letter-spacing: 0.04em;
+    }
+    .menu-head .ttl .count-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 8px;
+      background: var(--danger);
+      color: #fff;
+      border-radius: 999px;
+      letter-spacing: 0;
+      font-weight: 600;
+    }
+    .menu-head .mark-all {
+      appearance: none;
+      background: transparent;
+      border: 0;
+      padding: 4px 0;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--brand-primary);
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .menu-head .mark-all:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+    /* === NOTIFICATIONS LIST === */
+    .notif-list {
+      max-height: 420px;
+      overflow-y: auto;
+      padding: 6px 0;
+      scrollbar-width: thin;
+    }
+    @media (max-width: 719px) { .notif-list { max-height: none; flex: 1; } }
+    .notif-list::-webkit-scrollbar { width: 6px; }
+    .notif-list::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 3px; }
+
+    .notif-item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      padding: 10px 16px;
+      align-items: flex-start;
+      cursor: pointer;
+      transition: background var(--motion-fast) var(--motion-ease);
+      position: relative;
+      text-decoration: none;
+      color: inherit;
+      border-left: 3px solid transparent;
+    }
+    .notif-item:hover {
+      background: var(--bg-sunken);
+      text-decoration: none;
+      color: inherit;
+    }
+    .notif-item.unread {
+      background: color-mix(in oklab, var(--brand-primary) 4%, var(--bg-elevated));
+      border-left-color: var(--brand-primary);
+    }
+    .notif-item.unread:hover {
+      background: color-mix(in oklab, var(--brand-primary) 8%, var(--bg-elevated));
+    }
+    .notif-item .ic {
+      width: 32px; height: 32px;
+      display: grid; place-items: center;
+      border-radius: 50%;
+      background: var(--bg-sunken);
+      color: var(--ink-default);
+      flex-shrink: 0;
+    }
+    .notif-item .ic svg {
+      width: 15px; height: 15px;
+      stroke: currentColor; fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .notif-item.success .ic { background: var(--success-bg); color: var(--success); }
+    .notif-item.info    .ic { background: var(--info-bg);    color: var(--info); }
+    .notif-item.warn    .ic { background: var(--warning-bg); color: var(--warning); }
+    .notif-item.danger  .ic { background: var(--danger-bg);  color: var(--danger); }
+    .notif-item .body { min-width: 0; }
+    .notif-item .body .msg {
+      font-family: var(--font-body);
+      font-size: var(--fs-sm);
+      color: var(--ink-default);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .notif-item.unread .body .msg { color: var(--ink-strong); font-weight: 500; }
+    .notif-item .body .msg strong { color: var(--ink-strong); font-weight: 600; }
+    .notif-item .body .time {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--ink-subtle);
+      margin-top: 4px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .notif-item .body .time .ctx {
+      color: var(--ink-muted);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .notif-item .dot-unread {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--brand-primary);
+      align-self: center;
+      flex-shrink: 0;
+      opacity: 0;
+    }
+    .notif-item.unread .dot-unread { opacity: 1; }
+    .notif-item .ic.illustr {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--cuir-300), var(--cuir-500));
+      color: var(--parchemin-50);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      border-radius: var(--radius-sm);
+    }
+
+    .notif-list-sep {
+      padding: 8px 16px 4px;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--ink-subtle);
+    }
+
+    /* Empty state */
+    .notif-empty {
+      padding: var(--sp-6) var(--sp-4);
+      text-align: center;
+      color: var(--ink-muted);
+    }
+    .notif-empty .glyph {
+      width: 44px; height: 44px;
+      margin: 0 auto var(--sp-3);
+      display: grid; place-items: center;
+      border-radius: 50%;
+      background: var(--bg-sunken);
+      color: var(--ink-muted);
+    }
+    .notif-empty .glyph svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+    .notif-empty .lg { font-family: var(--font-display); font-size: var(--fs-md); color: var(--ink-strong); margin: 0 0 4px; }
+    .notif-empty .sm { font-size: var(--fs-xs); }
+
+    /* Footer du menu */
+    .menu-foot {
+      padding: var(--sp-3) var(--sp-4);
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-sunken);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--sp-3);
+    }
+    .menu-foot a {
+      font-family: var(--font-body);
+      font-size: var(--fs-sm);
+      color: var(--brand-primary);
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .menu-foot a:hover { text-decoration: underline; text-underline-offset: 3px; }
+    .menu-foot .pref-link {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      cursor: pointer;
+      background: transparent; border: 0;
+    }
+    .menu-foot .pref-link:hover { color: var(--ink-strong); }
+
+    /* === USER MENU === */
+    .user-card {
+      width: 304px;
+    }
+    @media (max-width: 719px) { .user-card { width: 100%; } }
+
+    .user-card .menu-head-user {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: var(--sp-4);
+      background: var(--bg-sunken);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .user-card .menu-head-user .avatar { --av-size: 44px; }
+    .user-card .menu-head-user .ident {
+      min-width: 0;
+    }
+    .user-card .menu-head-user .ident .hello {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--ink-muted);
+    }
+    .user-card .menu-head-user .ident .name {
+      font-family: var(--font-display);
+      font-size: var(--fs-md);
+      font-weight: 700;
+      color: var(--ink-strong);
+      letter-spacing: 0.02em;
+      line-height: 1.15;
+      margin: 1px 0 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .user-card .menu-section {
+      padding: 6px;
+    }
+    .user-card .menu-section + .menu-section {
+      border-top: 1px solid var(--border-subtle);
+    }
+    .user-card .menu-section-label {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--ink-subtle);
+      padding: 8px 10px 4px;
+    }
+    .menu-link {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 9px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--ink-default);
+      font-family: var(--font-body);
+      font-size: var(--fs-sm);
+      font-weight: 500;
+      background: transparent;
+      border: 0;
+      width: 100%;
+      text-align: left;
+      transition: background var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease);
+    }
+    .menu-link:hover {
+      background: var(--bg-sunken);
+      color: var(--ink-strong);
+      text-decoration: none;
+    }
+    .menu-link:focus-visible {
+      outline: none;
+      background: var(--bg-sunken);
+      box-shadow: inset 0 0 0 2px var(--brand-primary);
+    }
+    .menu-link .lnk-ic {
+      width: 28px; height: 28px;
+      display: grid; place-items: center;
+      border-radius: var(--radius-sm);
+      background: var(--bg-page);
+      color: var(--ink-muted);
+      flex-shrink: 0;
+    }
+    .menu-link .lnk-ic svg {
+      width: 14px; height: 14px;
+      stroke: currentColor; fill: none;
+      stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .menu-link:hover .lnk-ic { color: var(--brand-primary); }
+    .menu-link .lnk-meta {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--ink-subtle);
+    }
+    .menu-link kbd {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 6px;
+      background: var(--bg-page);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xs);
+      color: var(--ink-muted);
+    }
+
+    /* Zone Admin/Modo */
+    .menu-link.role-action {
+      background: color-mix(in oklab, var(--info) 6%, transparent);
+      color: var(--info);
+      font-weight: 600;
+      border: 1px solid var(--info-border);
+      margin: 4px 0;
+    }
+    [data-theme="dark"] .menu-link.role-action { color: var(--encre-300); }
+    .menu-link.role-action .lnk-ic {
+      background: var(--info);
+      color: #fff;
+    }
+    .menu-link.role-action:hover {
+      background: color-mix(in oklab, var(--info) 12%, transparent);
+      color: var(--info);
+    }
+    .menu-link.role-action .badge-new {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      padding: 1px 6px;
+      background: var(--info);
+      color: #fff;
+      border-radius: 999px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+    }
+
+    /* Toggle (dark mode) intégré */
+    .menu-toggle-row {
+      appearance: none;
+      width: 100%;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 9px 10px;
+      border: 0;
+      background: transparent;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: var(--fs-sm);
+      color: var(--ink-default);
+      text-align: left;
+      transition: background var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease);
+    }
+    .menu-toggle-row:focus-visible {
+      outline: none;
+      background: var(--bg-sunken);
+      box-shadow: inset 0 0 0 2px var(--brand-primary);
+    }
+    .menu-toggle-row:hover { background: var(--bg-sunken); color: var(--ink-strong); }
+    .menu-toggle-row .lnk-ic {
+      width: 28px; height: 28px;
+      display: grid; place-items: center;
+      border-radius: var(--radius-sm);
+      background: var(--bg-page);
+      color: var(--ink-muted);
+      flex-shrink: 0;
+    }
+    .menu-toggle-row .lnk-ic svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.7; }
+
+    /* Logout — différencié */
+    .user-card .logout-section {
+      padding: 8px 10px 12px;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-sunken);
+    }
+    .menu-link.logout {
+      background: transparent;
+      color: var(--danger);
+      font-weight: 600;
+      border: 1px solid var(--danger-border);
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .menu-link.logout:hover {
+      background: var(--danger);
+      color: #fff;
+      border-color: var(--danger);
+    }
+    .menu-link.logout:hover .lnk-ic { background: rgba(255,255,255,0.18); color: #fff; }
+    .menu-link.logout .lnk-ic {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid var(--danger-border);
+    }
+    .menu-link.logout .lnk-meta { color: var(--danger); opacity: 0.7; }
+    .menu-link.logout:hover .lnk-meta { color: #fff; opacity: 0.9; }
+
+    /* Bell pulse */
+    .sh-icon-btn.has-unread .dot {
+      animation: bellPulse 2.4s var(--motion-ease) infinite;
+    }
+    @keyframes bellPulse {
+      0%, 60%, 100% { transform: scale(1); box-shadow: 0 0 0 0 color-mix(in oklab, var(--danger) 60%, transparent); }
+      30% { transform: scale(1.18); box-shadow: 0 0 0 6px color-mix(in oklab, var(--danger) 0%, transparent); }
+    }
+
+    /* Helper */
+    .visually-hidden {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================== HEADER ============================== -->
+  <header class="session-header">
+    <div class="container sh-inner">
+      <div class="sh-left">
+        <a class="sh-brand" href="../dashboard.html">
+          <span class="sh-sigil">A</span>
+          <span class="sh-brand-mark">La Collection</span>
+        </a>
+        <nav class="sh-nav" aria-label="Navigation principale">
+          <a href="../dashboard.html">Accueil</a>
+          <a href="catalogue.html">Catalogue</a>
+          <a href="suggestions.html">Suggestions</a>
+        </nav>
+      </div>
+
+      <form class="sh-search" role="search" onsubmit="event.preventDefault();">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" placeholder="Rechercher un livre, un auteur, une collection…" aria-label="Recherche globale" />
+      </form>
+
+      <div class="sh-right">
+        <div class="menu-anchor">
+          <button class="sh-icon-btn has-unread" type="button" id="notif-trigger" aria-label="Notifications (3 non lues)" aria-haspopup="dialog" aria-expanded="false" aria-controls="notif-menu">
+            <svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+            <span class="dot" aria-hidden="true"></span>
+          </button>
+
+          <!-- ============ Dropdown : NOTIFICATIONS ============ -->
+          <div class="menu-card" id="notif-menu" data-anchor="notifications" role="dialog" aria-modal="false" aria-label="Notifications">
+            <header class="menu-head">
+              <span class="ttl">Notifications <span class="count-badge">3</span></span>
+              <button class="mark-all" type="button" data-action="mark-all-read">Tout marquer lu</button>
+            </header>
+
+            <div class="notif-list" role="list">
+              <div class="notif-list-sep">Nouvelles · aujourd'hui</div>
+
+              <a class="notif-item unread success" href="suggestions.html" role="listitem">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
+                <div class="body">
+                  <div class="msg">Ta suggestion sur <strong>Le Repaire des Vampires</strong> a été validée par la guilde.</div>
+                  <div class="time">il y a 12 min <span class="ctx">· par @aelius_mod</span></div>
+                </div>
+                <span class="dot-unread" aria-label="Non lue"></span>
+              </a>
+
+              <a class="notif-item unread info" href="livre.html" role="listitem">
+                <span class="ic illustr" aria-hidden="true">DF</span>
+                <div class="body">
+                  <div class="msg"><strong>Steve Jackson</strong> a publié une nouvelle fiche dans une collection que tu suis (Défis Fantastiques).</div>
+                  <div class="time">il y a 2 h <span class="ctx">· Défis Fantastiques nº62</span></div>
+                </div>
+                <span class="dot-unread"></span>
+              </a>
+
+              <a class="notif-item unread warn" href="#" role="listitem">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></span>
+                <div class="body">
+                  <div class="msg">Ta correction sur <strong>La Citadelle Sans Soleil</strong> attend une seconde relecture modérateur.</div>
+                  <div class="time">il y a 5 h</div>
+                </div>
+                <span class="dot-unread"></span>
+              </a>
+
+              <div class="notif-list-sep">Plus anciennes</div>
+
+              <a class="notif-item info" href="#" role="listitem">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-9 8.5 8.5 8.5 0 0 1-7.6-4.7L3 21l1.7-1.4A8.38 8.38 0 0 1 3 11.5a8.5 8.5 0 0 1 17 0z"/></svg></span>
+                <div class="body">
+                  <div class="msg"><strong>@nael_lc</strong> a commenté ta note sur <strong>L'Œil d'Émeraude</strong>.</div>
+                  <div class="time">hier · 18:42</div>
+                </div>
+                <span class="dot-unread"></span>
+              </a>
+
+              <a class="notif-item success" href="#" role="listitem">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+                <div class="body">
+                  <div class="msg">Félicitations — tu viens d'atteindre le rang <strong>Compagnon · Niveau 4</strong>.</div>
+                  <div class="time">il y a 3 j</div>
+                </div>
+                <span class="dot-unread"></span>
+              </a>
+
+              <a class="notif-item" href="#" role="listitem">
+                <span class="ic illustr" style="background: linear-gradient(135deg, var(--mousse-300), var(--mousse-700));" aria-hidden="true">LS</span>
+                <div class="body">
+                  <div class="msg">La collection <strong>Loup Solitaire</strong> a été enrichie de 4 nouvelles fiches.</div>
+                  <div class="time">il y a 5 j</div>
+                </div>
+                <span class="dot-unread"></span>
+              </a>
+            </div>
+
+            <footer class="menu-foot">
+              <a href="#">Voir toutes les notifications
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+              </a>
+              <button class="pref-link" type="button">Préférences</button>
+            </footer>
+          </div>
+        </div>
+
+        <div class="menu-anchor">
+          <button class="sh-user" type="button" id="user-trigger" aria-haspopup="menu" aria-expanded="false" aria-controls="user-menu" aria-label="Menu utilisateur">
+            <span class="avatar size-sm">MA<span class="avatar-role mod"></span></span>
+            <span class="sh-user-text">
+              <span class="sh-user-name">Marius Aubry</span>
+              <span class="sh-user-role">Modérateur</span>
+            </span>
+            <svg class="sh-user-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+
+          <!-- ============ Dropdown : USER MENU ============ -->
+          <div class="menu-card user-card" id="user-menu" data-anchor="user" role="menu" aria-label="Compte utilisateur">
+            <header class="menu-head-user">
+              <span class="avatar size-md" aria-hidden="true">MA<span class="avatar-role mod"></span></span>
+              <div class="ident">
+                <div class="hello">Bonjour</div>
+                <div class="name">Marius Aubry</div>
+                <span class="badge badge-role-mod"><span class="dot" aria-hidden="true"></span>Modérateur</span>
+              </div>
+            </header>
+
+            <div class="menu-section">
+              <a class="menu-link" href="profil.html" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg></span>
+                Mon Profil
+                <span class="lnk-meta">Aventurier</span>
+              </a>
+              <a class="menu-link" href="suggestions.html" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"/><path d="M14 4h6v6M10 14 20 4"/></svg></span>
+                Mes Suggestions
+                <span class="lnk-meta">17 validées</span>
+              </a>
+              <a class="menu-link" href="profil.html#settings" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+                Paramètres
+                <kbd>⌘,</kbd>
+              </a>
+            </div>
+
+            <!-- Zone Modo/Admin (conditionnelle) -->
+            <div class="menu-section">
+              <div class="menu-section-label">Outils de modération</div>
+              <a class="menu-link role-action" href="#" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 4 9 8 10 4-1 8-5 8-10V6l-8-4z"/><path d="m9 12 2 2 4-4"/></svg></span>
+                Accéder au Back-Office
+                <span class="badge-new">7 à relire</span>
+              </a>
+            </div>
+
+            <!-- Préférences rapides -->
+            <div class="menu-section">
+              <button class="menu-toggle-row" type="button" data-action="toggle-theme">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24" id="theme-icon-menu"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></span>
+                <span>Thème <strong id="theme-name" style="color: var(--ink-strong);">Parchemin</strong></span>
+                <label class="switch" onclick="event.stopPropagation();">
+                  <input type="checkbox" id="theme-switch-menu" />
+                  <span class="track" aria-hidden="true"></span>
+                </label>
+              </button>
+              <a class="menu-link" href="#" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg></span>
+                Aide &amp; raccourcis
+                <kbd>?</kbd>
+              </a>
+            </div>
+
+            <!-- Déconnexion -->
+            <div class="logout-section">
+              <a class="menu-link logout" href="#" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true">
+                  <!-- Clef tournée (métaphore : verrouiller / sortir) -->
+                  <svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M10.85 12.15 19 4M15 7l3 3M14 8l3 3"/></svg>
+                </span>
+                Se déconnecter
+                <span class="lnk-meta">Sortir</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+
+      <!-- ============================== 1. PROFILE HERO ============================== -->
+      <section class="profile-hero" aria-labelledby="hero-title">
+        <div class="hero-eyebrow">
+          <a href="../dashboard.html">Accueil</a>
+          <span class="crumb-sep">›</span>
+          <span>Mon Profil</span>
+        </div>
+
+        <div class="hero-card">
+          <div class="hero-seal" aria-hidden="true">MA</div>
+
+          <div class="hero-identity">
+            <div class="role-line">
+              <span class="badge badge-role-mod"><span class="dot" aria-hidden="true"></span>Modérateur</span>
+              <span class="level">Compagnon · <strong>Niveau 4</strong></span>
+            </div>
+            <h1 id="hero-title">
+              Marius Aubry
+              <span class="quill" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M14 4c1.5 5 5 5.5 6 6-2 .5-4 2-5 4M14 4c-3 3-5 7-7 13M14 4l-2 9M9 14h5"/></svg>
+              </span>
+            </h1>
+
+            <div class="hero-meta">
+              <span class="hero-chip">
+                <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>
+                Inscrit <strong>le 14 mars 2024</strong>
+                <span style="color: var(--ink-subtle); font-family: var(--font-mono); font-size: 10px;">· il y a 2 ans</span>
+              </span>
+
+              <a class="hero-chip linkable taverne" href="https://taverne.aventuriers.fr/u/marius-aubry" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24"><path d="M5 21v-7a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v7"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/><path d="M12 14v3"/></svg>
+                <strong>@marius_aubry</strong>
+                sur la Taverne
+                <svg class="ext-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17L17 7M9 7h8v8"/></svg>
+              </a>
+
+              <span class="hero-chip">
+                <svg viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 4 9 8 10 4-1 8-5 8-10V6l-8-4z"/></svg>
+                Guilde de <strong>Lyon</strong>
+              </span>
+            </div>
+          </div>
+
+          <div class="hero-actions">
+            <button class="btn btn-primary" type="button">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+              Éditer mon profil
+            </button>
+            <button class="btn btn-ghost btn-sm" type="button">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M4 12h16M4 6h16M4 18h16"/></svg>
+              Mon journal d'activité
+            </button>
+          </div>
+        </div>
+
+        <!-- ============================== 2. STATS ============================== -->
+        <div class="stats-section">
+          <div class="stats-grid" role="list">
+
+            <article class="stat-card collection" role="listitem">
+              <div class="stat-head">
+                <span class="stat-glyph" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M4 4h12a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3V4z"/><path d="M4 17a3 3 0 0 1 3-3h12"/><path d="M8 8h7"/></svg>
+                </span>
+                <span class="stat-delta">+3 / mois</span>
+              </div>
+              <div class="stat-label">Livres en collection</div>
+              <div class="stat-value">142 <span class="unit">ouvrages</span></div>
+              <div class="stat-sub">
+                <strong>38</strong> en cours · <strong>104</strong> terminés
+              </div>
+            </article>
+
+            <article class="stat-card ratings" role="listitem">
+              <div class="stat-head">
+                <span class="stat-glyph" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                </span>
+                <span class="stat-delta" style="color: var(--ink-muted);">moy. <strong style="color: var(--or-700); font-family: var(--font-display); font-size: 13px;">8.2</strong></span>
+              </div>
+              <div class="stat-label">Notes déposées</div>
+              <div class="stat-value">86 <span class="unit">avis</span></div>
+              <div class="stat-sub">
+                <span class="rating" aria-label="Note moyenne 8.2 sur 10">
+                  <span class="rating-stars" aria-hidden="true">
+                    <span class="star" style="--fill:100%"></span>
+                    <span class="star" style="--fill:100%"></span>
+                    <span class="star" style="--fill:100%"></span>
+                    <span class="star" style="--fill:100%"></span>
+                    <span class="star" style="--fill:20%"></span>
+                  </span>
+                </span>
+                sur 10
+              </div>
+            </article>
+
+            <article class="stat-card suggestions" role="listitem">
+              <div class="stat-head">
+                <span class="stat-glyph" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/><circle cx="12" cy="12" r="10" opacity="0.25"/></svg>
+                </span>
+                <span class="stat-delta">+2 ce mois</span>
+              </div>
+              <div class="stat-label">Validées par la guilde</div>
+              <div class="stat-value">17 <span class="unit">fiches</span></div>
+              <div class="stat-sub">
+                Taux de validation · <strong>94 %</strong>
+              </div>
+            </article>
+
+            <article class="stat-card streak" role="listitem">
+              <div class="stat-head">
+                <span class="stat-glyph" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+                </span>
+                <span class="stat-delta">en cours</span>
+              </div>
+              <div class="stat-label">Constance</div>
+              <div class="stat-value">28 <span class="unit">jours</span></div>
+              <div class="stat-sub">
+                Connecté à la guilde sans interruption
+              </div>
+            </article>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================== 3. TABS — LISTES ============================== -->
+      <section class="tabs-section" aria-labelledby="tabs-title">
+        <div class="tabs-head">
+          <h2 id="tabs-title">Mes listes <span class="sub">— 4 onglets</span></h2>
+        </div>
+
+        <div class="tabs-bar" role="tablist" aria-label="Mes listes">
+          <button class="tab-btn" role="tab" aria-selected="true" aria-controls="panel-collection" id="tab-collection" data-tab="collection">
+            <span class="icn"><svg viewBox="0 0 24 24"><path d="M4 4h12a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3V4z"/><path d="M4 17a3 3 0 0 1 3-3h12"/></svg></span>
+            Ma Collection
+            <span class="ct">142</span>
+          </button>
+          <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-tolire" id="tab-tolire" data-tab="tolire">
+            <span class="icn"><svg viewBox="0 0 24 24"><path d="M12 6.04C9.93 4.79 8 4 6 4H3v13h3c2.27 0 4.07.79 6 2 1.93-1.21 3.73-2 6-2h3V4h-3c-2 0-3.93.79-6 2.04z"/><path d="M12 6v13"/></svg></span>
+            À lire
+            <span class="ct">23</span>
+          </button>
+          <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-toacheter" id="tab-toacheter" data-tab="toacheter">
+            <span class="icn"><svg viewBox="0 0 24 24"><path d="M6 6h15l-1.5 9h-12L6 6z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg></span>
+            À acheter
+            <span class="ct">8</span>
+          </button>
+          <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-favoris" id="tab-favoris" data-tab="favoris">
+            <span class="icn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+            Mes Favoris
+            <span class="ct">31</span>
+          </button>
+        </div>
+
+        <!-- =============== Toolbar (tri + vue) =============== -->
+        <div class="tabs-toolbar">
+          <div class="breadcrumb">
+            <strong id="panel-count">142</strong>
+            <span>ouvrages</span>
+            <span class="dot"></span>
+            <span>dernière mise à jour</span>
+            <strong>il y a 2&nbsp;j.</strong>
+          </div>
+          <div class="actions">
+            <select class="select-sort" aria-label="Trier">
+              <option>Récemment ajoutés</option>
+              <option>Note décroissante</option>
+              <option>Alphabétique</option>
+              <option>Année de parution</option>
+            </select>
+            <div class="view-switch" role="group" aria-label="Affichage">
+              <button type="button" aria-pressed="true" aria-label="Grille"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
+              <button type="button" aria-pressed="false" aria-label="Liste"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- =============== PANEL : COLLECTION =============== -->
+        <div class="tab-panel is-active" role="tabpanel" id="panel-collection" aria-labelledby="tab-collection">
+          <div class="book-grid">
+
+            <a class="book-card" href="livre.html">
+              <div class="cover">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">DF · 1982</span>
+                <span class="marks">
+                  <span class="mark owned" title="Possédé"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>
+                </span>
+                <span class="ttl">Le Sorcier de la Montagne de Feu</span>
+              </div>
+              <div class="meta">
+                <span class="t">Le Sorcier de la Montagne de Feu</span>
+                <span class="a">Steve Jackson</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>9.0</span>
+                  <span class="badge-mini">Terminé</span>
+                </span>
+              </div>
+              <div class="quick">
+                <button type="button" aria-label="Voir la fiche"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button type="button" aria-label="Re-noter"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>
+                <button type="button" class="danger" aria-label="Retirer"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+              </div>
+            </a>
+
+            <a class="book-card" href="livre.html">
+              <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, var(--mousse-300), var(--mousse-700));">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">LS · 1985</span>
+                <span class="marks">
+                  <span class="mark owned"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>
+                </span>
+                <span class="ttl">Les Maîtres des Ténèbres</span>
+              </div>
+              <div class="meta">
+                <span class="t">Les Maîtres des Ténèbres</span>
+                <span class="a">Joe Dever · ill. Gary Chalk</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>9.2</span>
+                  <span class="badge-mini">Terminé</span>
+                </span>
+              </div>
+            </a>
+
+            <a class="book-card" href="livre.html">
+              <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, var(--encre-300), var(--encre-700));">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">DF · 1984</span>
+                <span class="marks">
+                  <span class="mark owned"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>
+                  <span class="mark fav" title="Favori"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+                </span>
+                <span class="ttl">La Citadelle Sans Soleil</span>
+              </div>
+              <div class="meta">
+                <span class="t">La Citadelle Sans Soleil</span>
+                <span class="a">Ian Livingstone</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.6</span>
+                  <span class="badge-mini">En cours</span>
+                </span>
+              </div>
+            </a>
+
+            <a class="book-card" href="livre.html">
+              <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, var(--sang-300), var(--sang-700));">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">DF · 1983</span>
+                <span class="marks">
+                  <span class="mark owned"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>
+                </span>
+                <span class="ttl">La Forêt de la Malédiction</span>
+              </div>
+              <div class="meta">
+                <span class="t">La Forêt de la Malédiction</span>
+                <span class="a">Ian Livingstone</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.8</span>
+                  <span class="badge-mini">Terminé</span>
+                </span>
+              </div>
+            </a>
+
+            <a class="book-card" href="livre.html">
+              <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, var(--or-300), var(--or-700));">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">LS · 1987</span>
+                <span class="marks">
+                  <span class="mark owned"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>
+                </span>
+                <span class="ttl">Le Sentier de la Mort</span>
+              </div>
+              <div class="meta">
+                <span class="t">Le Sentier de la Mort</span>
+                <span class="a">Joe Dever</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.4</span>
+                  <span class="badge-mini">Terminé</span>
+                </span>
+              </div>
+            </a>
+
+            <a class="book-card" href="livre.html">
+              <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, var(--parchemin-400), var(--parchemin-600));">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">DF · 1986</span>
+                <span class="marks">
+                  <span class="mark owned"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>
+                </span>
+                <span class="ttl">L'Épée du Samouraï</span>
+              </div>
+              <div class="meta">
+                <span class="t">L'Épée du Samouraï</span>
+                <span class="a">Mark Smith &amp; Jamie Thomson</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>7.9</span>
+                  <span class="badge-mini">Terminé</span>
+                </span>
+              </div>
+            </a>
+
+            <a class="book-card" href="livre.html">
+              <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, var(--cuir-400), var(--cuir-700));">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">QO · 1991</span>
+                <span class="marks">
+                  <span class="mark owned"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>
+                  <span class="mark fav"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+                </span>
+                <span class="ttl">L'Œil d'Émeraude</span>
+              </div>
+              <div class="meta">
+                <span class="t">L'Œil d'Émeraude</span>
+                <span class="a">Ian Livingstone</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>9.1</span>
+                  <span class="badge-mini">Terminé</span>
+                </span>
+              </div>
+            </a>
+
+            <a class="book-card" href="livre.html">
+              <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, #6b4789, #2f1d4a);">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">DF · 1988</span>
+                <span class="marks">
+                  <span class="mark owned"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>
+                </span>
+                <span class="ttl">Magicien d'Arkhalbée</span>
+              </div>
+              <div class="meta">
+                <span class="t">Le Magicien d'Arkhalbée</span>
+                <span class="a">Ian Livingstone</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>7.6</span>
+                  <span class="badge-mini">En cours</span>
+                </span>
+              </div>
+            </a>
+
+            <a class="book-card" href="livre.html">
+              <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, #a8612f, #4a2510);">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">DF · 1985</span>
+                <span class="marks">
+                  <span class="mark owned"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>
+                </span>
+                <span class="ttl">Le Vampire du Château Noir</span>
+              </div>
+              <div class="meta">
+                <span class="t">Le Vampire du Château Noir</span>
+                <span class="a">Keith Martin</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.0</span>
+                  <span class="badge-mini">Terminé</span>
+                </span>
+              </div>
+            </a>
+
+            <a class="book-card" href="livre.html">
+              <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, #3e5a3a, #1a2b18);">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">QO · 1985</span>
+                <span class="marks">
+                  <span class="mark owned"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>
+                </span>
+                <span class="ttl">La Légende des Chevaliers</span>
+              </div>
+              <div class="meta">
+                <span class="t">La Légende des Chevaliers</span>
+                <span class="a">Dave Morris</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.7</span>
+                  <span class="badge-mini">Terminé</span>
+                </span>
+              </div>
+            </a>
+
+            <a class="book-card" href="livre.html">
+              <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, #c97a68, #6b271b);">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">DF · 1987</span>
+                <span class="marks">
+                  <span class="mark owned"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>
+                </span>
+                <span class="ttl">Les Sceaux du Démon</span>
+              </div>
+              <div class="meta">
+                <span class="t">Les Sceaux du Démon</span>
+                <span class="a">Steve Jackson</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.3</span>
+                  <span class="badge-mini">Terminé</span>
+                </span>
+              </div>
+            </a>
+
+            <a class="book-card" href="livre.html">
+              <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, #4a6d8e, #1b2e44);">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">LS · 1990</span>
+                <span class="marks">
+                  <span class="mark owned"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>
+                </span>
+                <span class="ttl">L'Empire du Désordre</span>
+              </div>
+              <div class="meta">
+                <span class="t">L'Empire du Désordre</span>
+                <span class="a">Joe Dever</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.5</span>
+                  <span class="badge-mini">Terminé</span>
+                </span>
+              </div>
+            </a>
+
+          </div>
+
+          <div class="grid-more">
+            <button type="button" class="btn btn-secondary">
+              Voir les 130 ouvrages restants
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- =============== PANEL : À LIRE =============== -->
+        <div class="tab-panel" role="tabpanel" id="panel-tolire" aria-labelledby="tab-tolire" hidden>
+          <div class="book-grid">
+
+            <a class="book-card" href="livre.html">
+              <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, var(--ambre-300), var(--ambre-700));">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">DF · 1989</span>
+                <span class="marks"><span class="mark wish" title="À lire"><svg viewBox="0 0 24 24"><path d="M12 6.04C9.93 4.79 8 4 6 4H3v13h3c2.27 0 4.07.79 6 2 1.93-1.21 3.73-2 6-2h3V4h-3c-2 0-3.93.79-6 2.04z"/></svg></span></span>
+                <span class="ttl">Le Repaire des Vampires</span>
+              </div>
+              <div class="meta">
+                <span class="t">Le Repaire des Vampires</span>
+                <span class="a">Stephen Hand</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.2</span>
+                  <span class="badge-mini" style="color: var(--warning);">Prochain</span>
+                </span>
+              </div>
+            </a>
+
+            <a class="book-card" href="livre.html">
+              <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, #8e6e3a, #3e2e15);">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">DF · 1986</span>
+                <span class="marks"><span class="mark wish"><svg viewBox="0 0 24 24"><path d="M12 6.04C9.93 4.79 8 4 6 4H3v13h3c2.27 0 4.07.79 6 2 1.93-1.21 3.73-2 6-2h3V4h-3c-2 0-3.93.79-6 2.04z"/></svg></span></span>
+                <span class="ttl">Le Marais aux Scorpions</span>
+              </div>
+              <div class="meta">
+                <span class="t">Le Marais aux Scorpions</span>
+                <span class="a">Steve Jackson</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.4</span>
+                  <span class="badge-mini">File d'attente</span>
+                </span>
+              </div>
+            </a>
+
+            <a class="book-card" href="livre.html">
+              <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, var(--mousse-300), var(--mousse-700));">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">LS · 1986</span>
+                <span class="marks"><span class="mark wish"><svg viewBox="0 0 24 24"><path d="M12 6.04C9.93 4.79 8 4 6 4H3v13h3c2.27 0 4.07.79 6 2 1.93-1.21 3.73-2 6-2h3V4h-3c-2 0-3.93.79-6 2.04z"/></svg></span></span>
+                <span class="ttl">La Pierre de la Sagesse</span>
+              </div>
+              <div class="meta">
+                <span class="t">La Pierre de la Sagesse</span>
+                <span class="a">Joe Dever</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.9</span>
+                  <span class="badge-mini">File d'attente</span>
+                </span>
+              </div>
+            </a>
+
+            <a class="book-card" href="livre.html">
+              <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, var(--encre-300), var(--encre-700));">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">QO · 1986</span>
+                <span class="marks"><span class="mark wish"><svg viewBox="0 0 24 24"><path d="M12 6.04C9.93 4.79 8 4 6 4H3v13h3c2.27 0 4.07.79 6 2 1.93-1.21 3.73-2 6-2h3V4h-3c-2 0-3.93.79-6 2.04z"/></svg></span></span>
+                <span class="ttl">La Crypte du Sorcier</span>
+              </div>
+              <div class="meta">
+                <span class="t">La Crypte du Sorcier</span>
+                <span class="a">Oliver Johnson</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>7.9</span>
+                  <span class="badge-mini">File d'attente</span>
+                </span>
+              </div>
+            </a>
+
+            <a class="book-card" href="livre.html">
+              <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, #7d3e6b, #2f1428);">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">DF · 1990</span>
+                <span class="marks"><span class="mark wish"><svg viewBox="0 0 24 24"><path d="M12 6.04C9.93 4.79 8 4 6 4H3v13h3c2.27 0 4.07.79 6 2 1.93-1.21 3.73-2 6-2h3V4h-3c-2 0-3.93.79-6 2.04z"/></svg></span></span>
+                <span class="ttl">L'Île du Roi Lézard</span>
+              </div>
+              <div class="meta">
+                <span class="t">L'Île du Roi Lézard</span>
+                <span class="a">Ian Livingstone</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.1</span>
+                  <span class="badge-mini">File d'attente</span>
+                </span>
+              </div>
+            </a>
+
+            <a class="book-card" href="livre.html">
+              <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, #c08a2e, #4a3210);">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">DF · 1992</span>
+                <span class="marks"><span class="mark wish"><svg viewBox="0 0 24 24"><path d="M12 6.04C9.93 4.79 8 4 6 4H3v13h3c2.27 0 4.07.79 6 2 1.93-1.21 3.73-2 6-2h3V4h-3c-2 0-3.93.79-6 2.04z"/></svg></span></span>
+                <span class="ttl">Tour de la Destruction</span>
+              </div>
+              <div class="meta">
+                <span class="t">La Tour de la Destruction</span>
+                <span class="a">Keith Martin</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>7.7</span>
+                  <span class="badge-mini">File d'attente</span>
+                </span>
+              </div>
+            </a>
+
+          </div>
+
+          <div class="grid-more">
+            <button type="button" class="btn btn-secondary">
+              Voir les 17 prochains
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- =============== PANEL : À ACHETER =============== -->
+        <div class="tab-panel" role="tabpanel" id="panel-toacheter" aria-labelledby="tab-toacheter" hidden>
+          <div class="book-grid">
+
+            <a class="book-card" href="livre.html">
+              <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, #c79460, #6e360e);">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">DF · 1988</span>
+                <span class="marks"><span class="mark wish" style="background: var(--ambre-700);" title="À acheter"><svg viewBox="0 0 24 24"><path d="M6 6h15l-1.5 9h-12L6 6z"/><path d="M6 6 5 3H2"/></svg></span></span>
+                <span class="ttl">Les Mercenaires de l'Aube</span>
+              </div>
+              <div class="meta">
+                <span class="t">Les Mercenaires de l'Aube</span>
+                <span class="a">Marc Gascoigne</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.3</span>
+                  <span class="badge-mini" style="color: var(--warning);">≈ 28&nbsp;€ occ.</span>
+                </span>
+              </div>
+            </a>
+
+            <a class="book-card" href="livre.html">
+              <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, #4a3a8e, #1d1542);">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">DF · 1985</span>
+                <span class="marks"><span class="mark wish" style="background: var(--ambre-700);"><svg viewBox="0 0 24 24"><path d="M6 6h15l-1.5 9h-12L6 6z"/><path d="M6 6 5 3H2"/></svg></span></span>
+                <span class="ttl">L'Île Démon</span>
+              </div>
+              <div class="meta">
+                <span class="t">L'Île Démon</span>
+                <span class="a">Ian Livingstone</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.5</span>
+                  <span class="badge-mini" style="color: var(--warning);">≈ 35&nbsp;€</span>
+                </span>
+              </div>
+            </a>
+
+            <a class="book-card" href="livre.html">
+              <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, var(--sang-300), var(--sang-700));">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">DF · 1991</span>
+                <span class="marks"><span class="mark wish" style="background: var(--ambre-700);"><svg viewBox="0 0 24 24"><path d="M6 6h15l-1.5 9h-12L6 6z"/><path d="M6 6 5 3H2"/></svg></span></span>
+                <span class="ttl">La Crypte des Gargouilles</span>
+              </div>
+              <div class="meta">
+                <span class="t">La Crypte des Gargouilles</span>
+                <span class="a">Stephen Hand</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>7.8</span>
+                  <span class="badge-mini" style="color: var(--danger);">Rare · 80&nbsp;€</span>
+                </span>
+              </div>
+            </a>
+
+            <a class="book-card" href="livre.html">
+              <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, #5a8e6e, #1c3826);">
+                <span class="frame" aria-hidden="true"></span>
+                <span class="bookmark" aria-hidden="true"></span>
+                <span class="ref">QO · 1986</span>
+                <span class="marks"><span class="mark wish" style="background: var(--ambre-700);"><svg viewBox="0 0 24 24"><path d="M6 6h15l-1.5 9h-12L6 6z"/><path d="M6 6 5 3H2"/></svg></span></span>
+                <span class="ttl">La Citadelle Cachée</span>
+              </div>
+              <div class="meta">
+                <span class="t">La Citadelle Cachée</span>
+                <span class="a">Dave Morris</span>
+                <span class="foot">
+                  <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.6</span>
+                  <span class="badge-mini" style="color: var(--success);">Réédition · 15&nbsp;€</span>
+                </span>
+              </div>
+            </a>
+
+          </div>
+        </div>
+
+        <!-- =============== PANEL : FAVORIS =============== -->
+        <div class="tab-panel" role="tabpanel" id="panel-favoris" aria-labelledby="tab-favoris" hidden>
+
+          <div class="subtabs" role="group" aria-label="Type de favori">
+            <button class="subtab" type="button" aria-pressed="true" data-fav-type="livres">Livres <span class="ct">14</span></button>
+            <button class="subtab" type="button" aria-pressed="false" data-fav-type="auteurs">Auteurs <span class="ct">9</span></button>
+            <button class="subtab" type="button" aria-pressed="false" data-fav-type="illustrateurs">Illustrateurs <span class="ct">5</span></button>
+            <button class="subtab" type="button" aria-pressed="false" data-fav-type="editeurs">Collections &amp; Éditeurs <span class="ct">3</span></button>
+          </div>
+
+          <!-- Livres favoris -->
+          <div class="fav-pane" data-pane="livres">
+            <div class="book-grid">
+              <a class="book-card" href="livre.html">
+                <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, var(--cuir-300), var(--cuir-500));">
+                  <span class="frame" aria-hidden="true"></span>
+                  <span class="bookmark" aria-hidden="true"></span>
+                  <span class="ref">DF · 1982</span>
+                  <span class="marks"><span class="mark fav"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span></span>
+                  <span class="ttl">Le Sorcier de la Montagne de Feu</span>
+                </div>
+                <div class="meta">
+                  <span class="t">Le Sorcier de la Montagne de Feu</span>
+                  <span class="a">Steve Jackson</span>
+                  <span class="foot">
+                    <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>9.0</span>
+                    <span class="badge-mini">★ Coup de cœur</span>
+                  </span>
+                </div>
+              </a>
+
+              <a class="book-card" href="livre.html">
+                <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, var(--encre-300), var(--encre-700));">
+                  <span class="frame" aria-hidden="true"></span>
+                  <span class="bookmark" aria-hidden="true"></span>
+                  <span class="ref">DF · 1984</span>
+                  <span class="marks"><span class="mark fav"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span></span>
+                  <span class="ttl">La Citadelle Sans Soleil</span>
+                </div>
+                <div class="meta">
+                  <span class="t">La Citadelle Sans Soleil</span>
+                  <span class="a">Ian Livingstone</span>
+                  <span class="foot">
+                    <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.6</span>
+                    <span class="badge-mini">★ Coup de cœur</span>
+                  </span>
+                </div>
+              </a>
+
+              <a class="book-card" href="livre.html">
+                <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, var(--cuir-400), var(--cuir-700));">
+                  <span class="frame" aria-hidden="true"></span>
+                  <span class="bookmark" aria-hidden="true"></span>
+                  <span class="ref">QO · 1991</span>
+                  <span class="marks"><span class="mark fav"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span></span>
+                  <span class="ttl">L'Œil d'Émeraude</span>
+                </div>
+                <div class="meta">
+                  <span class="t">L'Œil d'Émeraude</span>
+                  <span class="a">Ian Livingstone</span>
+                  <span class="foot">
+                    <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>9.1</span>
+                    <span class="badge-mini">★ Coup de cœur</span>
+                  </span>
+                </div>
+              </a>
+
+              <a class="book-card" href="livre.html">
+                <div class="cover" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(45,24,16,0.08) 10px, rgba(45,24,16,0.08) 11px), linear-gradient(135deg, var(--mousse-300), var(--mousse-700));">
+                  <span class="frame" aria-hidden="true"></span>
+                  <span class="bookmark" aria-hidden="true"></span>
+                  <span class="ref">LS · 1985</span>
+                  <span class="marks"><span class="mark fav"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span></span>
+                  <span class="ttl">Les Maîtres des Ténèbres</span>
+                </div>
+                <div class="meta">
+                  <span class="t">Les Maîtres des Ténèbres</span>
+                  <span class="a">Joe Dever</span>
+                  <span class="foot">
+                    <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>9.2</span>
+                    <span class="badge-mini">★ Coup de cœur</span>
+                  </span>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Auteurs favoris (masqué par défaut) -->
+          <div class="fav-pane" data-pane="auteurs" hidden>
+            <div class="people-grid">
+              <a class="person-card" href="#">
+                <span class="avatar size-lg" style="background: var(--cuir-100); color: var(--cuir-700);">SJ</span>
+                <span class="info">
+                  <span class="role">Auteur · UK</span>
+                  <span class="name">Steve Jackson</span>
+                  <span class="meta">18 ouvrages · Défis Fantastiques</span>
+                </span>
+                <button class="unstar" type="button" aria-label="Retirer des favoris"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+              </a>
+              <a class="person-card" href="#">
+                <span class="avatar size-lg" style="background: var(--mousse-100); color: var(--mousse-700);">IL</span>
+                <span class="info">
+                  <span class="role">Auteur · UK</span>
+                  <span class="name">Ian Livingstone</span>
+                  <span class="meta">22 ouvrages · Défis Fantastiques</span>
+                </span>
+                <button class="unstar" type="button" aria-label="Retirer des favoris"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+              </a>
+              <a class="person-card" href="#">
+                <span class="avatar size-lg" style="background: var(--encre-100); color: var(--encre-700);">JD</span>
+                <span class="info">
+                  <span class="role">Auteur · UK</span>
+                  <span class="name">Joe Dever</span>
+                  <span class="meta">28 ouvrages · Loup Solitaire</span>
+                </span>
+                <button class="unstar" type="button" aria-label="Retirer des favoris"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+              </a>
+              <a class="person-card" href="#">
+                <span class="avatar size-lg" style="background: var(--ambre-100); color: var(--ambre-700);">DM</span>
+                <span class="info">
+                  <span class="role">Auteur · UK</span>
+                  <span class="name">Dave Morris</span>
+                  <span class="meta">12 ouvrages · Quête de l'Oracle</span>
+                </span>
+                <button class="unstar" type="button" aria-label="Retirer des favoris"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+              </a>
+            </div>
+          </div>
+
+          <!-- Illustrateurs favoris -->
+          <div class="fav-pane" data-pane="illustrateurs" hidden>
+            <div class="people-grid">
+              <a class="person-card" href="#">
+                <span class="avatar size-lg" style="background: var(--or-100); color: var(--or-700);">GC</span>
+                <span class="info">
+                  <span class="role">Illustrateur · UK</span>
+                  <span class="name">Gary Chalk</span>
+                  <span class="meta">31 couvertures · Loup Solitaire</span>
+                </span>
+                <button class="unstar" type="button" aria-label="Retirer des favoris"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+              </a>
+              <a class="person-card" href="#">
+                <span class="avatar size-lg" style="background: var(--sang-100); color: var(--sang-700);">IM</span>
+                <span class="info">
+                  <span class="role">Illustrateur · UK</span>
+                  <span class="name">Iain McCaig</span>
+                  <span class="meta">14 couvertures · DF, Sortilèges</span>
+                </span>
+                <button class="unstar" type="button" aria-label="Retirer des favoris"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+              </a>
+            </div>
+          </div>
+
+          <!-- Éditeurs favoris (vide = empty state) -->
+          <div class="fav-pane" data-pane="editeurs" hidden>
+            <div class="empty-state">
+              <span class="empty-crest" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 4 9 8 10 4-1 8-5 8-10V6l-8-4z"/><path d="M12 8v4M12 16h.01"/></svg>
+              </span>
+              <h3 class="lg">Aucune collection en favori</h3>
+              <p class="desc">Marque une collection (Défis Fantastiques, Loup Solitaire, Sortilèges…) ou un éditeur pour être notifié des rééditions et des nouvelles entrées au wiki.</p>
+              <div class="actions">
+                <a href="catalogue.html" class="btn btn-primary">Explorer les collections</a>
+                <a href="#" class="btn btn-ghost btn-sm">En savoir plus</a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ============================== 4. PARAMÈTRES & SÉCURITÉ ============================== -->
+      <section class="settings-section" id="settings" aria-labelledby="settings-title">
+        <div class="settings-head">
+          <div class="ttl">Section IV · Coffre du chroniqueur</div>
+          <h2 id="settings-title">Paramètres &amp; Sécurité</h2>
+          <p class="lede">Gère les informations de compte, les modes de connexion et les droits accordés sur la guilde.</p>
+        </div>
+
+        <div class="settings-grid">
+
+          <!-- =============== INFOS COMPTE =============== -->
+          <article class="settings-card">
+            <header class="head">
+              <h3><span class="num">I</span>Informations du compte</h3>
+              <span class="head-meta">Dernière modif. · il y a 12 j</span>
+            </header>
+            <div class="body">
+              <div class="param-row">
+                <div>
+                  <div class="label">Pseudonyme</div>
+                  <div class="value">Marius Aubry <span class="verified">visible</span></div>
+                </div>
+                <div class="action"><button class="btn-tiny" type="button">Modifier</button></div>
+              </div>
+              <div class="param-row">
+                <div>
+                  <div class="label">Adresse email</div>
+                  <div class="value">marius.aubry@protonmail.com <span class="verified">vérifiée</span></div>
+                </div>
+                <div class="action"><button class="btn-tiny" type="button">Changer</button></div>
+              </div>
+              <div class="param-row">
+                <div>
+                  <div class="label">Région · guilde</div>
+                  <div class="value">Lyon · Auvergne-Rhône-Alpes</div>
+                </div>
+                <div class="action"><button class="btn-tiny" type="button">Modifier</button></div>
+              </div>
+              <div class="param-row">
+                <div>
+                  <div class="label">Photo de profil</div>
+                  <div class="value">Sceau personnalisé "MA"</div>
+                </div>
+                <div class="action"><button class="btn-tiny" type="button">Téléverser</button></div>
+              </div>
+              <div class="param-row">
+                <div>
+                  <div class="label">Profil Taverne lié</div>
+                  <div class="value">@marius_aubry <span class="verified">jeton OAuth actif</span></div>
+                </div>
+                <div class="action"><button class="btn-tiny" type="button">Délier</button></div>
+              </div>
+            </div>
+          </article>
+
+          <!-- =============== CONNEXION =============== -->
+          <article class="settings-card">
+            <header class="head">
+              <h3><span class="num">II</span>Connexion &amp; Sécurité</h3>
+              <span class="head-meta">2 méthodes actives</span>
+            </header>
+            <div class="body">
+              <div class="login-providers">
+                <div class="provider-row">
+                  <span class="icn" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                      <path fill="#4285F4" d="M21.35 11.1H12v2.83h5.39c-.23 1.27-1.4 3.73-5.39 3.73-3.24 0-5.88-2.68-5.88-5.99s2.64-5.99 5.88-5.99c1.84 0 3.08.78 3.79 1.45l2.58-2.49C16.65 3.16 14.55 2.25 12 2.25 6.79 2.25 2.55 6.49 2.55 11.7s4.24 9.45 9.45 9.45c5.46 0 9.07-3.84 9.07-9.24 0-.62-.07-1.1-.17-1.81z"/>
+                    </svg>
+                  </span>
+                  <div class="info">
+                    <div class="name">Connexion Google <span class="badge-conn on">Active</span></div>
+                    <div class="sub">marius.aubry@gmail.com · ajoutée le 14/03/2024</div>
+                  </div>
+                  <button class="btn-tiny" type="button">Délier</button>
+                </div>
+
+                <div class="provider-row">
+                  <span class="icn" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--ink-default)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="6" width="18" height="14" rx="2"/>
+                      <path d="m3 8 9 6 9-6"/>
+                    </svg>
+                  </span>
+                  <div class="info">
+                    <div class="name">Identifiants classiques <span class="badge-conn on">Active</span></div>
+                    <div class="sub">Mot de passe · 12 caractères · ★★★★☆ solide</div>
+                  </div>
+                  <button class="btn-tiny" type="button">Changer</button>
+                </div>
+
+                <div class="provider-row" style="opacity:0.82;">
+                  <span class="icn" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--ink-muted)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="5" y="11" width="14" height="10" rx="2"/>
+                      <path d="M8 11V8a4 4 0 0 1 8 0v3"/>
+                    </svg>
+                  </span>
+                  <div class="info">
+                    <div class="name">Double authentification <span class="badge-conn off">Désactivée</span></div>
+                    <div class="sub">Recommandée pour les modérateurs</div>
+                  </div>
+                  <button class="btn-tiny" type="button" style="color: var(--brand-primary);">Activer</button>
+                </div>
+              </div>
+
+              <div class="param-row" style="margin-top: var(--sp-3);">
+                <div>
+                  <div class="label">Sessions actives</div>
+                  <div class="value">3 appareils · Firefox (Lyon) · iOS · Tablette</div>
+                </div>
+                <div class="action"><button class="btn-tiny" type="button">Gérer</button></div>
+              </div>
+            </div>
+          </article>
+
+          <!-- =============== RÔLE =============== -->
+          <article class="settings-card" style="grid-column: 1 / -1;">
+            <header class="head">
+              <h3><span class="num">III</span>Rôle &amp; permissions dans la guilde</h3>
+              <span class="head-meta">Modifiable par un Admin</span>
+            </header>
+            <div class="body">
+              <div class="role-card">
+                <span class="role-crest" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 4 9 8 10 4-1 8-5 8-10V6l-8-4z"/><path d="m9 12 2 2 4-4"/></svg>
+                </span>
+                <div class="role-info">
+                  <div class="rank">Niveau 2 · sur 3</div>
+                  <div class="ttl">Modérateur de la guilde</div>
+                  <p class="desc">Tu peux relire, valider et corriger les suggestions des aventuriers, et signaler du contenu inapproprié. Les actions de cet ordre sont consignées dans le grand registre.</p>
+                </div>
+              </div>
+
+              <div class="role-permissions">
+                <div class="perm">Lire le catalogue intégral</div>
+                <div class="perm">Déposer notes &amp; commentaires</div>
+                <div class="perm">Suggérer de nouvelles fiches</div>
+                <div class="perm">Valider les suggestions des autres</div>
+                <div class="perm">Corriger les fiches existantes</div>
+                <div class="perm">Signaler du contenu</div>
+                <div class="perm no">Bannir des aventuriers</div>
+                <div class="perm no">Modifier les rôles d'autrui</div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- =============== ZONE DE DANGER =============== -->
+        <div class="danger-zone" role="region" aria-label="Zone de danger">
+          <div class="dz-info">
+            <div class="dz-eyebrow">Zone de danger</div>
+            <div class="dz-title">Quitter la guilde ou supprimer mon compte</div>
+            <p class="dz-desc">Te déconnecter ne supprime rien. Supprimer ton compte efface ton sceau personnel, tes notes et tes listes — tes suggestions validées restent attribuées à <em>« un ancien aventurier »</em>.</p>
+          </div>
+          <div class="dz-actions">
+            <button class="btn btn-secondary" type="button">Se déconnecter</button>
+            <button class="btn btn-danger" type="button">Supprimer mon compte</button>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </main>
+
+  <!-- ============================== MENU BACKDROP (mobile bottom-sheet) ============================== -->
+  <div class="menu-backdrop" id="menu-backdrop" aria-hidden="true"></div>
+
+  <!-- ============================== BOTTOM NAV (mobile) ============================== -->
+  <nav class="bottom-nav" aria-label="Navigation rapide">
+    <a class="bottom-nav-item" href="../dashboard.html"><svg viewBox="0 0 24 24"><path d="M3 12 12 3l9 9"/><path d="M5 10v10h14V10"/></svg>Accueil</a>
+    <a class="bottom-nav-item" href="catalogue.html"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Catalogue</a>
+    <a class="bottom-nav-item" href="suggestions.html"><span class="bottom-nav-fab"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 5v14M5 12h14"/></svg></span><span class="visually-hidden">Nouvelle suggestion</span></a>
+    <a class="bottom-nav-item" href="#"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9z"/></svg>Activité</a>
+    <a class="bottom-nav-item" href="profil.html" aria-current="page"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>Profil</a>
+  </nav>
+
+  <script src="../assets/shell.js"></script>
+  <script src="../assets/search.js"></script>
+  <script>
+    // ============= Tabs principal =============
+    (function () {
+      const buttons = document.querySelectorAll('.tabs-bar .tab-btn');
+      const panels = document.querySelectorAll('.tab-panel');
+      const counts = { collection: 142, tolire: 23, toacheter: 8, favoris: 31 };
+      const counterEl = document.getElementById('panel-count');
+      const unitMap = { collection: 'ouvrages', tolire: 'à lire', toacheter: 'à acheter', favoris: 'favoris' };
+      const unitEl = document.querySelector('.tabs-toolbar .breadcrumb span:nth-of-type(1)');
+
+      function activate(key) {
+        buttons.forEach(b => {
+          const on = b.dataset.tab === key;
+          b.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        panels.forEach(p => {
+          const on = p.id === 'panel-' + key;
+          p.classList.toggle('is-active', on);
+          if (on) p.removeAttribute('hidden'); else p.setAttribute('hidden', '');
+        });
+        if (counterEl) counterEl.textContent = counts[key];
+        if (unitEl) unitEl.textContent = unitMap[key];
+      }
+
+      buttons.forEach(b => b.addEventListener('click', () => activate(b.dataset.tab)));
+
+      // Activate via URL hash (e.g. dashboard "Liste d'achats" → profil.html#tab-toacheter)
+      const validKeys = ['collection', 'tolire', 'toacheter', 'favoris'];
+      function syncFromHash() {
+        const raw = (location.hash || '').replace(/^#/, '');
+        const key = raw.startsWith('tab-') ? raw.slice(4) : raw;
+        if (!validKeys.includes(key)) return;
+        activate(key);
+        const section = document.querySelector('.tabs-section');
+        if (section) {
+          requestAnimationFrame(() => {
+            const top = section.getBoundingClientRect().top + window.scrollY - 72;
+            window.scrollTo({ top, behavior: 'smooth' });
+          });
+        }
+      }
+      syncFromHash();
+      window.addEventListener('hashchange', syncFromHash);
+    })();
+
+    // ============= Sub-tabs Favoris =============
+    (function () {
+      const subs = document.querySelectorAll('.subtab');
+      const panes = document.querySelectorAll('.fav-pane');
+      subs.forEach(s => s.addEventListener('click', () => {
+        const key = s.dataset.favType;
+        subs.forEach(o => o.setAttribute('aria-pressed', o === s ? 'true' : 'false'));
+        panes.forEach(p => {
+          const on = p.dataset.pane === key;
+          if (on) p.removeAttribute('hidden'); else p.setAttribute('hidden', '');
+        });
+      }));
+    })();
+
+    // ============= View switch (grille / liste) — visuel uniquement =============
+    (function () {
+      const btns = document.querySelectorAll('.view-switch button');
+      btns.forEach(b => b.addEventListener('click', () => {
+        btns.forEach(o => o.setAttribute('aria-pressed', o === b ? 'true' : 'false'));
+      }));
+    })();
+
+    // ============= DROPDOWNS : Notifications + User =============
+    (function () {
+      const triggers = [
+        { btn: document.getElementById('notif-trigger'), menu: document.getElementById('notif-menu') },
+        { btn: document.getElementById('user-trigger'),  menu: document.getElementById('user-menu')  },
+      ];
+      const backdrop = document.getElementById('menu-backdrop');
+      const isMobile = () => window.matchMedia('(max-width: 719px)').matches;
+
+      function openMenu(t) {
+        // close others first
+        triggers.forEach(o => { if (o !== t) closeMenu(o); });
+        t.btn.setAttribute('aria-expanded', 'true');
+        t.menu.classList.add('is-open');
+        if (isMobile()) backdrop.classList.add('is-open');
+        // focus first interactive child
+        setTimeout(() => {
+          const first = t.menu.querySelector('a, button, [tabindex]:not([tabindex="-1"])');
+          if (first) first.focus({ preventScroll: true });
+        }, 60);
+      }
+      function closeMenu(t) {
+        t.btn.setAttribute('aria-expanded', 'false');
+        t.menu.classList.remove('is-open');
+        if (!triggers.some(o => o.menu.classList.contains('is-open'))) {
+          backdrop.classList.remove('is-open');
+        }
+      }
+      function toggle(t) {
+        if (t.menu.classList.contains('is-open')) closeMenu(t);
+        else openMenu(t);
+      }
+
+      triggers.forEach(t => {
+        if (!t.btn) return;
+        t.btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggle(t);
+        });
+      });
+
+      // Click outside → close
+      document.addEventListener('click', (e) => {
+        triggers.forEach(t => {
+          if (!t.menu.classList.contains('is-open')) return;
+          if (t.menu.contains(e.target) || t.btn.contains(e.target)) return;
+          closeMenu(t);
+        });
+      });
+
+      // ESC → close all + return focus to trigger
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        triggers.forEach(t => {
+          if (t.menu.classList.contains('is-open')) {
+            closeMenu(t);
+            t.btn.focus();
+          }
+        });
+      });
+
+      // Backdrop click → close
+      backdrop.addEventListener('click', () => {
+        triggers.forEach(closeMenu);
+      });
+
+      // Mark all read
+      const markAll = document.querySelector('[data-action="mark-all-read"]');
+      if (markAll) markAll.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.notif-item.unread').forEach(it => it.classList.remove('unread'));
+        const badge = document.querySelector('#notif-menu .count-badge');
+        if (badge) badge.textContent = '0';
+        const dot = document.querySelector('#notif-trigger .dot');
+        if (dot) dot.style.display = 'none';
+        document.getElementById('notif-trigger').classList.remove('has-unread');
+      });
+    })();
+
+    // ============= Theme switch dans le menu utilisateur =============
+    (function () {
+      const sw = document.getElementById('theme-switch-menu');
+      const name = document.getElementById('theme-name');
+      function sync() {
+        const cur = document.documentElement.getAttribute('data-theme') || 'light';
+        if (sw) sw.checked = cur === 'dark';
+        if (name) name.textContent = cur === 'dark' ? 'Grimoire' : 'Parchemin';
+      }
+      sync();
+      if (sw) sw.addEventListener('change', () => {
+        const next = sw.checked ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        try { localStorage.setItem('lca.theme', next); } catch(_) {}
+        document.querySelectorAll('[data-theme-label]').forEach(el => el.textContent = next === 'dark' ? 'Grimoire' : 'Parchemin');
+        document.querySelectorAll('[data-theme-icon]').forEach(el => el.textContent = next === 'dark' ? '☾' : '☀');
+        sync();
+      });
+      // Observe le toggle externe pour rester en phase
+      new MutationObserver(sync).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    })();
+  </script>
+</body>
+</html>

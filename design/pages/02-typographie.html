@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>02 · Typographie — La Collection des Aventuriers</title>
+  <link rel="stylesheet" href="../assets/tokens.css" />
+  <style>
+    .specimen {
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      background: var(--bg-elevated);
+      padding: var(--sp-5);
+      margin: var(--sp-4) 0;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--sp-3);
+    }
+    @media (min-width: 720px) { .specimen { grid-template-columns: 220px 1fr; } }
+    .specimen-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      color: var(--ink-muted);
+      border-right: 1px dashed var(--border-subtle);
+      padding-right: var(--sp-4);
+    }
+    @media (max-width: 720px) {
+      .specimen-meta { border-right: 0; border-bottom: 1px dashed var(--border-subtle); padding-right: 0; padding-bottom: var(--sp-3); }
+    }
+    .specimen-meta strong { color: var(--ink-strong); font-family: var(--font-display); font-size: var(--fs-md); font-weight: 600; letter-spacing: 0.04em; }
+    .specimen-meta .row { display: flex; justify-content: space-between; gap: 8px; }
+    .specimen-meta .row span:first-child { color: var(--ink-subtle); text-transform: uppercase; font-size: 10px; letter-spacing: var(--tracking-caps); }
+
+    .alphabet-row {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 6vw + 1rem, 5rem);
+      line-height: 1;
+      letter-spacing: 0.04em;
+      color: var(--ink-strong);
+      margin-bottom: var(--sp-2);
+      word-break: keep-all;
+    }
+    .alphabet-sub {
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+    }
+
+    .scale-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: var(--sp-4) 0;
+    }
+    .scale-table th, .scale-table td {
+      text-align: left;
+      padding: var(--sp-3) var(--sp-2);
+      border-bottom: 1px dashed var(--border-subtle);
+      vertical-align: baseline;
+    }
+    .scale-table th {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+      font-weight: 500;
+      border-bottom: 1px solid var(--border-default);
+    }
+    .scale-token { font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--ink-muted); white-space: nowrap; }
+    .scale-meta  { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-subtle); white-space: nowrap; }
+    .scale-sample-display { font-family: var(--font-display); font-weight: 600; color: var(--ink-strong); letter-spacing: 0.04em; line-height: 1.15; }
+    .scale-sample-body    { font-family: var(--font-body); color: var(--ink-strong); line-height: 1.3; }
+
+    .hierarchy {
+      padding: var(--sp-6) var(--sp-5);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      background: var(--bg-elevated);
+      margin: var(--sp-4) 0;
+    }
+    .hierarchy .eyebrow {
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--brand-primary);
+      margin-bottom: var(--sp-2);
+    }
+    .hierarchy h2 { margin-bottom: var(--sp-2); }
+    .hierarchy h3 { margin: var(--sp-4) 0 var(--sp-2); font-size: var(--fs-xl); }
+    .hierarchy p { color: var(--ink-default); max-width: 60ch; }
+    .hierarchy p.lede { font-size: var(--fs-lg); color: var(--ink-muted); }
+    .hierarchy .caption { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-subtle); text-transform: uppercase; letter-spacing: var(--tracking-caps); margin-top: var(--sp-3); display: block; }
+    .hierarchy .data {
+      display: grid;
+      grid-template-columns: max-content 1fr;
+      gap: 4px var(--sp-4);
+      font-family: var(--font-mono);
+      font-size: var(--fs-sm);
+      padding: var(--sp-3);
+      background: var(--bg-sunken);
+      border-radius: var(--radius-sm);
+      margin-top: var(--sp-3);
+    }
+    .hierarchy .data dt { color: var(--ink-subtle); text-transform: uppercase; font-size: 10px; letter-spacing: var(--tracking-caps); }
+    .hierarchy .data dd { margin: 0; color: var(--ink-strong); }
+
+    .weights {
+      display: grid;
+      gap: var(--sp-3);
+      grid-template-columns: 1fr;
+      margin: var(--sp-4) 0;
+    }
+    @media (min-width: 640px) { .weights { grid-template-columns: 1fr 1fr; } }
+    @media (min-width: 960px) { .weights { grid-template-columns: 1fr 1fr 1fr 1fr; } }
+    .weight {
+      padding: var(--sp-4);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      background: var(--bg-elevated);
+    }
+    .weight .num { font-family: var(--font-mono); font-size: 10px; color: var(--ink-subtle); text-transform: uppercase; letter-spacing: var(--tracking-caps); }
+    .weight .word { font-family: var(--font-display); font-size: var(--fs-2xl); letter-spacing: 0.04em; color: var(--ink-strong); margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <header class="ds-header">
+    <a class="ds-brand" href="../index.html">
+      <span class="ds-sigil">A</span>
+      <span class="ds-brand-text">
+        <span class="ds-brand-title">La Collection des Aventuriers</span>
+        <span class="ds-brand-sub">Design System · v0.1</span>
+      </span>
+    </a>
+    <div class="ds-header-actions">
+      <button class="ds-theme-toggle" data-theme-toggle aria-label="Basculer le thème">
+        <span data-theme-icon>☀</span>
+        <span data-theme-label>Parchemin</span>
+      </button>
+    </div>
+  </header>
+
+  <nav class="ds-nav-mobile" aria-label="Pages">
+    <a href="../index.html">Aperçu</a>
+    <a href="01-couleurs.html">Couleurs</a>
+    <a href="02-typographie.html">Typo</a>
+    <a href="03-tokens.html">Tokens</a>
+    <a href="04-boutons-formulaires.html">Boutons</a>
+    <a href="05-cards.html">Cards</a>
+    <a href="06-badges-notation.html">Badges</a>
+    <a href="07-navigation.html">Nav</a>
+    <a href="08-feedback.html">Feedback</a>
+  </nav>
+
+  <div class="ds-shell">
+    <aside class="ds-nav" aria-label="Navigation">
+      <div class="ds-nav-group">
+        <div class="ds-nav-label">Aperçu</div>
+        <a class="ds-nav-link" href="../index.html"><span class="ds-nav-num">00</span>Vue d'ensemble</a>
+      </div>
+      <div class="ds-nav-group">
+        <div class="ds-nav-label">Fondations</div>
+        <a class="ds-nav-link" href="01-couleurs.html"><span class="ds-nav-num">01</span>Couleurs</a>
+        <a class="ds-nav-link" href="02-typographie.html"><span class="ds-nav-num">02</span>Typographie</a>
+        <a class="ds-nav-link" href="03-tokens.html"><span class="ds-nav-num">03</span>Espacement &amp; effets</a>
+      </div>
+      <div class="ds-nav-group">
+        <div class="ds-nav-label">Composants</div>
+        <a class="ds-nav-link" href="04-boutons-formulaires.html"><span class="ds-nav-num">04</span>Boutons &amp; formulaires</a>
+        <a class="ds-nav-link" href="05-cards.html"><span class="ds-nav-num">05</span>Cards Livre &amp; Auteur</a>
+        <a class="ds-nav-link" href="06-badges-notation.html"><span class="ds-nav-num">06</span>Badges &amp; notation</a>
+        <a class="ds-nav-link" href="07-navigation.html"><span class="ds-nav-num">07</span>Navigation &amp; avatars</a>
+        <a class="ds-nav-link" href="08-feedback.html"><span class="ds-nav-num">08</span>Modale &amp; toast</a>
+      </div>
+    </aside>
+
+    <main class="ds-main">
+      <div class="ds-eyebrow">02 · Fondations</div>
+      <h1 class="ds-page-title">Typographie</h1>
+      <p class="ds-lede">
+        Trois familles, jamais plus. <strong>Cinzel</strong> porte l'identité épique des titres,
+        <strong>Inter</strong> assure la lisibilité du corps sur mobile, <strong>IBM Plex Mono</strong>
+        codifie les données techniques d'une fiche (ISBN, pagination, code éditeur).
+      </p>
+
+      <!-- =============== 1. Familles =============== -->
+      <section class="ds-section" id="familles">
+        <div class="ds-section-head">
+          <span class="ds-section-num">2.1</span>
+          <h2>Familles</h2>
+        </div>
+
+        <!-- Cinzel -->
+        <div class="specimen">
+          <div class="specimen-meta">
+            <strong>Cinzel</strong>
+            <div class="row"><span>Rôle</span><span>Display</span></div>
+            <div class="row"><span>Source</span><span>Google Fonts</span></div>
+            <div class="row"><span>Graisses</span><span>400→800</span></div>
+            <div class="row"><span>Token</span><span>--font-display</span></div>
+          </div>
+          <div>
+            <div class="alphabet-row">Aa Bb Cc · 0123</div>
+            <div class="alphabet-sub">ABCDEFGHIJKLMNOPQRSTUVWXYZ · 0123456789 · &amp; ÆŒ</div>
+            <p style="margin-top: var(--sp-4); color: var(--ink-muted);">
+              Serif romain inspiré des inscriptions épigraphiques, ses capitales ouvertes
+              et ses verticales franches lui donnent un caractère <em>épique mais lisible</em>.
+              Réservée aux titres (H1→H3), aux eyebrows et aux noms de livres dans les fiches.
+              Jamais en dessous de 18&nbsp;px ; jamais pour du corps long.
+            </p>
+          </div>
+        </div>
+
+        <!-- Inter -->
+        <div class="specimen">
+          <div class="specimen-meta">
+            <strong>Inter</strong>
+            <div class="row"><span>Rôle</span><span>Body / UI</span></div>
+            <div class="row"><span>Source</span><span>Google Fonts</span></div>
+            <div class="row"><span>Graisses</span><span>300→700</span></div>
+            <div class="row"><span>Token</span><span>--font-body</span></div>
+          </div>
+          <div>
+            <div class="alphabet-row" style="font-family: var(--font-body); font-size: clamp(2rem, 5vw + 0.5rem, 4rem); letter-spacing: -0.01em;">Aa Bb Cc · 0123</div>
+            <div class="alphabet-sub">abcdefghijklmnopqrstuvwxyz · 0123456789 · features ss01 cv11</div>
+            <p style="margin-top: var(--sp-4); color: var(--ink-muted);">
+              Sans-serif optimisé pour l'écran, hinté avec soin sur les petites tailles.
+              Active des <em>OpenType features</em> ciblées : <code>ss01</code> (1 simple) et
+              <code>cv11</code> (a à étage) pour lisibilité maximale dans les fiches denses.
+            </p>
+          </div>
+        </div>
+
+        <!-- Plex Mono -->
+        <div class="specimen">
+          <div class="specimen-meta">
+            <strong>IBM Plex Mono</strong>
+            <div class="row"><span>Rôle</span><span>Données techniques</span></div>
+            <div class="row"><span>Source</span><span>Google Fonts</span></div>
+            <div class="row"><span>Graisses</span><span>400→600</span></div>
+            <div class="row"><span>Token</span><span>--font-mono</span></div>
+          </div>
+          <div>
+            <div class="alphabet-row" style="font-family: var(--font-mono); font-size: clamp(1.5rem, 4vw + 0.25rem, 2.75rem); letter-spacing: 0;">ISBN 978-2-…</div>
+            <div class="alphabet-sub">codes éditeur · pagination · dates · slugs · eyebrows · captions</div>
+            <p style="margin-top: var(--sp-4); color: var(--ink-muted);">
+              Pour tout ce qui est "fiche technique" — ISBN, n° de pages, références éditeur,
+              codes de tirage. Aussi pour les <em>eyebrows</em> en majuscules espacées
+              (étiquettes de section, statuts, captions sous les images).
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- =============== 2. Échelle modulaire =============== -->
+      <section class="ds-section" id="echelle">
+        <div class="ds-section-head">
+          <span class="ds-section-num">2.2</span>
+          <h2>Échelle modulaire</h2>
+        </div>
+        <p class="ds-section-desc">
+          Base 16&nbsp;px, ratio 1.25 (<em>Major Third</em>). Le pas est constant, ce qui
+          assure une harmonie visuelle quel que soit le viewport. Les tailles supérieures
+          à <code>--fs-3xl</code> sont réservées au display (Cinzel) ; en dessous, c'est Inter.
+        </p>
+
+        <div style="overflow-x:auto">
+          <table class="scale-table">
+            <thead>
+              <tr>
+                <th>Token</th>
+                <th>Px / rem</th>
+                <th>Usage</th>
+                <th style="width: 40%;">Échantillon</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="scale-token">--fs-5xl</td>
+                <td class="scale-meta">64 · 4rem</td>
+                <td class="scale-meta">Hero display (desktop)</td>
+                <td><span class="scale-sample-display" style="font-size:64px">Grimoire</span></td>
+              </tr>
+              <tr>
+                <td class="scale-token">--fs-4xl</td>
+                <td class="scale-meta">48 · 3rem</td>
+                <td class="scale-meta">H1 page</td>
+                <td><span class="scale-sample-display" style="font-size:48px">Aventuriers</span></td>
+              </tr>
+              <tr>
+                <td class="scale-token">--fs-3xl</td>
+                <td class="scale-meta">36 · 2.25rem</td>
+                <td class="scale-meta">H1 mobile, H2 desktop</td>
+                <td><span class="scale-sample-display" style="font-size:36px">Récits perdus</span></td>
+              </tr>
+              <tr>
+                <td class="scale-token">--fs-2xl</td>
+                <td class="scale-meta">28 · 1.75rem</td>
+                <td class="scale-meta">H2 mobile, H3 desktop</td>
+                <td><span class="scale-sample-display" style="font-size:28px">Le livre clos</span></td>
+              </tr>
+              <tr>
+                <td class="scale-token">--fs-xl</td>
+                <td class="scale-meta">22 · 1.375rem</td>
+                <td class="scale-meta">H3 mobile, lede</td>
+                <td><span class="scale-sample-display" style="font-size:22px">Sortilèges &amp; sortilèges</span></td>
+              </tr>
+              <tr>
+                <td class="scale-token">--fs-lg</td>
+                <td class="scale-meta">18 · 1.125rem</td>
+                <td class="scale-meta">Sous-titre, lede mobile</td>
+                <td><span class="scale-sample-body" style="font-size:18px">Une suggestion en attente de validation.</span></td>
+              </tr>
+              <tr>
+                <td class="scale-token">--fs-md</td>
+                <td class="scale-meta">16 · 1rem</td>
+                <td class="scale-meta">Corps (base)</td>
+                <td><span class="scale-sample-body" style="font-size:16px">Corps de texte standard pour la lecture.</span></td>
+              </tr>
+              <tr>
+                <td class="scale-token">--fs-sm</td>
+                <td class="scale-meta">14 · 0.875rem</td>
+                <td class="scale-meta">UI dense, métadonnées</td>
+                <td><span class="scale-sample-body" style="font-size:14px">Texte de fiche, libellés secondaires.</span></td>
+              </tr>
+              <tr>
+                <td class="scale-token">--fs-xs</td>
+                <td class="scale-meta">12 · 0.75rem</td>
+                <td class="scale-meta">Caption, eyebrow</td>
+                <td><span class="scale-sample-body" style="font-size:12px">Caption · plus petit acceptable.</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- =============== 3. Hiérarchie en situation =============== -->
+      <section class="ds-section" id="hierarchie">
+        <div class="ds-section-head">
+          <span class="ds-section-num">2.3</span>
+          <h2>Hiérarchie en situation</h2>
+        </div>
+        <p class="ds-section-desc">
+          Une fiche réelle, dans son agencement type. Tous les éléments consomment
+          les tokens — il n'y a aucune valeur écrite à la main dans ce bloc.
+        </p>
+
+        <article class="hierarchy">
+          <div class="eyebrow">FICHE LIVRE · RÉFÉRENCE LCA-0042</div>
+          <h2>Le Sorcier de la Montagne de Feu</h2>
+          <h3 style="color:var(--ink-muted); font-weight: 500;">Steve Jackson &amp; Ian Livingstone — 1982</h3>
+          <p class="lede">Première aventure publiée de la série fondatrice, posant les règles
+          d'un genre dont notre plateforme rassemble aujourd'hui les ramifications.</p>
+          <p>Le récit suit un aventurier solitaire chargé de retrouver un trésor légendaire
+          dans les profondeurs de la Montagne de Feu. Le système de jeu impose au lecteur
+          de gérer Habileté, Endurance et Chance — trois statistiques qui décideront
+          de l'issue de chaque rencontre.</p>
+          <dl class="data">
+            <dt>ISBN</dt><dd>978-2-07-051234-5</dd>
+            <dt>Pages</dt><dd>240 paragraphes</dd>
+            <dt>Éditeur</dt><dd>Gallimard Folio Junior</dd>
+            <dt>Notation</dt><dd>★ ★ ★ ★ ☆ &nbsp; 8.4 / 10</dd>
+          </dl>
+          <span class="caption">Soumis par @marius — Validé par @clemence le 12 mai 2026</span>
+        </article>
+      </section>
+
+      <!-- =============== 4. Graisses =============== -->
+      <section class="ds-section" id="graisses">
+        <div class="ds-section-head">
+          <span class="ds-section-num">2.4</span>
+          <h2>Graisses recommandées</h2>
+        </div>
+        <p class="ds-section-desc">
+          On limite volontairement les graisses chargées par le navigateur — la plateforme
+          étant mobile-first, chaque kilo-octet compte.
+        </p>
+        <div class="weights">
+          <div class="weight"><span class="num">Cinzel · 600</span><div class="word">Titre</div></div>
+          <div class="weight"><span class="num">Cinzel · 700</span><div class="word" style="font-weight:700">Hero</div></div>
+          <div class="weight"><span class="num">Inter · 400</span><div class="word" style="font-family:var(--font-body); font-weight:400">Corps</div></div>
+          <div class="weight"><span class="num">Inter · 500</span><div class="word" style="font-family:var(--font-body); font-weight:500">UI</div></div>
+          <div class="weight"><span class="num">Inter · 600</span><div class="word" style="font-family:var(--font-body); font-weight:600">Strong</div></div>
+          <div class="weight"><span class="num">Inter · 700</span><div class="word" style="font-family:var(--font-body); font-weight:700">CTA</div></div>
+          <div class="weight"><span class="num">Plex Mono · 500</span><div class="word" style="font-family:var(--font-mono); font-weight:500; font-size:var(--fs-xl)">DATA-01</div></div>
+          <div class="weight"><span class="num">Plex Mono · 600</span><div class="word" style="font-family:var(--font-mono); font-weight:600; font-size:var(--fs-xl)">ISBN</div></div>
+        </div>
+      </section>
+
+      <!-- =============== 5. Variables =============== -->
+      <section class="ds-section" id="variables">
+        <div class="ds-section-head">
+          <span class="ds-section-num">2.5</span>
+          <h2>Variables &amp; classes</h2>
+        </div>
+
+        <div class="ds-example">
+          <div class="ds-example-label">
+            <span>SCSS · Bootstrap typo overrides</span>
+            <span>Avant @import bootstrap</span>
+          </div>
+          <div class="ds-example-code">$font-family-sans-serif: "Inter", system-ui, -apple-system, sans-serif;
+$font-family-monospace:  "IBM Plex Mono", "Menlo", monospace;
+$headings-font-family:   "Cinzel", "Trajan Pro", serif;
+$headings-font-weight:   600;
+$headings-letter-spacing: .04em;
+$headings-line-height:    1.15;
+
+$font-size-base: 1rem;          // 16
+$font-size-sm:   .875rem;       // 14
+$line-height-base:  1.55;
+$line-height-sm:    1.3;
+
+$h1-font-size: 3rem;     // 48
+$h2-font-size: 1.75rem;  // 28
+$h3-font-size: 1.375rem; // 22
+$h4-font-size: 1.125rem; // 18
+$h5-font-size: 1rem;
+$h6-font-size: .875rem;
+
+$display-font-family: "Cinzel", serif;
+$display-font-weight: 700;</div>
+        </div>
+
+        <div class="ds-example">
+          <div class="ds-example-label">
+            <span>CSS · classes utilitaires</span>
+            <span>À appliquer directement</span>
+          </div>
+          <div class="ds-example-code">.t-display   { font-family: var(--font-display); letter-spacing: .04em; }
+.t-body      { font-family: var(--font-body); }
+.t-mono      { font-family: var(--font-mono); }
+
+.t-eyebrow   { font-family: var(--font-mono); font-size: .75rem;
+               text-transform: uppercase; letter-spacing: .12em;
+               color: var(--ink-muted); }
+
+.t-data      { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* Échelle */
+.t-fs-xs  { font-size: var(--fs-xs);  }
+.t-fs-sm  { font-size: var(--fs-sm);  }
+.t-fs-md  { font-size: var(--fs-md);  }
+.t-fs-lg  { font-size: var(--fs-lg);  }
+.t-fs-xl  { font-size: var(--fs-xl);  }
+.t-fs-2xl { font-size: var(--fs-2xl); }
+.t-fs-3xl { font-size: var(--fs-3xl); }</div>
+        </div>
+      </section>
+
+      <section class="ds-section" id="effet-typo">
+        <div class="ds-section-head">
+          <span class="ds-section-num">2.6</span>
+          <h2>Effet visuel recherché</h2>
+        </div>
+        <p class="ds-section-desc">
+          L'œil doit ressentir une <strong>tension entre la grandeur des titres</strong>
+          (Cinzel, capitales légèrement espacées, comme gravées dans la pierre) et la
+          <strong>neutralité moderne du corps</strong> (Inter, ouverte, propre, sans
+          aspérités fantasy). Le mono installe une couche "technique d'archive"
+          qui crédibilise les données catalographiques. Aucune fioriture, aucune
+          décoration typographique : l'ambiance vient du <em>contraste</em>, pas de l'ornement.
+        </p>
+      </section>
+
+      <nav class="ds-pager">
+        <a class="prev" href="01-couleurs.html">
+          <span class="ds-pager-eyebrow">← Précédent</span>
+          <span class="ds-pager-title">01 · Couleurs</span>
+        </a>
+        <a class="next" href="03-tokens.html">
+          <span class="ds-pager-eyebrow">Suivant →</span>
+          <span class="ds-pager-title">03 · Espacement &amp; effets</span>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/shell.js"></script>
+</body>
+</html>

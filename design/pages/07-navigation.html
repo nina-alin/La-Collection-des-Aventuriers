@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>07 · Navigation &amp; avatars — La Collection des Aventuriers</title>
+  <link rel="stylesheet" href="../assets/tokens.css" />
+  <link rel="stylesheet" href="../assets/components.css" />
+  <style>
+    /* ============================================================
+       PHONE FRAME — preview mobile pour la bottom nav
+       ============================================================ */
+    .phone {
+      width: 320px;
+      height: 600px;
+      border-radius: 36px;
+      background: var(--bg-page);
+      border: 1px solid var(--border-strong);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .phone-statusbar {
+      height: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 24px 0;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-strong);
+    }
+    .phone-statusbar .right {
+      display: inline-flex; gap: 4px; align-items: center;
+    }
+    .phone-statusbar .battery {
+      width: 22px; height: 10px;
+      border: 1px solid var(--ink-strong);
+      border-radius: 2px;
+      position: relative;
+    }
+    .phone-statusbar .battery::after {
+      content: "";
+      position: absolute;
+      right: -3px; top: 2px;
+      width: 2px; height: 4px;
+      background: var(--ink-strong);
+      border-radius: 0 1px 1px 0;
+    }
+    .phone-statusbar .battery::before {
+      content: "";
+      position: absolute;
+      inset: 1px;
+      width: 70%;
+      background: var(--ink-strong);
+      border-radius: 1px;
+    }
+    .phone-content {
+      flex: 1;
+      padding: var(--sp-3) var(--sp-4);
+      overflow-y: auto;
+      background: var(--bg-page);
+    }
+    .phone-content h3 {
+      font-size: var(--fs-lg);
+      margin-bottom: 6px;
+      color: var(--ink-strong);
+    }
+    .phone-content p {
+      font-size: var(--fs-xs);
+      color: var(--ink-muted);
+      margin-bottom: var(--sp-3);
+    }
+    .phone-skeleton {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .phone-skeleton > div {
+      height: 70px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+    }
+
+    /* ============================================================
+       BOTTOM NAV
+       ============================================================ */
+    .bottom-nav {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+      background: var(--bg-elevated);
+      border-top: 1px solid var(--border-default);
+      padding: 6px 4px max(env(safe-area-inset-bottom, 8px), 8px);
+      box-shadow: 0 -2px 10px -4px rgba(45,24,16,0.10);
+    }
+    [data-theme="dark"] .bottom-nav { box-shadow: 0 -2px 10px -4px rgba(0,0,0,0.4); }
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 8px 4px;
+      border: 0;
+      background: transparent;
+      color: var(--ink-muted);
+      font-family: var(--font-body);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: color var(--motion-fast) var(--motion-ease), background-color var(--motion-fast) var(--motion-ease);
+      min-height: 56px;
+      position: relative;
+      text-decoration: none;
+    }
+    .bottom-nav-item svg {
+      width: 22px; height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .bottom-nav-item:hover { color: var(--ink-default); }
+    .bottom-nav-item[aria-current="page"] {
+      color: var(--brand-primary);
+    }
+    .bottom-nav-item[aria-current="page"] svg { stroke-width: 2; }
+    .bottom-nav-item[aria-current="page"]::before {
+      content: "";
+      position: absolute;
+      top: -7px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 28px; height: 3px;
+      background: var(--brand-primary);
+      border-radius: 0 0 999px 999px;
+    }
+    .bottom-nav-item .nav-badge {
+      position: absolute;
+      top: 4px;
+      right: calc(50% - 18px);
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      background: var(--danger);
+      color: #fff;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 600;
+      display: grid;
+      place-items: center;
+      line-height: 1;
+    }
+    /* FAB-like central */
+    .bottom-nav-fab {
+      width: 48px; height: 48px;
+      margin-top: -16px;
+      margin-bottom: -2px;
+      background: var(--brand-primary);
+      color: var(--brand-primary-ink);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      box-shadow: var(--shadow-md);
+    }
+    .bottom-nav-fab svg { width: 22px; height: 22px; }
+
+    /* ============================================================
+       TABS
+       ============================================================ */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--border-default);
+      overflow-x: auto;
+      scrollbar-width: none;
+      margin-bottom: var(--sp-3);
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      appearance: none;
+      background: transparent;
+      border: 0;
+      padding: 12px 16px;
+      font-family: var(--font-body);
+      font-size: var(--fs-sm);
+      font-weight: 500;
+      color: var(--ink-muted);
+      cursor: pointer;
+      position: relative;
+      transition: color var(--motion-fast) var(--motion-ease);
+      white-space: nowrap;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tab:hover { color: var(--ink-strong); }
+    .tab[aria-selected="true"] {
+      color: var(--brand-primary);
+      font-weight: 600;
+    }
+    .tab[aria-selected="true"]::after {
+      content: "";
+      position: absolute;
+      bottom: -1px; left: 12px; right: 12px;
+      height: 2px;
+      background: var(--brand-primary);
+      border-radius: 2px 2px 0 0;
+    }
+    .tab .count {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: var(--bg-sunken);
+      color: var(--ink-muted);
+    }
+    .tab[aria-selected="true"] .count {
+      background: color-mix(in oklab, var(--brand-primary) 14%, transparent);
+      color: var(--brand-primary);
+    }
+
+    /* Tabs — variante pills */
+    .tabs-pills {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      background: var(--bg-sunken);
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border-subtle);
+    }
+    .tab-pill {
+      appearance: none;
+      background: transparent;
+      border: 0;
+      padding: 8px 16px;
+      border-radius: var(--radius-pill);
+      font-size: var(--fs-sm);
+      font-weight: 500;
+      color: var(--ink-muted);
+      cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+      font-family: var(--font-body);
+    }
+    .tab-pill:hover { color: var(--ink-strong); }
+    .tab-pill[aria-selected="true"] {
+      background: var(--bg-elevated);
+      color: var(--ink-strong);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tab-panel {
+      padding: var(--sp-4);
+      background: var(--bg-sunken);
+      border-radius: var(--radius-md);
+      font-size: var(--fs-sm);
+      color: var(--ink-muted);
+    }
+
+    /* Contributor list */
+    .contrib-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      width: 100%;
+      max-width: 480px;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--bg-elevated);
+    }
+    .contrib {
+      display: grid;
+      grid-template-columns: 40px 1fr auto;
+      gap: var(--sp-3);
+      align-items: center;
+      padding: 10px var(--sp-3);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .contrib:last-child { border-bottom: 0; }
+    .contrib-name { font-family: var(--font-body); font-weight: 600; font-size: var(--fs-sm); color: var(--ink-strong); }
+    .contrib-handle { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-muted); }
+    .contrib-meta { display: flex; align-items: center; gap: 8px; }
+  </style>
+</head>
+<body>
+  <header class="ds-header">
+    <a class="ds-brand" href="../index.html">
+      <span class="ds-sigil">A</span>
+      <span class="ds-brand-text">
+        <span class="ds-brand-title">La Collection des Aventuriers</span>
+        <span class="ds-brand-sub">Design System · v0.1</span>
+      </span>
+    </a>
+    <div class="ds-header-actions">
+      <button class="ds-theme-toggle" data-theme-toggle aria-label="Basculer le thème">
+        <span data-theme-icon>☀</span>
+        <span data-theme-label>Parchemin</span>
+      </button>
+    </div>
+  </header>
+
+  <nav class="ds-nav-mobile" aria-label="Pages">
+    <a href="../index.html">Aperçu</a>
+    <a href="01-couleurs.html">Couleurs</a>
+    <a href="02-typographie.html">Typo</a>
+    <a href="03-tokens.html">Tokens</a>
+    <a href="04-boutons-formulaires.html">Boutons</a>
+    <a href="05-cards.html">Cards</a>
+    <a href="06-badges-notation.html">Badges</a>
+    <a href="07-navigation.html">Nav</a>
+    <a href="08-feedback.html">Feedback</a>
+  </nav>
+
+  <div class="ds-shell">
+    <aside class="ds-nav" aria-label="Navigation">
+      <div class="ds-nav-group">
+        <div class="ds-nav-label">Aperçu</div>
+        <a class="ds-nav-link" href="../index.html"><span class="ds-nav-num">00</span>Vue d'ensemble</a>
+      </div>
+      <div class="ds-nav-group">
+        <div class="ds-nav-label">Fondations</div>
+        <a class="ds-nav-link" href="01-couleurs.html"><span class="ds-nav-num">01</span>Couleurs</a>
+        <a class="ds-nav-link" href="02-typographie.html"><span class="ds-nav-num">02</span>Typographie</a>
+        <a class="ds-nav-link" href="03-tokens.html"><span class="ds-nav-num">03</span>Espacement &amp; effets</a>
+      </div>
+      <div class="ds-nav-group">
+        <div class="ds-nav-label">Composants</div>
+        <a class="ds-nav-link" href="04-boutons-formulaires.html"><span class="ds-nav-num">04</span>Boutons &amp; formulaires</a>
+        <a class="ds-nav-link" href="05-cards.html"><span class="ds-nav-num">05</span>Cards Livre &amp; Auteur</a>
+        <a class="ds-nav-link" href="06-badges-notation.html"><span class="ds-nav-num">06</span>Badges &amp; notation</a>
+        <a class="ds-nav-link" href="07-navigation.html"><span class="ds-nav-num">07</span>Navigation &amp; avatars</a>
+        <a class="ds-nav-link" href="08-feedback.html"><span class="ds-nav-num">08</span>Modale &amp; toast</a>
+      </div>
+    </aside>
+
+    <main class="ds-main">
+      <div class="ds-eyebrow">07 · Composants</div>
+      <h1 class="ds-page-title">Navigation &amp; avatars</h1>
+      <p class="ds-lede">
+        L'expérience étant mobile-first, la <strong>bottom nav</strong> est la colonne
+        vertébrale de l'app. Les <strong>tabs</strong> structurent le détail d'une fiche ;
+        les <strong>avatars</strong> identifient les contributeurs avec leur rôle.
+      </p>
+
+      <!-- =============== Bottom nav =============== -->
+      <section class="ds-section" id="bottom-nav">
+        <div class="ds-section-head">
+          <span class="ds-section-num">7.1</span>
+          <h2>Bottom navigation</h2>
+        </div>
+        <p class="ds-section-desc">
+          Cinq destinations maximum — la quatrième est un <strong>FAB central</strong>
+          dédié à la suggestion de livre, l'action que la plateforme veut encourager.
+          L'indicateur actif est une <em>barre courte</em> sous l'icône, plus un changement
+          de couleur (cuir). Toujours hit-target ≥ 56 px de haut.
+        </p>
+
+        <div class="ds-example">
+          <div class="ds-example-label"><span>Preview mobile · 320×600</span><span>Onglet "Catalogue" actif</span></div>
+          <div class="ds-example-canvas center" style="background: var(--bg-sunken);">
+            <div class="phone">
+              <div class="phone-statusbar">
+                <span>9:42</span>
+                <span class="right">
+                  <span>5G</span>
+                  <span class="battery"></span>
+                </span>
+              </div>
+              <div class="phone-content">
+                <h3>Catalogue</h3>
+                <p>2 481 fiches · 156 auteurs · 12 nouveaux ce mois</p>
+                <div class="phone-skeleton">
+                  <div></div><div></div><div></div><div></div><div></div>
+                </div>
+              </div>
+              <nav class="bottom-nav" aria-label="Navigation principale">
+                <a href="#" class="bottom-nav-item">
+                  <svg viewBox="0 0 24 24"><path d="M3 12L12 4l9 8"/><path d="M5 10v10a1 1 0 0 0 1 1h4v-7h4v7h4a1 1 0 0 0 1-1V10"/></svg>
+                  Accueil
+                </a>
+                <a href="#" class="bottom-nav-item" aria-current="page">
+                  <svg viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h11v16H6a2 2 0 0 1-2-2z"/><path d="M17 4v16M9 8h5M9 12h5"/></svg>
+                  Catalogue
+                </a>
+                <a href="#" class="bottom-nav-item" aria-label="Suggérer un livre">
+                  <span class="bottom-nav-fab">
+                    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+                  </span>
+                </a>
+                <a href="#" class="bottom-nav-item">
+                  <svg viewBox="0 0 24 24"><path d="M19 14c1.5-2.5 1-6-1-8s-5.5-2.5-8-1-3.5 5-2 7.5L4 19l6.5-4c2.5 1.5 6 1 8.5-1z"/></svg>
+                  Suggestions
+                  <span class="nav-badge">3</span>
+                </a>
+                <a href="#" class="bottom-nav-item">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
+                  Profil
+                </a>
+              </nav>
+            </div>
+          </div>
+        </div>
+
+        <div class="ds-example">
+          <div class="ds-example-label"><span>HTML · pattern</span><span>5 destinations · 1 FAB</span></div>
+          <div class="ds-example-code">&lt;nav class="bottom-nav" aria-label="Navigation principale"&gt;
+  &lt;a class="bottom-nav-item" href="/"&gt;&lt;svg .../&gt; Accueil&lt;/a&gt;
+  &lt;a class="bottom-nav-item" aria-current="page" href="/catalogue"&gt;
+    &lt;svg .../&gt; Catalogue
+  &lt;/a&gt;
+  &lt;a class="bottom-nav-item" href="/suggerer" aria-label="Suggérer"&gt;
+    &lt;span class="bottom-nav-fab"&gt;&lt;svg .../&gt;&lt;/span&gt;
+  &lt;/a&gt;
+  &lt;a class="bottom-nav-item" href="/suggestions"&gt;
+    &lt;svg .../&gt; Suggestions
+    &lt;span class="nav-badge"&gt;3&lt;/span&gt;
+  &lt;/a&gt;
+  &lt;a class="bottom-nav-item" href="/profil"&gt;&lt;svg .../&gt; Profil&lt;/a&gt;
+&lt;/nav&gt;</div>
+        </div>
+      </section>
+
+      <!-- =============== Tabs =============== -->
+      <section class="ds-section" id="tabs">
+        <div class="ds-section-head">
+          <span class="ds-section-num">7.2</span>
+          <h2>Tabs</h2>
+        </div>
+        <p class="ds-section-desc">
+          Deux variantes. Les <strong>tabs soulignés</strong> structurent les sections
+          d'une fiche livre (Description, Suggestions, Commentaires…). Les
+          <strong>tabs en pills</strong> servent aux filtres rapides.
+        </p>
+
+        <div class="ds-example">
+          <div class="ds-example-label"><span>Tabs soulignés</span><span>Onglet "Suggestions" actif</span></div>
+          <div class="ds-example-canvas column">
+            <div role="tablist" class="tabs">
+              <button class="tab" role="tab">Description</button>
+              <button class="tab" role="tab" aria-selected="true">
+                Suggestions
+                <span class="count">3</span>
+              </button>
+              <button class="tab" role="tab">Commentaires <span class="count">42</span></button>
+              <button class="tab" role="tab">Éditions</button>
+              <button class="tab" role="tab">Historique</button>
+            </div>
+            <div class="tab-panel">
+              Trois suggestions d'enrichissement de cette fiche sont en attente.
+              <strong style="color: var(--ink-strong)">@marius</strong> propose l'ajout
+              du tirage spécial 2024, <strong style="color: var(--ink-strong)">@clemence</strong>
+              corrige l'éditeur original.
+            </div>
+          </div>
+        </div>
+
+        <div class="ds-example">
+          <div class="ds-example-label"><span>Tabs en pills</span><span>Filtres rapides</span></div>
+          <div class="ds-example-canvas">
+            <div class="tabs-pills" role="tablist">
+              <button class="tab-pill" role="tab" aria-selected="true">Tout</button>
+              <button class="tab-pill" role="tab">En attente</button>
+              <button class="tab-pill" role="tab">Validées</button>
+              <button class="tab-pill" role="tab">Refusées</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =============== Avatars =============== -->
+      <section class="ds-section" id="avatars">
+        <div class="ds-section-head">
+          <span class="ds-section-num">7.3</span>
+          <h2>Avatars &amp; liste contributeurs</h2>
+        </div>
+        <p class="ds-section-desc">
+          Initiales par défaut (Cinzel, fond cuir clair) — remplaçables par une photo.
+          Une pastille colorée en bas à droite indique le rôle&nbsp;: neutre (utilisateur),
+          encre (modérateur), cuir (admin).
+        </p>
+
+        <div class="ds-example">
+          <div class="ds-example-label"><span>Tailles</span><span>XS · SM · MD · LG · XL</span></div>
+          <div class="ds-example-canvas" style="align-items: end;">
+            <span class="avatar size-xs">MA</span>
+            <span class="avatar size-sm">CL</span>
+            <span class="avatar size-md">JD</span>
+            <span class="avatar size-lg">IL</span>
+            <span class="avatar size-xl">SJ</span>
+          </div>
+        </div>
+
+        <div class="ds-example">
+          <div class="ds-example-label"><span>Avec indicateur de rôle</span><span>3 niveaux</span></div>
+          <div class="ds-example-canvas" style="align-items: end;">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <span class="avatar size-lg">MA<span class="avatar-role"></span></span>
+              <span class="badge badge-role-user"><span class="dot"></span>Utilisateur</span>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <span class="avatar size-lg">CL<span class="avatar-role mod"></span></span>
+              <span class="badge badge-role-mod"><span class="dot"></span>Modérateur</span>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <span class="avatar size-lg">RP<span class="avatar-role admin"></span></span>
+              <span class="badge badge-role-admin"><span class="dot"></span>Admin</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ds-example">
+          <div class="ds-example-label"><span>Groupe — avatar-list</span><span>Empilés -10 px</span></div>
+          <div class="ds-example-canvas">
+            <div class="avatar-list">
+              <span class="avatar size-md">MA</span>
+              <span class="avatar size-md" style="background: var(--encre-100); color: var(--encre-700);">CL</span>
+              <span class="avatar size-md" style="background: var(--mousse-100); color: var(--mousse-700);">JD</span>
+              <span class="avatar size-md" style="background: var(--or-100); color: var(--or-700);">IL</span>
+              <span class="avatar size-md" style="background: var(--sang-100); color: var(--sang-700);">+ 18</span>
+            </div>
+            <span style="font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-muted); margin-left: var(--sp-3);">22 contributeurs</span>
+          </div>
+        </div>
+
+        <div class="ds-example">
+          <div class="ds-example-label"><span>Liste contributeurs · suivi des suggestions</span><span>Avatar + nom + rôle + métrique</span></div>
+          <div class="ds-example-canvas column">
+            <div class="contrib-list">
+              <div class="contrib">
+                <span class="avatar size-md">MA<span class="avatar-role"></span></span>
+                <div>
+                  <div class="contrib-name">Marius Aubry</div>
+                  <div class="contrib-handle">@marius_a</div>
+                </div>
+                <div class="contrib-meta">
+                  <span class="badge badge-role-user"><span class="dot"></span>Utilisateur</span>
+                  <span style="font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-muted);">42 suggestions</span>
+                </div>
+              </div>
+              <div class="contrib">
+                <span class="avatar size-md" style="background: var(--encre-100); color: var(--encre-700);">CL<span class="avatar-role mod"></span></span>
+                <div>
+                  <div class="contrib-name">Clémence Lartigue</div>
+                  <div class="contrib-handle">@clem</div>
+                </div>
+                <div class="contrib-meta">
+                  <span class="badge badge-role-mod"><span class="dot"></span>Modérateur</span>
+                  <span style="font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-muted);">387 validations</span>
+                </div>
+              </div>
+              <div class="contrib">
+                <span class="avatar size-md" style="background: var(--or-100); color: var(--or-700);">RP<span class="avatar-role admin"></span></span>
+                <div>
+                  <div class="contrib-name">Romain Pareau</div>
+                  <div class="contrib-handle">@romainp</div>
+                </div>
+                <div class="contrib-meta">
+                  <span class="badge badge-role-admin"><span class="dot"></span>Admin</span>
+                  <span style="font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-muted);">Plateforme</span>
+                </div>
+              </div>
+              <div class="contrib">
+                <span class="avatar size-md" style="background: var(--mousse-100); color: var(--mousse-700);">JD<span class="avatar-role"></span></span>
+                <div>
+                  <div class="contrib-name">Juliette Daumas</div>
+                  <div class="contrib-handle">@juliette_d</div>
+                </div>
+                <div class="contrib-meta">
+                  <span class="badge badge-role-user"><span class="dot"></span>Utilisateur</span>
+                  <span style="font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-muted);">18 suggestions</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="ds-section" id="effet-nav">
+        <div class="ds-section-head">
+          <span class="ds-section-num">7.4</span>
+          <h2>Effet visuel recherché</h2>
+        </div>
+        <p class="ds-section-desc">
+          La navigation reste <strong>discrète et fonctionnelle</strong>&nbsp;: la fantasy
+          n'a pas sa place dans le chrome — elle vit dans le contenu (cards, titres,
+          notations). Le FAB cuir est l'unique élément expressif de la bottom nav&nbsp;:
+          il porte à lui seul l'invitation à contribuer, qui est la promesse de la plateforme.
+        </p>
+      </section>
+
+      <nav class="ds-pager">
+        <a class="prev" href="06-badges-notation.html">
+          <span class="ds-pager-eyebrow">← Précédent</span>
+          <span class="ds-pager-title">06 · Badges &amp; notation</span>
+        </a>
+        <a class="next" href="08-feedback.html">
+          <span class="ds-pager-eyebrow">Suivant →</span>
+          <span class="ds-pager-title">08 · Modale &amp; toast</span>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/shell.js"></script>
+</body>
+</html>

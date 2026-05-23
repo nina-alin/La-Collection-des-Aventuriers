@@ -1,0 +1,2084 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Loup Solitaire — Collection · La Collection des Aventuriers</title>
+  <link rel="stylesheet" href="../assets/tokens.css" />
+  <link rel="stylesheet" href="../assets/components.css" />
+  <style>
+    /* ============================================================
+       CONTAINER + SESSION HEADER (cohérent avec catalogue / livre)
+       ============================================================ */
+    .container {
+      width: 100%;
+      max-width: 1320px;
+      margin: 0 auto;
+      padding-left: var(--sp-4);
+      padding-right: var(--sp-4);
+    }
+    @media (min-width: 720px) { .container { padding-left: var(--sp-6); padding-right: var(--sp-6); } }
+
+    .session-header {
+      position: sticky; top: 0; z-index: 40;
+      background: color-mix(in oklab, var(--bg-page) 88%, transparent);
+      backdrop-filter: saturate(140%) blur(10px);
+      -webkit-backdrop-filter: saturate(140%) blur(10px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .sh-inner {
+      display: grid; grid-template-columns: auto 1fr auto;
+      gap: var(--sp-4); align-items: center;
+      padding: 12px 0; min-height: 64px;
+    }
+    .sh-left { display: flex; align-items: center; gap: var(--sp-5); min-width: 0; }
+    .sh-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink-strong); }
+    .sh-brand:hover { text-decoration: none; }
+    .sh-sigil {
+      width: 36px; height: 36px;
+      display: grid; place-items: center;
+      border: 1.5px solid var(--cuir-500); border-radius: 50%;
+      color: var(--cuir-500); font-family: var(--font-display);
+      font-weight: 700; font-size: 16px; background: var(--bg-elevated);
+      letter-spacing: 0.04em; flex-shrink: 0; position: relative;
+    }
+    .sh-sigil::before { content: ""; position: absolute; inset: 3px; border: 1px dashed var(--cuir-300); border-radius: 50%; }
+    [data-theme="dark"] .sh-sigil { border-color: var(--or-400); color: var(--or-400); }
+    [data-theme="dark"] .sh-sigil::before { border-color: var(--or-700); }
+    .sh-brand-mark { font-family: var(--font-display); font-size: 14px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink-strong); white-space: nowrap; }
+    @media (max-width: 720px) { .sh-brand-mark { display: none; } }
+
+    .sh-nav { display: flex; gap: 2px; }
+    @media (max-width: 879px) { .sh-nav { display: none; } }
+    .sh-nav a {
+      padding: 8px 14px;
+      font-family: var(--font-body); font-size: var(--fs-sm); font-weight: 500;
+      color: var(--ink-muted); text-decoration: none;
+      border-radius: var(--radius-sm);
+      transition: all var(--motion-fast) var(--motion-ease);
+      position: relative;
+    }
+    .sh-nav a:hover { color: var(--ink-strong); background: var(--bg-sunken); text-decoration: none; }
+    .sh-nav a[aria-current="page"] { color: var(--brand-primary); font-weight: 600; }
+    .sh-nav a[aria-current="page"]::after {
+      content: ""; position: absolute; left: 14px; right: 14px; bottom: -16px;
+      height: 2px; background: var(--brand-primary); border-radius: 2px 2px 0 0;
+    }
+
+    .sh-search {
+      flex: 1; max-width: 480px; justify-self: center; width: 100%;
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 12px; background: var(--bg-elevated);
+      border: 1px solid var(--border-default); border-radius: var(--radius-pill);
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .sh-search:focus-within { border-color: var(--brand-primary); box-shadow: var(--ring-focus); }
+    .sh-search svg { width: 16px; height: 16px; stroke: var(--ink-muted); fill: none; stroke-width: 1.8; stroke-linecap: round; flex-shrink: 0; }
+    .sh-search input {
+      flex: 1; border: 0; background: transparent;
+      min-height: 32px; padding: 0;
+      font-family: var(--font-body); font-size: var(--fs-sm);
+      color: var(--ink-strong); outline: none; min-width: 0;
+    }
+    .sh-search input::placeholder { color: var(--ink-muted); }
+    @media (max-width: 880px) { .sh-search { display: none; } }
+
+    .sh-right { display: flex; align-items: center; gap: var(--sp-2); justify-self: end; }
+    .sh-icon-btn {
+      position: relative; width: 40px; height: 40px;
+      display: grid; place-items: center; background: transparent;
+      border: 1px solid var(--border-default); border-radius: 50%;
+      color: var(--ink-default); cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .sh-icon-btn:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .sh-icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .sh-icon-btn .dot {
+      position: absolute; top: 7px; right: 7px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--danger); border: 2px solid var(--bg-page);
+    }
+
+    .sh-user {
+      display: flex; align-items: center; gap: 10px;
+      padding: 4px 12px 4px 4px;
+      background: var(--bg-elevated); border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill); cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .sh-user:hover { border-color: var(--brand-primary); }
+    .sh-user-text { display: flex; flex-direction: column; line-height: 1.1; }
+    @media (max-width: 600px) { .sh-user-text { display: none; } .sh-user { padding: 2px; } }
+    .sh-user-name { font-family: var(--font-body); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-strong); }
+    .sh-user-role { font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--info); }
+    .sh-user-chevron { color: var(--ink-muted); width: 14px; height: 14px; }
+    @media (max-width: 600px) { .sh-user-chevron { display: none; } }
+
+    /* ============================================================
+       BREADCRUMB
+       ============================================================ */
+    .crumbs {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+      padding: var(--sp-4) 0 0;
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+    }
+    .crumbs a { color: var(--ink-muted); text-decoration: none; }
+    .crumbs a:hover { color: var(--brand-primary); }
+    .crumbs .sep { color: var(--ink-subtle); }
+    .crumbs .here { color: var(--ink-strong); }
+
+    /* ============================================================
+       COLLECTION HERO — emblem + title + progress
+       ============================================================ */
+    .coll-hero {
+      padding: var(--sp-5) 0 var(--sp-6);
+      display: grid;
+      gap: var(--sp-6);
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 880px) {
+      .coll-hero {
+        grid-template-columns: minmax(220px, 280px) 1fr;
+        gap: var(--sp-7);
+        align-items: start;
+      }
+    }
+
+    /* Emblem column — circular sigil over decorative parchment plaque */
+    .coll-emblem {
+      position: relative;
+      aspect-ratio: 1;
+      max-width: 280px;
+      width: 100%;
+      margin: 0 auto;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 30% 28%, rgba(255,247,224,0.45) 0, transparent 38%),
+        repeating-conic-gradient(from 0deg,
+          var(--cuir-500) 0deg, var(--cuir-600) 8deg,
+          var(--cuir-500) 16deg);
+      color: var(--parchemin-50);
+      box-shadow: var(--shadow-lg), inset 0 -8px 22px rgba(45,24,16,0.35), inset 0 4px 10px rgba(255,247,224,0.18);
+      display: grid; place-items: center;
+      isolation: isolate;
+    }
+    [data-theme="dark"] .coll-emblem {
+      background:
+        radial-gradient(circle at 30% 28%, rgba(255,247,224,0.22) 0, transparent 40%),
+        repeating-conic-gradient(from 0deg,
+          var(--cuir-700) 0deg, var(--cuir-800) 8deg,
+          var(--cuir-700) 16deg);
+    }
+    .coll-emblem::before {
+      content: "";
+      position: absolute; inset: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--or-400);
+      box-shadow: inset 0 0 0 2px rgba(245,236,217,0.25);
+      pointer-events: none;
+    }
+    .coll-emblem::after {
+      content: "";
+      position: absolute; inset: 26px;
+      border-radius: 50%;
+      border: 1px dashed rgba(245,236,217,0.55);
+      pointer-events: none;
+    }
+    .coll-emblem-inner {
+      position: relative;
+      width: 62%; aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 32%, var(--cuir-300), var(--cuir-700) 80%);
+      display: grid; place-items: center;
+      box-shadow: inset 0 -10px 18px rgba(0,0,0,0.32), inset 0 4px 12px rgba(245,236,217,0.25);
+    }
+    .coll-emblem-glyph {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 6vw, 3.6rem);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--or-200);
+      text-shadow: 0 2px 1px rgba(0,0,0,0.45), 0 -1px 0 rgba(245,236,217,0.25);
+    }
+    .coll-emblem-ribbon {
+      position: absolute;
+      bottom: 6%; left: 50%;
+      transform: translateX(-50%);
+      padding: 5px 12px 4px;
+      background: var(--grimoire-200);
+      color: var(--or-200);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      border: 1px solid var(--or-700);
+      border-radius: 2px;
+      box-shadow: var(--shadow-sm);
+      white-space: nowrap;
+    }
+
+    /* Content column */
+    .coll-eyebrow {
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: var(--sp-3);
+      display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+    }
+    .coll-eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--cuir-400); }
+    .coll-eyebrow .pin { color: var(--ink-subtle); }
+    .coll-eyebrow .sep { color: var(--ink-subtle); }
+
+    .coll-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.85rem, 3.8vw + 0.5rem, 3rem);
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      line-height: 1.05;
+      color: var(--ink-strong);
+      margin: 0 0 var(--sp-2);
+      text-wrap: balance;
+    }
+    .coll-title-original {
+      font-family: var(--font-body);
+      font-style: italic;
+      font-size: var(--fs-lg);
+      color: var(--ink-muted);
+      line-height: 1.35;
+      margin: 0;
+    }
+    .coll-title-original .label {
+      font-family: var(--font-mono);
+      font-style: normal;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+      margin-right: 6px;
+    }
+
+    .coll-meta {
+      display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-5);
+      margin-top: var(--sp-4);
+      padding: var(--sp-3) 0;
+      border-top: 1px dashed var(--border-default);
+      border-bottom: 1px dashed var(--border-default);
+    }
+    .coll-meta dt {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+      margin-bottom: 2px;
+    }
+    .coll-meta dd {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: var(--fs-md);
+      color: var(--ink-strong);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .coll-meta dd .out { color: var(--ink-muted); font-family: var(--font-mono); font-weight: 400; font-size: var(--fs-sm); }
+
+    /* CTA row — wax seal favorite + secondary actions */
+    .coll-cta {
+      display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3);
+      margin-top: var(--sp-5);
+    }
+
+    /* Wax-seal / gold medal favorite button */
+    .seal-btn {
+      appearance: none;
+      position: relative;
+      display: inline-flex; align-items: center; gap: 14px;
+      padding: 6px 22px 6px 6px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--or-700);
+      border-radius: var(--radius-pill);
+      color: var(--ink-strong);
+      font-family: var(--font-display);
+      font-size: var(--fs-sm);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+      box-shadow: var(--shadow-sm);
+    }
+    .seal-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); border-color: var(--or-500); }
+    .seal-btn:focus-visible { outline: none; box-shadow: var(--ring-focus); }
+    .seal-btn .seal {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      background:
+        radial-gradient(circle at 32% 28%, rgba(255,247,224,0.45) 0, transparent 38%),
+        radial-gradient(circle at 70% 75%, rgba(0,0,0,0.32) 0, transparent 48%),
+        radial-gradient(circle at 50% 50%, var(--sang-300) 0, var(--sang-500) 55%, var(--sang-700) 100%);
+      color: var(--or-200);
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      box-shadow:
+        inset 0 -3px 6px rgba(0,0,0,0.45),
+        inset 0 2px 2px rgba(255,247,224,0.35),
+        0 1px 3px rgba(0,0,0,0.25);
+      position: relative;
+    }
+    .seal-btn .seal::before {
+      content: "";
+      position: absolute; inset: 5px;
+      border-radius: 50%;
+      border: 1px solid rgba(245,236,217,0.45);
+      pointer-events: none;
+    }
+    .seal-btn .seal svg {
+      position: relative; z-index: 1;
+      width: 22px; height: 22px;
+      stroke: currentColor; fill: currentColor;
+      stroke-width: 1.3; stroke-linejoin: round;
+    }
+    .seal-btn[aria-pressed="true"] {
+      background: color-mix(in oklab, var(--sang-500) 8%, var(--bg-elevated));
+      border-color: var(--sang-500);
+      color: var(--sang-700);
+    }
+    [data-theme="dark"] .seal-btn[aria-pressed="true"] { color: var(--sang-300); }
+    .seal-btn[aria-pressed="true"] .seal {
+      background:
+        radial-gradient(circle at 32% 28%, rgba(255,247,224,0.55) 0, transparent 38%),
+        radial-gradient(circle at 70% 75%, rgba(0,0,0,0.35) 0, transparent 48%),
+        radial-gradient(circle at 50% 50%, var(--or-300) 0, var(--or-500) 55%, var(--or-700) 100%);
+      color: var(--grimoire-200);
+    }
+    .seal-btn .seal-label-sm {
+      display: block;
+      font-family: var(--font-mono);
+      font-weight: 400;
+      font-size: 9.5px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-top: 1px;
+    }
+    .seal-btn-text { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.1; }
+
+    /* ============================================================
+       PROGRESS GAUGE — thematic
+       ============================================================ */
+    .progress-card {
+      margin-top: var(--sp-5);
+      padding: var(--sp-4) var(--sp-5);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      position: relative;
+      overflow: hidden;
+    }
+    .progress-card::before {
+      content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: linear-gradient(180deg, var(--or-400), var(--cuir-500));
+    }
+    .progress-head {
+      display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+      gap: var(--sp-3); margin-bottom: var(--sp-3);
+    }
+    .progress-head-left {
+      display: flex; align-items: baseline; gap: var(--sp-3); min-width: 0;
+    }
+    .progress-title {
+      font-family: var(--font-display);
+      font-size: var(--fs-md);
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      color: var(--ink-strong);
+    }
+    .progress-pct {
+      font-family: var(--font-mono);
+      font-size: var(--fs-sm);
+      color: var(--or-700);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    [data-theme="dark"] .progress-pct { color: var(--or-300); }
+    .progress-numbers {
+      font-family: var(--font-display);
+      font-size: var(--fs-xl);
+      color: var(--ink-strong);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      font-variant-numeric: tabular-nums;
+    }
+    .progress-numbers .have { color: var(--brand-primary); }
+    .progress-numbers .sep { color: var(--ink-subtle); margin: 0 4px; }
+    .progress-numbers .total { color: var(--ink-muted); }
+    .progress-numbers .lbl { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--ink-subtle); margin-left: 8px; font-weight: 400; }
+
+    /* The bar — segmented "tomes" track */
+    .progress-track {
+      position: relative;
+      height: 22px;
+      background: var(--bg-sunken);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      box-shadow: inset 0 1px 2px rgba(45,24,16,0.10);
+    }
+    .progress-fill {
+      position: absolute; top: 0; bottom: 0; left: 0;
+      background:
+        repeating-linear-gradient(45deg,
+          transparent 0, transparent 6px,
+          rgba(0,0,0,0.10) 6px, rgba(0,0,0,0.10) 7px),
+        linear-gradient(90deg, var(--or-400), var(--cuir-500));
+      box-shadow: inset 0 1px 0 rgba(255,247,224,0.35), inset 0 -1px 0 rgba(0,0,0,0.18);
+    }
+    /* Segment ticks — 1 per tome */
+    .progress-ticks {
+      position: absolute; inset: 0;
+      display: grid;
+      grid-template-columns: repeat(var(--tomes, 28), 1fr);
+      pointer-events: none;
+    }
+    .progress-ticks span {
+      border-right: 1px solid rgba(45,24,16,0.18);
+      height: 100%;
+    }
+    [data-theme="dark"] .progress-ticks span { border-right-color: rgba(0,0,0,0.4); }
+    .progress-ticks span:last-child { border-right: 0; }
+
+    .progress-foot {
+      display: flex; flex-wrap: wrap; justify-content: space-between;
+      gap: var(--sp-2);
+      margin-top: var(--sp-3);
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      color: var(--ink-muted);
+    }
+    .progress-foot .quest { color: var(--ink-default); font-style: italic; font-family: var(--font-body); }
+
+    /* ============================================================
+       STICKY PROGRESS (mobile) — épinglée en haut de la grille
+       ============================================================ */
+    .progress-sticky {
+      display: none;
+      position: sticky;
+      top: 64px; /* under header */
+      z-index: 30;
+      margin: 0 calc(-1 * var(--sp-4));
+      padding: 10px var(--sp-4) 10px;
+      background: color-mix(in oklab, var(--bg-page) 92%, transparent);
+      backdrop-filter: saturate(140%) blur(10px);
+      -webkit-backdrop-filter: saturate(140%) blur(10px);
+      border-bottom: 1px solid var(--border-subtle);
+      align-items: center; gap: var(--sp-3);
+    }
+    @media (max-width: 879px) { .progress-sticky { display: flex; } }
+    .progress-sticky .mini-pct {
+      flex-shrink: 0;
+      font-family: var(--font-display);
+      font-size: var(--fs-md);
+      font-weight: 700;
+      color: var(--ink-strong);
+      font-variant-numeric: tabular-nums;
+    }
+    .progress-sticky .mini-pct .have { color: var(--brand-primary); }
+    .progress-sticky .mini-pct .out { color: var(--ink-muted); font-family: var(--font-mono); font-weight: 400; font-size: var(--fs-sm); }
+    .progress-sticky .mini-track {
+      flex: 1;
+      height: 8px;
+      background: var(--bg-sunken);
+      border: 1px solid var(--border-default);
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-sticky .mini-fill {
+      position: absolute; top: 0; bottom: 0; left: 0;
+      background: linear-gradient(90deg, var(--or-400), var(--cuir-500));
+    }
+    .progress-sticky .mini-lbl {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+      flex-shrink: 0;
+    }
+
+    /* ============================================================
+       TOMES SECTION — head + sort/filter mini panel + grid
+       ============================================================ */
+    .tomes-section { padding: var(--sp-6) 0 var(--sp-7); }
+    .tomes-head {
+      display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+      gap: var(--sp-3);
+      border-bottom: 1px solid var(--border-default);
+      padding-bottom: var(--sp-3);
+      margin-bottom: var(--sp-5);
+    }
+    .tomes-title {
+      font-family: var(--font-display);
+      font-size: var(--fs-2xl);
+      font-weight: 600;
+      color: var(--ink-strong);
+      letter-spacing: 0.04em;
+    }
+    .tomes-title .num {
+      font-family: var(--font-mono);
+      font-size: var(--fs-sm);
+      color: var(--ink-muted);
+      margin-left: 10px;
+      font-weight: 400;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+    }
+
+    /* Mini panel — sort + ownership filter */
+    .tomes-controls {
+      display: flex; flex-wrap: wrap; gap: var(--sp-2);
+      align-items: center;
+    }
+
+    /* Segmented sort control */
+    .seg {
+      display: inline-flex;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: 3px;
+      gap: 2px;
+    }
+    .seg button {
+      appearance: none;
+      padding: 7px 14px;
+      background: transparent;
+      border: 0;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: all var(--motion-fast) var(--motion-ease);
+      min-height: 32px;
+    }
+    .seg button:hover { color: var(--ink-strong); }
+    .seg button[aria-pressed="true"] {
+      background: var(--ink-strong);
+      color: var(--bg-page);
+    }
+    .seg button svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+    .filter-pills {
+      display: inline-flex; gap: 6px; flex-wrap: wrap;
+    }
+    .filter-pill {
+      appearance: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 12px 6px 10px;
+      border: 1px solid var(--border-default);
+      background: var(--bg-elevated);
+      border-radius: var(--radius-pill);
+      font-family: var(--font-body);
+      font-size: var(--fs-xs);
+      color: var(--ink-default);
+      cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+      min-height: 32px;
+    }
+    .filter-pill .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--ink-subtle);
+    }
+    .filter-pill[data-kind="all"] .dot     { background: var(--ink-muted); }
+    .filter-pill[data-kind="owned"] .dot   { background: var(--success); }
+    .filter-pill[data-kind="missing"] .dot { background: var(--ambre-500); }
+    .filter-pill .count {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ink-subtle);
+      letter-spacing: var(--tracking-caps);
+    }
+    .filter-pill:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .filter-pill:hover .count { color: inherit; }
+    .filter-pill[aria-pressed="true"] {
+      background: color-mix(in oklab, var(--brand-primary) 10%, var(--bg-elevated));
+      border-color: var(--brand-primary);
+      color: var(--brand-primary);
+      font-weight: 600;
+    }
+    .filter-pill[aria-pressed="true"] .count { color: inherit; }
+
+    /* ============================================================
+       TOMES GRID — adaptative 1 → 4 colonnes
+       ============================================================ */
+    .tomes-grid {
+      display: grid;
+      gap: var(--sp-4);
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 480px) { .tomes-grid { grid-template-columns: 1fr 1fr; } }
+    @media (min-width: 880px) { .tomes-grid { grid-template-columns: repeat(3, 1fr); gap: var(--sp-5); } }
+    @media (min-width: 1180px) { .tomes-grid { grid-template-columns: repeat(4, 1fr); gap: var(--sp-5); } }
+
+    /* Tome card */
+    .tome {
+      position: relative;
+      display: flex; flex-direction: column;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      transition:
+        transform var(--motion-base) var(--motion-ease-out),
+        box-shadow var(--motion-base) var(--motion-ease),
+        border-color var(--motion-fast) var(--motion-ease);
+    }
+    .tome:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      text-decoration: none;
+      border-color: var(--border-strong);
+    }
+
+    /* Cover */
+    .tome-cover {
+      position: relative;
+      aspect-ratio: 3 / 4;
+      padding: var(--sp-3);
+      display: flex; align-items: flex-end;
+      color: #fbf6e9;
+      background:
+        repeating-linear-gradient(45deg,
+          transparent 0, transparent 14px,
+          rgba(45,24,16,0.07) 14px, rgba(45,24,16,0.07) 15px),
+        linear-gradient(135deg, var(--cuir-300), var(--cuir-500));
+      transition: filter var(--motion-base) var(--motion-ease);
+    }
+    /* Per-tome cover hue (small palette over the series) */
+    .tome[data-hue="forest"] .tome-cover { background: repeating-linear-gradient(45deg, transparent 0, transparent 14px, rgba(45,24,16,0.07) 14px, rgba(45,24,16,0.07) 15px), linear-gradient(135deg, var(--mousse-300), var(--mousse-700)); }
+    .tome[data-hue="storm"]  .tome-cover { background: repeating-linear-gradient(45deg, transparent 0, transparent 14px, rgba(45,24,16,0.07) 14px, rgba(45,24,16,0.07) 15px), linear-gradient(135deg, var(--encre-300), var(--encre-700)); }
+    .tome[data-hue="ember"]  .tome-cover { background: repeating-linear-gradient(45deg, transparent 0, transparent 14px, rgba(45,24,16,0.07) 14px, rgba(45,24,16,0.07) 15px), linear-gradient(135deg, var(--sang-300), var(--sang-700)); }
+    .tome[data-hue="amber"]  .tome-cover { background: repeating-linear-gradient(45deg, transparent 0, transparent 14px, rgba(45,24,16,0.07) 14px, rgba(45,24,16,0.07) 15px), linear-gradient(135deg, var(--ambre-300), var(--ambre-700)); }
+    .tome[data-hue="ink"]    .tome-cover { background: repeating-linear-gradient(45deg, transparent 0, transparent 14px, rgba(45,24,16,0.07) 14px, rgba(45,24,16,0.07) 15px), linear-gradient(135deg, var(--parchemin-500), var(--parchemin-800)); }
+    .tome[data-hue="gold"]   .tome-cover { background: repeating-linear-gradient(45deg, transparent 0, transparent 14px, rgba(45,24,16,0.07) 14px, rgba(45,24,16,0.07) 15px), linear-gradient(135deg, var(--or-300), var(--or-700)); }
+
+    .tome-cover-frame {
+      position: absolute; inset: 10px;
+      border: 1px solid rgba(245,236,217,0.4);
+      pointer-events: none;
+    }
+    .tome-cover-frame::before, .tome-cover-frame::after {
+      content: ""; position: absolute;
+      width: 10px; height: 10px;
+      border: 1px solid rgba(245,236,217,0.75);
+    }
+    .tome-cover-frame::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+    .tome-cover-frame::after  { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+
+    .tome-num {
+      position: absolute;
+      top: var(--sp-3); left: var(--sp-3);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      opacity: 0.85;
+    }
+    .tome-num strong {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      display: block;
+      line-height: 1;
+      margin-top: 2px;
+    }
+
+    .tome-title-art {
+      font-family: var(--font-display);
+      font-size: var(--fs-md);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: 0.02em;
+      max-width: 90%;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    /* Status corner pill on cover */
+    .tome-status {
+      position: absolute;
+      top: var(--sp-3); right: var(--sp-3);
+      display: grid; place-items: center;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(20,13,7,0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      color: #fbf6e9;
+      border: 1px solid rgba(245,236,217,0.25);
+    }
+    .tome-status svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .tome.is-owned .tome-status {
+      background: var(--mousse-500);
+      border-color: rgba(245,236,217,0.5);
+      box-shadow: 0 0 0 3px rgba(91,124,58,0.25);
+    }
+
+    /* Body */
+    .tome-body {
+      padding: var(--sp-3);
+      display: flex; flex-direction: column; gap: 4px;
+      flex: 1;
+    }
+    .tome-ref {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--ink-subtle);
+      display: flex; justify-content: space-between; align-items: baseline;
+    }
+    .tome-title {
+      font-family: var(--font-display);
+      font-size: var(--fs-md);
+      font-weight: 600;
+      color: var(--ink-strong);
+      line-height: 1.2;
+      letter-spacing: 0.01em;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: calc(var(--fs-md) * 1.2 * 2);
+    }
+    .tome-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px;
+      margin-top: 6px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      color: var(--ink-muted);
+    }
+    .tome-score {
+      display: inline-flex; align-items: center; gap: 5px;
+      color: var(--ink-strong);
+      font-weight: 600;
+    }
+    .tome-score .star { color: var(--or-500); font-family: serif; }
+    [data-theme="dark"] .tome-score .star { color: var(--or-300); }
+    .tome-score .out { color: var(--ink-muted); font-weight: 400; }
+    .tome-year { color: var(--ink-muted); }
+
+    /* Missing-state treatment */
+    .tome.is-missing {
+      background: var(--bg-sunken);
+    }
+    .tome.is-missing .tome-cover {
+      filter: grayscale(0.85) brightness(0.92) contrast(0.92);
+      opacity: 0.85;
+    }
+    .tome.is-missing .tome-cover::before {
+      content: "";
+      position: absolute; inset: 0;
+      background:
+        repeating-linear-gradient(135deg,
+          rgba(45,24,16,0.06) 0, rgba(45,24,16,0.06) 14px,
+          transparent 14px, transparent 28px);
+      pointer-events: none;
+    }
+    [data-theme="dark"] .tome.is-missing .tome-cover { filter: grayscale(0.7) brightness(0.65); opacity: 0.8; }
+    .tome.is-missing .tome-title { color: var(--ink-muted); }
+    .tome.is-missing .tome-score { color: var(--ink-muted); font-weight: 500; }
+
+    /* Missing state overlay & wishlist action */
+    .tome-missing-mark {
+      position: absolute;
+      top: var(--sp-3); right: var(--sp-3);
+      display: grid; place-items: center;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(45,24,16,0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: 1px dashed rgba(245,236,217,0.55);
+      color: #fbf6e9;
+      font-family: var(--font-mono);
+      font-size: 14px; font-weight: 600;
+      line-height: 1;
+    }
+    .tome.is-owned .tome-missing-mark { display: none; }
+    .tome.is-missing .tome-status { display: none; }
+
+    /* Wishlist quick action — appears on hover/focus, visible on touch via :focus-within */
+    .tome-wish {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 10px var(--sp-3);
+      background: linear-gradient(180deg, transparent, rgba(20,13,7,0.78));
+      color: #fbf6e9;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px;
+      font-family: var(--font-body);
+      font-size: var(--fs-xs);
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(6px);
+      transition:
+        opacity var(--motion-base) var(--motion-ease),
+        transform var(--motion-base) var(--motion-ease);
+      pointer-events: none;
+    }
+    .tome.is-missing:hover .tome-wish,
+    .tome.is-missing:focus-within .tome-wish,
+    .tome.is-missing.is-wishlisted .tome-wish {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .tome-wish svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.7; }
+    .tome-wish .wish-add {
+      appearance: none;
+      background: var(--or-500);
+      color: var(--grimoire-200);
+      border: 1px solid var(--or-700);
+      padding: 5px 10px;
+      border-radius: var(--radius-pill);
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .tome-wish .wish-add:hover { background: var(--or-400); }
+    .tome.is-missing.is-wishlisted .tome-wish .wish-add {
+      background: var(--bg-elevated);
+      color: var(--ambre-700);
+      border-color: var(--ambre-500);
+    }
+
+    /* ============================================================
+       SIDE INFO — Éditeurs & Auteurs récurrents
+       ============================================================ */
+    .extra {
+      margin-top: var(--sp-7);
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--sp-5);
+    }
+    @media (min-width: 880px) { .extra { grid-template-columns: 1fr 1fr; gap: var(--sp-6); } }
+
+    .panel {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-5);
+    }
+    .panel-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: var(--sp-3);
+      margin-bottom: var(--sp-4);
+    }
+    .panel-title {
+      font-family: var(--font-display);
+      font-size: var(--fs-xl);
+      font-weight: 600;
+      color: var(--ink-strong);
+      letter-spacing: 0.03em;
+    }
+    .panel-sub {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+    }
+
+    /* Editors list — timeline of periods */
+    .editors-list {
+      display: flex; flex-direction: column;
+      gap: var(--sp-3);
+    }
+    .editor-row {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: var(--sp-4);
+      padding: var(--sp-3) 0;
+      border-bottom: 1px dashed var(--border-subtle);
+      align-items: center;
+    }
+    .editor-row:last-child { border-bottom: 0; padding-bottom: 0; }
+    .editor-period {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      font-variant-numeric: tabular-nums;
+      line-height: 1.4;
+    }
+    .editor-period strong {
+      display: block;
+      font-family: var(--font-display);
+      font-size: var(--fs-lg);
+      color: var(--ink-strong);
+      font-weight: 600;
+    }
+    .editor-body {
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .editor-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      align-self: flex-start;
+      padding: 6px 12px;
+      background: var(--bg-sunken);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill);
+      color: var(--ink-strong);
+      text-decoration: none;
+      font-family: var(--font-body);
+      font-size: var(--fs-sm);
+      font-weight: 600;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .editor-tag:hover {
+      border-color: var(--brand-primary);
+      color: var(--brand-primary);
+      text-decoration: none;
+    }
+    .editor-tag .crest {
+      width: 18px; height: 18px;
+      display: grid; place-items: center;
+      border-radius: 4px;
+      background: var(--cuir-500);
+      color: var(--parchemin-50);
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    [data-theme="dark"] .editor-tag .crest { background: var(--cuir-400); color: var(--grimoire-200); }
+    .editor-stat {
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      color: var(--ink-muted);
+    }
+    .editor-stat strong { color: var(--ink-default); font-weight: 600; }
+
+    /* Authors cloud — tag chips */
+    .authors-cloud {
+      display: flex; flex-wrap: wrap;
+      gap: 8px;
+    }
+    .author-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 5px 12px 5px 5px;
+      border: 1px solid var(--border-default);
+      background: var(--bg-sunken);
+      border-radius: var(--radius-pill);
+      color: var(--ink-strong);
+      text-decoration: none;
+      font-family: var(--font-body);
+      font-size: var(--fs-sm);
+      font-weight: 500;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .author-tag:hover {
+      border-color: var(--brand-primary);
+      color: var(--brand-primary);
+      text-decoration: none;
+    }
+    .author-tag .avatar {
+      --av-size: 26px;
+      font-size: 11px;
+    }
+    .author-tag .role {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--ink-subtle);
+    }
+    .author-tag .count {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ink-muted);
+      background: var(--bg-elevated);
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+    }
+    .author-tag.is-headline {
+      background: color-mix(in oklab, var(--brand-primary) 8%, var(--bg-elevated));
+      border-color: var(--brand-primary);
+      color: var(--brand-primary);
+    }
+
+    /* ============================================================
+       UTILITIES
+       ============================================================ */
+    .visually-hidden {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================== HEADER ============================== -->
+  <header class="session-header">
+    <div class="container sh-inner">
+      <div class="sh-left">
+        <a class="sh-brand" href="../dashboard.html">
+          <span class="sh-sigil">A</span>
+          <span class="sh-brand-mark">La Collection</span>
+        </a>
+        <nav class="sh-nav" aria-label="Navigation principale">
+          <a href="../dashboard.html">Accueil</a>
+          <a href="catalogue.html" aria-current="page">Catalogue</a>
+          <a href="suggestions.html">Suggestions</a>
+        </nav>
+      </div>
+
+      <form class="sh-search" role="search" onsubmit="event.preventDefault();">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" placeholder="Rechercher un livre, un auteur, une collection…" aria-label="Recherche globale" />
+      </form>
+
+      <div class="sh-right">
+        <button class="sh-icon-btn" aria-label="Notifications (3 non lues)">
+          <svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+          <span class="dot" aria-hidden="true"></span>
+        </button>
+        <button class="sh-user" aria-haspopup="menu" aria-label="Menu utilisateur">
+          <span class="avatar size-sm">JD</span>
+          <span class="sh-user-text">
+            <span class="sh-user-name">Juliette Devereux</span>
+            <span class="sh-user-role">Aventurière</span>
+          </span>
+          <svg class="sh-user-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+
+      <!-- ============================== BREADCRUMB ============================== -->
+      <nav class="crumbs" aria-label="Fil d'Ariane">
+        <a href="../dashboard.html">Accueil</a>
+        <span class="sep">›</span>
+        <a href="catalogue.html">Catalogue</a>
+        <span class="sep">›</span>
+        <a href="#">Collections</a>
+        <span class="sep">›</span>
+        <span class="here">Loup Solitaire</span>
+      </nav>
+
+      <!-- ============================== HERO ============================== -->
+      <section class="coll-hero" aria-labelledby="coll-title">
+        <!-- Emblem -->
+        <div class="coll-emblem" aria-hidden="true">
+          <div class="coll-emblem-inner">
+            <span class="coll-emblem-glyph">LS</span>
+          </div>
+          <span class="coll-emblem-ribbon">Collection · 1984 — 1998</span>
+        </div>
+
+        <!-- Content -->
+        <div class="coll-content">
+          <div class="coll-eyebrow">
+            <span>Série · livre-jeu</span>
+            <span class="sep">·</span>
+            <span class="pin">Référence wiki LCA-COL-007</span>
+          </div>
+          <h1 class="coll-title" id="coll-title">Loup Solitaire</h1>
+          <p class="coll-title-original">
+            <span class="label">V.O.</span>Lone Wolf — saga de l'Ordre Kaï
+          </p>
+
+          <dl class="coll-meta">
+            <div>
+              <dt>Tomes recensés</dt>
+              <dd>28 <span class="out">volumes</span></dd>
+            </div>
+            <div>
+              <dt>Période</dt>
+              <dd>1984 — 1998</dd>
+            </div>
+            <div>
+              <dt>Note moyenne série</dt>
+              <dd>8,7 <span class="out">/ 10 · 1 248 votes</span></dd>
+            </div>
+            <div>
+              <dt>Statut éditorial</dt>
+              <dd>En cours <span class="out">(réédition Scriptarium)</span></dd>
+            </div>
+          </dl>
+
+          <!-- CTA: Wax-seal favorite + secondaries -->
+          <div class="coll-cta">
+            <button type="button" class="seal-btn" aria-pressed="false" id="favSeal">
+              <span class="seal" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-9.5-9A5.5 5.5 0 0 1 12 6.5 5.5 5.5 0 0 1 21.5 12c-2.5 4.65-9.5 9-9.5 9z"/></svg>
+              </span>
+              <span class="seal-btn-text">
+                <span>Ajouter aux favoris</span>
+                <span class="seal-label-sm">Sceller cette collection</span>
+              </span>
+            </button>
+
+            <button type="button" class="btn btn-secondary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Partager
+            </button>
+            <button type="button" class="btn btn-ghost">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              Suggérer un tome manquant
+            </button>
+          </div>
+
+          <!-- Progress gauge -->
+          <div class="progress-card" aria-labelledby="progress-label">
+            <div class="progress-head">
+              <div class="progress-head-left">
+                <span class="progress-title" id="progress-label">Votre quête de complétion</span>
+                <span class="progress-pct">42,8 %</span>
+              </div>
+              <div class="progress-numbers">
+                <span class="have">12</span><span class="sep">/</span><span class="total">28</span>
+                <span class="lbl">tomes possédés</span>
+              </div>
+            </div>
+            <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="28" aria-valuenow="12" aria-valuetext="12 sur 28 tomes possédés">
+              <div class="progress-fill" style="width: 42.8%;"></div>
+              <div class="progress-ticks" style="--tomes: 28;">
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+            <div class="progress-foot">
+              <span class="quest">Il vous manque <strong>16 tomes</strong> pour boucler la saga Kaï.</span>
+              <span>Mis à jour il y a 2 jours</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================== MOBILE STICKY PROGRESS ============================== -->
+      <div class="progress-sticky" role="region" aria-label="Progression de la collection">
+        <span class="mini-pct"><span class="have">12</span><span class="out">/28</span></span>
+        <div class="mini-track" aria-hidden="true">
+          <div class="mini-fill" style="width: 42.8%;"></div>
+        </div>
+        <span class="mini-lbl">42,8 %</span>
+      </div>
+
+      <!-- ============================== TOMES ============================== -->
+      <section class="tomes-section" aria-labelledby="tomes-title">
+        <div class="tomes-head">
+          <h2 class="tomes-title" id="tomes-title">Les Tomes <span class="num">28 volumes</span></h2>
+
+          <div class="tomes-controls">
+            <div class="filter-pills" role="group" aria-label="Filtrer par statut">
+              <button class="filter-pill" data-kind="all" aria-pressed="true" type="button">
+                <span class="dot" aria-hidden="true"></span>
+                Tous <span class="count">28</span>
+              </button>
+              <button class="filter-pill" data-kind="owned" aria-pressed="false" type="button">
+                <span class="dot" aria-hidden="true"></span>
+                Possédés <span class="count">12</span>
+              </button>
+              <button class="filter-pill" data-kind="missing" aria-pressed="false" type="button">
+                <span class="dot" aria-hidden="true"></span>
+                Manquants <span class="count">16</span>
+              </button>
+            </div>
+
+            <div class="seg" role="group" aria-label="Trier les tomes">
+              <button type="button" aria-pressed="true">
+                <svg viewBox="0 0 24 24"><path d="M4 6h12M4 12h9M4 18h6"/><path d="M18 14l3 3-3 3"/></svg>
+                Numéro
+              </button>
+              <button type="button" aria-pressed="false">
+                <svg viewBox="0 0 24 24"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>
+                Note
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tomes-grid" id="tomesGrid">
+
+          <!-- Tome 1 — OWNED -->
+          <a class="tome is-owned" data-hue="forest" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>I</strong></span>
+              <span class="tome-status" aria-label="Dans votre collection">
+                <svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 7"/></svg>
+              </span>
+              <span class="tome-title-art">Les Maîtres des Ténèbres</span>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-01 · 1984</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">Les Maîtres des Ténèbres</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,9<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Gary Chalk</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 2 — OWNED -->
+          <a class="tome is-owned" data-hue="storm" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>II</strong></span>
+              <span class="tome-status" aria-label="Dans votre collection">
+                <svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 7"/></svg>
+              </span>
+              <span class="tome-title-art">Traversée Infernale</span>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-02 · 1984</span>
+                <span>360 §</span>
+              </div>
+              <div class="tome-title">Traversée Infernale</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,4<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Gary Chalk</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 3 — OWNED -->
+          <a class="tome is-owned" data-hue="ember" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>III</strong></span>
+              <span class="tome-status" aria-label="Dans votre collection">
+                <svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 7"/></svg>
+              </span>
+              <span class="tome-title-art">Les Grottes de Kalte</span>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-03 · 1985</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">Les Grottes de Kalte</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>9,1<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Gary Chalk</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 4 — OWNED -->
+          <a class="tome is-owned" data-hue="amber" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>IV</strong></span>
+              <span class="tome-status" aria-label="Dans votre collection">
+                <svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 7"/></svg>
+              </span>
+              <span class="tome-title-art">Le Gouffre Maudit</span>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-04 · 1985</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">Le Gouffre Maudit</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,7<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Gary Chalk</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 5 — MISSING (wishlisted) -->
+          <a class="tome is-missing is-wishlisted" data-hue="ink" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>V</strong></span>
+              <span class="tome-missing-mark" aria-label="Manquant dans votre collection">?</span>
+              <span class="tome-title-art">Les Seigneurs de la Pierre</span>
+              <div class="tome-wish">
+                <span><svg viewBox="0 0 24 24" style="display:inline-block;vertical-align:-2px;"><path d="M21 11.5a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0z"/><path d="M12 7v9M7 12h10"/></svg> Dans ma liste d'achat</span>
+                <button type="button" class="wish-add">Retirer</button>
+              </div>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-05 · 1985</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">Les Seigneurs de la Pierre</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>9,2<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Gary Chalk</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 6 — OWNED -->
+          <a class="tome is-owned" data-hue="gold" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>VI</strong></span>
+              <span class="tome-status" aria-label="Dans votre collection">
+                <svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 7"/></svg>
+              </span>
+              <span class="tome-title-art">Le Royaume de la Terreur</span>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-06 · 1986</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">Le Royaume de la Terreur</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,8<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Gary Chalk</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 7 — MISSING -->
+          <a class="tome is-missing" data-hue="forest" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>VII</strong></span>
+              <span class="tome-missing-mark" aria-label="Manquant dans votre collection">?</span>
+              <span class="tome-title-art">Les Captifs du Maelström</span>
+              <div class="tome-wish">
+                <span><svg viewBox="0 0 24 24" style="display:inline-block;vertical-align:-2px;"><path d="M21 11.5a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0z"/><path d="M12 7v9M7 12h10"/></svg> Ajouter à ma liste</span>
+                <button type="button" class="wish-add">+ Achat</button>
+              </div>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-07 · 1986</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">Les Captifs du Maelström</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,3<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Gary Chalk</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 8 — OWNED -->
+          <a class="tome is-owned" data-hue="storm" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>VIII</strong></span>
+              <span class="tome-status" aria-label="Dans votre collection">
+                <svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 7"/></svg>
+              </span>
+              <span class="tome-title-art">Les Cavernes de Khor</span>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-08 · 1987</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">Les Cavernes de Khor</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,5<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Brian Williams</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 9 — MISSING -->
+          <a class="tome is-missing" data-hue="ember" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>IX</strong></span>
+              <span class="tome-missing-mark" aria-label="Manquant dans votre collection">?</span>
+              <span class="tome-title-art">La Croisade Maudite</span>
+              <div class="tome-wish">
+                <span><svg viewBox="0 0 24 24" style="display:inline-block;vertical-align:-2px;"><path d="M21 11.5a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0z"/><path d="M12 7v9M7 12h10"/></svg> Ajouter à ma liste</span>
+                <button type="button" class="wish-add">+ Achat</button>
+              </div>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-09 · 1987</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">La Croisade Maudite</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,9<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Brian Williams</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 10 — OWNED -->
+          <a class="tome is-owned" data-hue="amber" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>X</strong></span>
+              <span class="tome-status" aria-label="Dans votre collection">
+                <svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 7"/></svg>
+              </span>
+              <span class="tome-title-art">Les Prisonniers du Temps</span>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-10 · 1988</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">Les Prisonniers du Temps</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>9,0<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Brian Williams</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 11 — MISSING (wishlisted) -->
+          <a class="tome is-missing is-wishlisted" data-hue="ink" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>XI</strong></span>
+              <span class="tome-missing-mark" aria-label="Manquant dans votre collection">?</span>
+              <span class="tome-title-art">Les Maîtres de l'Ombre</span>
+              <div class="tome-wish">
+                <span><svg viewBox="0 0 24 24" style="display:inline-block;vertical-align:-2px;"><path d="M21 11.5a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0z"/><path d="M12 7v9M7 12h10"/></svg> Dans ma liste d'achat</span>
+                <button type="button" class="wish-add">Retirer</button>
+              </div>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-11 · 1989</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">Les Maîtres de l'Ombre</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,6<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Brian Williams</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 12 — OWNED -->
+          <a class="tome is-owned" data-hue="gold" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>XII</strong></span>
+              <span class="tome-status" aria-label="Dans votre collection">
+                <svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 7"/></svg>
+              </span>
+              <span class="tome-title-art">L'Œil du Dragon</span>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-12 · 1989</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">L'Œil du Dragon</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,8<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Brian Williams</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 13 — MISSING -->
+          <a class="tome is-missing" data-hue="forest" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>XIII</strong></span>
+              <span class="tome-missing-mark" aria-label="Manquant dans votre collection">?</span>
+              <span class="tome-title-art">Les Plaines de la Désolation</span>
+              <div class="tome-wish">
+                <span><svg viewBox="0 0 24 24" style="display:inline-block;vertical-align:-2px;"><path d="M21 11.5a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0z"/><path d="M12 7v9M7 12h10"/></svg> Ajouter à ma liste</span>
+                <button type="button" class="wish-add">+ Achat</button>
+              </div>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-13 · 1990</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">Les Plaines de la Désolation</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,2<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Brian Williams</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 14 — OWNED -->
+          <a class="tome is-owned" data-hue="storm" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>XIV</strong></span>
+              <span class="tome-status" aria-label="Dans votre collection">
+                <svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 7"/></svg>
+              </span>
+              <span class="tome-title-art">La Forteresse Maudite</span>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-14 · 1990</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">La Forteresse Maudite</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,5<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Brian Williams</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 15 — OWNED -->
+          <a class="tome is-owned" data-hue="ember" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>XV</strong></span>
+              <span class="tome-status" aria-label="Dans votre collection">
+                <svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 7"/></svg>
+              </span>
+              <span class="tome-title-art">La Croisade du Désespoir</span>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-15 · 1991</span>
+                <span>360 §</span>
+              </div>
+              <div class="tome-title">La Croisade du Désespoir</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,7<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Brian Williams</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 16 — MISSING -->
+          <a class="tome is-missing" data-hue="amber" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>XVI</strong></span>
+              <span class="tome-missing-mark" aria-label="Manquant dans votre collection">?</span>
+              <span class="tome-title-art">L'Antre du Sépulcre</span>
+              <div class="tome-wish">
+                <span><svg viewBox="0 0 24 24" style="display:inline-block;vertical-align:-2px;"><path d="M21 11.5a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0z"/><path d="M12 7v9M7 12h10"/></svg> Ajouter à ma liste</span>
+                <button type="button" class="wish-add">+ Achat</button>
+              </div>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-16 · 1992</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">L'Antre du Sépulcre</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,4<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Brian Williams</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 17 — MISSING -->
+          <a class="tome is-missing" data-hue="ink" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>XVII</strong></span>
+              <span class="tome-missing-mark" aria-label="Manquant dans votre collection">?</span>
+              <span class="tome-title-art">L'Empire d'Acier</span>
+              <div class="tome-wish">
+                <span><svg viewBox="0 0 24 24" style="display:inline-block;vertical-align:-2px;"><path d="M21 11.5a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0z"/><path d="M12 7v9M7 12h10"/></svg> Ajouter à ma liste</span>
+                <button type="button" class="wish-add">+ Achat</button>
+              </div>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-17 · 1993</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">L'Empire d'Acier</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,8<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Brian Williams</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 18 — MISSING -->
+          <a class="tome is-missing" data-hue="gold" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>XVIII</strong></span>
+              <span class="tome-missing-mark" aria-label="Manquant dans votre collection">?</span>
+              <span class="tome-title-art">L'Île aux Dragons</span>
+              <div class="tome-wish">
+                <span><svg viewBox="0 0 24 24" style="display:inline-block;vertical-align:-2px;"><path d="M21 11.5a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0z"/><path d="M12 7v9M7 12h10"/></svg> Ajouter à ma liste</span>
+                <button type="button" class="wish-add">+ Achat</button>
+              </div>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-18 · 1994</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">L'Île aux Dragons</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,6<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Brian Williams</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 19 — OWNED -->
+          <a class="tome is-owned" data-hue="forest" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>XIX</strong></span>
+              <span class="tome-status" aria-label="Dans votre collection">
+                <svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 7"/></svg>
+              </span>
+              <span class="tome-title-art">Le Tombeau du Mage</span>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-19 · 1994</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">Le Tombeau du Mage</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>9,3<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Brian Williams</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 20 — MISSING -->
+          <a class="tome is-missing" data-hue="storm" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>XX</strong></span>
+              <span class="tome-missing-mark" aria-label="Manquant dans votre collection">?</span>
+              <span class="tome-title-art">Le Combat du Loup</span>
+              <div class="tome-wish">
+                <span><svg viewBox="0 0 24 24" style="display:inline-block;vertical-align:-2px;"><path d="M21 11.5a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0z"/><path d="M12 7v9M7 12h10"/></svg> Ajouter à ma liste</span>
+                <button type="button" class="wish-add">+ Achat</button>
+              </div>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-20 · 1995</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">Le Combat du Loup</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,9<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Brian Williams</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 21 — MISSING -->
+          <a class="tome is-missing" data-hue="ember" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>XXI</strong></span>
+              <span class="tome-missing-mark" aria-label="Manquant dans votre collection">?</span>
+              <span class="tome-title-art">Le Voyage de la Lumière</span>
+              <div class="tome-wish">
+                <span><svg viewBox="0 0 24 24" style="display:inline-block;vertical-align:-2px;"><path d="M21 11.5a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0z"/><path d="M12 7v9M7 12h10"/></svg> Ajouter à ma liste</span>
+                <button type="button" class="wish-add">+ Achat</button>
+              </div>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-21 · 1995</span>
+                <span>360 §</span>
+              </div>
+              <div class="tome-title">Le Voyage de la Lumière</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,7<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Brian Williams</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 22 — OWNED -->
+          <a class="tome is-owned" data-hue="amber" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>XXII</strong></span>
+              <span class="tome-status" aria-label="Dans votre collection">
+                <svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 7"/></svg>
+              </span>
+              <span class="tome-title-art">Le Sanctuaire d'Or</span>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-22 · 1996</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">Le Sanctuaire d'Or</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>9,0<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Brian Williams</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 23 — MISSING -->
+          <a class="tome is-missing" data-hue="ink" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>XXIII</strong></span>
+              <span class="tome-missing-mark" aria-label="Manquant dans votre collection">?</span>
+              <span class="tome-title-art">Les Légions du Vautour</span>
+              <div class="tome-wish">
+                <span><svg viewBox="0 0 24 24" style="display:inline-block;vertical-align:-2px;"><path d="M21 11.5a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0z"/><path d="M12 7v9M7 12h10"/></svg> Ajouter à ma liste</span>
+                <button type="button" class="wish-add">+ Achat</button>
+              </div>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-23 · 1996</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">Les Légions du Vautour</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,5<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Brian Williams</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 24 — MISSING (wishlisted) -->
+          <a class="tome is-missing is-wishlisted" data-hue="gold" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>XXIV</strong></span>
+              <span class="tome-missing-mark" aria-label="Manquant dans votre collection">?</span>
+              <span class="tome-title-art">Le Maître des Loups</span>
+              <div class="tome-wish">
+                <span><svg viewBox="0 0 24 24" style="display:inline-block;vertical-align:-2px;"><path d="M21 11.5a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0z"/><path d="M12 7v9M7 12h10"/></svg> Dans ma liste d'achat</span>
+                <button type="button" class="wish-add">Retirer</button>
+              </div>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-24 · 1997</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">Le Maître des Loups</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,9<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Brian Williams</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 25 — MISSING -->
+          <a class="tome is-missing" data-hue="forest" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>XXV</strong></span>
+              <span class="tome-missing-mark" aria-label="Manquant dans votre collection">?</span>
+              <span class="tome-title-art">Le Tombeau d'Ulnar</span>
+              <div class="tome-wish">
+                <span><svg viewBox="0 0 24 24" style="display:inline-block;vertical-align:-2px;"><path d="M21 11.5a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0z"/><path d="M12 7v9M7 12h10"/></svg> Ajouter à ma liste</span>
+                <button type="button" class="wish-add">+ Achat</button>
+              </div>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-25 · 1997</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">Le Tombeau d'Ulnar</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,6<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Brian Williams</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 26 — MISSING -->
+          <a class="tome is-missing" data-hue="storm" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>XXVI</strong></span>
+              <span class="tome-missing-mark" aria-label="Manquant dans votre collection">?</span>
+              <span class="tome-title-art">La Marche du Loup</span>
+              <div class="tome-wish">
+                <span><svg viewBox="0 0 24 24" style="display:inline-block;vertical-align:-2px;"><path d="M21 11.5a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0z"/><path d="M12 7v9M7 12h10"/></svg> Ajouter à ma liste</span>
+                <button type="button" class="wish-add">+ Achat</button>
+              </div>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-26 · 1998</span>
+                <span>350 §</span>
+              </div>
+              <div class="tome-title">La Marche du Loup</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,4<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Brian Williams</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 27 — MISSING -->
+          <a class="tome is-missing" data-hue="ember" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>XXVII</strong></span>
+              <span class="tome-missing-mark" aria-label="Manquant dans votre collection">?</span>
+              <span class="tome-title-art">L'Étoile de l'Ordre</span>
+              <div class="tome-wish">
+                <span><svg viewBox="0 0 24 24" style="display:inline-block;vertical-align:-2px;"><path d="M21 11.5a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0z"/><path d="M12 7v9M7 12h10"/></svg> Ajouter à ma liste</span>
+                <button type="button" class="wish-add">+ Achat</button>
+              </div>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-27 · 1998</span>
+                <span>360 §</span>
+              </div>
+              <div class="tome-title">L'Étoile de l'Ordre</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>8,8<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Brian Williams</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Tome 28 — MISSING -->
+          <a class="tome is-missing" data-hue="amber" href="livre.html">
+            <div class="tome-cover">
+              <span class="tome-cover-frame" aria-hidden="true"></span>
+              <span class="tome-num">Tome <strong>XXVIII</strong></span>
+              <span class="tome-missing-mark" aria-label="Manquant dans votre collection">?</span>
+              <span class="tome-title-art">Le Crépuscule du Loup</span>
+              <div class="tome-wish">
+                <span><svg viewBox="0 0 24 24" style="display:inline-block;vertical-align:-2px;"><path d="M21 11.5a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0z"/><path d="M12 7v9M7 12h10"/></svg> Ajouter à ma liste</span>
+                <button type="button" class="wish-add">+ Achat</button>
+              </div>
+            </div>
+            <div class="tome-body">
+              <div class="tome-ref">
+                <span>LS-28 · 1998</span>
+                <span>400 §</span>
+              </div>
+              <div class="tome-title">Le Crépuscule du Loup</div>
+              <div class="tome-meta">
+                <span class="tome-score"><span class="star">★</span>9,2<span class="out">/10</span></span>
+                <span class="tome-year">Joe Dever · Brian Williams</span>
+              </div>
+            </div>
+          </a>
+
+        </div>
+      </section>
+
+      <!-- ============================== INFOS COMPLÉMENTAIRES ============================== -->
+      <section class="extra" aria-label="Informations complémentaires">
+
+        <!-- Editors timeline -->
+        <div class="panel" aria-labelledby="editors-title">
+          <div class="panel-head">
+            <h2 class="panel-title" id="editors-title">Éditeurs successifs</h2>
+            <span class="panel-sub">3 maisons · 1984 — aujourd'hui</span>
+          </div>
+          <div class="editors-list">
+            <div class="editor-row">
+              <div class="editor-period">
+                <strong>1984—1992</strong>
+                Première édition FR
+              </div>
+              <div class="editor-body">
+                <a href="#" class="editor-tag">
+                  <span class="crest">GA</span>
+                  Gallimard · Folio Junior
+                </a>
+                <span class="editor-stat"><strong>Tomes 1 à 14</strong> · traduction Camille Fabien</span>
+              </div>
+            </div>
+            <div class="editor-row">
+              <div class="editor-period">
+                <strong>1993—1998</strong>
+                Reprise
+              </div>
+              <div class="editor-body">
+                <a href="#" class="editor-tag">
+                  <span class="crest">LD</span>
+                  Le Livre de Poche · Aventure
+                </a>
+                <span class="editor-stat"><strong>Tomes 15 à 28</strong> · couvertures refondues</span>
+              </div>
+            </div>
+            <div class="editor-row">
+              <div class="editor-period">
+                <strong>2017—…</strong>
+                Réédition collector
+              </div>
+              <div class="editor-body">
+                <a href="#" class="editor-tag">
+                  <span class="crest">SC</span>
+                  Scriptarium
+                </a>
+                <span class="editor-stat"><strong>Intégrale relue</strong> · cartonnée, illustrations restaurées</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recurring authors -->
+        <div class="panel" aria-labelledby="authors-title">
+          <div class="panel-head">
+            <h2 class="panel-title" id="authors-title">Auteurs &amp; illustrateurs récurrents</h2>
+            <span class="panel-sub">7 contributeurs</span>
+          </div>
+          <div class="authors-cloud">
+            <a href="#" class="author-tag is-headline">
+              <span class="avatar">JD</span>
+              Joe Dever
+              <span class="role">Auteur principal</span>
+              <span class="count">28</span>
+            </a>
+            <a href="#" class="author-tag">
+              <span class="avatar" style="background: var(--mousse-100); color: var(--mousse-700);">GC</span>
+              Gary Chalk
+              <span class="role">Illustrateur</span>
+              <span class="count">7</span>
+            </a>
+            <a href="#" class="author-tag">
+              <span class="avatar" style="background: var(--encre-100); color: var(--encre-700);">BW</span>
+              Brian Williams
+              <span class="role">Illustrateur</span>
+              <span class="count">21</span>
+            </a>
+            <a href="#" class="author-tag">
+              <span class="avatar" style="background: var(--or-100); color: var(--or-700);">CF</span>
+              Camille Fabien
+              <span class="role">Traductrice</span>
+              <span class="count">14</span>
+            </a>
+            <a href="#" class="author-tag">
+              <span class="avatar" style="background: var(--ambre-100); color: var(--ambre-700);">JT</span>
+              Jean Tavernier
+              <span class="role">Traducteur</span>
+              <span class="count">14</span>
+            </a>
+            <a href="#" class="author-tag">
+              <span class="avatar" style="background: var(--sang-100); color: var(--sang-700);">RC</span>
+              Richard Cottle
+              <span class="role">Cartographe</span>
+              <span class="count">9</span>
+            </a>
+            <a href="#" class="author-tag">
+              <span class="avatar" style="background: var(--cuir-100); color: var(--cuir-700);">PB</span>
+              Paul Bonner
+              <span class="role">Couvertures collector</span>
+              <span class="count">12</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    // Sceau favoris
+    const favSeal = document.getElementById('favSeal');
+    if (favSeal) {
+      favSeal.addEventListener('click', () => {
+        const pressed = favSeal.getAttribute('aria-pressed') === 'true';
+        favSeal.setAttribute('aria-pressed', String(!pressed));
+        const label = favSeal.querySelector('.seal-btn-text > span:first-child');
+        const sub = favSeal.querySelector('.seal-label-sm');
+        if (!pressed) {
+          if (label) label.textContent = 'Collection scellée';
+          if (sub) sub.textContent = 'Dans vos favoris · cliquez pour retirer';
+        } else {
+          if (label) label.textContent = 'Ajouter aux favoris';
+          if (sub) sub.textContent = 'Sceller cette collection';
+        }
+      });
+    }
+
+    // Filter pills (single-select)
+    document.querySelectorAll('.filter-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-pill').forEach(b => b.setAttribute('aria-pressed', 'false'));
+        btn.setAttribute('aria-pressed', 'true');
+        const kind = btn.dataset.kind;
+        document.querySelectorAll('.tome').forEach(t => {
+          if (kind === 'all') t.style.display = '';
+          else if (kind === 'owned')  t.style.display = t.classList.contains('is-owned') ? '' : 'none';
+          else if (kind === 'missing') t.style.display = t.classList.contains('is-missing') ? '' : 'none';
+        });
+      });
+    });
+
+    // Sort segmented control (visual only — no actual reorder demo)
+    document.querySelectorAll('.seg button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.parentElement.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', 'false'));
+        btn.setAttribute('aria-pressed', 'true');
+      });
+    });
+
+    // Wishlist toggle on missing tomes
+    document.querySelectorAll('.tome.is-missing .wish-add').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const card = btn.closest('.tome');
+        if (!card) return;
+        const isOn = card.classList.toggle('is-wishlisted');
+        const label = card.querySelector('.tome-wish > span');
+        if (isOn) {
+          btn.textContent = 'Retirer';
+          if (label) label.innerHTML = '<svg viewBox="0 0 24 24" style="display:inline-block;vertical-align:-2px;width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.7;"><path d="M21 11.5a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0z"/><path d="M12 7v9M7 12h10"/></svg> Dans ma liste d\'achat';
+        } else {
+          btn.textContent = '+ Achat';
+          if (label) label.innerHTML = '<svg viewBox="0 0 24 24" style="display:inline-block;vertical-align:-2px;width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.7;"><path d="M21 11.5a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0z"/><path d="M12 7v9M7 12h10"/></svg> Ajouter à ma liste';
+        }
+      });
+    });
+
+    // Prevent navigation when clicking inside tome card (since whole card is link)
+    document.querySelectorAll('.tome .tome-wish').forEach(el => {
+      el.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
+    });
+  </script>
+</body>
+</html>

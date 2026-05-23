@@ -1,0 +1,674 @@
+/* ==========================================================================
+   La Collection des Aventuriers — Design Tokens
+   Source unique de vérité. Mapping vers Bootstrap SCSS dans /pages/01-couleurs.
+   ========================================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+
+/* --------------------------------------------------------------------------
+   1. PALETTES BRUTES (indépendantes du thème)
+   -------------------------------------------------------------------------- */
+:root {
+  /* Parchemin — base claire, hiérarchie chaude */
+  --parchemin-50:  #fbf6e9;
+  --parchemin-100: #f5ecd9;
+  --parchemin-200: #ede1c5;
+  --parchemin-300: #d9c9a7;
+  --parchemin-400: #b8a172;
+  --parchemin-500: #8a7558;
+  --parchemin-600: #5a4632;
+  --parchemin-700: #3d2e1f;
+  --parchemin-800: #2d1810;
+  --parchemin-900: #1a0e08;
+
+  /* Grimoire — base sombre, noir cuir-encre */
+  --grimoire-50:  #2d1f12;
+  --grimoire-100: #241910;
+  --grimoire-200: #1f160d;
+  --grimoire-300: #1a120b;
+  --grimoire-400: #140d07;
+  --grimoire-500: #0d0804;
+  --grimoire-900: #050301;
+
+  /* Cuir — accent primaire (boutons, liens, focus) */
+  --cuir-50:  #faf3eb;
+  --cuir-100: #f0dcc1;
+  --cuir-200: #e0b88a;
+  --cuir-300: #c79460;
+  --cuir-400: #a86b3a;
+  --cuir-500: #8b4513;
+  --cuir-600: #6e360e;
+  --cuir-700: #52280a;
+  --cuir-800: #371a06;
+  --cuir-900: #1f0e03;
+
+  /* Or — accent secondaire (notation, ornements, highlight) */
+  --or-50:  #fdf8e7;
+  --or-100: #f7ebbb;
+  --or-200: #efd682;
+  --or-300: #e5be50;
+  --or-400: #d2a328;
+  --or-500: #b8860b;
+  --or-600: #95690a;
+  --or-700: #714e08;
+  --or-800: #4d3506;
+  --or-900: #2a1d03;
+
+  /* Sémantique — Mousse (success / Validée) */
+  --mousse-50:  #eef3e6;
+  --mousse-100: #d4e0bd;
+  --mousse-300: #8fa86a;
+  --mousse-500: #5b7c3a;
+  --mousse-700: #3b5424;
+  --mousse-900: #1e2c11;
+
+  /* Sémantique — Ambre (warning / En attente) */
+  --ambre-50:  #fdf5e3;
+  --ambre-100: #f6e2af;
+  --ambre-300: #dbb15c;
+  --ambre-500: #c08a2e;
+  --ambre-700: #855d1a;
+  --ambre-900: #43300d;
+
+  /* Sémantique — Sang (danger / Refusée) */
+  --sang-50:  #f9e9e5;
+  --sang-100: #edc4ba;
+  --sang-300: #c97a68;
+  --sang-500: #9a3a2a;
+  --sang-700: #6b271b;
+  --sang-900: #36120c;
+
+  /* Sémantique — Encre (info, modérateur) */
+  --encre-50:  #e8eef3;
+  --encre-100: #becfdd;
+  --encre-300: #6e90ad;
+  --encre-500: #3a5a7c;
+  --encre-700: #243e58;
+  --encre-900: #11202f;
+}
+
+/* --------------------------------------------------------------------------
+   2. THÈME CLAIR — Parchemin (par défaut)
+   -------------------------------------------------------------------------- */
+:root, [data-theme="light"] {
+  /* Surfaces */
+  --bg-page:      var(--parchemin-100);
+  --bg-elevated: var(--parchemin-50);
+  --bg-sunken:   var(--parchemin-200);
+  --bg-overlay:  rgba(45, 24, 16, 0.55);
+
+  /* Encres (texte) */
+  --ink-strong:  var(--parchemin-900);
+  --ink-default: var(--parchemin-800);
+  --ink-muted:   var(--parchemin-600);
+  --ink-subtle:  var(--parchemin-500);
+  --ink-onbrand: var(--parchemin-50);
+
+  /* Bordures & traits */
+  --border-subtle: var(--parchemin-200);
+  --border-default: var(--parchemin-300);
+  --border-strong:  var(--parchemin-400);
+
+  /* Brand mapping */
+  --brand-primary:        var(--cuir-500);
+  --brand-primary-hover:  var(--cuir-600);
+  --brand-primary-active: var(--cuir-700);
+  --brand-primary-ink:    #ffffff;
+
+  --brand-secondary:        var(--or-500);
+  --brand-secondary-hover:  var(--or-600);
+  --brand-secondary-active: var(--or-700);
+
+  /* Sémantique */
+  --success: var(--mousse-500);
+  --success-bg: var(--mousse-50);
+  --success-border: var(--mousse-100);
+  --warning: var(--ambre-700);
+  --warning-bg: var(--ambre-50);
+  --warning-border: var(--ambre-100);
+  --danger:  var(--sang-500);
+  --danger-bg: var(--sang-50);
+  --danger-border: var(--sang-100);
+  --info:    var(--encre-500);
+  --info-bg: var(--encre-50);
+  --info-border: var(--encre-100);
+
+  /* Texture parchemin (subtile) */
+  --parchment-texture:
+    radial-gradient(circle at 12% 18%, rgba(139,69,19,0.04) 0, transparent 60%),
+    radial-gradient(circle at 88% 76%, rgba(184,134,11,0.05) 0, transparent 55%),
+    radial-gradient(circle at 50% 50%, rgba(45,24,16,0.015) 0, transparent 70%);
+}
+
+/* --------------------------------------------------------------------------
+   3. THÈME SOMBRE — Grimoire
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] {
+  --bg-page:     var(--grimoire-300);
+  --bg-elevated: var(--grimoire-100);
+  --bg-sunken:   var(--grimoire-400);
+  --bg-overlay:  rgba(5, 3, 1, 0.72);
+
+  --ink-strong:  #f5ecd9;
+  --ink-default: #e6d6b3;
+  --ink-muted:   #b8a172;
+  --ink-subtle:  #8a7558;
+  --ink-onbrand: #ffffff;
+
+  --border-subtle: #2a1d12;
+  --border-default: #3d2c1c;
+  --border-strong:  #5a4226;
+
+  --brand-primary:        var(--cuir-400);
+  --brand-primary-hover:  var(--cuir-300);
+  --brand-primary-active: var(--cuir-200);
+  --brand-primary-ink:    #1a0e08;
+
+  --brand-secondary:        var(--or-400);
+  --brand-secondary-hover:  var(--or-300);
+  --brand-secondary-active: var(--or-200);
+
+  --success:        var(--mousse-300);
+  --success-bg:     rgba(91, 124, 58, 0.12);
+  --success-border: rgba(143, 168, 106, 0.30);
+  --warning:        var(--ambre-300);
+  --warning-bg:     rgba(192, 138, 46, 0.12);
+  --warning-border: rgba(219, 177, 92, 0.30);
+  --danger:         var(--sang-300);
+  --danger-bg:      rgba(154, 58, 42, 0.14);
+  --danger-border:  rgba(201, 122, 104, 0.30);
+  --info:           var(--encre-300);
+  --info-bg:        rgba(58, 90, 124, 0.14);
+  --info-border:    rgba(110, 144, 173, 0.30);
+
+  --parchment-texture:
+    radial-gradient(circle at 20% 30%, rgba(184,134,11,0.04) 0, transparent 55%),
+    radial-gradient(circle at 80% 70%, rgba(139,69,19,0.05) 0, transparent 60%);
+}
+
+/* --------------------------------------------------------------------------
+   4. TYPOGRAPHIE
+   -------------------------------------------------------------------------- */
+:root {
+  --font-display: "Cinzel", "Trajan Pro", "Times New Roman", serif;
+  --font-body:    "Inter", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --font-mono:    "IBM Plex Mono", "Menlo", monospace;
+
+  /* Échelle modulaire — base 16, ratio 1.25 (Major Third) */
+  --fs-xs:   0.75rem;   /* 12 */
+  --fs-sm:   0.875rem;  /* 14 */
+  --fs-md:   1rem;      /* 16 — body */
+  --fs-lg:   1.125rem;  /* 18 */
+  --fs-xl:   1.375rem;  /* 22 */
+  --fs-2xl:  1.75rem;   /* 28 */
+  --fs-3xl:  2.25rem;   /* 36 */
+  --fs-4xl:  3rem;      /* 48 */
+  --fs-5xl:  4rem;      /* 64 */
+
+  --lh-tight: 1.15;
+  --lh-snug:  1.3;
+  --lh-base:  1.55;
+  --lh-loose: 1.75;
+
+  --tracking-display: 0.04em;
+  --tracking-caps:    0.12em;
+  --tracking-body:    0;
+}
+
+/* --------------------------------------------------------------------------
+   5. ESPACEMENT — base 4 (mobile-first)
+   -------------------------------------------------------------------------- */
+:root {
+  --sp-0:  0;
+  --sp-1:  0.25rem;  /* 4  */
+  --sp-2:  0.5rem;   /* 8  */
+  --sp-3:  0.75rem;  /* 12 */
+  --sp-4:  1rem;     /* 16 */
+  --sp-5:  1.5rem;   /* 24 */
+  --sp-6:  2rem;     /* 32 */
+  --sp-7:  3rem;     /* 48 */
+  --sp-8:  4rem;     /* 64 */
+  --sp-9:  6rem;     /* 96 */
+}
+
+/* --------------------------------------------------------------------------
+   6. RADIUS, SHADOWS, MOTION
+   -------------------------------------------------------------------------- */
+:root {
+  --radius-xs:  2px;
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+  --radius-xl:  20px;
+  --radius-pill: 999px;
+
+  --shadow-xs: 0 1px 1px rgba(45,24,16,0.06);
+  --shadow-sm: 0 1px 2px rgba(45,24,16,0.08), 0 1px 1px rgba(45,24,16,0.04);
+  --shadow-md: 0 4px 12px -2px rgba(45,24,16,0.10), 0 2px 4px -1px rgba(45,24,16,0.06);
+  --shadow-lg: 0 12px 28px -6px rgba(45,24,16,0.18), 0 4px 10px -2px rgba(45,24,16,0.08);
+  --shadow-xl: 0 28px 60px -12px rgba(45,24,16,0.28), 0 8px 18px -4px rgba(45,24,16,0.10);
+  --shadow-inset: inset 0 1px 0 rgba(255,247,224,0.5), inset 0 -1px 0 rgba(45,24,16,0.08);
+
+  --ring-focus: 0 0 0 3px rgba(139,69,19,0.30);
+
+  --motion-fast:  120ms;
+  --motion-base:  200ms;
+  --motion-slow:  320ms;
+  --motion-ease:  cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] {
+  --shadow-xs: 0 1px 1px rgba(0,0,0,0.4);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.5), 0 1px 1px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px -2px rgba(0,0,0,0.55), 0 2px 4px -1px rgba(0,0,0,0.3);
+  --shadow-lg: 0 12px 28px -6px rgba(0,0,0,0.65), 0 4px 10px -2px rgba(0,0,0,0.4);
+  --shadow-xl: 0 28px 60px -12px rgba(0,0,0,0.75), 0 8px 18px -4px rgba(0,0,0,0.45);
+  --shadow-inset: inset 0 1px 0 rgba(245,236,217,0.06), inset 0 -1px 0 rgba(0,0,0,0.4);
+  --ring-focus: 0 0 0 3px rgba(231,179,138,0.36);
+}
+
+/* --------------------------------------------------------------------------
+   7. RESET + BASE LAYOUT (utilisé par toutes les pages docs)
+   -------------------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--fs-md);
+  line-height: var(--lh-base);
+  color: var(--ink-default);
+  background-color: var(--bg-page);
+  background-image: var(--parchment-texture);
+  background-attachment: fixed;
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color var(--motion-base) var(--motion-ease),
+              color var(--motion-base) var(--motion-ease);
+}
+
+a { color: var(--brand-primary); text-decoration: none; }
+a:hover { color: var(--brand-primary-hover); text-decoration: underline; text-underline-offset: 3px; }
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--ink-strong);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-display);
+  margin: 0;
+  font-weight: 600;
+}
+h1 { font-size: var(--fs-4xl); font-weight: 700; }
+h2 { font-size: var(--fs-2xl); }
+h3 { font-size: var(--fs-xl); }
+
+p { margin: 0 0 var(--sp-4); }
+code, pre, kbd { font-family: var(--font-mono); font-size: 0.92em; }
+
+::selection { background: var(--cuir-200); color: var(--parchemin-900); }
+[data-theme="dark"] ::selection { background: var(--cuir-600); color: var(--parchemin-50); }
+
+/* --------------------------------------------------------------------------
+   8. SHELL DE DOCUMENTATION — header + nav latérale + content
+   -------------------------------------------------------------------------- */
+.ds-shell {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 100vh;
+}
+@media (min-width: 960px) {
+  .ds-shell {
+    grid-template-columns: 280px 1fr;
+  }
+}
+
+.ds-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-3) var(--sp-5);
+  background: color-mix(in oklab, var(--bg-page) 88%, transparent);
+  backdrop-filter: saturate(140%) blur(10px);
+  -webkit-backdrop-filter: saturate(140%) blur(10px);
+  border-bottom: 1px solid var(--border-subtle);
+  grid-column: 1 / -1;
+}
+.ds-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  text-decoration: none;
+  color: var(--ink-strong);
+}
+.ds-brand:hover { text-decoration: none; }
+.ds-sigil {
+  width: 36px; height: 36px;
+  display: grid; place-items: center;
+  border: 1.5px solid var(--cuir-500);
+  border-radius: 50%;
+  color: var(--cuir-500);
+  font-family: var(--font-display);
+  font-weight: 700;
+  background: var(--bg-elevated);
+}
+[data-theme="dark"] .ds-sigil { border-color: var(--or-400); color: var(--or-400); }
+.ds-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.ds-brand-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-md);
+  font-weight: 700;
+  letter-spacing: var(--tracking-display);
+}
+.ds-brand-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.ds-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.ds-theme-toggle {
+  appearance: none;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  color: var(--ink-default);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--motion-fast) var(--motion-ease);
+}
+.ds-theme-toggle:hover {
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+}
+
+/* Nav latérale */
+.ds-nav {
+  position: sticky;
+  top: 64px;
+  align-self: start;
+  height: calc(100vh - 64px);
+  overflow-y: auto;
+  padding: var(--sp-5) var(--sp-4) var(--sp-7);
+  border-right: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  display: none;
+}
+@media (min-width: 960px) {
+  .ds-nav { display: block; }
+}
+.ds-nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: var(--sp-5);
+}
+.ds-nav-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--ink-subtle);
+  padding: 6px 12px;
+  margin-bottom: 4px;
+}
+.ds-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  color: var(--ink-default);
+  text-decoration: none;
+  transition: all var(--motion-fast) var(--motion-ease);
+  border-left: 2px solid transparent;
+}
+.ds-nav-link:hover {
+  background: var(--bg-sunken);
+  color: var(--ink-strong);
+  text-decoration: none;
+}
+.ds-nav-link[aria-current="page"] {
+  background: var(--bg-sunken);
+  color: var(--brand-primary);
+  border-left-color: var(--brand-primary);
+  font-weight: 600;
+}
+.ds-nav-num {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-subtle);
+  min-width: 22px;
+}
+.ds-nav-link[aria-current="page"] .ds-nav-num { color: var(--brand-primary); }
+
+/* Mobile nav row */
+.ds-nav-mobile {
+  display: flex;
+  gap: var(--sp-2);
+  overflow-x: auto;
+  padding: var(--sp-2) var(--sp-4);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  scrollbar-width: none;
+}
+.ds-nav-mobile::-webkit-scrollbar { display: none; }
+.ds-nav-mobile a {
+  flex: 0 0 auto;
+  font-size: var(--fs-xs);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  padding: 6px 12px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  color: var(--ink-muted);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.ds-nav-mobile a[aria-current="page"] {
+  background: var(--ink-strong);
+  color: var(--bg-page);
+  border-color: var(--ink-strong);
+}
+@media (min-width: 960px) { .ds-nav-mobile { display: none; } }
+
+/* Content */
+.ds-main {
+  padding: var(--sp-5) var(--sp-4) var(--sp-8);
+  max-width: 100%;
+}
+@media (min-width: 720px)  { .ds-main { padding: var(--sp-6) var(--sp-6) var(--sp-9); } }
+@media (min-width: 1200px) { .ds-main { padding: var(--sp-7) var(--sp-8) var(--sp-9); max-width: 1080px; } }
+
+.ds-eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: var(--sp-3);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+.ds-eyebrow::before {
+  content: "";
+  width: 32px; height: 1px;
+  background: var(--cuir-400);
+}
+.ds-page-title {
+  font-size: clamp(2rem, 4vw + 0.5rem, 3.5rem);
+  margin-bottom: var(--sp-3);
+}
+.ds-lede {
+  font-size: var(--fs-lg);
+  color: var(--ink-muted);
+  max-width: 64ch;
+  margin-bottom: var(--sp-7);
+}
+
+.ds-section {
+  margin: var(--sp-8) 0;
+  scroll-margin-top: 80px;
+}
+.ds-section-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  border-bottom: 1px solid var(--border-default);
+  padding-bottom: var(--sp-3);
+  margin-bottom: var(--sp-5);
+}
+.ds-section-num {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--ink-muted);
+}
+.ds-section-desc { color: var(--ink-muted); max-width: 64ch; }
+
+/* Bloc d'exemple = canvas démo + code */
+.ds-example {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  background: var(--bg-elevated);
+  overflow: hidden;
+  margin: var(--sp-4) 0;
+}
+.ds-example-canvas {
+  padding: var(--sp-6) var(--sp-5);
+  background:
+    repeating-linear-gradient(45deg,
+      transparent 0, transparent 8px,
+      color-mix(in oklab, var(--ink-default) 3%, transparent) 8px,
+      color-mix(in oklab, var(--ink-default) 3%, transparent) 9px),
+    var(--bg-elevated);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  align-items: center;
+  justify-content: flex-start;
+}
+.ds-example-canvas.center { justify-content: center; }
+.ds-example-canvas.column { flex-direction: column; align-items: stretch; }
+.ds-example-canvas.dark {
+  background:
+    repeating-linear-gradient(45deg,
+      transparent 0, transparent 8px,
+      rgba(245,236,217,0.04) 8px,
+      rgba(245,236,217,0.04) 9px),
+    var(--grimoire-300);
+  color: #e6d6b3;
+}
+.ds-example-code {
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--bg-sunken);
+  border-top: 1px solid var(--border-subtle);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--ink-default);
+  overflow-x: auto;
+  white-space: pre;
+  line-height: 1.55;
+}
+.ds-example-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background: var(--bg-sunken);
+  border-bottom: 1px solid var(--border-subtle);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--ink-muted);
+}
+
+/* Grilles utilitaires */
+.ds-grid {
+  display: grid;
+  gap: var(--sp-3);
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+}
+
+/* Tokens row */
+.ds-token-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-1);
+  padding: var(--sp-3) 0;
+  border-bottom: 1px dashed var(--border-subtle);
+}
+@media (min-width: 640px) {
+  .ds-token-row { grid-template-columns: 1fr 1fr 1fr; align-items: center; }
+}
+.ds-token-name { font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--ink-strong); }
+.ds-token-value { font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--ink-muted); }
+.ds-token-desc { font-size: var(--fs-sm); color: var(--ink-muted); }
+
+/* Pager footer (prev / next) */
+.ds-pager {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+  margin-top: var(--sp-8);
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--border-default);
+}
+.ds-pager a {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--sp-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--ink-default);
+  transition: all var(--motion-fast) var(--motion-ease);
+  background: var(--bg-elevated);
+}
+.ds-pager a:hover {
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+.ds-pager a.next { text-align: right; align-items: flex-end; }
+.ds-pager a.prev:only-child { grid-column: 1; }
+.ds-pager a.next:only-child { grid-column: 2; }
+.ds-pager-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--ink-subtle);
+}
+.ds-pager-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 600;
+}

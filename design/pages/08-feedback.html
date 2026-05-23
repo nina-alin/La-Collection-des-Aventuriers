@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>08 · Modale &amp; toast — La Collection des Aventuriers</title>
+  <link rel="stylesheet" href="../assets/tokens.css" />
+  <link rel="stylesheet" href="../assets/components.css" />
+  <style>
+    /* ============================================================
+       DIALOG / MODAL
+       ============================================================ */
+    .modal-stage {
+      position: relative;
+      width: 100%;
+      min-height: 480px;
+      background:
+        repeating-linear-gradient(45deg,
+          transparent 0, transparent 8px,
+          color-mix(in oklab, var(--ink-default) 4%, transparent) 8px,
+          color-mix(in oklab, var(--ink-default) 4%, transparent) 9px),
+        var(--bg-elevated);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      padding: var(--sp-5);
+    }
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: var(--bg-overlay);
+      backdrop-filter: blur(4px);
+    }
+    .modal {
+      position: relative;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl);
+      width: 100%;
+      max-width: 440px;
+      overflow: hidden;
+      animation: pop var(--motion-slow) var(--motion-ease-out);
+    }
+    @keyframes pop {
+      from { opacity: 0; transform: translateY(20px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: var(--sp-5) var(--sp-5) var(--sp-2);
+      gap: var(--sp-3);
+    }
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: var(--fs-xl);
+      color: var(--ink-strong);
+      font-weight: 600;
+      line-height: 1.2;
+      letter-spacing: var(--tracking-display);
+    }
+    .modal-eyebrow {
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+      margin-bottom: 6px;
+    }
+    .modal-close {
+      width: 36px; height: 36px;
+      border-radius: var(--radius-pill);
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      color: var(--ink-muted);
+      flex-shrink: 0;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .modal-close:hover { background: var(--bg-sunken); color: var(--ink-strong); }
+    .modal-close svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+    .modal-body {
+      padding: 0 var(--sp-5) var(--sp-4);
+      color: var(--ink-default);
+      font-size: var(--fs-sm);
+      line-height: var(--lh-loose);
+    }
+    .modal-body p { margin: 0 0 var(--sp-3); }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--sp-3);
+      padding: var(--sp-4) var(--sp-5);
+      background: var(--bg-sunken);
+      border-top: 1px solid var(--border-subtle);
+      flex-wrap: wrap;
+    }
+    @media (max-width: 480px) {
+      .modal-footer { justify-content: stretch; }
+      .modal-footer .btn { flex: 1; }
+    }
+    .modal.danger-accent::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--danger);
+    }
+
+    /* ============================================================
+       TOAST
+       ============================================================ */
+    .toast-stage {
+      position: relative;
+      min-height: 320px;
+      background:
+        repeating-linear-gradient(45deg,
+          transparent 0, transparent 8px,
+          color-mix(in oklab, var(--ink-default) 4%, transparent) 8px,
+          color-mix(in oklab, var(--ink-default) 4%, transparent) 9px),
+        var(--bg-elevated);
+      border-radius: var(--radius-md);
+      padding: var(--sp-5);
+      overflow: hidden;
+    }
+    .toast-rail {
+      position: absolute;
+      top: var(--sp-5); right: var(--sp-5);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 360px;
+      width: calc(100% - var(--sp-7));
+    }
+    @media (max-width: 600px) {
+      .toast-rail { left: var(--sp-5); }
+    }
+    .toast {
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 12px 14px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-left: 3px solid var(--ink-muted);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+      animation: slide-in var(--motion-slow) var(--motion-ease-out);
+    }
+    @keyframes slide-in {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .toast-icon {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      color: var(--bg-elevated);
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .toast-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .toast-title {
+      font-family: var(--font-body);
+      font-size: var(--fs-sm);
+      font-weight: 600;
+      color: var(--ink-strong);
+    }
+    .toast-message {
+      font-size: var(--fs-xs);
+      color: var(--ink-muted);
+      line-height: 1.5;
+    }
+    .toast-action {
+      appearance: none;
+      background: transparent;
+      border: 0;
+      color: var(--brand-primary);
+      font-family: var(--font-body);
+      font-size: var(--fs-xs);
+      font-weight: 600;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+    }
+    .toast-action:hover { background: var(--bg-sunken); }
+    .toast-close {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: transparent;
+      border: 0;
+      color: var(--ink-subtle);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .toast-close:hover { color: var(--ink-strong); background: var(--bg-sunken); }
+    .toast-close svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+    .toast-timer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      background: var(--ink-muted);
+      animation: drain 4s linear forwards;
+    }
+    @keyframes drain { from { width: 100%; } to { width: 0%; } }
+
+    /* Variantes */
+    .toast.success { border-left-color: var(--success); }
+    .toast.success .toast-icon { background: var(--success); }
+    .toast.success .toast-timer { background: var(--success); }
+    .toast.warning { border-left-color: var(--warning); }
+    .toast.warning .toast-icon { background: var(--warning); }
+    .toast.warning .toast-timer { background: var(--warning); }
+    .toast.danger  { border-left-color: var(--danger);  }
+    .toast.danger  .toast-icon { background: var(--danger);  }
+    .toast.danger  .toast-timer { background: var(--danger);  }
+    .toast.info    { border-left-color: var(--info);    }
+    .toast.info    .toast-icon { background: var(--info);    }
+    .toast.info    .toast-timer { background: var(--info);    }
+
+    .anatomy-card {
+      padding: var(--sp-4);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      background: var(--bg-elevated);
+    }
+    .anatomy-card h4 {
+      font-family: var(--font-display);
+      font-size: var(--fs-md);
+      margin-bottom: var(--sp-2);
+      color: var(--ink-strong);
+    }
+    .anatomy-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: var(--fs-sm);
+      color: var(--ink-muted);
+    }
+    .anatomy-card ul li::before {
+      content: "→ ";
+      color: var(--brand-primary);
+      font-family: var(--font-mono);
+    }
+    .anatomy-card code { color: var(--ink-strong); }
+
+    .two-col {
+      display: grid;
+      gap: var(--sp-3);
+      grid-template-columns: 1fr;
+      margin: var(--sp-4) 0;
+    }
+    @media (min-width: 720px) { .two-col { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="ds-header">
+    <a class="ds-brand" href="../index.html">
+      <span class="ds-sigil">A</span>
+      <span class="ds-brand-text">
+        <span class="ds-brand-title">La Collection des Aventuriers</span>
+        <span class="ds-brand-sub">Design System · v0.1</span>
+      </span>
+    </a>
+    <div class="ds-header-actions">
+      <button class="ds-theme-toggle" data-theme-toggle aria-label="Basculer le thème">
+        <span data-theme-icon>☀</span>
+        <span data-theme-label>Parchemin</span>
+      </button>
+    </div>
+  </header>
+
+  <nav class="ds-nav-mobile" aria-label="Pages">
+    <a href="../index.html">Aperçu</a>
+    <a href="01-couleurs.html">Couleurs</a>
+    <a href="02-typographie.html">Typo</a>
+    <a href="03-tokens.html">Tokens</a>
+    <a href="04-boutons-formulaires.html">Boutons</a>
+    <a href="05-cards.html">Cards</a>
+    <a href="06-badges-notation.html">Badges</a>
+    <a href="07-navigation.html">Nav</a>
+    <a href="08-feedback.html">Feedback</a>
+  </nav>
+
+  <div class="ds-shell">
+    <aside class="ds-nav" aria-label="Navigation">
+      <div class="ds-nav-group">
+        <div class="ds-nav-label">Aperçu</div>
+        <a class="ds-nav-link" href="../index.html"><span class="ds-nav-num">00</span>Vue d'ensemble</a>
+      </div>
+      <div class="ds-nav-group">
+        <div class="ds-nav-label">Fondations</div>
+        <a class="ds-nav-link" href="01-couleurs.html"><span class="ds-nav-num">01</span>Couleurs</a>
+        <a class="ds-nav-link" href="02-typographie.html"><span class="ds-nav-num">02</span>Typographie</a>
+        <a class="ds-nav-link" href="03-tokens.html"><span class="ds-nav-num">03</span>Espacement &amp; effets</a>
+      </div>
+      <div class="ds-nav-group">
+        <div class="ds-nav-label">Composants</div>
+        <a class="ds-nav-link" href="04-boutons-formulaires.html"><span class="ds-nav-num">04</span>Boutons &amp; formulaires</a>
+        <a class="ds-nav-link" href="05-cards.html"><span class="ds-nav-num">05</span>Cards Livre &amp; Auteur</a>
+        <a class="ds-nav-link" href="06-badges-notation.html"><span class="ds-nav-num">06</span>Badges &amp; notation</a>
+        <a class="ds-nav-link" href="07-navigation.html"><span class="ds-nav-num">07</span>Navigation &amp; avatars</a>
+        <a class="ds-nav-link" href="08-feedback.html"><span class="ds-nav-num">08</span>Modale &amp; toast</a>
+      </div>
+    </aside>
+
+    <main class="ds-main">
+      <div class="ds-eyebrow">08 · Composants</div>
+      <h1 class="ds-page-title">Modale &amp; toast</h1>
+      <p class="ds-lede">
+        Deux familles de feedback&nbsp;: la <strong>modale</strong> arrête le flux pour une
+        décision (confirmation, validation modérateur, refus motivé) ; le <strong>toast</strong>
+        glisse à droite pour confirmer une action passée sans bloquer l'écran.
+      </p>
+
+      <!-- =============== Modale =============== -->
+      <section class="ds-section" id="modal">
+        <div class="ds-section-head">
+          <span class="ds-section-num">8.1</span>
+          <h2>Modale (dialog)</h2>
+        </div>
+        <p class="ds-section-desc">
+          Overlay sombre avec léger blur, modale centrée animée par <em>scale + fade</em>
+          (320 ms ease-out). Largeur max 440 px&nbsp;; sur mobile, les CTA passent en bloc
+          pleine largeur. Toujours une action <strong>primaire à droite</strong>, une
+          <strong>secondaire/ghost à gauche</strong>.
+        </p>
+
+        <!-- Confirmation -->
+        <div class="ds-example">
+          <div class="ds-example-label"><span>Modale de confirmation</span><span>Pattern standard</span></div>
+          <div class="ds-example-canvas">
+            <div class="modal-stage">
+              <div class="modal-overlay"></div>
+              <div class="modal" role="dialog" aria-modal="true" aria-labelledby="m1-title">
+                <div class="modal-header">
+                  <div>
+                    <div class="modal-eyebrow">Suggestion · LCA-0042</div>
+                    <h3 class="modal-title" id="m1-title">Valider cette suggestion&nbsp;?</h3>
+                  </div>
+                  <button class="modal-close" aria-label="Fermer">
+                    <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <p>La fiche « Le Sorcier de la Montagne de Feu » sera ajoutée au
+                  catalogue public et son auteur·rice gagnera 1 point de contribution.</p>
+                  <p style="color: var(--ink-muted);">Vous pourrez modifier la fiche après validation depuis l'onglet Modération.</p>
+                </div>
+                <div class="modal-footer">
+                  <button class="btn btn-ghost">Annuler</button>
+                  <button class="btn btn-primary">Valider la suggestion</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Refus -->
+        <div class="ds-example">
+          <div class="ds-example-label"><span>Modale de refus motivé</span><span>Variante danger</span></div>
+          <div class="ds-example-canvas">
+            <div class="modal-stage">
+              <div class="modal-overlay"></div>
+              <div class="modal danger-accent" role="dialog" aria-modal="true">
+                <div class="modal-header">
+                  <div>
+                    <div class="modal-eyebrow">Modération · LCA-0299</div>
+                    <h3 class="modal-title">Refuser la suggestion</h3>
+                  </div>
+                  <button class="modal-close" aria-label="Fermer">
+                    <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <p>Motivez ce refus — l'auteur·rice de la suggestion recevra votre message.</p>
+                  <div class="form-group">
+                    <label class="form-label" for="reason">Motivation <span class="required">*</span></label>
+                    <select class="select" id="reason">
+                      <option>Doublon — cette fiche existe déjà</option>
+                      <option>Données insuffisantes / non vérifiables</option>
+                      <option>Hors périmètre (pas une fiction interactive)</option>
+                      <option>Autre — préciser ci-dessous</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Note pour l'auteur·rice</label>
+                    <textarea class="textarea" placeholder="Précisions facultatives…"></textarea>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button class="btn btn-ghost">Annuler</button>
+                  <button class="btn btn-danger">Refuser la suggestion</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="anatomy-card">
+            <h4>Anatomie</h4>
+            <ul>
+              <li>Overlay <code>--bg-overlay</code> + <code>backdrop-filter: blur(4px)</code></li>
+              <li>Box <code>440px</code> max, <code>--radius-lg</code>, <code>--shadow-xl</code></li>
+              <li>Animation <code>pop</code>&nbsp;: fade + scale 0.97 → 1, durée <code>--motion-slow</code></li>
+              <li>Liseré danger 4px en haut si <code>.danger-accent</code></li>
+              <li>Header / Body / Footer fixes — body scrollable au besoin</li>
+            </ul>
+          </div>
+          <div class="anatomy-card">
+            <h4>Règles UX</h4>
+            <ul>
+              <li>Bloquant&nbsp;: on l'utilise pour une décision, pas pour informer</li>
+              <li>Échap ferme, clic overlay ferme (sauf <em>refus motivé</em> qui demande une saisie)</li>
+              <li>Focus piégé dans la modale ; retour au déclencheur à la fermeture</li>
+              <li>Une seule action primaire ; ordre <em>secondary → primary</em> (sens occidental)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="ds-example">
+          <div class="ds-example-label"><span>HTML · pattern</span><span>Structure</span></div>
+          <div class="ds-example-code">&lt;div class="modal-overlay"&gt;&lt;/div&gt;
+&lt;div class="modal" role="dialog" aria-modal="true" aria-labelledby="t"&gt;
+  &lt;div class="modal-header"&gt;
+    &lt;div&gt;
+      &lt;div class="modal-eyebrow"&gt;Suggestion · LCA-0042&lt;/div&gt;
+      &lt;h3 class="modal-title" id="t"&gt;Valider cette suggestion&nbsp;?&lt;/h3&gt;
+    &lt;/div&gt;
+    &lt;button class="modal-close" aria-label="Fermer"&gt;…&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class="modal-body"&gt;…&lt;/div&gt;
+  &lt;div class="modal-footer"&gt;
+    &lt;button class="btn btn-ghost"&gt;Annuler&lt;/button&gt;
+    &lt;button class="btn btn-primary"&gt;Valider&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</div>
+        </div>
+      </section>
+
+      <!-- =============== Toast =============== -->
+      <section class="ds-section" id="toast">
+        <div class="ds-section-head">
+          <span class="ds-section-num">8.2</span>
+          <h2>Toast</h2>
+        </div>
+        <p class="ds-section-desc">
+          Glisse en haut à droite (sur mobile, plein-largeur). <strong>Quatre variantes</strong>
+          partageant la même mécanique&nbsp;: icône colorée + titre + message court +
+          (option) action secondaire. Une barre de minuterie vide le toast en 4&nbsp;s par défaut —
+          interrompue au survol.
+        </p>
+
+        <div class="ds-example">
+          <div class="ds-example-label"><span>Stack de toasts</span><span>4 variantes</span></div>
+          <div class="ds-example-canvas column">
+            <div class="toast-stage">
+              <div class="toast-rail">
+                <div class="toast success" role="status">
+                  <span class="toast-icon">✓</span>
+                  <div class="toast-body">
+                    <span class="toast-title">Suggestion envoyée</span>
+                    <span class="toast-message">Un modérateur la traitera sous 24 h.</span>
+                  </div>
+                  <button class="toast-close" aria-label="Fermer">
+                    <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+                  </button>
+                  <span class="toast-timer"></span>
+                </div>
+
+                <div class="toast info" role="status">
+                  <span class="toast-icon">i</span>
+                  <div class="toast-body">
+                    <span class="toast-title">Fiche mise à jour</span>
+                    <span class="toast-message">Vous suivez désormais les modifications de @marius.</span>
+                  </div>
+                  <button class="toast-action">Annuler</button>
+                  <span class="toast-timer"></span>
+                </div>
+
+                <div class="toast warning" role="status">
+                  <span class="toast-icon">!</span>
+                  <div class="toast-body">
+                    <span class="toast-title">Connexion lente</span>
+                    <span class="toast-message">L'image de couverture n'a pas pu être chargée.</span>
+                  </div>
+                  <button class="toast-close" aria-label="Fermer">
+                    <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+                  </button>
+                  <span class="toast-timer"></span>
+                </div>
+
+                <div class="toast danger" role="alert">
+                  <span class="toast-icon">✕</span>
+                  <div class="toast-body">
+                    <span class="toast-title">Suggestion refusée</span>
+                    <span class="toast-message">L'ISBN saisi correspond déjà à la fiche LCA-0042.</span>
+                  </div>
+                  <button class="toast-action">Voir</button>
+                  <span class="toast-timer"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="anatomy-card">
+            <h4>Anatomie</h4>
+            <ul>
+              <li>Largeur max <code>360 px</code> · stack vertical avec gap <code>10 px</code></li>
+              <li>Bordure gauche colorée 3px (signal rapide) + icône ronde pleine</li>
+              <li>Box-shadow <code>--shadow-lg</code> pour décoller du contenu</li>
+              <li>Action optionnelle (texte cuir, ex. "Annuler", "Voir")</li>
+              <li>Timer 4s par défaut — 8s pour <code>warning</code>, persistant pour <code>danger</code></li>
+            </ul>
+          </div>
+          <div class="anatomy-card">
+            <h4>Règles UX</h4>
+            <ul>
+              <li><strong>Non bloquant</strong>&nbsp;: une action en cours reste possible</li>
+              <li>Maximum 3 toasts visibles ; au-delà, on empile invisibles et fait défiler</li>
+              <li><code>role="status"</code> pour info/succès, <code>role="alert"</code> pour danger</li>
+              <li>Sur mobile, plein-largeur en haut — jamais en bas (collision bottom nav)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="ds-example">
+          <div class="ds-example-label"><span>HTML · pattern</span><span>Variante succès</span></div>
+          <div class="ds-example-code">&lt;div class="toast success" role="status"&gt;
+  &lt;span class="toast-icon"&gt;✓&lt;/span&gt;
+  &lt;div class="toast-body"&gt;
+    &lt;span class="toast-title"&gt;Suggestion envoyée&lt;/span&gt;
+    &lt;span class="toast-message"&gt;Un modérateur la traitera sous 24 h.&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;button class="toast-close" aria-label="Fermer"&gt;…&lt;/button&gt;
+  &lt;span class="toast-timer"&gt;&lt;/span&gt;
+&lt;/div&gt;</div>
+        </div>
+      </section>
+
+      <section class="ds-section" id="effet-fb">
+        <div class="ds-section-head">
+          <span class="ds-section-num">8.3</span>
+          <h2>Effet visuel recherché</h2>
+        </div>
+        <p class="ds-section-desc">
+          La modale doit donner une impression de <strong>solennité contenue</strong>&nbsp;:
+          l'overlay assombri, le pop discret du dialog, la typo display sur le titre —
+          on ressent que la décision compte, sans dramatiser. Les toasts au contraire
+          sont <strong>légers et passagers</strong>&nbsp;: ils confirment, informent, et
+          s'effacent. Aucune surcharge graphique, aucun emoji, aucune animation parasite.
+        </p>
+      </section>
+
+      <nav class="ds-pager">
+        <a class="prev" href="07-navigation.html">
+          <span class="ds-pager-eyebrow">← Précédent</span>
+          <span class="ds-pager-title">07 · Navigation &amp; avatars</span>
+        </a>
+        <a class="next" href="../index.html">
+          <span class="ds-pager-eyebrow">Retour au sommaire</span>
+          <span class="ds-pager-title">↑ Vue d'ensemble</span>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/shell.js"></script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Consentement RGPD — La Collection{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <h1 class="mb-2">Finaliser votre inscription</h1>
+            <p style="color: var(--ink-muted); font-size: var(--fs-sm); margin-bottom: 2rem;">
+                Pour créer votre compte, veuillez accepter nos conditions d'utilisation.
+            </p>
+
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger" role="alert">{{ message }}</div>
+            {% endfor %}
+
+            <form method="POST" action="{{ path('app_oauth_google_consent') }}" novalidate>
+                <input type="hidden" name="_token" value="{{ csrf_token }}">
+
+                <div class="form-group">
+                    <label class="choice">
+                        <input type="checkbox" name="rgpdConsent" value="1" required>
+                        <span>
+                            J'accepte les
+                            <a href="/politique-de-confidentialite" target="_blank">conditions d'utilisation et la politique de confidentialité</a>.
+                        </span>
+                    </label>
+                </div>
+
+                <div class="d-flex gap-3 mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        Confirmer
+                    </button>
+                    <button type="submit" name="cancel" value="1" class="btn btn-ghost">
+                        Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

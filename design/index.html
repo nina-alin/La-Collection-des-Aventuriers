@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>La Collection des Aventuriers — Design System</title>
+  <link rel="stylesheet" href="assets/tokens.css" />
+  <style>
+    .hero {
+      padding: clamp(2.5rem, 6vw, 5rem) 0 clamp(2rem, 5vw, 4rem);
+      border-bottom: 1px solid var(--border-default);
+      margin-bottom: var(--sp-7);
+      position: relative;
+    }
+    .hero-ornament {
+      position: absolute;
+      right: 0;
+      top: clamp(2rem, 6vw, 4rem);
+      width: 120px; height: 120px;
+      border: 1px solid var(--cuir-400);
+      border-radius: 50%;
+      display: grid; place-items: center;
+      color: var(--cuir-500);
+      font-family: var(--font-display);
+      font-size: 56px;
+      font-weight: 700;
+      opacity: 0.5;
+    }
+    .hero-ornament::before {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border: 1px dashed var(--cuir-400);
+      border-radius: 50%;
+    }
+    [data-theme="dark"] .hero-ornament {
+      border-color: var(--or-400);
+      color: var(--or-400);
+    }
+    [data-theme="dark"] .hero-ornament::before { border-color: var(--or-400); }
+
+    .hero-title {
+      font-size: clamp(2.5rem, 6vw + 1rem, 5rem);
+      line-height: 1.05;
+      letter-spacing: 0.03em;
+      max-width: 14ch;
+      margin-bottom: var(--sp-4);
+    }
+    .hero-lede {
+      font-size: var(--fs-lg);
+      color: var(--ink-muted);
+      max-width: 58ch;
+    }
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--sp-5);
+      margin-top: var(--sp-6);
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+    }
+    .hero-meta strong {
+      display: block;
+      font-family: var(--font-display);
+      font-size: var(--fs-md);
+      color: var(--ink-strong);
+      letter-spacing: 0;
+      text-transform: none;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    .toc-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--sp-3);
+    }
+    @media (min-width: 720px) { .toc-grid { grid-template-columns: 1fr 1fr; } }
+
+    .toc-card {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-2);
+      padding: var(--sp-5);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      text-decoration: none;
+      color: var(--ink-default);
+      position: relative;
+      overflow: hidden;
+      transition: all var(--motion-base) var(--motion-ease);
+    }
+    .toc-card::after {
+      content: "→";
+      position: absolute;
+      right: var(--sp-5);
+      top: var(--sp-5);
+      color: var(--ink-subtle);
+      font-size: var(--fs-lg);
+      transition: transform var(--motion-base) var(--motion-ease-out), color var(--motion-fast);
+    }
+    .toc-card:hover {
+      border-color: var(--brand-primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      text-decoration: none;
+    }
+    .toc-card:hover::after { transform: translateX(4px); color: var(--brand-primary); }
+    .toc-num {
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+    }
+    .toc-title {
+      font-family: var(--font-display);
+      font-size: var(--fs-xl);
+      font-weight: 600;
+      color: var(--ink-strong);
+      letter-spacing: var(--tracking-display);
+    }
+    .toc-desc { font-size: var(--fs-sm); color: var(--ink-muted); }
+    .toc-meta {
+      margin-top: var(--sp-3);
+      padding-top: var(--sp-3);
+      border-top: 1px dashed var(--border-subtle);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+    }
+
+    .swatch-strip {
+      display: flex;
+      height: 60px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin: var(--sp-5) 0 var(--sp-7);
+      border: 1px solid var(--border-default);
+    }
+    .swatch-strip > div { flex: 1; display: grid; place-items: end center; padding-bottom: 6px; font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--tracking-caps); text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  <header class="ds-header">
+    <a class="ds-brand" href="index.html">
+      <span class="ds-sigil">A</span>
+      <span class="ds-brand-text">
+        <span class="ds-brand-title">La Collection des Aventuriers</span>
+        <span class="ds-brand-sub">Design System · v0.1</span>
+      </span>
+    </a>
+    <div class="ds-header-actions">
+      <button class="ds-theme-toggle" data-theme-toggle aria-label="Basculer le thème">
+        <span data-theme-icon>☀</span>
+        <span data-theme-label>Parchemin</span>
+      </button>
+    </div>
+  </header>
+
+  <nav class="ds-nav-mobile" aria-label="Pages">
+    <a href="index.html">Aperçu</a>
+    <a href="pages/01-couleurs.html">Couleurs</a>
+    <a href="pages/02-typographie.html">Typo</a>
+    <a href="pages/03-tokens.html">Tokens</a>
+    <a href="pages/04-boutons-formulaires.html">Boutons</a>
+    <a href="pages/05-cards.html">Cards</a>
+    <a href="pages/06-badges-notation.html">Badges</a>
+    <a href="pages/07-navigation.html">Nav</a>
+    <a href="pages/08-feedback.html">Feedback</a>
+  </nav>
+
+  <div class="ds-shell">
+    <aside class="ds-nav" aria-label="Navigation">
+      <div class="ds-nav-group">
+        <div class="ds-nav-label">Aperçu</div>
+        <a class="ds-nav-link" href="index.html"><span class="ds-nav-num">00</span>Vue d'ensemble</a>
+      </div>
+      <div class="ds-nav-group">
+        <div class="ds-nav-label">Fondations</div>
+        <a class="ds-nav-link" href="pages/01-couleurs.html"><span class="ds-nav-num">01</span>Couleurs</a>
+        <a class="ds-nav-link" href="pages/02-typographie.html"><span class="ds-nav-num">02</span>Typographie</a>
+        <a class="ds-nav-link" href="pages/03-tokens.html"><span class="ds-nav-num">03</span>Espacement &amp; effets</a>
+      </div>
+      <div class="ds-nav-group">
+        <div class="ds-nav-label">Composants</div>
+        <a class="ds-nav-link" href="pages/04-boutons-formulaires.html"><span class="ds-nav-num">04</span>Boutons &amp; formulaires</a>
+        <a class="ds-nav-link" href="pages/05-cards.html"><span class="ds-nav-num">05</span>Cards Livre &amp; Auteur</a>
+        <a class="ds-nav-link" href="pages/06-badges-notation.html"><span class="ds-nav-num">06</span>Badges &amp; notation</a>
+        <a class="ds-nav-link" href="pages/07-navigation.html"><span class="ds-nav-num">07</span>Navigation &amp; avatars</a>
+        <a class="ds-nav-link" href="pages/08-feedback.html"><span class="ds-nav-num">08</span>Modale &amp; toast</a>
+      </div>
+    </aside>
+
+    <main class="ds-main">
+      <section class="hero">
+        <div class="hero-ornament" aria-hidden="true">A</div>
+        <div class="ds-eyebrow">Design System · v0.1 · Mai 2026</div>
+        <h1 class="hero-title">Un grimoire pour les passionnés de littérature interactive.</h1>
+        <p class="hero-lede">
+          Tokens, composants et règles d'usage pour bâtir une plateforme collaborative
+          mobile-first dédiée aux collectionneurs de Livres dont vous êtes le héros
+          et de romans graphiques à choix.
+        </p>
+        <div class="hero-meta">
+          <span>Plateforme<strong>Web · Mobile-first</strong></span>
+          <span>Thèmes<strong>Parchemin / Grimoire</strong></span>
+          <span>Format<strong>Tokens CSS · Bootstrap</strong></span>
+          <span>Statut<strong>Foundations stabilisées</strong></span>
+        </div>
+      </section>
+
+      <div class="swatch-strip" aria-hidden="true">
+        <div style="background:var(--parchemin-100);color:var(--parchemin-800)">Parchemin</div>
+        <div style="background:var(--cuir-500);color:#fff">Cuir</div>
+        <div style="background:var(--or-500);color:#fff">Or</div>
+        <div style="background:var(--mousse-500);color:#fff">Mousse</div>
+        <div style="background:var(--ambre-500);color:#fff">Ambre</div>
+        <div style="background:var(--sang-500);color:#fff">Sang</div>
+        <div style="background:var(--encre-500);color:#fff">Encre</div>
+        <div style="background:var(--grimoire-300);color:var(--parchemin-100)">Grimoire</div>
+      </div>
+
+      <section class="ds-section" id="sommaire">
+        <div class="ds-section-head">
+          <span class="ds-section-num">§</span>
+          <h2>Table des matières</h2>
+        </div>
+        <p class="ds-section-desc">
+          Le système est organisé en deux blocs : <strong>fondations</strong> (les tokens
+          immuables sur lesquels tout repose) et <strong>composants</strong> (les briques
+          UI typées et leurs états).
+        </p>
+
+        <h3 style="margin-top:var(--sp-6); margin-bottom: var(--sp-3); font-size: var(--fs-md); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--ink-muted);">Fondations</h3>
+        <div class="toc-grid">
+          <a class="toc-card" href="pages/01-couleurs.html">
+            <span class="toc-num">01 · Couleurs</span>
+            <span class="toc-title">Palettes &amp; sémantique</span>
+            <span class="toc-desc">10 paliers par teinte. Cuir, Or, Mousse, Ambre, Sang, Encre, Parchemin, Grimoire. Mapping clair/sombre + variables Bootstrap.</span>
+            <span class="toc-meta">8 palettes · 56 tokens sémantiques</span>
+          </a>
+          <a class="toc-card" href="pages/02-typographie.html">
+            <span class="toc-num">02 · Typographie</span>
+            <span class="toc-title">Cinzel · Inter · Plex Mono</span>
+            <span class="toc-desc">Échelle modulaire ratio 1.25. Hiérarchie display pour les titres épiques, sans-serif ultra-lisible pour le corps, mono pour les fiches techniques.</span>
+            <span class="toc-meta">3 familles · 9 tailles · 4 line-heights</span>
+          </a>
+          <a class="toc-card" href="pages/03-tokens.html">
+            <span class="toc-num">03 · Espacement &amp; effets</span>
+            <span class="toc-title">Spacers, radius, shadows, motion</span>
+            <span class="toc-desc">Échelle d'espacement base-4, rayons de bordure, élévations, durées et courbes d'animation. Tout ce qui rythme l'interface.</span>
+            <span class="toc-meta">10 spacers · 6 radius · 5 shadows · 3 motions</span>
+          </a>
+        </div>
+
+        <h3 style="margin-top:var(--sp-7); margin-bottom: var(--sp-3); font-size: var(--fs-md); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--ink-muted);">Composants</h3>
+        <div class="toc-grid">
+          <a class="toc-card" href="pages/04-boutons-formulaires.html">
+            <span class="toc-num">04 · Composants</span>
+            <span class="toc-title">Boutons &amp; formulaires</span>
+            <span class="toc-desc">Boutons primaire, secondaire, fantôme et danger. Champs textuels, textarea, select, checkbox, radio pour le système de suggestions. Tous états couverts.</span>
+            <span class="toc-meta">4 variantes × 5 états</span>
+          </a>
+          <a class="toc-card" href="pages/05-cards.html">
+            <span class="toc-num">05 · Composants</span>
+            <span class="toc-title">Cards Livre &amp; Auteur</span>
+            <span class="toc-desc">Modèles inspirés des fiches de personnage de JDR et des cartes de tarot. Couverture, fiche technique, micro-stats, version compacte pour les listes.</span>
+            <span class="toc-meta">2 types · 3 densités</span>
+          </a>
+          <a class="toc-card" href="pages/06-badges-notation.html">
+            <span class="toc-num">06 · Composants</span>
+            <span class="toc-title">Badges &amp; notation</span>
+            <span class="toc-desc">Statuts de suggestion (En attente, Validée, Refusée), rôles utilisateur (Utilisateur, Modérateur, Admin) et système de notation 5 étoiles avec demi-étoiles.</span>
+            <span class="toc-meta">8 badges · 1 rating /10</span>
+          </a>
+          <a class="toc-card" href="pages/07-navigation.html">
+            <span class="toc-num">07 · Composants</span>
+            <span class="toc-title">Navigation &amp; avatars</span>
+            <span class="toc-desc">Bottom nav mobile-first, tabs horizontales, avatars utilisateur avec indicateur de rôle, listes contributeurs.</span>
+            <span class="toc-meta">3 patterns</span>
+          </a>
+          <a class="toc-card" href="pages/08-feedback.html">
+            <span class="toc-num">08 · Composants</span>
+            <span class="toc-title">Modale &amp; toast</span>
+            <span class="toc-desc">Dialog modal avec overlay, toasts non-bloquants (succès / info / erreur) avec timer et action secondaire.</span>
+            <span class="toc-meta">2 patterns interactifs</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="ds-section">
+        <div class="ds-section-head">
+          <span class="ds-section-num">§</span>
+          <h2>Principes directeurs</h2>
+        </div>
+        <div class="toc-grid">
+          <div class="toc-card" style="cursor:default" onclick="return false;">
+            <span class="toc-num">P.01</span>
+            <span class="toc-title">Mobile-first, toujours</span>
+            <span class="toc-desc">Le viewport de référence est 375×812. Toute densité, tout hit-target (44px min), toute hiérarchie est conçue pour le pouce avant d'être enrichie sur desktop.</span>
+          </div>
+          <div class="toc-card" style="cursor:default" onclick="return false;">
+            <span class="toc-num">P.02</span>
+            <span class="toc-title">Parchemin clair, encre sombre</span>
+            <span class="toc-desc">Deux thèmes à parité. Le mode clair évoque le parchemin chaud ; le mode sombre évoque le cuir d'un vieux grimoire. Jamais de blanc pur, jamais de noir pur.</span>
+          </div>
+          <div class="toc-card" style="cursor:default" onclick="return false;">
+            <span class="toc-num">P.03</span>
+            <span class="toc-title">Ornement, jamais ornemental</span>
+            <span class="toc-desc">L'ambiance fantasy est portée par la typo et la palette, pas par des SVG décoratifs. Les composants restent géométriques, modernes, lisibles.</span>
+          </div>
+          <div class="toc-card" style="cursor:default" onclick="return false;">
+            <span class="toc-num">P.04</span>
+            <span class="toc-title">Tokens d'abord, classes ensuite</span>
+            <span class="toc-desc">Tout commence par une CSS custom property. Les classes utilitaires et variables Bootstrap se mappent dessus — jamais l'inverse.</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="assets/shell.js"></script>
+</body>
+</html>
