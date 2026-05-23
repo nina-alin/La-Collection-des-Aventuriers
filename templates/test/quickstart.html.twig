@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Quickstart Test — La Collection{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <h1>Quickstart Validation (SC-002)</h1>
+    <p>Zero custom CSS — components render using design system only.</p>
+
+    <div class="row g-4 mb-5">
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <twig:Book:Card />
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <twig:Book:Card title="Dune" author="Frank Herbert" />
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <twig:Book:Card :loading="true" />
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <twig:Author:Card />
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <twig:Author:Card name="Tolkien" :bookCount="42" />
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <twig:Author:Card :loading="true" />
+        </div>
+    </div>
+</div>
+{% endblock %}

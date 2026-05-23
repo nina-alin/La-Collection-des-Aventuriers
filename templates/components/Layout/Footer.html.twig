@@ -1,0 +1,54 @@
+<footer class="footer d-none d-md-block" aria-label="Pied de page">
+    <div class="container">
+        <p class="footer-tagline">
+            Façonné par et pour les passionnés des Livres Dont Vous Êtes le Héro.
+        </p>
+
+        <div class="footer-grid">
+            <div class="footer-brand-col">
+                <a class="lp-brand" href="{{ path('home') }}">
+                    <span class="sigil">A</span>
+                    <span class="lp-brand-text">
+                        <span class="lp-brand-title">La Collection</span>
+                        <span class="lp-brand-sub">Wiki des fictions interactives</span>
+                    </span>
+                </a>
+                <p class="footer-mini-desc">
+                    Catalogue collaboratif des livres dont vous êtes le héros, romans graphiques
+                    à choix et fictions interactives.
+                </p>
+            </div>
+
+            <div>
+                <div class="footer-col-title">La Collection</div>
+                <ul class="footer-links">
+                    <li><a href="{{ path('catalogue_index') }}">Le catalogue</a></li>
+                    <li><a href="#">Les auteurs</a></li>
+                    <li><a href="#">Les éditions</a></li>
+                    <li><a href="#">Les collections</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <div class="footer-col-title">Communauté</div>
+                <ul class="footer-links">
+                    <li><a href="{{ path('suggestions_new') }}">Suggérer un livre</a></li>
+                    <li><a href="#">Les contributeurs</a></li>
+                    <li><a href="#">Modération</a></li>
+                    <li><a href="#">Devenir modérateur</a></li>
+                    <li><a href="#">La Taverne</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <span>© {{ 'now'|date('Y') }} · La Collection des Aventuriers</span>
+            <div class="footer-bottom-links">
+                <a href="#">Mentions légales</a>
+                <a href="#">CGU</a>
+                <a href="#">Confidentialité</a>
+                <a href="#">Cookies</a>
+            </div>
+        </div>
+    </div>
+</footer>

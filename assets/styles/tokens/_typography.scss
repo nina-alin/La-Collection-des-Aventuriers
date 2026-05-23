@@ -1,0 +1,26 @@
+// All typography tokens from design/assets/tokens.css — zero invented values
+:root {
+    --font-display: "Cinzel", "Trajan Pro", "Times New Roman", serif;
+    --font-body:    "Inter", -apple-system, "Segoe UI", system-ui, sans-serif;
+    --font-mono:    "IBM Plex Mono", "Menlo", monospace;
+
+    // Modular scale — base 16, ratio 1.25 (Major Third)
+    --fs-xs:   0.75rem;
+    --fs-sm:   0.875rem;
+    --fs-md:   1rem;
+    --fs-lg:   1.125rem;
+    --fs-xl:   1.375rem;
+    --fs-2xl:  1.75rem;
+    --fs-3xl:  2.25rem;
+    --fs-4xl:  3rem;
+    --fs-5xl:  4rem;
+
+    --lh-tight: 1.15;
+    --lh-snug:  1.3;
+    --lh-base:  1.55;
+    --lh-loose: 1.75;
+
+    --tracking-display: 0.04em;
+    --tracking-caps:    0.12em;
+    --tracking-body:    0;
+}

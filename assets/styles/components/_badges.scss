@@ -1,0 +1,60 @@
+// Badge components — values from design/assets/components.css
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-caps);
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-default);
+    white-space: nowrap;
+    line-height: 1.6;
+    background: var(--bg-sunken);
+    color: var(--ink-default);
+}
+
+.badge-status-pending {
+    background: var(--warning-bg);
+    color: var(--warning);
+    border-color: var(--warning-border);
+}
+
+.badge-status-validated {
+    background: var(--success-bg);
+    color: var(--success);
+    border-color: var(--success-border);
+}
+
+.badge-status-rejected {
+    background: var(--danger-bg);
+    color: var(--danger);
+    border-color: var(--danger-border);
+}
+
+.badge-status-archived {
+    background: var(--bg-sunken);
+    color: var(--ink-muted);
+    border-color: var(--border-default);
+}
+
+.badge-role-user {
+    background: var(--bg-sunken);
+    color: var(--ink-muted);
+    border-color: var(--border-default);
+}
+
+.badge-role-mod {
+    background: var(--info-bg);
+    color: var(--info);
+    border-color: var(--info-border);
+}
+
+.badge-role-admin {
+    background: color-mix(in oklab, var(--brand-primary) 12%, var(--bg-elevated));
+    color: var(--brand-primary);
+    border-color: color-mix(in oklab, var(--brand-primary) 30%, transparent);
+}

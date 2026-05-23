@@ -1,0 +1,5 @@
+{% for type, messages in app.flashes() %}
+    {% for message in messages %}
+        <twig:Toast type="{{ type }}" message="{{ message }}" />
+    {% endfor %}
+{% endfor %}

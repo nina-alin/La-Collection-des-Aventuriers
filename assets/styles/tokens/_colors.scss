@@ -1,0 +1,121 @@
+// All color tokens from design/assets/tokens.css — zero invented values
+:root {
+    // Parchemin palette
+    --parchemin-50:  #fbf6e9;
+    --parchemin-100: #f5ecd9;
+    --parchemin-200: #ede1c5;
+    --parchemin-300: #d9c9a7;
+    --parchemin-400: #b8a172;
+    --parchemin-500: #8a7558;
+    --parchemin-600: #5a4632;
+    --parchemin-700: #3d2e1f;
+    --parchemin-800: #2d1810;
+    --parchemin-900: #1a0e08;
+
+    // Grimoire palette
+    --grimoire-50:  #2d1f12;
+    --grimoire-100: #241910;
+    --grimoire-200: #1f160d;
+    --grimoire-300: #1a120b;
+    --grimoire-400: #140d07;
+    --grimoire-500: #0d0804;
+    --grimoire-900: #050301;
+
+    // Cuir — primary accent
+    --cuir-50:  #faf3eb;
+    --cuir-100: #f0dcc1;
+    --cuir-200: #e0b88a;
+    --cuir-300: #c79460;
+    --cuir-400: #a86b3a;
+    --cuir-500: #8b4513;
+    --cuir-600: #6e360e;
+    --cuir-700: #52280a;
+    --cuir-800: #371a06;
+    --cuir-900: #1f0e03;
+
+    // Or — secondary accent
+    --or-50:  #fdf8e7;
+    --or-100: #f7ebbb;
+    --or-200: #efd682;
+    --or-300: #e5be50;
+    --or-400: #d2a328;
+    --or-500: #b8860b;
+    --or-600: #95690a;
+    --or-700: #714e08;
+    --or-800: #4d3506;
+    --or-900: #2a1d03;
+
+    // Mousse — success
+    --mousse-50:  #eef3e6;
+    --mousse-100: #d4e0bd;
+    --mousse-300: #8fa86a;
+    --mousse-500: #5b7c3a;
+    --mousse-700: #3b5424;
+    --mousse-900: #1e2c11;
+
+    // Ambre — warning
+    --ambre-50:  #fdf5e3;
+    --ambre-100: #f6e2af;
+    --ambre-300: #dbb15c;
+    --ambre-500: #c08a2e;
+    --ambre-700: #855d1a;
+    --ambre-900: #43300d;
+
+    // Sang — danger
+    --sang-50:  #f9e9e5;
+    --sang-100: #edc4ba;
+    --sang-300: #c97a68;
+    --sang-500: #9a3a2a;
+    --sang-700: #6b271b;
+    --sang-900: #36120c;
+
+    // Encre — info
+    --encre-50:  #e8eef3;
+    --encre-100: #becfdd;
+    --encre-300: #6e90ad;
+    --encre-500: #3a5a7c;
+    --encre-700: #243e58;
+    --encre-900: #11202f;
+
+    // Semantic light theme tokens
+    --bg-page:      var(--parchemin-100);
+    --bg-elevated:  var(--parchemin-50);
+    --bg-sunken:    var(--parchemin-200);
+    --bg-overlay:   rgba(45, 24, 16, 0.55);
+
+    --ink-strong:   var(--parchemin-900);
+    --ink-default:  var(--parchemin-800);
+    --ink-muted:    var(--parchemin-600);
+    --ink-subtle:   var(--parchemin-500);
+    --ink-onbrand:  var(--parchemin-50);
+
+    --border-subtle:  var(--parchemin-200);
+    --border-default: var(--parchemin-300);
+    --border-strong:  var(--parchemin-400);
+
+    --brand-primary:         var(--cuir-500);
+    --brand-primary-hover:   var(--cuir-600);
+    --brand-primary-active:  var(--cuir-700);
+    --brand-primary-ink:     #ffffff;
+
+    --brand-secondary:        var(--or-500);
+    --brand-secondary-hover:  var(--or-600);
+    --brand-secondary-active: var(--or-700);
+
+    --success:        var(--mousse-500);
+    --success-bg:     var(--mousse-50);
+    --success-border: var(--mousse-100);
+    --warning:        var(--ambre-700);
+    --warning-bg:     var(--ambre-50);
+    --warning-border: var(--ambre-100);
+    --danger:         var(--sang-500);
+    --danger-bg:      var(--sang-50);
+    --danger-border:  var(--sang-100);
+    --info:           var(--encre-500);
+    --info-bg:        var(--encre-50);
+    --info-border:    var(--encre-100);
+
+    --text-primary:   var(--ink-default);
+    --text-secondary: var(--ink-muted);
+    --text-muted:     var(--ink-subtle);
+}

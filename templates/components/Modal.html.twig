@@ -1,0 +1,26 @@
+<div id="{{ id }}"
+     {{ stimulus_controller('modal') }}
+     class="modal modal--{{ size }}{{ variant == 'danger' ? ' danger-accent' : '' }}"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="{{ id }}-title"
+     {{ stimulus_action('modal', 'handleKeydown', 'keydown') }}
+     {{ stimulus_action('modal', 'handleBackdropClick', 'click') }}>
+    <div class="modal-container">
+        <div class="modal-header">
+            <h2 id="{{ id }}-title" class="modal-title">{{ title }}</h2>
+            <button class="modal-close btn-icon btn-ghost"
+                    {{ stimulus_action('modal', 'close') }}
+                    type="button"
+                    aria-label="Fermer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            {% block modal_body %}{% endblock %}
+        </div>
+        <div class="modal-footer">
+            {% block modal_footer %}{% endblock %}
+        </div>
+    </div>
+</div>

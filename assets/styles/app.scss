@@ -1,0 +1,32 @@
+// 1. Project design tokens (must precede Bootstrap functions)
+@use "tokens/index";
+
+// 2. Bootstrap infrastructure
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/variables-dark";
+@import "bootstrap/scss/maps";
+
+// bootstrap overrides
+
+// 4. Bootstrap mechanics
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/root";
+
+// 5. Selective Bootstrap components
+@import "bootstrap/scss/reboot";
+@import "bootstrap/scss/type";
+@import "bootstrap/scss/grid";
+@import "bootstrap/scss/utilities";
+@import "bootstrap/scss/utilities/api";
+
+// component imports
+@import "components/navbar";
+@import "components/footer";
+@import "components/buttons";
+@import "components/forms";
+@import "components/toast";
+@import "components/modal";
+@import "components/cards";
+@import "components/badges";
+@import "components/rating";

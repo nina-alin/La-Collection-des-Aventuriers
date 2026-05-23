@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96">
+  <defs>
+    <radialGradient id="avatarGrad" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#c79460"/>
+      <stop offset="60%" stop-color="#8b4513"/>
+      <stop offset="100%" stop-color="#52280a"/>
+    </radialGradient>
+    <clipPath id="circle">
+      <circle cx="48" cy="48" r="48"/>
+    </clipPath>
+  </defs>
+  <circle cx="48" cy="48" r="48" fill="url(#avatarGrad)"/>
+  <text x="48" y="62" font-family="Cinzel, serif" font-size="32" font-weight="700" fill="#fbf6e9" text-anchor="middle">?</text>
+</svg>

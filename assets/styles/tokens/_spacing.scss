@@ -1,0 +1,21 @@
+// All spacing and radius tokens from design/assets/tokens.css — zero invented values
+:root {
+    --sp-0: 0;
+    --sp-1: 0.25rem;
+    --sp-2: 0.5rem;
+    --sp-3: 0.75rem;
+    --sp-4: 1rem;
+    --sp-5: 1.5rem;
+    --sp-6: 2rem;
+    --sp-7: 3rem;
+    --sp-8: 4rem;
+    --sp-9: 6rem;
+
+    --radius-xs:   2px;
+    --radius-sm:   4px;
+    --radius-md:   8px;
+    --radius-lg:   12px;
+    --radius-xl:   20px;
+    --radius-pill: 999px;
+    --radius-full: 999px;
+}

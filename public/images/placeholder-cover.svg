@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 320" width="240" height="320">
+  <defs>
+    <linearGradient id="coverGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c79460"/>
+      <stop offset="100%" stop-color="#8b4513"/>
+    </linearGradient>
+    <pattern id="stripes" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="20" height="20" fill="none"/>
+      <rect width="1" height="20" fill="rgba(45,24,16,0.06)"/>
+    </pattern>
+  </defs>
+  <rect width="240" height="320" fill="url(#coverGrad)"/>
+  <rect width="240" height="320" fill="url(#stripes)"/>
+  <rect x="16" y="16" width="208" height="288" fill="none" stroke="rgba(245,236,217,0.4)" stroke-width="1"/>
+  <rect x="16" y="16" width="14" height="14" fill="none" stroke="rgba(245,236,217,0.7)" stroke-width="1"/>
+  <rect x="210" y="290" width="14" height="14" fill="none" stroke="rgba(245,236,217,0.7)" stroke-width="1"/>
+</svg>
