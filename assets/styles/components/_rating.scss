@@ -1,0 +1,61 @@
+// Rating component — values from design/assets/components.css
+.rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+}
+
+.rating-stars {
+    display: inline-flex;
+    gap: 2px;
+}
+
+.star {
+    --star-size: 22px;
+    --star-fill: var(--or-500);
+    --star-empty: var(--border-strong);
+    position: relative;
+    display: inline-block;
+    width: var(--star-size);
+    height: var(--star-size);
+    color: var(--star-empty);
+
+    &::before,
+    &::after {
+        content: "★";
+        position: absolute;
+        inset: 0;
+        font-size: var(--star-size);
+        line-height: 1;
+        font-family: serif;
+        display: grid;
+        place-items: center;
+    }
+
+    &::before { color: var(--star-empty); }
+
+    &::after {
+        color: var(--star-fill);
+        width: var(--fill, 0%);
+        overflow: hidden;
+    }
+}
+
+.rating.size-sm .star { --star-size: 14px; }
+.rating.size-md .star { --star-size: 18px; }
+.rating.size-lg .star { --star-size: 28px; }
+
+.rating-score {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--ink-strong);
+    font-size: var(--fs-sm);
+    font-variant-numeric: tabular-nums;
+}
+
+.rating-count {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--ink-muted);
+}

@@ -1,0 +1,120 @@
+// Button components — all values from design/assets/components.css
+.btn {
+    --btn-bg: var(--bg-elevated);
+    --btn-ink: var(--ink-strong);
+    --btn-border: var(--border-default);
+    --btn-bg-hover: var(--bg-sunken);
+    --btn-border-hover: var(--border-strong);
+    --btn-bg-active: var(--bg-sunken);
+
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    background: var(--btn-bg);
+    color: var(--btn-ink);
+    border: 1px solid var(--btn-border);
+    font-family: var(--font-body);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    cursor: pointer;
+    transition:
+        background-color var(--motion-fast) var(--motion-ease),
+        border-color var(--motion-fast) var(--motion-ease),
+        color var(--motion-fast) var(--motion-ease),
+        transform var(--motion-fast) var(--motion-ease),
+        box-shadow var(--motion-fast) var(--motion-ease);
+    text-decoration: none;
+    user-select: none;
+    white-space: nowrap;
+
+    &:hover {
+        background: var(--btn-bg-hover);
+        color: var(--btn-ink);
+        border-color: var(--btn-border-hover);
+        text-decoration: none;
+    }
+
+    &:active {
+        background: var(--btn-bg-active);
+        color: var(--btn-ink);
+        transform: translateY(1px);
+    }
+
+    &:focus-visible {
+        outline: none;
+        color: var(--btn-ink);
+        box-shadow: var(--ring-focus);
+    }
+
+    &:disabled,
+    &[aria-disabled="true"] {
+        opacity: 0.45;
+        cursor: not-allowed;
+        transform: none;
+    }
+}
+
+.btn-primary {
+    --btn-bg: var(--brand-primary);
+    --btn-ink: var(--brand-primary-ink);
+    --btn-border: var(--brand-primary);
+    --btn-bg-hover: var(--brand-primary-hover);
+    --btn-border-hover: var(--brand-primary-hover);
+    --btn-bg-active: var(--brand-primary-active);
+    box-shadow: var(--shadow-inset);
+}
+
+.btn-secondary {
+    --btn-bg: transparent;
+    --btn-ink: var(--brand-primary);
+    --btn-border: var(--brand-primary);
+    --btn-bg-hover: color-mix(in oklab, var(--brand-primary) 8%, transparent);
+    --btn-border-hover: var(--brand-primary);
+    --btn-bg-active: color-mix(in oklab, var(--brand-primary) 14%, transparent);
+}
+
+.btn-ghost {
+    --btn-bg: transparent;
+    --btn-border: transparent;
+    --btn-ink: var(--ink-default);
+    --btn-bg-hover: var(--bg-sunken);
+    --btn-border-hover: transparent;
+}
+
+.btn-danger {
+    --btn-bg: var(--danger);
+    --btn-ink: #fff;
+    --btn-border: var(--danger);
+    --btn-bg-hover: color-mix(in oklab, var(--danger) 88%, black);
+    --btn-border-hover: color-mix(in oklab, var(--danger) 88%, black);
+    --btn-bg-active: color-mix(in oklab, var(--danger) 78%, black);
+}
+
+.btn-sm {
+    min-height: 36px;
+    padding: 7px 14px;
+    font-size: var(--fs-xs);
+}
+
+.btn-lg {
+    min-height: 52px;
+    padding: 14px 28px;
+    font-size: var(--fs-md);
+}
+
+.btn-block { width: 100%; }
+
+.btn-icon {
+    width: 44px;
+    padding: 0;
+    border-radius: var(--radius-pill);
+
+    &.btn-sm { width: 36px; }
+}

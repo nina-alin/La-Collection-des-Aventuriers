@@ -1,0 +1,1 @@
+<span class="badge {{ variant in ['pending','validated','rejected','archived'] ? 'badge-status-' ~ variant : (variant in ['user','mod','admin'] ? 'badge-role-' ~ variant : 'badge') }}">{{ label|e }}</span>

@@ -1,0 +1,11 @@
+<div class="rating size-{{ size }}"
+     aria-label="{{ value|number_format(1) }}/{{ max }} étoiles"
+     role="img">
+    <div class="rating-stars">
+        {% for i in 1..max %}
+            {% set fill = [0, [(value - i + 1) * 100, 100]|min]|max %}
+            <span class="star" style="--fill: {{ fill }}%"></span>
+        {% endfor %}
+    </div>
+    <span class="rating-score">{{ value|number_format(1) }}</span>
+</div>

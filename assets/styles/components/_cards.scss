@@ -1,0 +1,210 @@
+// Card components — values from design/pages/05-cards.html
+.card-book {
+    width: 100%;
+    max-width: 320px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: transform var(--motion-base) var(--motion-ease-out),
+                box-shadow var(--motion-base) var(--motion-ease);
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    &:focus-within {
+        outline: 2px solid var(--ring-focus);
+    }
+
+    .cover {
+        position: relative;
+        aspect-ratio: 3 / 4;
+        overflow: hidden;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    .cover-gradient {
+        width: 100%;
+        height: 100%;
+        background:
+            repeating-linear-gradient(45deg,
+                transparent 0, transparent 14px,
+                rgba(45, 24, 16, 0.06) 14px, rgba(45, 24, 16, 0.06) 15px),
+            linear-gradient(135deg, var(--cuir-300), var(--cuir-500));
+        display: flex;
+        align-items: flex-end;
+        padding: var(--sp-4);
+        color: #fbf6e9;
+        position: relative;
+    }
+
+    .cover-frame {
+        position: absolute;
+        inset: 12px;
+        border: 1px solid rgba(245, 236, 217, 0.4);
+        pointer-events: none;
+
+        &::before,
+        &::after {
+            content: "";
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border: 1px solid rgba(245, 236, 217, 0.7);
+        }
+
+        &::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+        &::after  { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+    }
+
+    .cover-title {
+        font-family: var(--font-display);
+        font-size: var(--fs-xl);
+        font-weight: 700;
+        line-height: 1.1;
+        letter-spacing: 0.02em;
+        max-width: 80%;
+        position: relative;
+        z-index: 1;
+    }
+
+    .body {
+        padding: var(--sp-4);
+        display: flex;
+        flex-direction: column;
+        gap: var(--sp-2);
+    }
+
+    .title {
+        font-family: var(--font-display);
+        font-size: var(--fs-lg);
+        color: var(--ink-strong);
+        font-weight: 600;
+        line-height: 1.2;
+        text-decoration: none;
+
+        &:hover { color: var(--brand-primary); }
+    }
+
+    .author {
+        font-family: var(--font-body);
+        font-size: var(--fs-sm);
+        color: var(--ink-muted);
+    }
+}
+
+// Skeleton state
+.card-book--skeleton {
+    .cover--skeleton {
+        background: linear-gradient(90deg,
+            var(--bg-sunken) 25%,
+            var(--bg-elevated) 50%,
+            var(--bg-sunken) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s linear infinite;
+    }
+}
+
+.card-author {
+    width: 100%;
+    max-width: 280px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--sp-3);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform var(--motion-base) var(--motion-ease-out),
+                box-shadow var(--motion-base) var(--motion-ease);
+
+    &:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 6px;
+        border: 1px solid var(--cuir-300);
+        border-radius: calc(var(--radius-lg) - 4px);
+        pointer-events: none;
+    }
+
+    &:focus-within { outline: 2px solid var(--ring-focus); }
+
+    .author-portrait {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, var(--cuir-300), var(--cuir-500) 60%, var(--cuir-700));
+        display: grid;
+        place-items: center;
+        color: #fbf6e9;
+        font-family: var(--font-display);
+        font-size: 32px;
+        font-weight: 700;
+        border: 2px solid var(--or-400);
+        box-shadow: 0 0 0 4px var(--bg-elevated), 0 0 0 5px var(--or-300);
+        overflow: hidden;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    .author-name {
+        font-family: var(--font-display);
+        font-size: var(--fs-lg);
+        color: var(--ink-strong);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        line-height: 1.15;
+    }
+
+    .author-role {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: var(--tracking-caps);
+        color: var(--ink-muted);
+    }
+}
+
+// Skeleton shimmer
+.skeleton-circle {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: linear-gradient(90deg, var(--bg-sunken) 25%, var(--bg-elevated) 50%, var(--bg-sunken) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s linear infinite;
+}
+
+.skeleton-line {
+    height: 12px;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(90deg, var(--bg-sunken) 25%, var(--bg-elevated) 50%, var(--bg-sunken) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s linear infinite;
+
+    &--title { height: 18px; width: 80%; }
+    &--meta  { width: 60%; }
+    &--short { width: 40%; }
+}
+
+@keyframes shimmer {
+    0%, 100% { background-position: -200% 0; }
+    50%       { background-position:  200% 0; }
+}
