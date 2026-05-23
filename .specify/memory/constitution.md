@@ -1,50 +1,117 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+## Sync Impact Report
+
+**Version Change**: [template] → 1.0.0
+**Modified Principles**: N/A (initial ratification — all principles new)
+**Added Sections**: All (initial fill from template)
+**Removed Sections**: None
+**Templates Requiring Updates**:
+- ✅ `.specify/templates/plan-template.md` — "Constitution Check" gate aligns with 5 principles
+- ✅ `.specify/templates/spec-template.md` — scope/requirements align with collection-only perimeter
+- ✅ `.specify/templates/tasks-template.md` — task categorization aligns with Symfony project phases
+- ⚠ `.specify/templates/commands/` — directory not found; no command templates to update
+**Deferred TODOs**: None
+-->
+
+# La Collection des Aventuriers — Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Complémentarité Stricte (NON-NÉGOCIABLE)
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+The platform MUST remain strictly complementary to "La Taverne des Aventuriers".
+Features MUST be limited to: personal collection management, wishlists, and
+collaborative encyclopedia entries. Implementing or suggesting general discussion
+forums, news publishing, or any feature that competes with "La Taverne des
+Aventuriers" is PROHIBITED.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+**Rationale**: Partnership integrity. Overlap would damage trust with the partner
+site and dilute the platform's focused value proposition.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### II. Architecture Symfony LTS (NON-NÉGOCIABLE)
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+All backend code MUST follow strict Symfony LTS best practices:
+- Controllers MUST be thin: no business logic, only HTTP request/response handling
+- Business logic MUST be encapsulated in Services
+- Database access MUST use Doctrine ORM exclusively
+- Dependency injection MUST be used throughout; no service locator pattern
+- Any infrastructure addition or modification (database, cache, queue) MUST be
+  accompanied by updates to `.platform.app.yaml`, `.platform/routes.yaml`,
+  and `.platform/services.yaml` in the same commit
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+**Rationale**: Maintainability, testability, and Platform.sh deployment consistency.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### III. Workflow de Validation du Contenu (NON-NÉGOCIABLE)
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+All content submitted by standard users (`ROLE_USER`) MUST default to `PENDING`
+status. Only `ROLE_MODERATOR` or `ROLE_ADMIN` MAY transition content to `PUBLISHED`.
+No user-submitted content MAY bypass this workflow.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+**Rationale**: Collaborative encyclopedia quality control. Prevents vandalism and
+ensures editorial accuracy before public visibility.
 
-## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+### IV. RBAC — Trois Niveaux de Droits (NON-NÉGOCIABLE)
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+Access control MUST be implemented using the Symfony Security component with at
+minimum three roles:
+- `ROLE_USER`: personal collection management, wishlist management, content
+  submission (PENDING status only)
+- `ROLE_MODERATOR`: approve or reject pending submissions
+  (transition PENDING → PUBLISHED or REJECTED)
+- `ROLE_ADMIN`: full platform administration, user management, configuration
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+All routes that mutate data MUST be protected by both:
+1. CSRF tokens
+2. `#[IsGranted]` annotations (or equivalent Symfony `security` attribute)
+
+**Rationale**: Minimal-privilege model prevents unauthorized moderation or
+administration actions.
+
+### V. Sécurité et Couverture de Tests (NON-NÉGOCIABLE)
+
+PHPUnit tests MUST be written for all main entities and moderation workflows.
+Every data-mutating route MUST be verified for CSRF protection and `#[IsGranted]`
+coverage before merging. No feature MAY ship without test coverage for its primary
+business logic.
+
+**Rationale**: The collaborative nature of the platform makes it a prime target for
+privilege escalation and content injection attacks. Automated tests are the minimum
+safety net.
+
+## Infrastructure et Déploiement
+
+This platform MUST be deployed exclusively on Platform.sh. The following files MUST
+be kept in strict sync with any infrastructure change:
+
+- `.platform.app.yaml` — application runtime, build hooks, web configuration
+- `.platform/routes.yaml` — routing and redirect rules
+- `.platform/services.yaml` — managed services (database, cache, etc.)
+
+No infrastructure service (PostgreSQL, Redis, etc.) MAY be added or removed without
+updating all three files in the same commit.
+
+## Intégration Frontend
+
+The UI designs and mockups are finalized. Frontend integration MUST respect:
+- Templates MUST use the Twig engine only
+- Styling MUST use Bootstrap and the provided assets; no new CSS frameworks
+- No new front-end JavaScript frameworks MAY be introduced without explicit
+  architectural approval
+- Asset pipeline changes MUST NOT alter the existing design system or layouts
+
+## Gouvernance
+
+This constitution supersedes all other development practices within this project.
+Amendments MUST follow semantic versioning:
+- **MAJOR** (x.0.0): removal or redefinition of an existing principle
+- **MINOR** (x.y.0): new principle, section, or materially expanded guidance
+- **PATCH** (x.y.z): clarifications, wording, non-semantic refinements
+
+All pull requests MUST include a Constitution Check section in their implementation
+plan (see `plan-template.md`) verifying compliance with all five Core Principles.
+Violations MUST be justified in `plan.md` under the Complexity Tracking table.
+
+Compliance review is expected at each code review. `ROLE_ADMIN` approval is required
+for MAJOR version amendments.
+
+**Version**: 1.0.0 | **Ratified**: 2026-05-23 | **Last Amended**: 2026-05-23
