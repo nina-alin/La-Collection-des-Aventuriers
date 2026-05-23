@@ -1,0 +1,1098 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Accueil — La Collection des Aventuriers</title>
+  <link rel="stylesheet" href="assets/tokens.css" />
+  <link rel="stylesheet" href="assets/components.css" />
+  <link rel="stylesheet" href="assets/menus.css" />
+  <link rel="stylesheet" href="assets/search.css" />
+  <style>
+    .container {
+      width: 100%;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding-left: var(--sp-4);
+      padding-right: var(--sp-4);
+    }
+    @media (min-width: 720px) { .container { padding-left: var(--sp-6); padding-right: var(--sp-6); } }
+
+    /* ============================================================
+       HEADER SESSION
+       ============================================================ */
+    .session-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: color-mix(in oklab, var(--bg-page) 88%, transparent);
+      backdrop-filter: saturate(140%) blur(10px);
+      -webkit-backdrop-filter: saturate(140%) blur(10px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .sh-inner {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: var(--sp-4);
+      align-items: center;
+      padding: 12px 0;
+      min-height: 64px;
+    }
+    .sh-left {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-5);
+      min-width: 0;
+    }
+    .sh-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--ink-strong);
+    }
+    .sh-brand:hover { text-decoration: none; }
+    .sh-sigil {
+      width: 36px; height: 36px;
+      display: grid;
+      place-items: center;
+      border: 1.5px solid var(--cuir-500);
+      border-radius: 50%;
+      color: var(--cuir-500);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 16px;
+      background: var(--bg-elevated);
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .sh-sigil::before {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      border: 1px dashed var(--cuir-300);
+      border-radius: 50%;
+    }
+    [data-theme="dark"] .sh-sigil { border-color: var(--or-400); color: var(--or-400); }
+    [data-theme="dark"] .sh-sigil::before { border-color: var(--or-700); }
+    .sh-brand-mark {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--ink-strong);
+      white-space: nowrap;
+    }
+    @media (max-width: 720px) { .sh-brand-mark { display: none; } }
+
+    .sh-nav {
+      display: flex;
+      gap: 2px;
+    }
+    @media (max-width: 1023px) { .sh-nav { display: none; } }
+    .sh-nav a {
+      padding: 8px 14px;
+      font-family: var(--font-body);
+      font-size: var(--fs-sm);
+      font-weight: 500;
+      color: var(--ink-muted);
+      text-decoration: none;
+      border-radius: var(--radius-sm);
+      transition: all var(--motion-fast) var(--motion-ease);
+      position: relative;
+    }
+    .sh-nav a:hover { color: var(--ink-strong); background: var(--bg-sunken); text-decoration: none; }
+    .sh-nav a[aria-current="page"] {
+      color: var(--brand-primary);
+      font-weight: 600;
+    }
+    .sh-nav a[aria-current="page"]::after {
+      content: "";
+      position: absolute;
+      left: 14px; right: 14px;
+      bottom: -16px;
+      height: 2px;
+      background: var(--brand-primary);
+      border-radius: 2px 2px 0 0;
+    }
+
+    .sh-search {
+      flex: 1;
+      max-width: 480px;
+      justify-self: center;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill);
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .sh-search:focus-within {
+      border-color: var(--brand-primary);
+      box-shadow: var(--ring-focus);
+    }
+    .sh-search svg {
+      width: 16px; height: 16px;
+      stroke: var(--ink-muted);
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      flex-shrink: 0;
+    }
+    .sh-search input {
+      flex: 1;
+      border: 0;
+      background: transparent;
+      min-height: 32px;
+      padding: 0;
+      font-family: var(--font-body);
+      font-size: var(--fs-sm);
+      color: var(--ink-strong);
+      outline: none;
+      min-width: 0;
+    }
+    .sh-search input::placeholder { color: var(--ink-muted); }
+    @media (max-width: 720px) {
+      .sh-inner { grid-template-columns: auto auto; gap: var(--sp-3); }
+      .sh-search { display: none; }
+    }
+
+    .sh-right {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+    }
+    .sh-icon-btn {
+      position: relative;
+      width: 40px; height: 40px;
+      display: grid;
+      place-items: center;
+      background: transparent;
+      border: 1px solid var(--border-default);
+      border-radius: 50%;
+      color: var(--ink-default);
+      cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .sh-icon-btn:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .sh-icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .sh-icon-btn .dot {
+      position: absolute;
+      top: 7px; right: 7px;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--danger);
+      border: 2px solid var(--bg-page);
+      animation: pulseDot 2.4s var(--motion-ease) infinite;
+    }
+    @keyframes pulseDot {
+      0%, 60%, 100% { transform: scale(1); }
+      30% { transform: scale(1.18); }
+    }
+
+    .sh-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 12px 4px 4px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .sh-user:hover { border-color: var(--brand-primary); }
+    .sh-user-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+    @media (max-width: 600px) { .sh-user-text { display: none; } .sh-user { padding: 2px; } }
+    .sh-user-name {
+      font-family: var(--font-body);
+      font-size: var(--fs-sm);
+      font-weight: 600;
+      color: var(--ink-strong);
+    }
+    .sh-user-role {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--info);
+    }
+    .sh-user-chevron {
+      color: var(--ink-muted);
+      width: 14px; height: 14px;
+    }
+    @media (max-width: 600px) { .sh-user-chevron { display: none; } }
+
+    /* ============================================================
+       WELCOME + STATS
+       ============================================================ */
+    .welcome {
+      padding: clamp(2rem, 5vw, 3rem) 0 clamp(1.5rem, 4vw, 2.5rem);
+    }
+    .welcome-grid {
+      display: grid;
+      gap: var(--sp-5);
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 880px) {
+      .welcome-grid {
+        grid-template-columns: 1fr auto;
+        align-items: end;
+      }
+    }
+    .welcome-head .eyebrow {
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+      margin-bottom: var(--sp-2);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .welcome-head .eyebrow::before {
+      content: "";
+      width: 28px; height: 1px;
+      background: var(--cuir-400);
+    }
+    .welcome-head h1 {
+      font-family: var(--font-display);
+      font-size: clamp(1.75rem, 4vw + 0.5rem, 2.75rem);
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      color: var(--ink-strong);
+      line-height: 1.15;
+      margin: 0 0 var(--sp-2);
+    }
+    .welcome-head h1 em {
+      font-style: normal;
+      color: var(--brand-primary);
+    }
+    .welcome-head p {
+      color: var(--ink-muted);
+      font-size: var(--fs-md);
+      max-width: 52ch;
+      margin: 0;
+    }
+
+    .stats-strip {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1px;
+      background: var(--border-subtle);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      min-width: 0;
+    }
+    @media (max-width: 540px) { .stats-strip { grid-template-columns: 1fr; } }
+    .stat-w {
+      background: var(--bg-elevated);
+      padding: var(--sp-4) var(--sp-5);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+    .stat-w-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+    }
+    .stat-w-value {
+      font-family: var(--font-display);
+      font-size: var(--fs-2xl);
+      font-weight: 700;
+      color: var(--ink-strong);
+      letter-spacing: 0.02em;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+    .stat-w-meta {
+      font-size: var(--fs-xs);
+      color: var(--ink-muted);
+      margin-top: 2px;
+    }
+    .stat-w-meta .ok { color: var(--success); font-weight: 600; }
+    .stat-w-meta .pending { color: var(--warning); font-weight: 600; }
+
+    /* ============================================================
+       QUICK ACTIONS
+       ============================================================ */
+    .section {
+      padding: clamp(1.5rem, 4vw, 2.5rem) 0;
+    }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: var(--sp-4);
+      margin-bottom: var(--sp-4);
+      flex-wrap: wrap;
+    }
+    .section-head h2 {
+      font-family: var(--font-display);
+      font-size: var(--fs-xl);
+      font-weight: 600;
+      letter-spacing: var(--tracking-display);
+      color: var(--ink-strong);
+      margin: 0;
+    }
+    .section-head .more {
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .section-head .more:hover { color: var(--brand-primary); text-decoration: none; }
+
+    .actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--sp-3);
+    }
+    @media (min-width: 760px) { .actions-grid { grid-template-columns: repeat(4, 1fr); } }
+
+    .action {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-2);
+      padding: var(--sp-5) var(--sp-4);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      text-decoration: none;
+      color: var(--ink-default);
+      transition: all var(--motion-base) var(--motion-ease-out);
+      position: relative;
+      overflow: hidden;
+      min-height: 132px;
+    }
+    .action:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--border-strong);
+      text-decoration: none;
+    }
+    .action-icon {
+      width: 40px; height: 40px;
+      border-radius: var(--radius-md);
+      background: var(--bg-sunken);
+      color: var(--brand-primary);
+      display: grid;
+      place-items: center;
+      margin-bottom: var(--sp-2);
+    }
+    .action-icon svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .action-title {
+      font-family: var(--font-display);
+      font-size: var(--fs-md);
+      font-weight: 600;
+      color: var(--ink-strong);
+      letter-spacing: 0.03em;
+      line-height: 1.2;
+    }
+    .action-sub {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+      margin-top: auto;
+    }
+    /* Variante primaire (suggestion) */
+    .action.is-primary {
+      background: var(--brand-primary);
+      color: var(--brand-primary-ink);
+      border-color: var(--brand-primary);
+    }
+    .action.is-primary .action-icon { background: rgba(255,255,255,0.16); color: var(--brand-primary-ink); }
+    .action.is-primary .action-title { color: var(--brand-primary-ink); }
+    .action.is-primary .action-sub { color: rgba(255,255,255,0.75); }
+    .action.is-primary:hover { border-color: var(--brand-primary-hover); }
+    [data-theme="dark"] .action.is-primary .action-icon { background: rgba(0,0,0,0.2); color: var(--brand-primary-ink); }
+    [data-theme="dark"] .action.is-primary .action-sub { color: rgba(26,14,8,0.65); }
+
+    /* ============================================================
+       FEED GRID
+       ============================================================ */
+    .feed-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--sp-5);
+    }
+    @media (min-width: 980px) {
+      .feed-grid { grid-template-columns: 1.4fr 1fr; gap: var(--sp-6); }
+    }
+
+    /* Nouveautés list */
+    .new-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .new-row {
+      display: grid;
+      grid-template-columns: 56px 1fr auto;
+      gap: var(--sp-3);
+      align-items: center;
+      padding: 10px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      color: var(--ink-default);
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .new-row:hover {
+      border-color: var(--border-strong);
+      background: var(--bg-sunken);
+      text-decoration: none;
+      transform: translateX(2px);
+    }
+    .new-cover {
+      width: 56px;
+      aspect-ratio: 3 / 4;
+      padding: 6px;
+      border-radius: 4px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      text-align: center;
+      color: rgba(245,236,217,0.92);
+      font-family: var(--font-display);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      line-height: 1.05;
+      position: relative;
+      overflow: hidden;
+    }
+    .new-cover::before {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      border: 1px solid rgba(245,236,217,0.32);
+      pointer-events: none;
+    }
+    .new-cover.bg-cuir   { background: linear-gradient(135deg, var(--cuir-300), var(--cuir-600)); }
+    .new-cover.bg-mousse { background: linear-gradient(135deg, var(--mousse-300), var(--mousse-700)); }
+    .new-cover.bg-encre  { background: linear-gradient(135deg, var(--encre-300), var(--encre-700)); }
+    .new-cover.bg-sang   { background: linear-gradient(135deg, var(--sang-300), var(--sang-700)); }
+    .new-cover.bg-or     { background: linear-gradient(135deg, var(--or-300), var(--or-700)); color: var(--cuir-900); }
+    .new-cover.bg-or::before { border-color: rgba(45,24,16,0.25); }
+    .new-meta { min-width: 0; }
+    .new-title {
+      font-family: var(--font-display);
+      font-size: var(--fs-md);
+      color: var(--ink-strong);
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      margin-bottom: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .new-sub {
+      font-size: var(--fs-xs);
+      color: var(--ink-muted);
+      font-family: var(--font-mono);
+      letter-spacing: 0.04em;
+    }
+    .new-sub .author { color: var(--ink-default); font-family: var(--font-body); font-size: var(--fs-sm); font-weight: 500; }
+    .new-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .new-time {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+    }
+
+    /* Activity timeline */
+    .activity {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    .act {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 12px;
+      padding: 14px var(--sp-4);
+      border-bottom: 1px solid var(--border-subtle);
+      align-items: flex-start;
+    }
+    .act:last-child { border-bottom: 0; }
+    .act-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .act-text {
+      font-size: var(--fs-sm);
+      color: var(--ink-default);
+      line-height: 1.5;
+    }
+    .act-text .handle {
+      color: var(--brand-primary);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .act-text .handle:hover { text-decoration: underline; text-underline-offset: 2px; }
+    .act-text .obj {
+      color: var(--ink-strong);
+      font-weight: 600;
+      font-family: var(--font-display);
+      letter-spacing: 0.02em;
+    }
+    .act-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+    }
+    .act-meta .badge { padding: 2px 8px; }
+
+    /* ============================================================
+       ECOSYSTEM BRIDGE
+       ============================================================ */
+    .bridge {
+      margin: clamp(2rem, 4vw, 3rem) 0 clamp(2.5rem, 5vw, 4rem);
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--sp-4);
+      align-items: center;
+      padding: var(--sp-5);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      position: relative;
+      overflow: hidden;
+    }
+    @media (min-width: 720px) {
+      .bridge {
+        grid-template-columns: auto 1fr auto;
+        padding: var(--sp-4) var(--sp-5);
+      }
+    }
+    .bridge::after {
+      content: "";
+      position: absolute;
+      right: -40px; top: -40px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, var(--encre-100) 0, transparent 60%);
+      pointer-events: none;
+      opacity: 0.6;
+    }
+    [data-theme="dark"] .bridge::after {
+      background: radial-gradient(circle, rgba(58,90,124,0.20) 0, transparent 60%);
+    }
+    .bridge-sigil {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: var(--encre-500);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: 0.04em;
+      border: 2px solid var(--encre-700);
+      position: relative;
+      flex-shrink: 0;
+    }
+    .bridge-sigil::before {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      border: 1px dashed rgba(245,236,217,0.4);
+      border-radius: 50%;
+    }
+    [data-theme="dark"] .bridge-sigil { background: var(--encre-400); }
+    .bridge-text { min-width: 0; position: relative; }
+    .bridge-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--info);
+      margin-bottom: 2px;
+    }
+    .bridge-title {
+      font-family: var(--font-display);
+      font-size: var(--fs-md);
+      font-weight: 600;
+      color: var(--ink-strong);
+      letter-spacing: 0.03em;
+      margin-bottom: 2px;
+      line-height: 1.2;
+    }
+    .bridge-desc {
+      font-size: var(--fs-sm);
+      color: var(--ink-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =============== HEADER =============== -->
+  <header class="session-header">
+    <div class="container sh-inner">
+      <div class="sh-left">
+        <a class="sh-brand" href="dashboard.html">
+          <span class="sh-sigil">A</span>
+          <span class="sh-brand-mark">La Collection</span>
+        </a>
+        <nav class="sh-nav" aria-label="Navigation principale">
+          <a href="dashboard.html" aria-current="page">Accueil</a>
+          <a href="#">Catalogue</a>
+          <a href="#">Suggestions</a>
+        </nav>
+      </div>
+
+      <form class="sh-search" role="search" onsubmit="event.preventDefault();">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" placeholder="Rechercher un livre, un auteur, une collection…" aria-label="Recherche globale" />
+      </form>
+
+      <div class="sh-right">
+        <div class="menu-anchor">
+          <button class="sh-icon-btn has-unread" type="button" id="notif-trigger" aria-label="Notifications (3 non lues)" aria-haspopup="dialog" aria-expanded="false" aria-controls="notif-menu">
+            <svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+            <span class="dot" aria-hidden="true"></span>
+          </button>
+
+          <!-- ============ Dropdown : NOTIFICATIONS ============ -->
+          <div class="menu-card" id="notif-menu" data-anchor="notifications" role="dialog" aria-modal="false" aria-label="Notifications">
+            <header class="menu-head">
+              <span class="ttl">Notifications <span class="count-badge">3</span></span>
+              <button class="mark-all" type="button" data-action="mark-all-read">Tout marquer lu</button>
+            </header>
+
+            <div class="notif-list" role="list">
+              <div class="notif-list-sep">Nouvelles · aujourd'hui</div>
+
+              <a class="notif-item unread success" href="pages/suggestions.html" role="listitem">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
+                <div class="body">
+                  <div class="msg">Ta suggestion sur <strong>Le Repaire des Vampires</strong> a été validée par la guilde.</div>
+                  <div class="time">il y a 12 min <span class="ctx">· par @aelius_mod</span></div>
+                </div>
+                <span class="dot-unread" aria-label="Non lue"></span>
+              </a>
+
+              <a class="notif-item unread info" href="pages/livre.html" role="listitem">
+                <span class="ic illustr" aria-hidden="true">DF</span>
+                <div class="body">
+                  <div class="msg"><strong>Steve Jackson</strong> a publié une nouvelle fiche dans une collection que tu suis (Défis Fantastiques).</div>
+                  <div class="time">il y a 2 h <span class="ctx">· Défis Fantastiques nº62</span></div>
+                </div>
+                <span class="dot-unread"></span>
+              </a>
+
+              <a class="notif-item unread warn" href="pages/moderation.html" role="listitem">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></span>
+                <div class="body">
+                  <div class="msg">Trois suggestions attendent ton aval dans la <strong>Salle de Modération</strong>.</div>
+                  <div class="time">il y a 5 h</div>
+                </div>
+                <span class="dot-unread"></span>
+              </a>
+
+              <div class="notif-list-sep">Plus anciennes</div>
+
+              <a class="notif-item info" href="#" role="listitem">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-9 8.5 8.5 8.5 0 0 1-7.6-4.7L3 21l1.7-1.4A8.38 8.38 0 0 1 3 11.5a8.5 8.5 0 0 1 17 0z"/></svg></span>
+                <div class="body">
+                  <div class="msg"><strong>@nael_lc</strong> a commenté ta note sur <strong>L'Œil d'Émeraude</strong>.</div>
+                  <div class="time">hier · 18:42</div>
+                </div>
+                <span class="dot-unread"></span>
+              </a>
+
+              <a class="notif-item success" href="#" role="listitem">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+                <div class="body">
+                  <div class="msg">Félicitations — tu viens d'atteindre le rang <strong>Compagnon · Niveau 4</strong>.</div>
+                  <div class="time">il y a 3 j</div>
+                </div>
+                <span class="dot-unread"></span>
+              </a>
+            </div>
+
+            <footer class="menu-foot">
+              <a href="#">Voir toutes les notifications
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+              </a>
+              <button class="pref-link" type="button">Préférences</button>
+            </footer>
+          </div>
+        </div>
+
+        <div class="menu-anchor">
+          <button class="sh-user" type="button" id="user-trigger" aria-haspopup="menu" aria-expanded="false" aria-controls="user-menu" aria-label="Menu utilisateur">
+            <span class="avatar size-sm">MA<span class="avatar-role mod"></span></span>
+            <span class="sh-user-text">
+              <span class="sh-user-name">Marius Aubry</span>
+              <span class="sh-user-role">Modérateur</span>
+            </span>
+            <svg class="sh-user-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+
+          <!-- ============ Dropdown : USER MENU ============ -->
+          <div class="menu-card user-card" id="user-menu" data-anchor="user" role="menu" aria-label="Compte utilisateur">
+            <header class="menu-head-user">
+              <span class="avatar size-md" aria-hidden="true">MA<span class="avatar-role mod"></span></span>
+              <div class="ident">
+                <div class="hello">Bonjour</div>
+                <div class="name">Marius Aubry</div>
+                <span class="badge badge-role-mod"><span class="dot" aria-hidden="true"></span>Modérateur</span>
+              </div>
+            </header>
+
+            <div class="menu-section">
+              <a class="menu-link" href="pages/profil.html" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg></span>
+                Mon Profil
+                <span class="lnk-meta">Aventurier</span>
+              </a>
+              <a class="menu-link" href="pages/suggestions.html" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"/><path d="M14 4h6v6M10 14 20 4"/></svg></span>
+                Mes Suggestions
+                <span class="lnk-meta">17 validées</span>
+              </a>
+              <a class="menu-link" href="pages/profil.html#settings" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+                Paramètres
+                <kbd>⌘,</kbd>
+              </a>
+            </div>
+
+            <div class="menu-section">
+              <div class="menu-section-label">Outils de modération</div>
+              <a class="menu-link role-action" href="pages/moderation.html" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 4 9 8 10 4-1 8-5 8-10V6l-8-4z"/><path d="m9 12 2 2 4-4"/></svg></span>
+                Salle de Modération
+                <span class="badge-new">23 à relire</span>
+              </a>
+            </div>
+
+            <div class="menu-section">
+              <button class="menu-toggle-row" type="button" data-action="toggle-theme">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24" id="theme-icon-menu"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></span>
+                <span>Thème <strong id="theme-name" style="color: var(--ink-strong);">Parchemin</strong></span>
+                <label class="switch" onclick="event.stopPropagation();">
+                  <input type="checkbox" id="theme-switch-menu" />
+                  <span class="track" aria-hidden="true"></span>
+                </label>
+              </button>
+              <a class="menu-link" href="#" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg></span>
+                Aide &amp; raccourcis
+                <kbd>?</kbd>
+              </a>
+            </div>
+
+            <div class="logout-section">
+              <a class="menu-link logout" href="#" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M10.85 12.15 19 4M15 7l3 3M14 8l3 3"/></svg>
+                </span>
+                Se déconnecter
+                <span class="lnk-meta">Sortir</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- =============== WELCOME + STATS =============== -->
+    <section class="welcome">
+      <div class="container welcome-grid">
+        <div class="welcome-head">
+          <div class="eyebrow">Mardi 15 mai · Belle journée pour ranger sa collection</div>
+          <h1>Salutations, <em>Marius</em>.</h1>
+          <p>Trois suggestions attendent ton aval et la communauté a ajouté 24 fiches depuis ta dernière visite.</p>
+        </div>
+
+        <div class="stats-strip">
+          <div class="stat-w">
+            <span class="stat-w-label">Ma Collection</span>
+            <span class="stat-w-value">142</span>
+            <span class="stat-w-meta"><span class="ok">+3</span> ce mois</span>
+          </div>
+          <div class="stat-w">
+            <span class="stat-w-label">À lire</span>
+            <span class="stat-w-value">28</span>
+            <span class="stat-w-meta">7 en chasse</span>
+          </div>
+          <div class="stat-w">
+            <span class="stat-w-label">Mes suggestions</span>
+            <span class="stat-w-value">12</span>
+            <span class="stat-w-meta"><span class="pending">3 en attente</span> · 1 validée hier</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== QUICK ACTIONS =============== -->
+    <section class="section">
+      <div class="container">
+        <div class="actions-grid">
+          <a class="action" href="pages/catalogue.html">
+            <span class="action-icon">
+              <svg viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h11v16H6a2 2 0 0 1-2-2z"/><path d="M17 4v16M9 8h5M9 12h5"/></svg>
+            </span>
+            <span class="action-title">Parcourir le Wiki</span>
+            <span class="action-sub">2 481 fiches · 156 auteurs</span>
+          </a>
+          <a class="action" href="pages/profil.html#tab-collection">
+            <span class="action-icon">
+              <svg viewBox="0 0 24 24"><path d="M4 4h6v16H4zM10 4h4v16h-4zM14 4h6v16h-6z"/></svg>
+            </span>
+            <span class="action-title">Ma Bibliothèque</span>
+            <span class="action-sub">142 livres · 28 à lire</span>
+          </a>
+          <a class="action is-primary" href="pages/suggestions.html">
+            <span class="action-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            </span>
+            <span class="action-title">Faire une suggestion</span>
+            <span class="action-sub">Enrichir le catalogue</span>
+          </a>
+          <a class="action" href="pages/profil.html#tab-toacheter">
+            <span class="action-icon">
+              <svg viewBox="0 0 24 24"><path d="M6 4h12l-1 14H7zM9 4V2h6v2"/><path d="M3 22h18"/></svg>
+            </span>
+            <span class="action-title">Liste d'achats</span>
+            <span class="action-sub">7 livres en chasse</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== FEED =============== -->
+    <section class="section">
+      <div class="container feed-grid">
+
+        <!-- Nouveautés -->
+        <div>
+          <div class="section-head">
+            <h2>Les nouveautés</h2>
+            <a class="more" href="pages/catalogue.html?sort=recent">Tout voir
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+          <div class="new-list">
+            <a class="new-row" href="#">
+              <span class="new-cover bg-mousse">Lab. Mort</span>
+              <span class="new-meta">
+                <span class="new-title">Le Labyrinthe de la Mort</span>
+                <span class="new-sub"><span class="author">Ian Livingstone</span> · 1984 · LCA-0107</span>
+              </span>
+              <span class="new-right">
+                <span class="rating size-sm">
+                  <span class="rating-stars">
+                    <span class="star" style="--fill:100%"></span><span class="star" style="--fill:100%"></span><span class="star" style="--fill:100%"></span><span class="star" style="--fill:100%"></span><span class="star" style="--fill:80%"></span>
+                  </span>
+                  <span class="rating-score">9.6</span>
+                </span>
+                <span class="new-time">il y a 2 h</span>
+              </span>
+            </a>
+            <a class="new-row" href="#">
+              <span class="new-cover bg-encre">Cité Voleurs</span>
+              <span class="new-meta">
+                <span class="new-title">La Cité des Voleurs</span>
+                <span class="new-sub"><span class="author">Ian Livingstone</span> · 1983 · LCA-0089</span>
+              </span>
+              <span class="new-right">
+                <span class="rating size-sm">
+                  <span class="rating-stars">
+                    <span class="star" style="--fill:100%"></span><span class="star" style="--fill:100%"></span><span class="star" style="--fill:100%"></span><span class="star" style="--fill:90%"></span><span class="star" style="--fill:0%"></span>
+                  </span>
+                  <span class="rating-score">7.9</span>
+                </span>
+                <span class="new-time">il y a 5 h</span>
+              </span>
+            </a>
+            <a class="new-row" href="#">
+              <span class="new-cover bg-sang">Manoir Enf.</span>
+              <span class="new-meta">
+                <span class="new-title">Le Manoir de l'Enfer</span>
+                <span class="new-sub"><span class="author">Steve Jackson</span> · 1985 · LCA-0214</span>
+              </span>
+              <span class="new-right">
+                <span class="rating size-sm">
+                  <span class="rating-stars">
+                    <span class="star" style="--fill:100%"></span><span class="star" style="--fill:100%"></span><span class="star" style="--fill:100%"></span><span class="star" style="--fill:100%"></span><span class="star" style="--fill:50%"></span>
+                  </span>
+                  <span class="rating-score">9.0</span>
+                </span>
+                <span class="new-time">il y a 8 h</span>
+              </span>
+            </a>
+            <a class="new-row" href="#">
+              <span class="new-cover bg-or">Or Sombre</span>
+              <span class="new-meta">
+                <span class="new-title">L'Or Sombre des Mages</span>
+                <span class="new-sub"><span class="author">Joe Dever</span> · 1989 · LCA-0301</span>
+              </span>
+              <span class="new-right">
+                <span class="rating size-sm">
+                  <span class="rating-stars">
+                    <span class="star" style="--fill:100%"></span><span class="star" style="--fill:100%"></span><span class="star" style="--fill:100%"></span><span class="star" style="--fill:100%"></span><span class="star" style="--fill:40%"></span>
+                  </span>
+                  <span class="rating-score">8.8</span>
+                </span>
+                <span class="new-time">hier</span>
+              </span>
+            </a>
+            <a class="new-row" href="#">
+              <span class="new-cover bg-cuir">Sorcier MF</span>
+              <span class="new-meta">
+                <span class="new-title">Le Sorcier de la Montagne de Feu</span>
+                <span class="new-sub"><span class="author">S. Jackson &amp; I. Livingstone</span> · 1982 · LCA-0042</span>
+              </span>
+              <span class="new-right">
+                <span class="rating size-sm">
+                  <span class="rating-stars">
+                    <span class="star" style="--fill:100%"></span><span class="star" style="--fill:100%"></span><span class="star" style="--fill:100%"></span><span class="star" style="--fill:100%"></span><span class="star" style="--fill:40%"></span>
+                  </span>
+                  <span class="rating-score">8.4</span>
+                </span>
+                <span class="new-time">hier</span>
+              </span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Activity -->
+        <div>
+          <div class="section-head">
+            <h2>Activité</h2>
+            <a class="more" href="pages/profil.html">Mon fil
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+          <div class="activity">
+            <div class="act">
+              <span class="avatar size-sm" style="background: var(--encre-100); color: var(--encre-700);">CL<span class="avatar-role mod"></span></span>
+              <div class="act-body">
+                <span class="act-text">
+                  <a class="handle" href="#">@clem</a> a noté <a class="obj" href="#">Le Manoir de l'Enfer</a> 9/10.
+                </span>
+                <span class="act-meta">il y a 12 min</span>
+              </div>
+            </div>
+            <div class="act">
+              <span class="avatar size-sm" style="background: var(--mousse-100); color: var(--mousse-700);">JD</span>
+              <div class="act-body">
+                <span class="act-text">
+                  <a class="handle" href="#">@juliette_d</a> a complété la fiche de l'illustrateur <a class="obj" href="#">Iain McCaig</a>.
+                </span>
+                <span class="act-meta">
+                  <span class="badge badge-status-validated"><span class="dot"></span>Validée</span>
+                  · il y a 47 min
+                </span>
+              </div>
+            </div>
+            <div class="act">
+              <span class="avatar size-sm" style="background: var(--or-100); color: var(--or-700);">RP<span class="avatar-role admin"></span></span>
+              <div class="act-body">
+                <span class="act-text">
+                  <a class="handle" href="#">@romainp</a> a publié <a class="obj" href="#">L'Or Sombre des Mages</a> au catalogue.
+                </span>
+                <span class="act-meta">il y a 1 h</span>
+              </div>
+            </div>
+            <div class="act">
+              <span class="avatar size-sm">MA<span class="avatar-role mod"></span></span>
+              <div class="act-body">
+                <span class="act-text">
+                  Tu as validé la suggestion <a class="obj" href="#">Loup Solitaire — Tome 4</a> de <a class="handle" href="#">@thibault</a>.
+                </span>
+                <span class="act-meta">il y a 3 h</span>
+              </div>
+            </div>
+            <div class="act">
+              <span class="avatar size-sm" style="background: var(--sang-100); color: var(--sang-700);">EP</span>
+              <div class="act-body">
+                <span class="act-text">
+                  <a class="handle" href="#">@elise_p</a> a ajouté <a class="obj" href="#">La Cité des Voleurs</a> à sa liste d'achats.
+                </span>
+                <span class="act-meta">il y a 5 h</span>
+              </div>
+            </div>
+            <div class="act">
+              <span class="avatar size-sm" style="background: var(--encre-100); color: var(--encre-700);">TB</span>
+              <div class="act-body">
+                <span class="act-text">
+                  <a class="handle" href="#">@thibault</a> a corrigé l'ISBN de <a class="obj" href="#">La Forêt de la Malédiction</a>.
+                </span>
+                <span class="act-meta">
+                  <span class="badge badge-status-pending"><span class="dot"></span>En attente</span>
+                  · hier
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =============== ECOSYSTEM BRIDGE =============== -->
+    <div class="container">
+      <a class="bridge" href="#" style="text-decoration: none; color: var(--ink-default);">
+        <span class="bridge-text">
+          <span class="bridge-title">Rejoindre La Taverne des Aventuriers</span>
+          <span class="bridge-desc">Discuter des parties, débattre des choix, retrouver la communauté autour d'un verre virtuel.</span>
+        </span>
+        <span class="btn btn-secondary btn-sm">
+          Y aller
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </span>
+      </a>
+    </div>
+  </main>
+
+  <div class="menu-backdrop" id="menu-backdrop" aria-hidden="true"></div>
+
+  <script src="assets/shell.js"></script>
+  <script src="assets/menus.js"></script>
+  <script src="assets/search.js"></script>
+</body>
+</html>

@@ -1,0 +1,1729 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>@juliette_d — Profil public · La Collection des Aventuriers</title>
+  <link rel="stylesheet" href="../assets/tokens.css" />
+  <link rel="stylesheet" href="../assets/components.css" />
+  <link rel="stylesheet" href="../assets/menus.css" />
+  <link rel="stylesheet" href="../assets/search.css" />
+  <style>
+    /* ============================================================
+       CONTAINER + SESSION HEADER (identique aux autres pages)
+       ============================================================ */
+    .container { width: 100%; max-width: 1320px; margin: 0 auto; padding-left: var(--sp-4); padding-right: var(--sp-4); }
+    @media (min-width: 720px) { .container { padding-left: var(--sp-6); padding-right: var(--sp-6); } }
+
+    .session-header {
+      position: sticky; top: 0; z-index: 40;
+      background: color-mix(in oklab, var(--bg-page) 88%, transparent);
+      backdrop-filter: saturate(140%) blur(10px);
+      -webkit-backdrop-filter: saturate(140%) blur(10px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .sh-inner {
+      display: grid; grid-template-columns: auto 1fr auto;
+      gap: var(--sp-4); align-items: center;
+      padding: 12px 0; min-height: 64px;
+    }
+    .sh-left { display: flex; align-items: center; gap: var(--sp-5); min-width: 0; }
+    .sh-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink-strong); }
+    .sh-brand:hover { text-decoration: none; }
+    .sh-sigil {
+      width: 36px; height: 36px;
+      display: grid; place-items: center;
+      border: 1.5px solid var(--cuir-500);
+      border-radius: 50%;
+      color: var(--cuir-500);
+      font-family: var(--font-display); font-weight: 700; font-size: 16px;
+      background: var(--bg-elevated);
+      letter-spacing: 0.04em; flex-shrink: 0; position: relative;
+    }
+    .sh-sigil::before { content: ""; position: absolute; inset: 3px; border: 1px dashed var(--cuir-300); border-radius: 50%; }
+    [data-theme="dark"] .sh-sigil { border-color: var(--or-400); color: var(--or-400); }
+    [data-theme="dark"] .sh-sigil::before { border-color: var(--or-700); }
+    .sh-brand-mark { font-family: var(--font-display); font-size: 14px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink-strong); white-space: nowrap; }
+    @media (max-width: 720px) { .sh-brand-mark { display: none; } }
+
+    .sh-nav { display: flex; gap: 2px; }
+    @media (max-width: 879px) { .sh-nav { display: none; } }
+    .sh-nav a {
+      padding: 8px 14px;
+      font-family: var(--font-body); font-size: var(--fs-sm); font-weight: 500;
+      color: var(--ink-muted); text-decoration: none;
+      border-radius: var(--radius-sm);
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .sh-nav a:hover { color: var(--ink-strong); background: var(--bg-sunken); text-decoration: none; }
+
+    .sh-search {
+      flex: 1; max-width: 480px; justify-self: center; width: 100%;
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 12px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill);
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .sh-search:focus-within { border-color: var(--brand-primary); box-shadow: var(--ring-focus); }
+    .sh-search svg { width: 16px; height: 16px; stroke: var(--ink-muted); fill: none; stroke-width: 1.8; stroke-linecap: round; flex-shrink: 0; }
+    .sh-search input { flex: 1; border: 0; background: transparent; min-height: 32px; padding: 0; font-family: var(--font-body); font-size: var(--fs-sm); color: var(--ink-strong); outline: none; min-width: 0; }
+    .sh-search input::placeholder { color: var(--ink-muted); }
+    @media (max-width: 880px) { .sh-search { display: none; } }
+
+    .sh-right { display: flex; align-items: center; gap: var(--sp-2); justify-self: end; }
+    .sh-icon-btn {
+      position: relative; width: 40px; height: 40px;
+      display: grid; place-items: center;
+      background: transparent;
+      border: 1px solid var(--border-default);
+      border-radius: 50%;
+      color: var(--ink-default); cursor: pointer;
+    }
+    .sh-icon-btn:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .sh-icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .sh-user {
+      display: flex; align-items: center; gap: 10px;
+      padding: 4px 12px 4px 4px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+    }
+    .sh-user:hover { border-color: var(--brand-primary); }
+    .sh-user-text { display: flex; flex-direction: column; line-height: 1.1; }
+    @media (max-width: 600px) { .sh-user-text { display: none; } .sh-user { padding: 2px; } }
+    .sh-user-name { font-family: var(--font-body); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-strong); }
+    .sh-user-role { font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--info); }
+
+    /* ============================================================
+       FIL D'ARIANE (au-dessus de la page)
+       ============================================================ */
+    .crumbs {
+      padding: var(--sp-5) 0 0;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      display: flex; align-items: center; gap: 8px;
+      flex-wrap: wrap;
+    }
+    .crumbs a { color: var(--ink-muted); text-decoration: none; }
+    .crumbs a:hover { color: var(--brand-primary); }
+    .crumbs .sep { color: var(--ink-subtle); }
+    .crumbs .here { color: var(--ink-strong); font-weight: 600; }
+
+    /* ============================================================
+       LAYOUT — Grille asymétrique : identité (sticky) | listes
+       ============================================================ */
+    .layout {
+      display: grid;
+      gap: var(--sp-5);
+      padding: var(--sp-5) 0 var(--sp-8);
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 1080px) {
+      .layout {
+        grid-template-columns: 380px minmax(0, 1fr);
+        gap: var(--sp-6);
+        align-items: start;
+      }
+    }
+    @media (min-width: 1280px) {
+      .layout { grid-template-columns: 420px minmax(0, 1fr); }
+    }
+
+    /* =====================================================
+       1. CARTE IDENTITÉ — sticky à gauche
+       ===================================================== */
+    .id-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      position: relative;
+    }
+    @media (min-width: 1080px) {
+      .id-card { position: sticky; top: 84px; }
+    }
+
+    /* Bannière décorative */
+    .id-banner {
+      height: 96px;
+      background:
+        radial-gradient(circle at 25% 35%, color-mix(in oklab, var(--or-300) 65%, transparent), transparent 55%),
+        radial-gradient(circle at 85% 70%, color-mix(in oklab, var(--cuir-400) 60%, transparent), transparent 55%),
+        linear-gradient(135deg, var(--parchemin-200), var(--parchemin-100));
+      position: relative;
+      overflow: hidden;
+    }
+    [data-theme="dark"] .id-banner {
+      background:
+        radial-gradient(circle at 25% 35%, color-mix(in oklab, var(--or-700) 80%, transparent), transparent 55%),
+        radial-gradient(circle at 85% 70%, color-mix(in oklab, var(--cuir-700) 80%, transparent), transparent 55%),
+        linear-gradient(135deg, var(--grimoire-100), var(--grimoire-200));
+    }
+    .id-banner::after {
+      content: "";
+      position: absolute; inset: 0;
+      background:
+        repeating-linear-gradient(45deg,
+          transparent 0, transparent 12px,
+          color-mix(in oklab, var(--ink-strong) 4%, transparent) 12px,
+          color-mix(in oklab, var(--ink-strong) 4%, transparent) 13px);
+      pointer-events: none;
+    }
+    .id-banner-mono {
+      position: absolute;
+      bottom: 10px; right: 14px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+      opacity: 0.7;
+    }
+
+    /* Avatar — gros sceau, à cheval entre bannière et fond */
+    .id-seal-wrap {
+      padding: 0 var(--sp-5);
+      margin-top: -56px;
+      position: relative;
+      z-index: 1;
+    }
+    .id-seal {
+      width: 112px; height: 112px;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      background: var(--bg-elevated);
+      border: 4px solid var(--bg-elevated);
+      box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-default);
+      position: relative;
+      overflow: hidden;
+    }
+    .id-seal::before {
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--mousse-300), var(--mousse-700));
+    }
+    .id-seal-letters {
+      position: relative;
+      z-index: 1;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 40px;
+      color: var(--parchemin-50);
+      letter-spacing: 0.04em;
+    }
+    .id-seal-ring {
+      position: absolute;
+      inset: 6px;
+      border: 1px dashed rgba(245,236,217,0.45);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .id-role-pip {
+      position: absolute;
+      bottom: 6px; right: 6px;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--info);
+      color: #fff;
+      display: grid; place-items: center;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      font-weight: 700;
+      border: 3px solid var(--bg-elevated);
+      z-index: 2;
+    }
+
+    .id-body { padding: var(--sp-3) var(--sp-5) var(--sp-5); }
+    .id-handle {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      color: var(--ink-muted);
+      margin-bottom: 4px;
+    }
+    .id-name {
+      font-family: var(--font-display);
+      font-size: clamp(1.5rem, 2.5vw + 0.5rem, 2rem);
+      font-weight: 700;
+      color: var(--ink-strong);
+      letter-spacing: 0.03em;
+      line-height: 1.1;
+      margin: 0 0 var(--sp-3);
+      text-wrap: balance;
+    }
+    .id-role-line {
+      display: flex; flex-wrap: wrap; align-items: center;
+      gap: 8px;
+      margin-bottom: var(--sp-3);
+    }
+    .id-level {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--ink-muted);
+    }
+    .id-level strong { color: var(--ink-strong); font-weight: 600; }
+
+    /* Méta lignes — chips */
+    .id-meta {
+      display: flex; flex-direction: column;
+      gap: 8px;
+      padding: var(--sp-3) 0;
+      border-top: 1px dashed var(--border-subtle);
+      border-bottom: 1px dashed var(--border-subtle);
+      margin: var(--sp-3) 0;
+    }
+    .id-meta-row {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 10px;
+      align-items: center;
+      font-size: var(--fs-sm);
+      color: var(--ink-default);
+    }
+    .id-meta-row .ic {
+      width: 18px; height: 18px;
+      color: var(--ink-muted);
+      display: grid; place-items: center;
+    }
+    .id-meta-row .ic svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .id-meta-row strong { color: var(--ink-strong); font-weight: 600; }
+    .id-meta-row .ago {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ink-subtle);
+      letter-spacing: 0.04em;
+    }
+
+    /* Lien Taverne — soigné */
+    .id-taverne {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: var(--sp-3) var(--sp-4);
+      background: color-mix(in oklab, var(--encre-100) 38%, var(--bg-elevated));
+      border: 1px solid var(--info-border);
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      color: var(--ink-default);
+      transition: all var(--motion-fast) var(--motion-ease);
+      position: relative;
+      overflow: hidden;
+    }
+    [data-theme="dark"] .id-taverne {
+      background: color-mix(in oklab, var(--encre-700) 30%, var(--bg-elevated));
+    }
+    .id-taverne::after {
+      content: "";
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 120px; height: 120px;
+      background: radial-gradient(circle, color-mix(in oklab, var(--info) 18%, transparent), transparent 65%);
+      pointer-events: none;
+    }
+    .id-taverne:hover {
+      border-color: var(--info);
+      transform: translateY(-1px);
+      text-decoration: none;
+      color: var(--ink-strong);
+      box-shadow: var(--shadow-sm);
+    }
+    .id-taverne .tav-mark {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--info);
+      color: #fff;
+      display: grid; place-items: center;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .id-taverne .tav-mark::before {
+      content: "";
+      position: absolute; inset: 3px;
+      border: 1px dashed rgba(255,255,255,0.4);
+      border-radius: 50%;
+    }
+    .id-taverne .tav-text { min-width: 0; position: relative; z-index: 1; }
+    .id-taverne .tav-lbl {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--info);
+      margin-bottom: 1px;
+    }
+    .id-taverne .tav-handle {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: var(--fs-md);
+      color: var(--ink-strong);
+      letter-spacing: 0.02em;
+    }
+    .id-taverne .ext {
+      width: 14px; height: 14px;
+      color: var(--ink-muted);
+      flex-shrink: 0;
+      position: relative; z-index: 1;
+    }
+    .id-taverne:hover .ext { color: var(--info); }
+
+    /* Insignes / Badges décrochés */
+    .id-honors {
+      margin-top: var(--sp-4);
+    }
+    .id-honors-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+      margin-bottom: 8px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .id-honors-label::before { content: ""; width: 14px; height: 1px; background: var(--cuir-400); }
+    .honor-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .honor {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 3px 9px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      background: var(--bg-page);
+      border: 1px solid var(--border-default);
+      color: var(--ink-default);
+      border-radius: var(--radius-pill);
+    }
+    .honor .pip { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .honor.gold { color: var(--or-700); border-color: color-mix(in oklab, var(--or-500) 30%, var(--border-default)); background: var(--or-50); }
+    [data-theme="dark"] .honor.gold { color: var(--or-300); background: color-mix(in oklab, var(--or-700) 25%, var(--bg-elevated)); }
+    .honor.mousse { color: var(--mousse-700); border-color: color-mix(in oklab, var(--mousse-500) 30%, var(--border-default)); background: var(--mousse-50); }
+    [data-theme="dark"] .honor.mousse { color: var(--mousse-300); background: color-mix(in oklab, var(--mousse-700) 30%, var(--bg-elevated)); }
+    .honor.encre { color: var(--encre-700); border-color: color-mix(in oklab, var(--encre-500) 30%, var(--border-default)); background: var(--encre-50); }
+    [data-theme="dark"] .honor.encre { color: var(--encre-300); background: color-mix(in oklab, var(--encre-700) 30%, var(--bg-elevated)); }
+
+    /* =====================================================
+       2. STATS — bandeau dans la colonne droite
+       ===================================================== */
+    .public-stats {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1px;
+      background: var(--border-subtle);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: var(--sp-5);
+    }
+    @media (min-width: 540px) { .public-stats { grid-template-columns: repeat(3, 1fr); } }
+    .pstat {
+      background: var(--bg-elevated);
+      padding: var(--sp-4) var(--sp-5);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--sp-3);
+      align-items: start;
+    }
+    .pstat .body { min-width: 0; }
+    .pstat .lbl {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+      margin-bottom: 6px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .pstat .lbl::before { content: ""; width: 12px; height: 1px; background: var(--cuir-400); }
+    .pstat .val {
+      font-family: var(--font-display);
+      font-size: var(--fs-3xl);
+      font-weight: 700;
+      color: var(--ink-strong);
+      line-height: 1;
+      letter-spacing: 0.02em;
+      font-variant-numeric: tabular-nums;
+    }
+    .pstat .val .unit {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--ink-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-left: 4px;
+    }
+    .pstat .sub {
+      font-size: var(--fs-xs);
+      color: var(--ink-muted);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+    .pstat .sub strong { color: var(--ink-strong); font-weight: 600; }
+    .pstat .glyph {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      flex-shrink: 0;
+    }
+    .pstat .glyph svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .pstat.collec .glyph { background: color-mix(in oklab, var(--cuir-200) 45%, var(--bg-elevated)); color: var(--cuir-600); }
+    [data-theme="dark"] .pstat.collec .glyph { background: color-mix(in oklab, var(--cuir-700) 35%, var(--bg-elevated)); color: var(--cuir-200); }
+    .pstat.rate .glyph { background: var(--or-50); color: var(--or-700); }
+    [data-theme="dark"] .pstat.rate .glyph { background: color-mix(in oklab, var(--or-700) 25%, var(--bg-elevated)); color: var(--or-200); }
+    .pstat.contrib .glyph { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+
+    /* Mini-rating reuse */
+    .pstat .rating { gap: 4px; margin-top: 4px; }
+    .pstat .rating.size-sm .star { --star-size: 12px; }
+    .pstat .rating-score { font-size: var(--fs-xs); font-family: var(--font-mono); color: var(--or-700); font-weight: 600; }
+    [data-theme="dark"] .pstat .rating-score { color: var(--or-300); }
+
+    /* =====================================================
+       3. TABS + PANELS
+       ===================================================== */
+    .panel-section {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .panel-head {
+      padding: var(--sp-4) var(--sp-5);
+      background: var(--bg-sunken);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: var(--sp-3); flex-wrap: wrap;
+    }
+    .panel-head h2 {
+      font-family: var(--font-display);
+      font-size: var(--fs-lg);
+      font-weight: 700;
+      color: var(--ink-strong);
+      letter-spacing: 0.04em;
+      margin: 0;
+    }
+    .panel-head .legend {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .panel-head .legend svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.7; }
+
+    .tabs-bar {
+      display: flex; gap: 4px;
+      padding: var(--sp-3) var(--sp-3) 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .tabs-bar::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      appearance: none;
+      flex: 0 0 auto;
+      background: transparent;
+      border: 0;
+      padding: 12px 18px 14px;
+      font-family: var(--font-body);
+      font-size: var(--fs-sm);
+      font-weight: 500;
+      color: var(--ink-muted);
+      cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: color var(--motion-fast) var(--motion-ease);
+      position: relative;
+      white-space: nowrap;
+    }
+    .tab-btn .icn { width: 16px; height: 16px; display: grid; place-items: center; }
+    .tab-btn .icn svg { width: 100%; height: 100%; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .tab-btn .ct {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 1px 7px;
+      background: var(--bg-sunken);
+      border-radius: 999px;
+      color: var(--ink-muted);
+      letter-spacing: 0;
+    }
+    .tab-btn:hover { color: var(--ink-strong); }
+    .tab-btn[aria-selected="true"] {
+      color: var(--brand-primary);
+      font-weight: 600;
+    }
+    .tab-btn[aria-selected="true"]::after {
+      content: "";
+      position: absolute;
+      left: 14px; right: 14px;
+      bottom: -1px;
+      height: 2px;
+      background: var(--brand-primary);
+      border-radius: 2px 2px 0 0;
+    }
+    .tab-btn[aria-selected="true"] .ct {
+      background: var(--brand-primary);
+      color: var(--brand-primary-ink);
+    }
+
+    /* Toolbar (filtres lecture seule) */
+    .panel-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--sp-3);
+      padding: var(--sp-3) var(--sp-5);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-wrap: wrap;
+    }
+    .panel-toolbar .meta {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ink-muted);
+      letter-spacing: 0.02em;
+    }
+    .panel-toolbar .meta strong { color: var(--ink-strong); font-weight: 600; font-family: var(--font-display); }
+    .panel-toolbar .meta .sep {
+      display: inline-block;
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--border-strong);
+      margin: 0 8px;
+      vertical-align: middle;
+    }
+    .panel-toolbar select {
+      appearance: none;
+      padding: 6px 30px 6px 12px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-default);
+      cursor: pointer;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--ink-muted) 50%),
+        linear-gradient(135deg, var(--ink-muted) 50%, transparent 50%);
+      background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%;
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+    }
+
+    .panel-body { padding: var(--sp-5); }
+    @media (max-width: 540px) { .panel-body { padding: var(--sp-4); } }
+    .tab-panel { display: none; }
+    .tab-panel.is-active { display: block; }
+
+    /* =====================================================
+       BOOK GRID — version compacte (lecture seule)
+       ===================================================== */
+    .book-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+      gap: var(--sp-3);
+    }
+    @media (min-width: 720px) {
+      .book-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--sp-4); }
+    }
+    .book-card {
+      display: flex; flex-direction: column;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--ink-default);
+      transition: transform var(--motion-fast) var(--motion-ease);
+    }
+    .book-card:hover { transform: translateY(-2px); text-decoration: none; color: var(--ink-default); }
+    .book-card:hover .cover { box-shadow: var(--shadow-md); }
+    .book-card .cover {
+      aspect-ratio: 3 / 4;
+      border-radius: 4px;
+      padding: 10px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: box-shadow var(--motion-base) var(--motion-ease);
+      background: linear-gradient(135deg, var(--cuir-300), var(--cuir-600));
+    }
+    .book-card .cover.mousse { background: linear-gradient(135deg, var(--mousse-300), var(--mousse-700)); }
+    .book-card .cover.encre  { background: linear-gradient(135deg, var(--encre-300), var(--encre-700)); }
+    .book-card .cover.sang   { background: linear-gradient(135deg, var(--sang-300), var(--sang-700)); }
+    .book-card .cover.or     { background: linear-gradient(135deg, var(--or-300), var(--or-700)); }
+    .book-card .cover.violet { background: linear-gradient(135deg, #6b4789, #2f1d4a); }
+    .book-card .cover.cuivre { background: linear-gradient(135deg, #a8612f, #4a2510); }
+    .book-card .cover::before {
+      content: "";
+      position: absolute; inset: 6px;
+      border: 1px solid rgba(245,236,217,0.32);
+      pointer-events: none;
+    }
+    .book-card .cover .ref {
+      position: relative;
+      align-self: flex-start;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(245,236,217,0.8);
+      padding: 2px 7px;
+      border: 1px solid rgba(245,236,217,0.32);
+      border-radius: 2px;
+    }
+    .book-card .cover.or .ref { color: rgba(45,24,16,0.65); border-color: rgba(45,24,16,0.30); }
+    .book-card .cover .ttl {
+      position: relative;
+      font-family: var(--font-display);
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--parchemin-50);
+      letter-spacing: 0.02em;
+      line-height: 1.15;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+      align-self: flex-start;
+      max-width: 100%;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .book-card .cover.or .ttl { color: var(--parchemin-900); text-shadow: 0 1px 0 rgba(245,236,217,0.4); }
+    /* Sceau "coup de cœur" en haut-droite — informatif, pas un bouton */
+    .book-card .cover .fav-pip {
+      position: absolute;
+      top: 8px; right: 8px;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: rgba(20,13,7,0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      color: var(--or-300);
+      display: grid; place-items: center;
+      border: 1px solid rgba(245,236,217,0.32);
+      z-index: 2;
+    }
+    .book-card .cover .fav-pip svg { width: 11px; height: 11px; fill: currentColor; stroke: none; }
+    .book-card .meta { padding: 0 2px; }
+    .book-card .meta .t {
+      display: block;
+      font-family: var(--font-display);
+      font-size: var(--fs-sm);
+      font-weight: 600;
+      color: var(--ink-strong);
+      letter-spacing: 0.02em;
+      line-height: 1.25;
+      margin-bottom: 2px;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .book-card .meta .a {
+      display: block;
+      font-size: 11.5px;
+      color: var(--ink-muted);
+      font-family: var(--font-body);
+      letter-spacing: 0.01em;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .book-card .meta .foot {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 6px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ink-muted);
+      letter-spacing: 0.04em;
+    }
+    .book-card .meta .foot .score {
+      display: inline-flex; align-items: center; gap: 3px;
+      color: var(--or-700);
+      font-weight: 600;
+    }
+    [data-theme="dark"] .book-card .meta .foot .score { color: var(--or-300); }
+    .book-card .meta .foot .score svg { width: 11px; height: 11px; fill: currentColor; stroke: none; }
+    .book-card .meta .foot .year { color: var(--ink-subtle); }
+
+    /* =====================================================
+       SOUS-ONGLETS (Favoris)
+       ===================================================== */
+    .subtabs {
+      display: flex; gap: 6px; flex-wrap: wrap;
+      margin-bottom: var(--sp-4);
+    }
+    .subtab {
+      appearance: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 12px;
+      background: var(--bg-page);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+      cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .subtab .ct { font-family: var(--font-mono); font-size: 9.5px; color: var(--ink-subtle); }
+    .subtab:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .subtab[aria-pressed="true"] {
+      background: var(--ink-strong);
+      color: var(--bg-page);
+      border-color: var(--ink-strong);
+    }
+    .subtab[aria-pressed="true"] .ct { color: rgba(245,236,217,0.7); }
+
+    .fav-pane { display: none; }
+    .fav-pane.is-active { display: block; }
+
+    /* People cards (auteurs / illustrateurs / collections) */
+    .people-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: var(--sp-3);
+    }
+    .person-card {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      padding: var(--sp-3) var(--sp-4);
+      background: var(--bg-page);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      align-items: center;
+      text-decoration: none;
+      color: var(--ink-default);
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .person-card:hover {
+      border-color: var(--brand-primary);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+      text-decoration: none;
+      color: var(--ink-default);
+    }
+    .person-card .info { min-width: 0; }
+    .person-card .role {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+      margin-bottom: 1px;
+    }
+    .person-card .name {
+      font-family: var(--font-display);
+      font-size: var(--fs-sm);
+      font-weight: 700;
+      color: var(--ink-strong);
+      letter-spacing: 0.02em;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .person-card .meta-l {
+      font-size: 11px;
+      color: var(--ink-muted);
+      font-family: var(--font-body);
+      margin-top: 2px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    /* Collection cards (favoris collections) */
+    .collec-card {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: var(--sp-3) var(--sp-4);
+      background: var(--bg-page);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      color: var(--ink-default);
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .collec-card:hover { border-color: var(--brand-primary); transform: translateY(-1px); text-decoration: none; color: var(--ink-default); box-shadow: var(--shadow-sm); }
+    .collec-card .ic {
+      width: 36px; height: 36px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-sunken);
+      color: var(--brand-primary);
+      display: grid; place-items: center;
+    }
+    .collec-card .ic svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.7; }
+    .collec-card .info { min-width: 0; }
+    .collec-card .name {
+      font-family: var(--font-display);
+      font-size: var(--fs-sm);
+      font-weight: 700;
+      color: var(--ink-strong);
+      letter-spacing: 0.02em;
+    }
+    .collec-card .meta-l {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      color: var(--ink-muted);
+      margin-top: 2px;
+    }
+
+    /* =====================================================
+       EMPTY STATE — listes vides
+       ===================================================== */
+    .empty-state {
+      text-align: center;
+      padding: var(--sp-7) var(--sp-4);
+      max-width: 460px;
+      margin: 0 auto;
+    }
+    .empty-state .crest {
+      width: 56px; height: 64px;
+      margin: 0 auto var(--sp-3);
+      background: var(--ambre-50);
+      clip-path: polygon(50% 0, 100% 14%, 100% 60%, 50% 100%, 0 60%, 0 14%);
+      display: grid; place-items: center;
+      color: var(--ambre-700);
+      border: 1px solid var(--ambre-100);
+      position: relative;
+    }
+    [data-theme="dark"] .empty-state .crest { background: color-mix(in oklab, var(--ambre-700) 25%, var(--bg-elevated)); color: var(--ambre-300); border-color: color-mix(in oklab, var(--ambre-300) 25%, transparent); }
+    .empty-state .crest svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .empty-state h3 {
+      font-family: var(--font-display);
+      font-size: var(--fs-lg);
+      font-weight: 700;
+      color: var(--ink-strong);
+      letter-spacing: 0.03em;
+      margin: 0 0 6px;
+    }
+    .empty-state p {
+      font-size: var(--fs-sm);
+      color: var(--ink-muted);
+      line-height: 1.55;
+      margin: 0 auto var(--sp-3);
+      text-wrap: pretty;
+    }
+    .empty-state .quote {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: var(--fs-sm);
+      color: var(--ink-muted);
+      margin-top: var(--sp-3);
+      padding: 8px 14px;
+      border-left: 2px solid var(--cuir-400);
+      background: var(--bg-page);
+    }
+
+    /* =====================================================
+       SHOW MORE bar — invite à explorer
+       ===================================================== */
+    .show-more {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--sp-3);
+      align-items: center;
+      margin-top: var(--sp-5);
+      padding: var(--sp-3) var(--sp-4);
+      background: var(--bg-page);
+      border: 1px dashed var(--border-default);
+      border-radius: var(--radius-md);
+    }
+    .show-more .txt {
+      font-size: var(--fs-sm); color: var(--ink-muted);
+    }
+    .show-more .txt strong { color: var(--ink-strong); font-weight: 600; font-family: var(--font-display); letter-spacing: 0.02em; }
+  </style>
+</head>
+<body>
+
+  <!-- =============== HEADER =============== -->
+  <header class="session-header">
+    <div class="container sh-inner">
+      <div class="sh-left">
+        <a class="sh-brand" href="../dashboard.html">
+          <span class="sh-sigil">A</span>
+          <span class="sh-brand-mark">La Collection</span>
+        </a>
+        <nav class="sh-nav" aria-label="Navigation principale">
+          <a href="../dashboard.html">Accueil</a>
+          <a href="catalogue.html">Catalogue</a>
+          <a href="suggestions.html">Suggestions</a>
+        </nav>
+      </div>
+
+      <form class="sh-search" role="search" onsubmit="event.preventDefault();">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" placeholder="Rechercher un livre, un auteur, une collection…" aria-label="Recherche globale" />
+      </form>
+
+      <div class="sh-right">
+        <div class="menu-anchor">
+          <button class="sh-icon-btn has-unread" type="button" id="notif-trigger" aria-label="Notifications (3 non lues)" aria-haspopup="dialog" aria-expanded="false" aria-controls="notif-menu">
+            <svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+            <span class="dot" aria-hidden="true"></span>
+          </button>
+
+          <!-- ============ Dropdown : NOTIFICATIONS ============ -->
+          <div class="menu-card" id="notif-menu" data-anchor="notifications" role="dialog" aria-modal="false" aria-label="Notifications">
+            <header class="menu-head">
+              <span class="ttl">Notifications <span class="count-badge">3</span></span>
+              <button class="mark-all" type="button" data-action="mark-all-read">Tout marquer lu</button>
+            </header>
+            <div class="notif-list" role="list">
+              <div class="notif-list-sep">Nouvelles · aujourd'hui</div>
+              <a class="notif-item unread success" href="suggestions.html" role="listitem">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
+                <div class="body">
+                  <div class="msg">Ta suggestion sur <strong>Le Repaire des Vampires</strong> a été validée par la guilde.</div>
+                  <div class="time">il y a 12 min <span class="ctx">· par @aelius_mod</span></div>
+                </div>
+                <span class="dot-unread" aria-label="Non lue"></span>
+              </a>
+              <a class="notif-item unread info" href="livre.html" role="listitem">
+                <span class="ic illustr" aria-hidden="true">DF</span>
+                <div class="body">
+                  <div class="msg"><strong>Steve Jackson</strong> a publié une nouvelle fiche dans une collection que tu suis (Défis Fantastiques).</div>
+                  <div class="time">il y a 2 h <span class="ctx">· Défis Fantastiques nº62</span></div>
+                </div>
+                <span class="dot-unread"></span>
+              </a>
+              <a class="notif-item unread warn" href="moderation.html" role="listitem">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></span>
+                <div class="body">
+                  <div class="msg">Trois suggestions attendent ton aval dans la <strong>Salle de Modération</strong>.</div>
+                  <div class="time">il y a 5 h</div>
+                </div>
+                <span class="dot-unread"></span>
+              </a>
+              <div class="notif-list-sep">Plus anciennes</div>
+              <a class="notif-item info" href="#" role="listitem">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-9 8.5 8.5 8.5 0 0 1-7.6-4.7L3 21l1.7-1.4A8.38 8.38 0 0 1 3 11.5a8.5 8.5 0 0 1 17 0z"/></svg></span>
+                <div class="body">
+                  <div class="msg"><strong>@nael_lc</strong> a commenté ta note sur <strong>L'Œil d'Émeraude</strong>.</div>
+                  <div class="time">hier · 18:42</div>
+                </div>
+                <span class="dot-unread"></span>
+              </a>
+              <a class="notif-item success" href="#" role="listitem">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+                <div class="body">
+                  <div class="msg">Félicitations — tu viens d'atteindre le rang <strong>Compagnon · Niveau 4</strong>.</div>
+                  <div class="time">il y a 3 j</div>
+                </div>
+                <span class="dot-unread"></span>
+              </a>
+            </div>
+            <footer class="menu-foot">
+              <a href="#">Voir toutes les notifications
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+              </a>
+              <button class="pref-link" type="button">Préférences</button>
+            </footer>
+          </div>
+        </div>
+
+        <div class="menu-anchor">
+          <button class="sh-user" type="button" id="user-trigger" aria-haspopup="menu" aria-expanded="false" aria-controls="user-menu" aria-label="Menu utilisateur">
+            <span class="avatar size-sm">MA<span class="avatar-role mod"></span></span>
+            <span class="sh-user-text">
+              <span class="sh-user-name">Marius Aubry</span>
+              <span class="sh-user-role">Modérateur</span>
+            </span>
+            <svg class="sh-user-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+
+          <!-- ============ Dropdown : USER MENU ============ -->
+          <div class="menu-card user-card" id="user-menu" data-anchor="user" role="menu" aria-label="Compte utilisateur">
+            <header class="menu-head-user">
+              <span class="avatar size-md" aria-hidden="true">MA<span class="avatar-role mod"></span></span>
+              <div class="ident">
+                <div class="hello">Bonjour</div>
+                <div class="name">Marius Aubry</div>
+                <span class="badge badge-role-mod"><span class="dot" aria-hidden="true"></span>Modérateur</span>
+              </div>
+            </header>
+            <div class="menu-section">
+              <a class="menu-link" href="profil.html" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg></span>
+                Mon Profil
+                <span class="lnk-meta">Aventurier</span>
+              </a>
+              <a class="menu-link" href="suggestions.html" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"/><path d="M14 4h6v6M10 14 20 4"/></svg></span>
+                Mes Suggestions
+                <span class="lnk-meta">17 validées</span>
+              </a>
+              <a class="menu-link" href="profil.html#settings" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+                Paramètres
+                <kbd>⌘,</kbd>
+              </a>
+            </div>
+            <div class="menu-section">
+              <div class="menu-section-label">Outils de modération</div>
+              <a class="menu-link role-action" href="moderation.html" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 4 9 8 10 4-1 8-5 8-10V6l-8-4z"/><path d="m9 12 2 2 4-4"/></svg></span>
+                Salle de Modération
+                <span class="badge-new">23 à relire</span>
+              </a>
+            </div>
+            <div class="menu-section">
+              <button class="menu-toggle-row" type="button" data-action="toggle-theme">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24" id="theme-icon-menu"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></span>
+                <span>Thème <strong id="theme-name" style="color: var(--ink-strong);">Parchemin</strong></span>
+                <label class="switch" onclick="event.stopPropagation();">
+                  <input type="checkbox" id="theme-switch-menu" />
+                  <span class="track" aria-hidden="true"></span>
+                </label>
+              </button>
+              <a class="menu-link" href="#" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg></span>
+                Aide &amp; raccourcis
+                <kbd>?</kbd>
+              </a>
+            </div>
+            <div class="logout-section">
+              <a class="menu-link logout" href="#" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M10.85 12.15 19 4M15 7l3 3M14 8l3 3"/></svg></span>
+                Se déconnecter
+                <span class="lnk-meta">Sortir</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- Fil d'Ariane -->
+    <nav class="crumbs" aria-label="Fil d'Ariane">
+      <a href="../dashboard.html">Accueil</a>
+      <span class="sep">›</span>
+      <a href="catalogue.html">Aventuriers</a>
+      <span class="sep">›</span>
+      <span class="here">@juliette_d</span>
+    </nav>
+
+    <div class="layout">
+
+      <!-- ============================== 1. CARTE IDENTITÉ ============================== -->
+      <aside class="id-card" aria-label="Carte d'identité publique">
+        <div class="id-banner" aria-hidden="true">
+          <span class="id-banner-mono">guilde · Lyon</span>
+        </div>
+
+        <div class="id-seal-wrap">
+          <div class="id-seal" role="img" aria-label="Sceau de Juliette Delcourt">
+            <span class="id-seal-ring" aria-hidden="true"></span>
+            <span class="id-seal-letters">JD</span>
+            <span class="id-role-pip" title="Modérateur">MOD</span>
+          </div>
+        </div>
+
+        <div class="id-body">
+          <div class="id-handle">@juliette_d</div>
+          <h1 class="id-name">Juliette Delcourt</h1>
+          <div class="id-role-line">
+            <span class="badge badge-role-mod"><span class="dot" aria-hidden="true"></span>Modératrice</span>
+            <span class="id-level">Chroniqueuse · <strong>Niveau 6</strong></span>
+          </div>
+
+          <div class="id-meta">
+            <div class="id-meta-row">
+              <span class="ic" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>
+              </span>
+              <span>Membre de la Guilde depuis <strong>le 4 février 2023</strong> <span class="ago">· 3 ans</span></span>
+            </div>
+            <div class="id-meta-row">
+              <span class="ic" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 4 9 8 10 4-1 8-5 8-10V6l-8-4z"/></svg>
+              </span>
+              <span>Guilde de <strong>Lyon</strong></span>
+            </div>
+            <div class="id-meta-row">
+              <span class="ic" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              </span>
+              <span>Active <strong>il y a 4 heures</strong></span>
+            </div>
+          </div>
+
+          <a class="id-taverne" href="https://taverne.aventuriers.fr/u/juliette_d" target="_blank" rel="noopener">
+            <span class="tav-mark">T</span>
+            <span class="tav-text">
+              <span class="tav-lbl">Profil partenaire</span>
+              <span class="tav-handle">@juliette_d</span>
+              <span style="display:block; font-size: 11px; color: var(--ink-muted); margin-top: 2px; font-family: var(--font-body);">sur la Taverne des Aventuriers</span>
+            </span>
+            <svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17 17 7M9 7h8v8"/></svg>
+          </a>
+
+          <div class="id-honors">
+            <div class="id-honors-label">Distinctions</div>
+            <div class="honor-list">
+              <span class="honor gold"><span class="pip"></span>Conservatrice de l'Année</span>
+              <span class="honor mousse"><span class="pip"></span>Plume d'or · 50 fiches</span>
+              <span class="honor encre"><span class="pip"></span>Patrouilleuse fidèle</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ============================== 2 + 3. STATS + LISTES ============================== -->
+      <div>
+
+        <!-- =============== STATS PUBLIQUES =============== -->
+        <div class="public-stats" role="list" aria-label="Statistiques publiques">
+          <div class="pstat collec" role="listitem">
+            <div class="body">
+              <div class="lbl">Dans sa collection</div>
+              <div class="val">218 <span class="unit">livres</span></div>
+              <div class="sub"><strong>184</strong> terminés · <strong>34</strong> en cours</div>
+            </div>
+            <span class="glyph" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 4h12a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3V4z"/><path d="M4 17a3 3 0 0 1 3-3h12"/><path d="M8 8h7"/></svg>
+            </span>
+          </div>
+
+          <div class="pstat rate" role="listitem">
+            <div class="body">
+              <div class="lbl">Note moyenne</div>
+              <div class="val">7,8 <span class="unit">/ 10</span></div>
+              <div class="sub" style="margin-top:6px;">
+                <span class="rating size-sm">
+                  <span class="rating-stars">
+                    <span class="star" style="--fill:100%"></span>
+                    <span class="star" style="--fill:100%"></span>
+                    <span class="star" style="--fill:100%"></span>
+                    <span class="star" style="--fill:80%"></span>
+                    <span class="star" style="--fill:0%"></span>
+                  </span>
+                  <span class="rating-score">156 avis</span>
+                </span>
+              </div>
+            </div>
+            <span class="glyph" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </span>
+          </div>
+
+          <div class="pstat contrib" role="listitem">
+            <div class="body">
+              <div class="lbl">Contributions validées</div>
+              <div class="val">63 <span class="unit">fiches</span></div>
+              <div class="sub">Taux de validation · <strong>97 %</strong></div>
+            </div>
+            <span class="glyph" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+            </span>
+          </div>
+        </div>
+
+        <!-- =============== ONGLETS (Collection / Favoris) =============== -->
+        <section class="panel-section" aria-label="Bibliothèque publique">
+          <div class="panel-head">
+            <h2>Sa bibliothèque</h2>
+          </div>
+
+          <div class="tabs-bar" role="tablist" aria-label="Bibliothèque">
+            <button class="tab-btn" role="tab" aria-selected="true" aria-controls="panel-collection" id="tab-collection" data-tab="collection">
+              <span class="icn"><svg viewBox="0 0 24 24"><path d="M4 4h12a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3V4z"/><path d="M4 17a3 3 0 0 1 3-3h12"/></svg></span>
+              Sa Collection
+              <span class="ct">218</span>
+            </button>
+            <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-favoris" id="tab-favoris" data-tab="favoris">
+              <span class="icn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+              Ses Favoris
+              <span class="ct">22</span>
+            </button>
+          </div>
+
+          <div class="panel-toolbar">
+            <div class="meta">
+              <strong id="panel-count">218</strong>
+              <span>ouvrages dans la collection</span>
+              <span class="sep"></span>
+              <span>partagés publiquement</span>
+            </div>
+            <select aria-label="Trier" id="sort-select">
+              <option>Récemment ajoutés</option>
+              <option>Note décroissante</option>
+              <option>Alphabétique</option>
+              <option>Année de parution</option>
+            </select>
+          </div>
+
+          <div class="panel-body">
+
+            <!-- =============== PANEL : COLLECTION (lecture seule) =============== -->
+            <div class="tab-panel is-active" role="tabpanel" id="panel-collection" aria-labelledby="tab-collection">
+              <div class="book-grid">
+
+                <a class="book-card" href="livre.html">
+                  <div class="cover">
+                    <span class="ref">DF · 1982</span>
+                    <span class="ttl">Le Sorcier de la Montagne de Feu</span>
+                  </div>
+                  <div class="meta">
+                    <span class="t">Le Sorcier de la Montagne de Feu</span>
+                    <span class="a">Steve Jackson</span>
+                    <span class="foot">
+                      <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.4</span>
+                      <span class="year">1982</span>
+                    </span>
+                  </div>
+                </a>
+
+                <a class="book-card" href="livre.html">
+                  <div class="cover mousse">
+                    <span class="ref">LS · 1985</span>
+                    <span class="fav-pip" aria-label="Coup de cœur">
+                      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </span>
+                    <span class="ttl">Les Maîtres des Ténèbres</span>
+                  </div>
+                  <div class="meta">
+                    <span class="t">Les Maîtres des Ténèbres</span>
+                    <span class="a">Joe Dever</span>
+                    <span class="foot">
+                      <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>9.2</span>
+                      <span class="year">1985</span>
+                    </span>
+                  </div>
+                </a>
+
+                <a class="book-card" href="livre.html">
+                  <div class="cover encre">
+                    <span class="ref">DF · 1984</span>
+                    <span class="fav-pip">
+                      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </span>
+                    <span class="ttl">La Citadelle Sans Soleil</span>
+                  </div>
+                  <div class="meta">
+                    <span class="t">La Citadelle Sans Soleil</span>
+                    <span class="a">Ian Livingstone</span>
+                    <span class="foot">
+                      <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.6</span>
+                      <span class="year">1984</span>
+                    </span>
+                  </div>
+                </a>
+
+                <a class="book-card" href="livre.html">
+                  <div class="cover sang">
+                    <span class="ref">DF · 1983</span>
+                    <span class="ttl">La Forêt de la Malédiction</span>
+                  </div>
+                  <div class="meta">
+                    <span class="t">La Forêt de la Malédiction</span>
+                    <span class="a">Ian Livingstone</span>
+                    <span class="foot">
+                      <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.0</span>
+                      <span class="year">1983</span>
+                    </span>
+                  </div>
+                </a>
+
+                <a class="book-card" href="livre.html">
+                  <div class="cover or">
+                    <span class="ref">LS · 1987</span>
+                    <span class="ttl">Le Sentier de la Mort</span>
+                  </div>
+                  <div class="meta">
+                    <span class="t">Le Sentier de la Mort</span>
+                    <span class="a">Joe Dever</span>
+                    <span class="foot">
+                      <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.7</span>
+                      <span class="year">1987</span>
+                    </span>
+                  </div>
+                </a>
+
+                <a class="book-card" href="livre.html">
+                  <div class="cover cuivre">
+                    <span class="ref">QO · 1991</span>
+                    <span class="fav-pip">
+                      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </span>
+                    <span class="ttl">L'Œil d'Émeraude</span>
+                  </div>
+                  <div class="meta">
+                    <span class="t">L'Œil d'Émeraude</span>
+                    <span class="a">Ian Livingstone</span>
+                    <span class="foot">
+                      <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>9.1</span>
+                      <span class="year">1991</span>
+                    </span>
+                  </div>
+                </a>
+
+                <a class="book-card" href="livre.html">
+                  <div class="cover violet">
+                    <span class="ref">DF · 1988</span>
+                    <span class="ttl">Le Magicien d'Arkhalbée</span>
+                  </div>
+                  <div class="meta">
+                    <span class="t">Le Magicien d'Arkhalbée</span>
+                    <span class="a">Ian Livingstone</span>
+                    <span class="foot">
+                      <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>7.6</span>
+                      <span class="year">1988</span>
+                    </span>
+                  </div>
+                </a>
+
+                <a class="book-card" href="livre.html">
+                  <div class="cover encre">
+                    <span class="ref">DF · 1985</span>
+                    <span class="ttl">Le Manoir de l'Enfer</span>
+                  </div>
+                  <div class="meta">
+                    <span class="t">Le Manoir de l'Enfer</span>
+                    <span class="a">Steve Jackson</span>
+                    <span class="foot">
+                      <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.9</span>
+                      <span class="year">1985</span>
+                    </span>
+                  </div>
+                </a>
+
+                <a class="book-card" href="livre.html">
+                  <div class="cover mousse">
+                    <span class="ref">QO · 1985</span>
+                    <span class="ttl">La Légende des Chevaliers</span>
+                  </div>
+                  <div class="meta">
+                    <span class="t">La Légende des Chevaliers</span>
+                    <span class="a">Mark Smith</span>
+                    <span class="foot">
+                      <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>7.4</span>
+                      <span class="year">1985</span>
+                    </span>
+                  </div>
+                </a>
+
+                <a class="book-card" href="livre.html">
+                  <div class="cover">
+                    <span class="ref">DF · 1986</span>
+                    <span class="ttl">L'Épée du Samouraï</span>
+                  </div>
+                  <div class="meta">
+                    <span class="t">L'Épée du Samouraï</span>
+                    <span class="a">Mark Smith &amp; Jamie Thomson</span>
+                    <span class="foot">
+                      <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>7.9</span>
+                      <span class="year">1986</span>
+                    </span>
+                  </div>
+                </a>
+
+                <a class="book-card" href="livre.html">
+                  <div class="cover sang">
+                    <span class="ref">DF · 1985</span>
+                    <span class="ttl">Le Vampire du Château Noir</span>
+                  </div>
+                  <div class="meta">
+                    <span class="t">Le Vampire du Château Noir</span>
+                    <span class="a">Keith Martin</span>
+                    <span class="foot">
+                      <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.2</span>
+                      <span class="year">1985</span>
+                    </span>
+                  </div>
+                </a>
+
+                <a class="book-card" href="livre.html">
+                  <div class="cover or">
+                    <span class="ref">LS · 1989</span>
+                    <span class="ttl">L'Or Sombre des Mages</span>
+                  </div>
+                  <div class="meta">
+                    <span class="t">L'Or Sombre des Mages</span>
+                    <span class="a">Joe Dever</span>
+                    <span class="foot">
+                      <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.8</span>
+                      <span class="year">1989</span>
+                    </span>
+                  </div>
+                </a>
+              </div>
+
+              <div class="show-more">
+                <span class="txt">Encore <strong>206 ouvrages</strong> dans sa collection — explore le catalogue pour les retrouver.</span>
+                <a class="btn btn-secondary btn-sm" href="catalogue.html?collec_de=juliette_d">
+                  Tout voir
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+                </a>
+              </div>
+            </div>
+
+            <!-- =============== PANEL : FAVORIS (sous-sections) =============== -->
+            <div class="tab-panel" role="tabpanel" id="panel-favoris" aria-labelledby="tab-favoris" hidden>
+
+              <div class="subtabs" role="group" aria-label="Type de favori">
+                <button class="subtab" type="button" aria-pressed="true" data-fav-type="livres">Livres favoris <span class="ct">12</span></button>
+                <button class="subtab" type="button" aria-pressed="false" data-fav-type="auteurs">Auteurs favoris <span class="ct">7</span></button>
+                <button class="subtab" type="button" aria-pressed="false" data-fav-type="illustrateurs">Illustrateurs favoris <span class="ct">3</span></button>
+                <button class="subtab" type="button" aria-pressed="false" data-fav-type="collections">Collections favorites <span class="ct">0</span></button>
+              </div>
+
+              <!-- Livres favoris -->
+              <div class="fav-pane is-active" data-pane="livres">
+                <div class="book-grid">
+
+                  <a class="book-card" href="livre.html">
+                    <div class="cover mousse">
+                      <span class="ref">LS · 1985</span>
+                      <span class="fav-pip"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+                      <span class="ttl">Les Maîtres des Ténèbres</span>
+                    </div>
+                    <div class="meta">
+                      <span class="t">Les Maîtres des Ténèbres</span>
+                      <span class="a">Joe Dever</span>
+                      <span class="foot">
+                        <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>9.2</span>
+                        <span class="year">1985</span>
+                      </span>
+                    </div>
+                  </a>
+
+                  <a class="book-card" href="livre.html">
+                    <div class="cover encre">
+                      <span class="ref">DF · 1984</span>
+                      <span class="fav-pip"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+                      <span class="ttl">La Citadelle Sans Soleil</span>
+                    </div>
+                    <div class="meta">
+                      <span class="t">La Citadelle Sans Soleil</span>
+                      <span class="a">Ian Livingstone</span>
+                      <span class="foot">
+                        <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.6</span>
+                        <span class="year">1984</span>
+                      </span>
+                    </div>
+                  </a>
+
+                  <a class="book-card" href="livre.html">
+                    <div class="cover cuivre">
+                      <span class="ref">QO · 1991</span>
+                      <span class="fav-pip"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+                      <span class="ttl">L'Œil d'Émeraude</span>
+                    </div>
+                    <div class="meta">
+                      <span class="t">L'Œil d'Émeraude</span>
+                      <span class="a">Ian Livingstone</span>
+                      <span class="foot">
+                        <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>9.1</span>
+                        <span class="year">1991</span>
+                      </span>
+                    </div>
+                  </a>
+
+                  <a class="book-card" href="livre.html">
+                    <div class="cover">
+                      <span class="ref">DF · 1982</span>
+                      <span class="fav-pip"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+                      <span class="ttl">Le Sorcier de la Montagne de Feu</span>
+                    </div>
+                    <div class="meta">
+                      <span class="t">Le Sorcier de la Montagne de Feu</span>
+                      <span class="a">Steve Jackson</span>
+                      <span class="foot">
+                        <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.4</span>
+                        <span class="year">1982</span>
+                      </span>
+                    </div>
+                  </a>
+
+                  <a class="book-card" href="livre.html">
+                    <div class="cover violet">
+                      <span class="ref">LS · 1984</span>
+                      <span class="fav-pip"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+                      <span class="ttl">Les Seigneurs de l'Ombre</span>
+                    </div>
+                    <div class="meta">
+                      <span class="t">Les Seigneurs de l'Ombre</span>
+                      <span class="a">Joe Dever</span>
+                      <span class="foot">
+                        <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>9.0</span>
+                        <span class="year">1984</span>
+                      </span>
+                    </div>
+                  </a>
+
+                  <a class="book-card" href="livre.html">
+                    <div class="cover or">
+                      <span class="ref">DF · 1989</span>
+                      <span class="fav-pip"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+                      <span class="ttl">L'Île du Roi-Lézard</span>
+                    </div>
+                    <div class="meta">
+                      <span class="t">L'Île du Roi-Lézard</span>
+                      <span class="a">Ian Livingstone</span>
+                      <span class="foot">
+                        <span class="score"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>8.5</span>
+                        <span class="year">1989</span>
+                      </span>
+                    </div>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Auteurs favoris -->
+              <div class="fav-pane" data-pane="auteurs">
+                <div class="people-grid">
+                  <a class="person-card" href="catalogue.html?auteur=livingstone">
+                    <span class="avatar size-lg" style="background: var(--encre-100); color: var(--encre-700);">IL</span>
+                    <span class="info">
+                      <span class="role">Auteur · Royaume-Uni</span>
+                      <span class="name">Ian Livingstone</span>
+                      <span class="meta-l">89 ouvrages · Défis Fantastiques</span>
+                    </span>
+                  </a>
+                  <a class="person-card" href="catalogue.html?auteur=dever">
+                    <span class="avatar size-lg" style="background: var(--mousse-100); color: var(--mousse-700);">JD</span>
+                    <span class="info">
+                      <span class="role">Auteur · Royaume-Uni</span>
+                      <span class="name">Joe Dever</span>
+                      <span class="meta-l">28 ouvrages · Loup Solitaire</span>
+                    </span>
+                  </a>
+                  <a class="person-card" href="catalogue.html?auteur=jackson">
+                    <span class="avatar size-lg" style="background: var(--cuir-100); color: var(--cuir-700);">SJ</span>
+                    <span class="info">
+                      <span class="role">Auteur · Royaume-Uni</span>
+                      <span class="name">Steve Jackson</span>
+                      <span class="meta-l">47 ouvrages · Sorcellerie!</span>
+                    </span>
+                  </a>
+                  <a class="person-card" href="catalogue.html?auteur=morris">
+                    <span class="avatar size-lg" style="background: var(--ambre-100); color: var(--ambre-700);">DM</span>
+                    <span class="info">
+                      <span class="role">Auteur · Royaume-Uni</span>
+                      <span class="name">Dave Morris</span>
+                      <span class="meta-l">18 ouvrages · Quête de l'Oracle</span>
+                    </span>
+                  </a>
+                  <a class="person-card" href="catalogue.html?auteur=darvill">
+                    <span class="avatar size-lg" style="background: var(--sang-100); color: var(--sang-700);">PD</span>
+                    <span class="info">
+                      <span class="role">Auteur · Royaume-Uni</span>
+                      <span class="name">Peter Darvill-Evans</span>
+                      <span class="meta-l">12 ouvrages · Défis Fantastiques</span>
+                    </span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Illustrateurs favoris -->
+              <div class="fav-pane" data-pane="illustrateurs">
+                <div class="people-grid">
+                  <a class="person-card" href="catalogue.html?illu=mccaig">
+                    <span class="avatar size-lg" style="background: var(--or-100); color: var(--or-700);">IM</span>
+                    <span class="info">
+                      <span class="role">Illustrateur · Royaume-Uni</span>
+                      <span class="name">Iain McCaig</span>
+                      <span class="meta-l">34 couvertures · DF, Sortilèges</span>
+                    </span>
+                  </a>
+                  <a class="person-card" href="catalogue.html?illu=nicholson">
+                    <span class="avatar size-lg" style="background: var(--encre-100); color: var(--encre-700);">RN</span>
+                    <span class="info">
+                      <span class="role">Illustrateur · Royaume-Uni</span>
+                      <span class="name">Russ Nicholson</span>
+                      <span class="meta-l">41 couvertures · DF</span>
+                    </span>
+                  </a>
+                  <a class="person-card" href="catalogue.html?illu=chalk">
+                    <span class="avatar size-lg" style="background: var(--mousse-100); color: var(--mousse-700);">GC</span>
+                    <span class="info">
+                      <span class="role">Illustrateur · Royaume-Uni</span>
+                      <span class="name">Gary Chalk</span>
+                      <span class="meta-l">31 couvertures · Loup Solitaire</span>
+                    </span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Collections favorites — vide -->
+              <div class="fav-pane" data-pane="collections">
+                <div class="empty-state">
+                  <span class="crest" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M4 4h12a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3V4z"/><path d="M4 17a3 3 0 0 1 3-3h12"/></svg>
+                  </span>
+                  <h3>Cette aventurière n'a pas encore partagé de collection favorite</h3>
+                  <p>@juliette_d n'a pas encore désigné de collection ou d'éditeur comme coup de cœur. Repasse plus tard — ses recommandations valent souvent le détour.</p>
+                  <span class="quote">« Une collection se choisit avec le temps, et se révèle au lecteur. »</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <div class="menu-backdrop" id="menu-backdrop" aria-hidden="true"></div>
+
+  <script src="../assets/shell.js"></script>
+  <script src="../assets/menus.js"></script>
+  <script src="../assets/search.js"></script>
+  <script>
+    // ============= Onglets principaux =============
+    (function () {
+      const buttons = document.querySelectorAll('.tabs-bar .tab-btn');
+      const panels = document.querySelectorAll('.panel-body .tab-panel');
+      const counterEl = document.getElementById('panel-count');
+      const sortSelect = document.getElementById('sort-select');
+      const counts = { collection: 218, favoris: 22 };
+      const units = { collection: 'ouvrages dans la collection', favoris: 'favoris partagés' };
+      const unitTarget = document.querySelector('.panel-toolbar .meta span:first-of-type');
+
+      function activate(key) {
+        buttons.forEach(b => b.setAttribute('aria-selected', b.dataset.tab === key ? 'true' : 'false'));
+        panels.forEach(p => {
+          const on = p.id === 'panel-' + key;
+          p.classList.toggle('is-active', on);
+          if (on) p.removeAttribute('hidden'); else p.setAttribute('hidden', '');
+        });
+        if (counterEl) counterEl.textContent = counts[key];
+        if (unitTarget) unitTarget.textContent = units[key];
+      }
+      buttons.forEach(b => b.addEventListener('click', () => activate(b.dataset.tab)));
+    })();
+
+    // ============= Sous-onglets Favoris =============
+    (function () {
+      const subs = document.querySelectorAll('.subtab');
+      const panes = document.querySelectorAll('.fav-pane');
+      subs.forEach(s => s.addEventListener('click', () => {
+        const key = s.dataset.favType;
+        subs.forEach(o => o.setAttribute('aria-pressed', o === s ? 'true' : 'false'));
+        panes.forEach(p => p.classList.toggle('is-active', p.dataset.pane === key));
+      }));
+    })();
+  </script>
+</body>
+</html>

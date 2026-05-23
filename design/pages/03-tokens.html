@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>03 · Espacement &amp; effets — La Collection des Aventuriers</title>
+  <link rel="stylesheet" href="../assets/tokens.css" />
+  <style>
+    .sp-list { display: flex; flex-direction: column; gap: var(--sp-2); margin: var(--sp-4) 0; }
+    .sp-row {
+      display: grid;
+      grid-template-columns: 120px 1fr 100px;
+      gap: var(--sp-3);
+      align-items: center;
+      padding: 8px 12px;
+      border-bottom: 1px dashed var(--border-subtle);
+    }
+    .sp-bar {
+      height: 14px;
+      background: var(--cuir-500);
+      border-radius: 2px;
+    }
+    [data-theme="dark"] .sp-bar { background: var(--cuir-400); }
+    .sp-token { font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--ink-strong); }
+    .sp-px { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-muted); text-align: right; }
+
+    .radii { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: var(--sp-3); margin: var(--sp-4) 0; }
+    .radius-box {
+      aspect-ratio: 1;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: var(--sp-3);
+      position: relative;
+    }
+    .radius-box .corner {
+      position: absolute;
+      top: 8px; left: 8px;
+      width: 30px; height: 30px;
+      border-top: 2px solid var(--cuir-500);
+      border-left: 2px solid var(--cuir-500);
+    }
+    [data-theme="dark"] .radius-box .corner { border-color: var(--cuir-400); }
+    .radius-box .name { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-strong); }
+    .radius-box .val { font-family: var(--font-mono); font-size: 10px; color: var(--ink-muted); }
+
+    .shadows { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--sp-5); margin: var(--sp-5) 0; }
+    .shadow-card {
+      aspect-ratio: 1.2;
+      background: var(--bg-elevated);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: var(--sp-3);
+    }
+    .shadow-card .name { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-strong); }
+    .shadow-card .val { font-family: var(--font-mono); font-size: 10px; color: var(--ink-muted); }
+
+    .motion {
+      display: grid;
+      gap: var(--sp-3);
+      grid-template-columns: 1fr;
+      margin: var(--sp-4) 0;
+    }
+    @media (min-width: 720px) { .motion { grid-template-columns: 1fr 1fr 1fr; } }
+    .motion-card {
+      padding: var(--sp-4);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      background: var(--bg-elevated);
+      overflow: hidden;
+    }
+    .motion-name { font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--ink-strong); }
+    .motion-val  { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-muted); margin-bottom: var(--sp-3); }
+    .motion-rail {
+      position: relative;
+      height: 36px;
+      border-radius: var(--radius-pill);
+      background: var(--bg-sunken);
+      overflow: hidden;
+    }
+    .motion-ball {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--brand-primary);
+    }
+    .motion-card:hover .motion-ball { animation-play-state: running; }
+    .motion-ball.fast { animation: ride 1200ms var(--motion-ease) infinite; }
+    .motion-ball.base { animation: ride 2000ms var(--motion-ease) infinite; }
+    .motion-ball.slow { animation: ride 3200ms var(--motion-ease-out) infinite; }
+    @keyframes ride {
+      0%   { left: 4px; }
+      50%  { left: calc(100% - 32px); }
+      100% { left: 4px; }
+    }
+
+    .grid-demo {
+      display: grid;
+      gap: var(--sp-3);
+      grid-template-columns: 1fr 1fr;
+      margin: var(--sp-4) 0;
+    }
+    .grid-demo > div {
+      background: var(--cuir-100);
+      color: var(--cuir-700);
+      padding: var(--sp-4);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      text-align: center;
+    }
+    [data-theme="dark"] .grid-demo > div {
+      background: rgba(168,107,58,0.20);
+      color: var(--cuir-200);
+    }
+  </style>
+</head>
+<body>
+  <header class="ds-header">
+    <a class="ds-brand" href="../index.html">
+      <span class="ds-sigil">A</span>
+      <span class="ds-brand-text">
+        <span class="ds-brand-title">La Collection des Aventuriers</span>
+        <span class="ds-brand-sub">Design System · v0.1</span>
+      </span>
+    </a>
+    <div class="ds-header-actions">
+      <button class="ds-theme-toggle" data-theme-toggle aria-label="Basculer le thème">
+        <span data-theme-icon>☀</span>
+        <span data-theme-label>Parchemin</span>
+      </button>
+    </div>
+  </header>
+
+  <nav class="ds-nav-mobile" aria-label="Pages">
+    <a href="../index.html">Aperçu</a>
+    <a href="01-couleurs.html">Couleurs</a>
+    <a href="02-typographie.html">Typo</a>
+    <a href="03-tokens.html">Tokens</a>
+    <a href="04-boutons-formulaires.html">Boutons</a>
+    <a href="05-cards.html">Cards</a>
+    <a href="06-badges-notation.html">Badges</a>
+    <a href="07-navigation.html">Nav</a>
+    <a href="08-feedback.html">Feedback</a>
+  </nav>
+
+  <div class="ds-shell">
+    <aside class="ds-nav" aria-label="Navigation">
+      <div class="ds-nav-group">
+        <div class="ds-nav-label">Aperçu</div>
+        <a class="ds-nav-link" href="../index.html"><span class="ds-nav-num">00</span>Vue d'ensemble</a>
+      </div>
+      <div class="ds-nav-group">
+        <div class="ds-nav-label">Fondations</div>
+        <a class="ds-nav-link" href="01-couleurs.html"><span class="ds-nav-num">01</span>Couleurs</a>
+        <a class="ds-nav-link" href="02-typographie.html"><span class="ds-nav-num">02</span>Typographie</a>
+        <a class="ds-nav-link" href="03-tokens.html"><span class="ds-nav-num">03</span>Espacement &amp; effets</a>
+      </div>
+      <div class="ds-nav-group">
+        <div class="ds-nav-label">Composants</div>
+        <a class="ds-nav-link" href="04-boutons-formulaires.html"><span class="ds-nav-num">04</span>Boutons &amp; formulaires</a>
+        <a class="ds-nav-link" href="05-cards.html"><span class="ds-nav-num">05</span>Cards Livre &amp; Auteur</a>
+        <a class="ds-nav-link" href="06-badges-notation.html"><span class="ds-nav-num">06</span>Badges &amp; notation</a>
+        <a class="ds-nav-link" href="07-navigation.html"><span class="ds-nav-num">07</span>Navigation &amp; avatars</a>
+        <a class="ds-nav-link" href="08-feedback.html"><span class="ds-nav-num">08</span>Modale &amp; toast</a>
+      </div>
+    </aside>
+
+    <main class="ds-main">
+      <div class="ds-eyebrow">03 · Fondations</div>
+      <h1 class="ds-page-title">Espacement &amp; effets</h1>
+      <p class="ds-lede">
+        L'<strong>échelle d'espacement</strong> est en base 4 — toutes les valeurs sont
+        des multiples cohérents. Les <strong>rayons</strong>, <strong>ombres</strong> et
+        <strong>durées d'animation</strong> donnent le rythme. Rien n'est inventé au cas par cas.
+      </p>
+
+      <!-- =============== Spacing =============== -->
+      <section class="ds-section" id="spacing">
+        <div class="ds-section-head">
+          <span class="ds-section-num">3.1</span>
+          <h2>Espacement (base 4)</h2>
+        </div>
+        <p class="ds-section-desc">
+          Chaque pas est un multiple de 4&nbsp;px. Utilisez les tokens sémantiques
+          (<code>--sp-4</code>, <code>--sp-5</code>…) plutôt que des valeurs en dur.
+          Les marges entre composants suivent une règle simple : <em>--sp-5</em> entre
+          deux éléments d'un même bloc, <em>--sp-6</em> à <em>--sp-7</em> entre deux blocs.
+        </p>
+
+        <div class="sp-list">
+          <div class="sp-row"><span class="sp-token">--sp-1</span><div class="sp-bar" style="width:4px"></div><span class="sp-px">4 px · .25rem</span></div>
+          <div class="sp-row"><span class="sp-token">--sp-2</span><div class="sp-bar" style="width:8px"></div><span class="sp-px">8 px · .5rem</span></div>
+          <div class="sp-row"><span class="sp-token">--sp-3</span><div class="sp-bar" style="width:12px"></div><span class="sp-px">12 px · .75rem</span></div>
+          <div class="sp-row"><span class="sp-token">--sp-4</span><div class="sp-bar" style="width:16px"></div><span class="sp-px">16 px · 1rem</span></div>
+          <div class="sp-row"><span class="sp-token">--sp-5</span><div class="sp-bar" style="width:24px"></div><span class="sp-px">24 px · 1.5rem</span></div>
+          <div class="sp-row"><span class="sp-token">--sp-6</span><div class="sp-bar" style="width:32px"></div><span class="sp-px">32 px · 2rem</span></div>
+          <div class="sp-row"><span class="sp-token">--sp-7</span><div class="sp-bar" style="width:48px"></div><span class="sp-px">48 px · 3rem</span></div>
+          <div class="sp-row"><span class="sp-token">--sp-8</span><div class="sp-bar" style="width:64px"></div><span class="sp-px">64 px · 4rem</span></div>
+          <div class="sp-row"><span class="sp-token">--sp-9</span><div class="sp-bar" style="width:96px"></div><span class="sp-px">96 px · 6rem</span></div>
+        </div>
+
+        <div class="ds-example">
+          <div class="ds-example-label"><span>SCSS · spacers Bootstrap</span><span>Override $spacers</span></div>
+          <div class="ds-example-code">$spacers: (
+  0:  0,
+  1:  .25rem,  // 4   — --sp-1
+  2:  .5rem,   // 8   — --sp-2
+  3:  .75rem,  // 12  — --sp-3
+  4:  1rem,    // 16  — --sp-4 (base)
+  5:  1.5rem,  // 24  — --sp-5
+  6:  2rem,    // 32  — --sp-6
+  7:  3rem,    // 48  — --sp-7
+  8:  4rem,    // 64  — --sp-8
+  9:  6rem,    // 96  — --sp-9
+);</div>
+        </div>
+      </section>
+
+      <!-- =============== Radius =============== -->
+      <section class="ds-section" id="radius">
+        <div class="ds-section-head">
+          <span class="ds-section-num">3.2</span>
+          <h2>Rayons de bordure</h2>
+        </div>
+        <p class="ds-section-desc">
+          Le système est volontairement <strong>peu arrondi</strong> — la fantasy gothique
+          de la marque s'accommode mieux d'angles francs. <code>--radius-md</code> est la
+          valeur par défaut des cards et inputs. <code>--radius-pill</code> est réservé
+          aux badges et boutons d'icône circulaires.
+        </p>
+        <div class="radii">
+          <div class="radius-box" style="border-radius: var(--radius-xs);"><div class="corner" style="border-radius: 2px 0 0 0;"></div><div class="name">--radius-xs</div><div class="val">2 px</div></div>
+          <div class="radius-box" style="border-radius: var(--radius-sm);"><div class="corner" style="border-radius: 4px 0 0 0;"></div><div class="name">--radius-sm</div><div class="val">4 px</div></div>
+          <div class="radius-box" style="border-radius: var(--radius-md);"><div class="corner" style="border-radius: 8px 0 0 0;"></div><div class="name">--radius-md</div><div class="val">8 px · défaut</div></div>
+          <div class="radius-box" style="border-radius: var(--radius-lg);"><div class="corner" style="border-radius: 12px 0 0 0;"></div><div class="name">--radius-lg</div><div class="val">12 px · cards riches</div></div>
+          <div class="radius-box" style="border-radius: var(--radius-xl);"><div class="corner" style="border-radius: 20px 0 0 0;"></div><div class="name">--radius-xl</div><div class="val">20 px · sheets</div></div>
+          <div class="radius-box" style="border-radius: var(--radius-pill);"><div class="corner" style="border-radius: 999px 0 0 0;"></div><div class="name">--radius-pill</div><div class="val">999 · badges</div></div>
+        </div>
+      </section>
+
+      <!-- =============== Shadows =============== -->
+      <section class="ds-section" id="shadows">
+        <div class="ds-section-head">
+          <span class="ds-section-num">3.3</span>
+          <h2>Élévations</h2>
+        </div>
+        <p class="ds-section-desc">
+          Les ombres restent <strong>chaudes</strong> (basées sur <code>rgba(45,24,16,…)</code>
+          plutôt que sur un noir neutre) pour préserver l'ambiance parchemin.
+          En mode <em>Grimoire</em>, elles s'épaississent et virent au noir profond.
+        </p>
+        <div class="shadows">
+          <div class="shadow-card" style="box-shadow: var(--shadow-xs);"><div class="name">--shadow-xs</div><div class="val">Borders subtils</div></div>
+          <div class="shadow-card" style="box-shadow: var(--shadow-sm);"><div class="name">--shadow-sm</div><div class="val">Inputs au survol</div></div>
+          <div class="shadow-card" style="box-shadow: var(--shadow-md);"><div class="name">--shadow-md</div><div class="val">Cards au hover</div></div>
+          <div class="shadow-card" style="box-shadow: var(--shadow-lg);"><div class="name">--shadow-lg</div><div class="val">Menus, popovers</div></div>
+          <div class="shadow-card" style="box-shadow: var(--shadow-xl);"><div class="name">--shadow-xl</div><div class="val">Modales, sheets</div></div>
+        </div>
+      </section>
+
+      <!-- =============== Motion =============== -->
+      <section class="ds-section" id="motion">
+        <div class="ds-section-head">
+          <span class="ds-section-num">3.4</span>
+          <h2>Animation</h2>
+        </div>
+        <p class="ds-section-desc">
+          Trois durées seulement. La règle&nbsp;: <strong>fast</strong> pour les retours
+          d'état (hover, focus), <strong>base</strong> pour les transitions de propriétés
+          principales (couleur, opacité), <strong>slow</strong> pour les apparitions
+          (modale, toast) qui méritent une courbe <em>ease-out</em> plus expressive.
+          Survolez les rails pour voir la courbe.
+        </p>
+        <div class="motion">
+          <div class="motion-card">
+            <div class="motion-name">--motion-fast</div>
+            <div class="motion-val">120 ms · ease standard</div>
+            <div class="motion-rail"><div class="motion-ball fast"></div></div>
+          </div>
+          <div class="motion-card">
+            <div class="motion-name">--motion-base</div>
+            <div class="motion-val">200 ms · ease standard</div>
+            <div class="motion-rail"><div class="motion-ball base"></div></div>
+          </div>
+          <div class="motion-card">
+            <div class="motion-name">--motion-slow</div>
+            <div class="motion-val">320 ms · ease-out expressif</div>
+            <div class="motion-rail"><div class="motion-ball slow"></div></div>
+          </div>
+        </div>
+
+        <div class="ds-example">
+          <div class="ds-example-label"><span>CSS · easings</span><span>Custom cubic-bezier</span></div>
+          <div class="ds-example-code">--motion-ease:     cubic-bezier(0.4, 0, 0.2, 1);   /* standard */
+--motion-ease-out: cubic-bezier(0.16, 1, 0.3, 1);  /* expressif (Apple-like) */
+
+/* Usage */
+.btn { transition: background-color var(--motion-fast) var(--motion-ease); }
+.toast { animation: slide-up var(--motion-slow) var(--motion-ease-out); }</div>
+        </div>
+      </section>
+
+      <!-- =============== Breakpoints =============== -->
+      <section class="ds-section" id="breakpoints">
+        <div class="ds-section-head">
+          <span class="ds-section-num">3.5</span>
+          <h2>Breakpoints &amp; grille</h2>
+        </div>
+        <p class="ds-section-desc">
+          Mobile-first. Les composants sont conçus à <strong>375 px</strong> de large,
+          puis enrichis. La grille s'étire à <strong>1240 px</strong> max — au-delà,
+          des marges latérales protègent la lisibilité.
+        </p>
+
+        <div class="ds-example">
+          <div class="ds-example-label"><span>SCSS · breakpoints Bootstrap</span><span>Override $grid-breakpoints</span></div>
+          <div class="ds-example-code">$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,   // téléphone paysage
+  md: 720px,   // tablette portrait
+  lg: 960px,   // tablette paysage
+  xl: 1200px,  // desktop
+  xxl: 1440px, // desktop large
+);
+
+$container-max-widths: (
+  sm: 540px,
+  md: 700px,
+  lg: 920px,
+  xl: 1140px,
+  xxl: 1240px, // cap
+);
+
+$grid-columns: 12;
+$grid-gutter-width: 1.5rem; // --sp-5</div>
+        </div>
+
+        <div class="grid-demo">
+          <div>col-12 / col-md-6 · #1</div>
+          <div>col-12 / col-md-6 · #2</div>
+          <div>col-6 / col-md-4 · #3</div>
+          <div>col-6 / col-md-4 · #4</div>
+        </div>
+      </section>
+
+      <!-- =============== Effet =============== -->
+      <section class="ds-section" id="effet">
+        <div class="ds-section-head">
+          <span class="ds-section-num">3.6</span>
+          <h2>Effet visuel recherché</h2>
+        </div>
+        <p class="ds-section-desc">
+          L'interface doit sembler <strong>respirer</strong>&nbsp;: jamais oppressante,
+          jamais débordante. Les ombres chaudes posent les composants sur le parchemin
+          comme des pièces posées sur un bureau ; les rayons modérés (≤ 12&nbsp;px) gardent
+          l'aspect "fiche" plutôt que "bulle web". Les animations sont
+          <strong>rapides et discrètes</strong> — on est dans une bibliothèque, pas dans
+          un jeu vidéo.
+        </p>
+      </section>
+
+      <nav class="ds-pager">
+        <a class="prev" href="02-typographie.html">
+          <span class="ds-pager-eyebrow">← Précédent</span>
+          <span class="ds-pager-title">02 · Typographie</span>
+        </a>
+        <a class="next" href="04-boutons-formulaires.html">
+          <span class="ds-pager-eyebrow">Suivant →</span>
+          <span class="ds-pager-title">04 · Boutons &amp; formulaires</span>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/shell.js"></script>
+</body>
+</html>

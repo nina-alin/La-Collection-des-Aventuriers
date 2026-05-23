@@ -1,0 +1,2190 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Salle de Modération — La Collection des Aventuriers</title>
+  <link rel="stylesheet" href="../assets/tokens.css" />
+  <link rel="stylesheet" href="../assets/components.css" />
+  <style>
+    /* ============================================================
+       CONTAINER + SESSION HEADER  (cohérent avec catalogue/profil)
+       ============================================================ */
+    .container {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding-left: var(--sp-4);
+      padding-right: var(--sp-4);
+    }
+    @media (min-width: 720px) { .container { padding-left: var(--sp-6); padding-right: var(--sp-6); } }
+
+    .session-header {
+      position: sticky; top: 0; z-index: 40;
+      background: color-mix(in oklab, var(--bg-page) 88%, transparent);
+      backdrop-filter: saturate(140%) blur(10px);
+      -webkit-backdrop-filter: saturate(140%) blur(10px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .sh-inner {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: var(--sp-4);
+      align-items: center;
+      padding: 12px 0;
+      min-height: 64px;
+    }
+    .sh-left { display: flex; align-items: center; gap: var(--sp-5); min-width: 0; }
+    .sh-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink-strong); }
+    .sh-brand:hover { text-decoration: none; }
+    .sh-sigil {
+      width: 36px; height: 36px;
+      display: grid; place-items: center;
+      border: 1.5px solid var(--cuir-500);
+      border-radius: 50%;
+      color: var(--cuir-500);
+      font-family: var(--font-display); font-weight: 700; font-size: 16px;
+      background: var(--bg-elevated);
+      letter-spacing: 0.04em; flex-shrink: 0; position: relative;
+    }
+    .sh-sigil::before { content: ""; position: absolute; inset: 3px; border: 1px dashed var(--cuir-300); border-radius: 50%; }
+    [data-theme="dark"] .sh-sigil { border-color: var(--or-400); color: var(--or-400); }
+    [data-theme="dark"] .sh-sigil::before { border-color: var(--or-700); }
+    .sh-brand-mark { font-family: var(--font-display); font-size: 14px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink-strong); white-space: nowrap; }
+    @media (max-width: 720px) { .sh-brand-mark { display: none; } }
+
+    .sh-nav { display: flex; gap: 2px; }
+    @media (max-width: 879px) { .sh-nav { display: none; } }
+    .sh-nav a {
+      padding: 8px 14px;
+      font-family: var(--font-body); font-size: var(--fs-sm); font-weight: 500;
+      color: var(--ink-muted); text-decoration: none;
+      border-radius: var(--radius-sm);
+      transition: all var(--motion-fast) var(--motion-ease);
+      position: relative;
+    }
+    .sh-nav a:hover { color: var(--ink-strong); background: var(--bg-sunken); text-decoration: none; }
+    .sh-nav a[aria-current="page"] { color: var(--brand-primary); font-weight: 600; }
+    .sh-nav a[aria-current="page"]::after {
+      content: ""; position: absolute; left: 14px; right: 14px; bottom: -16px;
+      height: 2px; background: var(--brand-primary); border-radius: 2px 2px 0 0;
+    }
+
+    .sh-right { display: flex; align-items: center; gap: var(--sp-2); justify-self: end; }
+    .sh-icon-btn {
+      position: relative; width: 40px; height: 40px;
+      display: grid; place-items: center;
+      background: transparent;
+      border: 1px solid var(--border-default);
+      border-radius: 50%;
+      color: var(--ink-default); cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .sh-icon-btn:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .sh-icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .sh-icon-btn .dot { position: absolute; top: 7px; right: 7px; width: 8px; height: 8px; border-radius: 50%; background: var(--danger); border: 2px solid var(--bg-page); }
+    .sh-user {
+      display: flex; align-items: center; gap: 10px;
+      padding: 4px 12px 4px 4px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+    }
+    .sh-user:hover { border-color: var(--brand-primary); }
+    .sh-user-text { display: flex; flex-direction: column; line-height: 1.1; }
+    @media (max-width: 600px) { .sh-user-text { display: none; } .sh-user { padding: 2px; } }
+    .sh-user-name { font-family: var(--font-body); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-strong); }
+    .sh-user-role { font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--info); }
+
+    /* ============================================================
+       PAGE HEAD — Salle de Modération
+       ============================================================ */
+    .page-head { padding: clamp(2rem, 5vw, 3.5rem) 0 var(--sp-5); }
+    .head-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--sp-5);
+      align-items: end;
+    }
+    @media (min-width: 880px) { .head-grid { grid-template-columns: 1fr auto; } }
+
+    .ph-eyebrow {
+      font-family: var(--font-mono); font-size: var(--fs-xs);
+      text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted); margin-bottom: var(--sp-3);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .ph-eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--cuir-400); }
+    .ph-eyebrow .role-pip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 2px 9px;
+      background: var(--info-bg); color: var(--info);
+      border: 1px solid var(--info-border);
+      border-radius: var(--radius-pill);
+      font-size: 10px; letter-spacing: 0.06em;
+    }
+    .ph-eyebrow .role-pip::before {
+      content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor;
+    }
+    .page-head h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4vw + 0.75rem, 3.25rem);
+      font-weight: 700; letter-spacing: 0.04em; color: var(--ink-strong);
+      line-height: 1.1; margin: 0 0 var(--sp-3); max-width: 22ch;
+    }
+    .page-head h1 em { font-style: normal; color: var(--brand-primary); }
+    .page-head .lede { color: var(--ink-muted); font-size: var(--fs-md); max-width: 64ch; margin: 0; }
+    .head-cta { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+
+    /* ============================================================
+       SECTION SCAFFOLDING
+       ============================================================ */
+    .mod-section { padding: var(--sp-4) 0 var(--sp-6); scroll-margin-top: 80px; }
+    .mod-section-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: var(--sp-3); margin-bottom: var(--sp-4); flex-wrap: wrap;
+      padding-bottom: var(--sp-3);
+      border-bottom: 1px solid var(--border-default);
+    }
+    .mod-section-head .ttl {
+      display: flex; align-items: baseline; gap: 12px;
+      font-family: var(--font-display);
+      font-size: var(--fs-xl); font-weight: 700;
+      letter-spacing: 0.04em; color: var(--ink-strong);
+    }
+    .mod-section-head .ttl .num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+      font-weight: 500;
+    }
+    .mod-section-head .sub {
+      font-size: var(--fs-sm); color: var(--ink-muted);
+      max-width: 56ch; line-height: 1.5; margin-top: 4px;
+    }
+    .mod-section-head .right { display: flex; gap: var(--sp-2); align-items: center; }
+
+    /* ============================================================
+       1. VUE D'ENSEMBLE
+       ============================================================ */
+    .overview {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--sp-4);
+    }
+    @media (min-width: 880px) {
+      .overview { grid-template-columns: 1.4fr 1fr; gap: var(--sp-5); }
+    }
+
+    /* Carte principale : compteur */
+    .pending-card {
+      position: relative;
+      overflow: hidden;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-5);
+      display: grid;
+      gap: var(--sp-5);
+    }
+    .pending-card::before {
+      content: "";
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 240px; height: 240px;
+      background: radial-gradient(circle, color-mix(in oklab, var(--ambre-300) 30%, transparent) 0, transparent 65%);
+      pointer-events: none;
+    }
+    .pending-top {
+      display: grid; grid-template-columns: auto 1fr auto;
+      gap: var(--sp-4); align-items: center; position: relative;
+    }
+    @media (max-width: 540px) {
+      .pending-top { grid-template-columns: auto 1fr; }
+      .pending-top .btn { grid-column: 1 / -1; width: 100%; }
+    }
+    .pending-counter {
+      width: 88px; height: 100px;
+      background: var(--ambre-700);
+      clip-path: polygon(50% 0, 100% 14%, 100% 60%, 50% 100%, 0 60%, 0 14%);
+      display: grid; place-items: center;
+      color: var(--ambre-50);
+      font-family: var(--font-display);
+      font-weight: 700; line-height: 1;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .pending-counter::after {
+      content: "";
+      position: absolute; inset: 3px;
+      background: var(--ambre-500);
+      clip-path: polygon(50% 0, 100% 14%, 100% 60%, 50% 100%, 0 60%, 0 14%);
+    }
+    .pending-counter span {
+      position: relative; z-index: 1;
+      font-size: 38px;
+      color: var(--parchemin-50);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.01em;
+    }
+    [data-theme="dark"] .pending-counter { background: var(--ambre-500); }
+    [data-theme="dark"] .pending-counter::after { background: var(--ambre-300); }
+    [data-theme="dark"] .pending-counter span { color: var(--parchemin-900); }
+
+    .pending-text { min-width: 0; }
+    .pending-text .label {
+      font-family: var(--font-mono);
+      font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--warning); margin-bottom: 4px;
+    }
+    .pending-text .title {
+      font-family: var(--font-display);
+      font-size: var(--fs-xl); font-weight: 700; color: var(--ink-strong);
+      letter-spacing: 0.02em; line-height: 1.2; margin-bottom: 4px;
+    }
+    .pending-text .sub {
+      font-size: var(--fs-sm); color: var(--ink-muted);
+    }
+
+    /* Voies de traitement (3 colonnes : Express / Régulière / Délicate) */
+    .voies {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      position: relative;
+    }
+    @media (min-width: 540px) { .voies { grid-template-columns: repeat(3, 1fr); } }
+    .voie {
+      display: flex; flex-direction: column; gap: 4px;
+      padding: 14px var(--sp-3);
+      background: var(--bg-page);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      color: var(--ink-default);
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .voie:hover {
+      border-color: var(--brand-primary);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+      text-decoration: none;
+    }
+    .voie .v-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 6px;
+    }
+    .voie .v-name {
+      font-family: var(--font-display);
+      font-size: var(--fs-sm); font-weight: 700;
+      color: var(--ink-strong);
+      letter-spacing: 0.04em;
+    }
+    .voie .v-pip {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .voie.exp .v-pip { background: var(--success); }
+    .voie.reg .v-pip { background: var(--info); }
+    .voie.del .v-pip { background: var(--danger); }
+    .voie .v-count {
+      font-family: var(--font-display);
+      font-size: var(--fs-2xl); font-weight: 700;
+      color: var(--ink-strong); line-height: 1;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.01em;
+    }
+    .voie .v-desc {
+      font-size: var(--fs-xs);
+      color: var(--ink-muted); line-height: 1.4;
+    }
+
+    /* Carte secondaire : KPIs */
+    .kpi-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .kpi-head {
+      padding: var(--sp-4) var(--sp-5);
+      background: var(--bg-sunken);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px;
+    }
+    .kpi-head .ttl {
+      font-family: var(--font-display);
+      font-size: var(--fs-md); font-weight: 700;
+      color: var(--ink-strong); letter-spacing: 0.03em;
+    }
+    .kpi-head .scope {
+      font-family: var(--font-mono); font-size: 10px;
+      text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+    }
+    .kpi-body {
+      display: grid; grid-template-columns: 1fr 1fr;
+      padding: var(--sp-3) 0;
+    }
+    .kpi {
+      display: flex; flex-direction: column; gap: 2px;
+      padding: 10px var(--sp-4);
+      border-right: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .kpi:nth-child(2n) { border-right: 0; }
+    .kpi:nth-last-child(-n+2) { border-bottom: 0; }
+    .kpi .v {
+      font-family: var(--font-display);
+      font-size: var(--fs-2xl); font-weight: 700;
+      color: var(--ink-strong); line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .kpi .v.ok { color: var(--success); }
+    .kpi .l {
+      font-family: var(--font-mono);
+      font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+    }
+    .kpi .d { font-size: var(--fs-xs); color: var(--ink-muted); }
+
+    /* Historique récent */
+    .recent {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .recent-head {
+      padding: var(--sp-4) var(--sp-5);
+      background: var(--bg-sunken);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px;
+    }
+    .recent-head .ttl {
+      font-family: var(--font-display);
+      font-size: var(--fs-md); font-weight: 700;
+      color: var(--ink-strong); letter-spacing: 0.03em;
+    }
+    .recent-head a {
+      font-family: var(--font-mono); font-size: 10px;
+      text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted); text-decoration: none;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .recent-head a:hover { color: var(--brand-primary); text-decoration: none; }
+    .recent-list { display: flex; flex-direction: column; }
+    .recent-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: var(--sp-3);
+      align-items: center;
+      padding: 12px var(--sp-4);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .recent-row:last-child { border-bottom: 0; }
+    .recent-row .ic {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      flex-shrink: 0;
+    }
+    .recent-row .ic.ok   { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+    .recent-row .ic.no   { background: var(--danger-bg);  color: var(--danger);  border: 1px solid var(--danger-border); }
+    .recent-row .ic.edit { background: var(--info-bg);    color: var(--info);    border: 1px solid var(--info-border); }
+    .recent-row .ic svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .recent-row .body {
+      min-width: 0;
+      font-size: var(--fs-sm);
+      color: var(--ink-default); line-height: 1.5;
+    }
+    .recent-row .body .obj {
+      font-family: var(--font-display);
+      font-weight: 600; color: var(--ink-strong);
+      letter-spacing: 0.02em;
+    }
+    .recent-row .body .handle { color: var(--brand-primary); font-weight: 600; }
+    .recent-row .time {
+      font-family: var(--font-mono);
+      font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+      flex-shrink: 0;
+    }
+
+    /* ============================================================
+       2. FLUX DE TRAITEMENT
+       ============================================================ */
+    .flux {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--sp-5);
+    }
+    @media (min-width: 1100px) {
+      .flux { grid-template-columns: minmax(0, 1fr) 320px; gap: var(--sp-5); align-items: start; }
+    }
+
+    /* Carte suggestion en cours */
+    .sugg-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: transform var(--motion-slow) var(--motion-ease-out), opacity var(--motion-slow) var(--motion-ease-out);
+    }
+    .sugg-card.is-leaving {
+      transform: translateX(110%) rotate(2deg);
+      opacity: 0;
+      pointer-events: none;
+    }
+    .sugg-card.is-leaving-left {
+      transform: translateX(-110%) rotate(-2deg);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .sugg-bar {
+      padding: 12px var(--sp-5);
+      background: var(--bg-sunken);
+      border-bottom: 1px solid var(--border-subtle);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--sp-3);
+      align-items: center;
+    }
+    .sugg-bar-left {
+      display: flex; align-items: center; gap: var(--sp-3);
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+    .sugg-position {
+      font-family: var(--font-mono);
+      font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+      padding: 4px 10px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill);
+    }
+    .sugg-position strong { color: var(--ink-strong); font-family: var(--font-display); font-weight: 700; }
+    .sugg-bar-right { display: flex; gap: 6px; }
+    .sugg-bar-right .btn-icon-sm {
+      width: 32px; height: 32px;
+      display: grid; place-items: center;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: 50%;
+      color: var(--ink-muted);
+      cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .sugg-bar-right .btn-icon-sm:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .sugg-bar-right .btn-icon-sm svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+    .sugg-header {
+      padding: var(--sp-5) var(--sp-5) var(--sp-4);
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: var(--sp-4);
+      align-items: start;
+    }
+    @media (max-width: 600px) {
+      .sugg-header { grid-template-columns: auto 1fr; }
+      .sugg-header .sugg-prio { grid-column: 1 / -1; justify-self: start; }
+    }
+    .sugg-header .avatar { --av-size: 44px; }
+    .sugg-meta { min-width: 0; }
+    .sugg-meta .who {
+      display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px;
+      margin-bottom: 4px;
+    }
+    .sugg-meta .who .handle {
+      font-family: var(--font-body);
+      font-size: var(--fs-md); font-weight: 600;
+      color: var(--ink-strong);
+    }
+    .sugg-meta .who .when {
+      font-family: var(--font-mono);
+      font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+    }
+    .sugg-meta .target {
+      font-size: var(--fs-sm); color: var(--ink-muted);
+      line-height: 1.4;
+    }
+    .sugg-meta .target .obj {
+      font-family: var(--font-display);
+      font-weight: 700; color: var(--ink-strong);
+      letter-spacing: 0.02em;
+    }
+    .sugg-meta .target .ref {
+      font-family: var(--font-mono); font-size: 11px;
+      color: var(--ink-muted);
+    }
+    .sugg-meta .trust {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 8px;
+      padding: 3px 10px;
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid var(--success-border);
+      border-radius: var(--radius-pill);
+      font-family: var(--font-mono);
+      font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps);
+    }
+    .sugg-meta .trust svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .sugg-prio {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      font-family: var(--font-mono);
+      font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      flex-shrink: 0;
+    }
+    .sugg-prio::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .sugg-prio.normale { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .sugg-prio.express { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+    .sugg-prio.delicate { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+
+    /* SPLIT VIEW : Données Actuelles | Nouvelles Données */
+    .split-tabs {
+      display: none;
+      margin: 0 var(--sp-5) var(--sp-3);
+      gap: 0;
+      padding: 4px;
+      background: var(--bg-sunken);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill);
+    }
+    .split-tabs button {
+      appearance: none; flex: 1;
+      background: transparent;
+      border: 0;
+      padding: 8px 12px;
+      font-family: var(--font-display);
+      font-size: var(--fs-sm); font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--ink-muted);
+      cursor: pointer;
+      border-radius: var(--radius-pill);
+      display: inline-flex; justify-content: center; align-items: center; gap: 8px;
+    }
+    .split-tabs button[aria-selected="true"] {
+      background: var(--ink-strong);
+      color: var(--bg-page);
+    }
+    @media (max-width: 879px) {
+      .split-tabs { display: flex; }
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr;
+      border-top: 1px solid var(--border-subtle);
+      position: relative;
+    }
+    @media (min-width: 880px) {
+      .split { grid-template-columns: 1fr 1fr; }
+      .split::before {
+        content: "";
+        position: absolute;
+        top: 0; bottom: 0; left: 50%;
+        width: 1px; background: var(--border-default);
+      }
+    }
+    .split-col {
+      padding: var(--sp-4) var(--sp-5);
+      min-width: 0;
+    }
+    @media (max-width: 879px) {
+      .split-col { display: none; }
+      .split-col.is-active { display: block; }
+    }
+    .split-col + .split-col {
+      border-top: 1px solid var(--border-subtle);
+    }
+    @media (min-width: 880px) {
+      .split-col + .split-col { border-top: 0; }
+    }
+    .split-col .col-head {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: var(--sp-3);
+      padding-bottom: var(--sp-2);
+      border-bottom: 1px dashed var(--border-subtle);
+    }
+    .split-col .col-head .pip {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+    .split-col.now  .col-head .pip { background: var(--ink-subtle); }
+    .split-col.next .col-head .pip { background: var(--brand-primary); }
+    .split-col .col-head .lbl {
+      font-family: var(--font-mono);
+      font-size: 11px; text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+      flex: 1;
+    }
+    .split-col .col-head .meta {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ink-subtle);
+    }
+
+    /* Champs (rows de diff) */
+    .field {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 4px;
+      padding: 10px 0;
+      border-bottom: 1px dashed var(--border-subtle);
+    }
+    .field:last-child { border-bottom: 0; }
+    .field .f-label {
+      font-family: var(--font-mono);
+      font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .field .f-label .chg {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--brand-primary);
+    }
+    .field .f-value {
+      font-size: var(--fs-sm);
+      color: var(--ink-default);
+      line-height: 1.55;
+      word-wrap: break-word;
+    }
+    .field .f-value.muted { color: var(--ink-muted); font-style: italic; }
+    .field .f-value.empty {
+      color: var(--ink-subtle); font-style: italic;
+      font-family: var(--font-mono); font-size: var(--fs-xs);
+    }
+
+    /* Cover preview */
+    .field .cover {
+      width: 80px;
+      aspect-ratio: 3 / 4;
+      padding: 6px;
+      border-radius: 4px;
+      display: flex; align-items: flex-end; justify-content: center;
+      text-align: center;
+      color: rgba(245,236,217,0.92);
+      font-family: var(--font-display);
+      font-size: 9px; font-weight: 600;
+      letter-spacing: 0.02em; line-height: 1.05;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--cuir-300), var(--cuir-600));
+    }
+    .field .cover.before { opacity: 0.6; filter: grayscale(20%); }
+    .field .cover::before {
+      content: ""; position: absolute; inset: 3px;
+      border: 1px solid rgba(245,236,217,0.32);
+    }
+    .field .cover.encre  { background: linear-gradient(135deg, var(--encre-300), var(--encre-700)); }
+
+    /* DIFF — surlignages */
+    .ins {
+      background: var(--success-bg);
+      color: var(--success);
+      border-bottom: 1.5px solid var(--mousse-300);
+      padding: 0 3px;
+      border-radius: 2px;
+      font-weight: 500;
+    }
+    .del {
+      background: var(--danger-bg);
+      color: var(--danger);
+      text-decoration: line-through;
+      text-decoration-color: var(--sang-300);
+      padding: 0 3px;
+      border-radius: 2px;
+      font-weight: 400;
+    }
+    .diff-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 1px 7px;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border-radius: var(--radius-pill);
+      vertical-align: middle;
+    }
+    .diff-tag.add { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+    .diff-tag.rem { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+
+    /* ACTIONS BAR */
+    .sugg-actions {
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      gap: var(--sp-2);
+      align-items: center;
+      padding: var(--sp-4) var(--sp-5);
+      background: var(--bg-sunken);
+      border-top: 1px solid var(--border-subtle);
+    }
+    @media (max-width: 640px) {
+      .sugg-actions {
+        grid-template-columns: 1fr 1fr;
+      }
+      .sugg-actions .summary { grid-column: 1 / -1; }
+    }
+    .sugg-actions .summary {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ink-muted);
+      letter-spacing: 0.02em;
+    }
+    .sugg-actions .summary strong { color: var(--ink-strong); font-weight: 600; }
+    .sugg-actions kbd {
+      font-family: var(--font-mono); font-size: 10px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-bottom-width: 2px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: var(--ink-strong);
+      margin: 0 2px;
+    }
+
+    /* QUEUE SIDEBAR */
+    .queue {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      position: sticky;
+      top: 80px;
+    }
+    .queue-head {
+      padding: var(--sp-3) var(--sp-4);
+      background: var(--bg-sunken);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px;
+    }
+    .queue-head .ttl {
+      font-family: var(--font-display);
+      font-size: var(--fs-sm); font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--ink-strong);
+    }
+    .queue-head .count {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ink-muted);
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+    }
+    .queue-list { display: flex; flex-direction: column; max-height: 540px; overflow-y: auto; }
+    .queue-list::-webkit-scrollbar { width: 6px; }
+    .queue-list::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 3px; }
+    .qrow {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px var(--sp-4);
+      border-bottom: 1px solid var(--border-subtle);
+      cursor: pointer;
+      transition: background var(--motion-fast) var(--motion-ease);
+      position: relative;
+    }
+    .qrow:hover { background: var(--bg-sunken); }
+    .qrow:last-child { border-bottom: 0; }
+    .qrow.is-current {
+      background: color-mix(in oklab, var(--brand-primary) 8%, var(--bg-elevated));
+    }
+    .qrow.is-current::before {
+      content: ""; position: absolute;
+      top: 8px; bottom: 8px; left: 0;
+      width: 3px; background: var(--brand-primary);
+      border-radius: 0 2px 2px 0;
+    }
+    .qrow .qprio {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .qrow .qprio.express { background: var(--success); }
+    .qrow .qprio.normale { background: var(--info); }
+    .qrow .qprio.delicate { background: var(--danger); }
+    .qrow .qmeta { min-width: 0; }
+    .qrow .qobj {
+      font-family: var(--font-display);
+      font-size: var(--fs-sm); font-weight: 600;
+      color: var(--ink-strong);
+      letter-spacing: 0.02em;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .qrow .qsub {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ink-muted);
+      letter-spacing: 0.04em;
+    }
+    .qrow .qbatch {
+      display: inline-flex; align-items: center; gap: 4px;
+      margin-right: 6px;
+      padding: 1px 6px;
+      background: color-mix(in oklab, var(--cuir-200) 35%, transparent);
+      color: var(--cuir-700);
+      border-radius: 3px;
+      font-weight: 600;
+    }
+    [data-theme="dark"] .qrow .qbatch { background: color-mix(in oklab, var(--or-700) 50%, transparent); color: var(--or-200); }
+    .qrow .qtime {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--ink-subtle);
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+    }
+    .qrow .qtime.warn { color: var(--warning); }
+    .qrow .qtime.hot { color: var(--danger); font-weight: 600; }
+
+    /* Filter chips for the queue */
+    .qfilter {
+      display: flex; gap: 6px; flex-wrap: wrap;
+      padding: var(--sp-3) var(--sp-4);
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+    }
+    .qchip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px;
+      background: var(--bg-page);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill);
+      font-family: var(--font-mono);
+      font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+      cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .qchip:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .qchip[aria-pressed="true"] {
+      background: var(--ink-strong);
+      color: var(--bg-page);
+      border-color: var(--ink-strong);
+    }
+
+    /* ============================================================
+       3. GESTION GLOBALE DES FICHES
+       ============================================================ */
+    .gestion {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .gestion-toolbar {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--sp-3);
+      padding: var(--sp-3) var(--sp-4);
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-sunken);
+    }
+    @media (min-width: 880px) {
+      .gestion-toolbar {
+        grid-template-columns: 1fr auto;
+        align-items: center;
+      }
+    }
+    .gestion-search {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 12px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill);
+      min-width: 0;
+    }
+    .gestion-search:focus-within { border-color: var(--brand-primary); box-shadow: var(--ring-focus); }
+    .gestion-search svg { width: 14px; height: 14px; stroke: var(--ink-muted); fill: none; stroke-width: 1.8; flex-shrink: 0; }
+    .gestion-search input {
+      flex: 1; border: 0; background: transparent;
+      min-height: 30px; padding: 0;
+      font-family: var(--font-body); font-size: var(--fs-sm); color: var(--ink-strong);
+      outline: none; min-width: 0;
+    }
+    .gestion-search input::placeholder { color: var(--ink-muted); }
+    .gestion-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    /* Tableau responsive */
+    .table-wrap { overflow-x: auto; }
+    .table-wrap::-webkit-scrollbar { height: 6px; }
+    .table-wrap::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 3px; }
+    .gestion-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+    .gestion-table thead th {
+      text-align: left;
+      padding: 12px var(--sp-4);
+      font-family: var(--font-mono);
+      font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+      font-weight: 500;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border-default);
+      white-space: nowrap;
+    }
+    .gestion-table tbody td {
+      padding: 14px var(--sp-4);
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: var(--fs-sm);
+      color: var(--ink-default);
+      vertical-align: middle;
+    }
+    .gestion-table tbody tr:hover td {
+      background: var(--bg-sunken);
+    }
+    .gestion-table tbody tr:last-child td { border-bottom: 0; }
+    .gestion-table .col-name { min-width: 240px; }
+    .gestion-table .col-type { width: 130px; }
+    .gestion-table .col-stat { width: 140px; }
+    .gestion-table .col-upd  { width: 130px; }
+    .gestion-table .col-act  { width: 100px; text-align: right; }
+
+    .cell-name {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .cell-name .name-cover {
+      width: 32px;
+      aspect-ratio: 3 / 4;
+      border-radius: 3px;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, var(--cuir-300), var(--cuir-600));
+      position: relative;
+    }
+    .cell-name .name-cover::before {
+      content: "";
+      position: absolute; inset: 2px;
+      border: 1px solid rgba(245,236,217,0.32);
+    }
+    .cell-name .name-cover.mousse { background: linear-gradient(135deg, var(--mousse-300), var(--mousse-700)); }
+    .cell-name .name-cover.encre  { background: linear-gradient(135deg, var(--encre-300), var(--encre-700)); }
+    .cell-name .name-cover.sang   { background: linear-gradient(135deg, var(--sang-300), var(--sang-700)); }
+    .cell-name .name-cover.or     { background: linear-gradient(135deg, var(--or-300), var(--or-700)); }
+    .cell-name .name-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: var(--cuir-100);
+      color: var(--cuir-700);
+      display: grid; place-items: center;
+      font-family: var(--font-display);
+      font-size: 12px; font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    [data-theme="dark"] .cell-name .name-avatar { background: var(--cuir-800); color: var(--cuir-200); }
+    .cell-name .name-icon {
+      width: 32px; height: 32px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-sunken);
+      color: var(--brand-primary);
+      display: grid; place-items: center;
+      flex-shrink: 0;
+    }
+    .cell-name .name-icon svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.7; }
+    .cell-name .name-text { min-width: 0; }
+    .cell-name .name-title {
+      font-family: var(--font-display);
+      font-size: var(--fs-sm); font-weight: 600;
+      color: var(--ink-strong);
+      letter-spacing: 0.02em;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      max-width: 280px;
+    }
+    .cell-name .name-sub {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ink-muted);
+      letter-spacing: 0.04em;
+    }
+
+    .type-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 2px 9px;
+      background: var(--bg-sunken);
+      color: var(--ink-default);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps);
+    }
+    .type-pill .pip { width: 6px; height: 6px; border-radius: 50%; }
+    .type-pill.livre .pip   { background: var(--cuir-500); }
+    .type-pill.auteur .pip  { background: var(--encre-500); }
+    .type-pill.illu .pip    { background: var(--or-500); }
+    .type-pill.collec .pip  { background: var(--mousse-500); }
+    .type-pill.edit .pip    { background: var(--sang-500); }
+    .type-pill.serie .pip   { background: var(--brand-primary); }
+
+    .cell-act {
+      display: inline-flex; gap: 6px; justify-content: flex-end;
+    }
+    .icon-btn {
+      width: 30px; height: 30px;
+      display: grid; place-items: center;
+      background: transparent;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      color: var(--ink-muted);
+      cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .icon-btn:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .icon-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+    .icon-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+    .gestion-foot {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--sp-3); flex-wrap: wrap;
+      padding: var(--sp-3) var(--sp-4);
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-sunken);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ink-muted);
+    }
+    .pager { display: inline-flex; gap: 4px; align-items: center; }
+    .pager button {
+      width: 30px; height: 30px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono); font-size: 11px;
+      color: var(--ink-default);
+      cursor: pointer;
+    }
+    .pager button:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .pager button[aria-current="page"] {
+      background: var(--ink-strong);
+      color: var(--bg-page);
+      border-color: var(--ink-strong);
+    }
+
+    /* ============================================================
+       UX ANALYSIS NOTE — Scribe Note
+       ============================================================ */
+    .scribe-note {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: var(--sp-4);
+      padding: var(--sp-4) var(--sp-5);
+      background: linear-gradient(135deg, color-mix(in oklab, var(--encre-100) 50%, var(--bg-elevated)) 0%, var(--bg-elevated) 60%);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--sp-5);
+      position: relative;
+      overflow: hidden;
+    }
+    [data-theme="dark"] .scribe-note {
+      background: linear-gradient(135deg, rgba(58,90,124,0.12), var(--bg-elevated) 70%);
+    }
+    .scribe-note::after {
+      content: "";
+      position: absolute; right: -30px; top: -40px;
+      width: 180px; height: 180px;
+      background: radial-gradient(circle, color-mix(in oklab, var(--encre-300) 35%, transparent), transparent 65%);
+      pointer-events: none;
+    }
+    .scribe-mark {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--info);
+      color: #fff;
+      display: grid; place-items: center;
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .scribe-mark::before {
+      content: "";
+      position: absolute; inset: 3px;
+      border: 1px dashed rgba(255,255,255,0.4);
+      border-radius: 50%;
+    }
+    .scribe-body { min-width: 0; position: relative; z-index: 1; }
+    .scribe-body .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--info); margin-bottom: 4px;
+    }
+    .scribe-body .title {
+      font-family: var(--font-display);
+      font-size: var(--fs-md); font-weight: 700;
+      color: var(--ink-strong);
+      letter-spacing: 0.02em; margin-bottom: 6px;
+    }
+    .scribe-body ul {
+      margin: 0; padding: 0; list-style: none;
+      display: grid; gap: 4px;
+      font-size: var(--fs-sm);
+      color: var(--ink-default);
+      line-height: 1.55;
+    }
+    .scribe-body li {
+      padding-left: 18px;
+      position: relative;
+    }
+    .scribe-body li::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 9px;
+      width: 8px; height: 1px;
+      background: var(--cuir-400);
+    }
+    .scribe-body li strong { color: var(--ink-strong); font-weight: 600; }
+
+    /* ============================================================
+       MODALE REFUS
+       ============================================================ */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: var(--bg-overlay);
+      z-index: 100;
+      display: none;
+      align-items: center; justify-content: center;
+      padding: var(--sp-4);
+      opacity: 0;
+      transition: opacity var(--motion-base) var(--motion-ease);
+    }
+    .modal-backdrop.is-open {
+      display: flex;
+      opacity: 1;
+    }
+    .modal {
+      width: 100%;
+      max-width: 540px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transform: translateY(8px);
+      transition: transform var(--motion-base) var(--motion-ease-out);
+      box-shadow: var(--shadow-xl);
+    }
+    .modal-backdrop.is-open .modal { transform: translateY(0); }
+    .modal-head {
+      padding: var(--sp-4) var(--sp-5);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--sp-3);
+      background: var(--bg-sunken);
+    }
+    .modal-head h3 {
+      font-family: var(--font-display);
+      font-size: var(--fs-lg); font-weight: 700;
+      letter-spacing: 0.03em; color: var(--ink-strong);
+    }
+    .modal-close {
+      width: 32px; height: 32px;
+      background: transparent;
+      border: 0;
+      color: var(--ink-muted);
+      cursor: pointer;
+      border-radius: 50%;
+      display: grid; place-items: center;
+    }
+    .modal-close:hover { background: var(--bg-page); color: var(--ink-strong); }
+    .modal-close svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+    .modal-body { padding: var(--sp-5); }
+    .modal-body p { color: var(--ink-muted); font-size: var(--fs-sm); margin-bottom: var(--sp-4); }
+    .reason-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: var(--sp-4);
+    }
+    @media (max-width: 540px) { .reason-grid { grid-template-columns: 1fr; } }
+    .reason-grid label {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      background: var(--bg-page);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: var(--fs-sm);
+      color: var(--ink-default);
+      transition: all var(--motion-fast) var(--motion-ease);
+      position: relative;
+    }
+    .reason-grid label:hover { border-color: var(--brand-primary); }
+    .reason-grid input { position: absolute; opacity: 0; pointer-events: none; }
+    .reason-grid label:has(input:checked) {
+      background: var(--bg-elevated);
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 2px color-mix(in oklab, var(--brand-primary) 25%, transparent);
+    }
+    .reason-grid label .dot {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border-strong);
+      flex-shrink: 0;
+      display: grid; place-items: center;
+    }
+    .reason-grid label:has(input:checked) .dot {
+      border-color: var(--brand-primary);
+      background: var(--brand-primary);
+    }
+    .reason-grid label:has(input:checked) .dot::after {
+      content: "";
+      width: 6px; height: 6px;
+      background: var(--brand-primary-ink);
+      border-radius: 50%;
+    }
+    .modal-foot {
+      padding: var(--sp-4) var(--sp-5);
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-sunken);
+      display: flex; justify-content: flex-end; gap: var(--sp-2);
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: var(--sp-5);
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      z-index: 120;
+      background: var(--ink-strong);
+      color: var(--bg-page);
+      padding: 12px 18px 12px 14px;
+      border-radius: var(--radius-pill);
+      box-shadow: var(--shadow-lg);
+      display: flex; align-items: center; gap: 10px;
+      font-size: var(--fs-sm); font-weight: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--motion-base) var(--motion-ease), transform var(--motion-base) var(--motion-ease-out);
+      max-width: calc(100vw - 32px);
+    }
+    .toast.is-visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .toast .ic {
+      width: 24px; height: 24px; border-radius: 50%;
+      display: grid; place-items: center;
+      flex-shrink: 0;
+    }
+    .toast.ok .ic  { background: var(--success); }
+    .toast.no .ic  { background: var(--danger); }
+    .toast .ic svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+  </style>
+</head>
+<body>
+
+  <!-- =============== HEADER =============== -->
+  <header class="session-header">
+    <div class="container sh-inner">
+      <div class="sh-left">
+        <a class="sh-brand" href="../dashboard.html">
+          <span class="sh-sigil">A</span>
+          <span class="sh-brand-mark">La Collection</span>
+        </a>
+        <nav class="sh-nav" aria-label="Navigation principale">
+          <a href="../dashboard.html">Accueil</a>
+          <a href="catalogue.html">Catalogue</a>
+          <a href="suggestions.html">Suggestions</a>
+          <a href="moderation.html" aria-current="page">Modération</a>
+        </nav>
+      </div>
+      <div class="sh-right">
+        <button class="sh-icon-btn" aria-label="Notifications (3 non lues)">
+          <svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+          <span class="dot" aria-hidden="true"></span>
+        </button>
+        <button class="sh-user" aria-haspopup="menu">
+          <span class="avatar size-sm">MA<span class="avatar-role mod"></span></span>
+          <span class="sh-user-text">
+            <span class="sh-user-name">Marius Aubry</span>
+            <span class="sh-user-role">Modérateur</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- =============== PAGE HEAD =============== -->
+    <section class="page-head">
+      <div class="container head-grid">
+        <div>
+          <div class="ph-eyebrow">
+            Tour de garde — Mardi 19 mai
+            <span class="role-pip">Vue Modérateur</span>
+          </div>
+          <h1>La <em>Salle de Modération</em></h1>
+          <p class="lede">Vingt-trois suggestions attendent ton aval, scribe. Trois sont dans le rouge, douze ne demandent qu'un coup d'œil. Bonne traque.</p>
+        </div>
+        <div class="head-cta">
+          <button class="btn btn-ghost btn-sm" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+            Vue Tableau
+          </button>
+          <a class="btn btn-primary" href="#flux">
+            Ouvrir le Flux
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== UX ANALYSIS NOTE =============== -->
+    <div class="container">
+      <div class="scribe-note">
+        <span class="scribe-mark">UX</span>
+        <div class="scribe-body">
+          <div class="eyebrow">Note du scribe — éviter la noyade</div>
+          <div class="title">Trois voies de traitement, pour ne jamais traiter une file comme un long fleuve.</div>
+          <ul>
+            <li><strong>Voie Express</strong> — typos, dates, ISBN : présentées en lot, validables en série (touche <kbd style="font-family:var(--font-mono);font-size:10px;background:var(--bg-page);border:1px solid var(--border-default);border-bottom-width:2px;padding:1px 5px;border-radius:4px;">A</kbd> = tout valider). Idéal pour les sessions de 5 minutes.</li>
+            <li><strong>Voie Régulière</strong> — modifications structurelles : split-view côte à côte, raccourcis <kbd style="font-family:var(--font-mono);font-size:10px;background:var(--bg-page);border:1px solid var(--border-default);border-bottom-width:2px;padding:1px 5px;border-radius:4px;">V</kbd> / <kbd style="font-family:var(--font-mono);font-size:10px;background:var(--bg-page);border:1px solid var(--border-default);border-bottom-width:2px;padding:1px 5px;border-radius:4px;">R</kbd> / <kbd style="font-family:var(--font-mono);font-size:10px;background:var(--bg-page);border:1px solid var(--border-default);border-bottom-width:2px;padding:1px 5px;border-radius:4px;">S</kbd> (Skip).</li>
+            <li><strong>Voie Délicate</strong> — nouvelles fiches ou refontes : prévisualisation complète, badge <em>Délicate</em> rouge pour signaler le temps requis.</li>
+            <li><strong>Confiance contributeur</strong> — un taux historique &gt;90% allume un badge "✓ Fiable" : tu peux valider d'un trait sans relire ligne à ligne.</li>
+            <li><strong>Anti-blocage</strong> — la touche <kbd style="font-family:var(--font-mono);font-size:10px;background:var(--bg-page);border:1px solid var(--border-default);border-bottom-width:2px;padding:1px 5px;border-radius:4px;">S</kbd> reporte une suggestion en fin de file plutôt que de t'épuiser sur un cas ambigu.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- =============== 1. VUE D'ENSEMBLE =============== -->
+    <section class="container mod-section" id="overview">
+      <div class="mod-section-head">
+        <div>
+          <div class="ttl"><span class="num">I.</span> Vue d'ensemble</div>
+          <div class="sub">L'état de la file en un coup d'œil, et le dernier coup d'épée donné.</div>
+        </div>
+        <div class="right">
+          <span class="badge badge-role-mod"><span class="dot"></span>Mes vacations</span>
+        </div>
+      </div>
+
+      <div class="overview">
+        <!-- Carte principale : Suggestions en attente -->
+        <div class="pending-card">
+          <div class="pending-top">
+            <div class="pending-counter" aria-label="23 suggestions en attente"><span>23</span></div>
+            <div class="pending-text">
+              <div class="label">Suggestions en attente</div>
+              <div class="title">23 missives à dépouiller</div>
+              <div class="sub">Délai moyen actuel : <strong style="color:var(--ink-strong);font-weight:600">2 h 14</strong> · objectif <strong style="color:var(--success);font-weight:600">&lt; 6 h</strong></div>
+            </div>
+            <a class="btn btn-primary" href="#flux">
+              Ouvrir le Flux
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+
+          <div class="voies" role="group" aria-label="Répartition par voie de traitement">
+            <a class="voie exp" href="#flux">
+              <div class="v-head">
+                <span class="v-name">Express</span>
+                <span class="v-pip" aria-hidden="true"></span>
+              </div>
+              <div class="v-count">12</div>
+              <div class="v-desc">Typos, dates, ISBN — traitable en série</div>
+            </a>
+            <a class="voie reg" href="#flux">
+              <div class="v-head">
+                <span class="v-name">Régulière</span>
+                <span class="v-pip" aria-hidden="true"></span>
+              </div>
+              <div class="v-count">8</div>
+              <div class="v-desc">Modifications structurelles, split-view</div>
+            </a>
+            <a class="voie del" href="#flux">
+              <div class="v-head">
+                <span class="v-name">Délicate</span>
+                <span class="v-pip" aria-hidden="true"></span>
+              </div>
+              <div class="v-count">3</div>
+              <div class="v-desc">Nouvelles fiches, refontes complètes</div>
+            </a>
+          </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="kpi-card">
+          <div class="kpi-head">
+            <span class="ttl">Performances</span>
+            <span class="scope">7 derniers jours</span>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi">
+              <span class="v">47</span>
+              <span class="l">Traitées</span>
+              <span class="d">cette semaine</span>
+            </div>
+            <div class="kpi">
+              <span class="v ok">87 %</span>
+              <span class="l">Taux validation</span>
+              <span class="d">+4 pts</span>
+            </div>
+            <div class="kpi">
+              <span class="v">2 h 14</span>
+              <span class="l">Délai moyen</span>
+              <span class="d">objectif &lt; 6 h</span>
+            </div>
+            <div class="kpi">
+              <span class="v">3</span>
+              <span class="l">Refus motivés</span>
+              <span class="d">tous notifiés</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Historique récent -->
+      <div class="recent" style="margin-top: var(--sp-4)">
+        <div class="recent-head">
+          <span class="ttl">Dernières actions de modération</span>
+          <a href="#">Tout voir
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+        <div class="recent-list">
+          <div class="recent-row">
+            <span class="ic ok" aria-label="Validée">
+              <svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-11"/></svg>
+            </span>
+            <div class="body">
+              Tu as <strong style="color:var(--success);font-weight:600">validé</strong> la correction d'<span class="obj">Iain McCaig</span> proposée par <span class="handle">@juliette_d</span>.
+            </div>
+            <span class="time">il y a 12 min</span>
+          </div>
+          <div class="recent-row">
+            <span class="ic ok"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-11"/></svg></span>
+            <div class="body">
+              Tu as <strong style="color:var(--success);font-weight:600">validé</strong> en lot 4 corrections d'ISBN soumises par <span class="handle">@thibault</span>.
+            </div>
+            <span class="time">il y a 38 min</span>
+          </div>
+          <div class="recent-row">
+            <span class="ic no"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18 18 6"/></svg></span>
+            <div class="body">
+              Tu as <strong style="color:var(--danger);font-weight:600">refusé</strong> la suggestion sur <span class="obj">Le Vampire de Mortvania</span> — motif : <em>information non sourcée</em>.
+            </div>
+            <span class="time">il y a 1 h</span>
+          </div>
+          <div class="recent-row">
+            <span class="ic edit"><svg viewBox="0 0 24 24"><path d="m4 20 4-1 12-12-3-3L5 16l-1 4z"/></svg></span>
+            <div class="body">
+              Tu as <strong style="color:var(--info);font-weight:600">corrigé puis validé</strong> la fiche de <span class="obj">Loup Solitaire — Tome 4</span> (faute de frappe sur le résumé).
+            </div>
+            <span class="time">il y a 2 h</span>
+          </div>
+          <div class="recent-row">
+            <span class="ic ok"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-11"/></svg></span>
+            <div class="body">
+              Tu as <strong style="color:var(--success);font-weight:600">publié</strong> la nouvelle fiche <span class="obj">L'Or Sombre des Mages</span>, soumise par <span class="handle">@romainp</span>.
+            </div>
+            <span class="time">hier</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== 2. FLUX DE TRAITEMENT =============== -->
+    <section class="container mod-section" id="flux">
+      <div class="mod-section-head">
+        <div>
+          <div class="ttl"><span class="num">II.</span> Flux de traitement</div>
+          <div class="sub">Le cœur du travail. Une suggestion à la fois, focus maximal — la file vit à droite.</div>
+        </div>
+        <div class="right">
+          <span class="badge badge-status-pending"><span class="dot"></span>3 sur 23</span>
+        </div>
+      </div>
+
+      <div class="flux">
+        <!-- Suggestion en cours -->
+        <article class="sugg-card" id="suggCard">
+          <div class="sugg-bar">
+            <div class="sugg-bar-left">
+              <span class="sugg-position"><strong>3</strong> sur <strong>23</strong> · Voie Régulière</span>
+              <span class="sugg-prio normale">Priorité normale</span>
+            </div>
+            <div class="sugg-bar-right" role="group" aria-label="Actions secondaires">
+              <button class="btn-icon-sm" title="Précédente (←)" aria-label="Précédente">
+                <svg viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></svg>
+              </button>
+              <button class="btn-icon-sm" title="Suivante (→)" aria-label="Suivante" onclick="skipSuggestion()">
+                <svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
+              </button>
+              <button class="btn-icon-sm" title="Voir la fiche publique" aria-label="Voir la fiche publique">
+                <svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <header class="sugg-header">
+            <span class="avatar" style="background: var(--encre-100); color: var(--encre-700);">CL</span>
+            <div class="sugg-meta">
+              <div class="who">
+                <span class="handle">@clem</span>
+                <span class="when">soumise il y a 47 min</span>
+              </div>
+              <div class="target">
+                Modification sur <span class="obj">Le Manoir de l'Enfer</span> <span class="ref">· LCA-0214</span> — fiche existante
+              </div>
+              <span class="trust" title="Taux de validation historique de @clem : 94%">
+                <svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-11"/></svg>
+                Contributeur fiable · 94%
+              </span>
+            </div>
+            <span class="sugg-prio delicate" style="visibility: hidden">placeholder</span>
+          </header>
+
+          <!-- Mobile tabs -->
+          <div class="split-tabs" role="tablist">
+            <button type="button" role="tab" aria-selected="false" data-split-tab="now">Actuelles</button>
+            <button type="button" role="tab" aria-selected="true"  data-split-tab="next">Proposées</button>
+          </div>
+
+          <div class="split">
+            <!-- AVANT -->
+            <div class="split-col now" data-split-col="now">
+              <div class="col-head">
+                <span class="pip" aria-hidden="true"></span>
+                <span class="lbl">Données actuelles</span>
+                <span class="meta">v3 · 04 mars 2026</span>
+              </div>
+
+              <div class="field">
+                <span class="f-label">Couverture</span>
+                <span class="f-value">
+                  <span class="cover before">Manoir Enfer<br>v1</span>
+                </span>
+              </div>
+
+              <div class="field">
+                <span class="f-label">Titre</span>
+                <span class="f-value">Le Manoir de l'Enfer</span>
+              </div>
+
+              <div class="field">
+                <span class="f-label">Date de publication</span>
+                <span class="f-value">1985</span>
+              </div>
+
+              <div class="field">
+                <span class="f-label">Nombre de paragraphes</span>
+                <span class="f-value empty">— non renseigné</span>
+              </div>
+
+              <div class="field">
+                <span class="f-label">Illustrateur</span>
+                <span class="f-value">Tim Sell</span>
+              </div>
+
+              <div class="field">
+                <span class="f-label">Résumé</span>
+                <span class="f-value">Un manoir hanté abrite une menace tapie dans la nuit. <span class="del">Vous y entrez seul, sans armes, et devez survivre jusqu'à l'aube.</span> Le maître des lieux possède un secret qui pourrait changer le cours de votre quête.</span>
+              </div>
+
+              <div class="field">
+                <span class="f-label">Tags</span>
+                <span class="f-value">
+                  <span class="type-pill livre" style="display:inline-flex;margin-right:4px"><span class="pip"></span>Horreur</span>
+                  <span class="type-pill livre" style="display:inline-flex;margin-right:4px"><span class="pip"></span>Solo</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- APRÈS -->
+            <div class="split-col next is-active" data-split-col="next">
+              <div class="col-head">
+                <span class="pip" aria-hidden="true"></span>
+                <span class="lbl">Nouvelles données</span>
+                <span class="meta">7 champs modifiés</span>
+              </div>
+
+              <div class="field">
+                <span class="f-label"><span class="chg"></span>Couverture <span class="diff-tag add">Remplacée</span></span>
+                <span class="f-value">
+                  <span class="cover encre">Manoir Enfer<br>v2 — édition 1988</span>
+                </span>
+              </div>
+
+              <div class="field">
+                <span class="f-label">Titre</span>
+                <span class="f-value">Le Manoir de l'Enfer</span>
+              </div>
+
+              <div class="field">
+                <span class="f-label"><span class="chg"></span>Date de publication</span>
+                <span class="f-value"><span class="del">1985</span> → <span class="ins">1984 (1ʳᵉ édition VO) · réédition VF 1985</span></span>
+              </div>
+
+              <div class="field">
+                <span class="f-label"><span class="chg"></span>Nombre de paragraphes <span class="diff-tag add">Ajouté</span></span>
+                <span class="f-value"><span class="ins">400 paragraphes</span></span>
+              </div>
+
+              <div class="field">
+                <span class="f-label"><span class="chg"></span>Illustrateur</span>
+                <span class="f-value"><span class="del">Tim Sell</span> <span class="ins">Tim Sell &amp; Iain McCaig (couverture)</span></span>
+              </div>
+
+              <div class="field">
+                <span class="f-label"><span class="chg"></span>Résumé</span>
+                <span class="f-value">Un manoir hanté abrite une menace tapie dans la nuit. <span class="ins">Armé de votre seul courage, vous franchissez le portail à la tombée du jour pour libérer le village de la malédiction qui pèse sur lui.</span> Le maître des lieux possède un secret qui pourrait changer le cours de votre quête.</span>
+              </div>
+
+              <div class="field">
+                <span class="f-label"><span class="chg"></span>Tags</span>
+                <span class="f-value">
+                  <span class="type-pill livre" style="display:inline-flex;margin-right:4px"><span class="pip"></span>Horreur</span>
+                  <span class="type-pill livre" style="display:inline-flex;margin-right:4px"><span class="pip"></span>Solo</span>
+                  <span class="diff-tag add" style="margin-right:4px">+ Gothique</span>
+                  <span class="diff-tag add">+ Vampires</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <footer class="sugg-actions">
+            <div class="summary">
+              <strong>+5</strong> ajouts · <strong>3</strong> remplacements · <strong>0</strong> suppression
+            </div>
+            <button class="btn btn-secondary" type="button" onclick="alert('Éditeur complet — ouvrir le formulaire')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m4 20 4-1 12-12-3-3L5 16l-1 4z"/></svg>
+              Modifier
+              <kbd>M</kbd>
+            </button>
+            <button class="btn btn-danger" type="button" onclick="openRefuseModal()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M6 18 18 6"/></svg>
+              Refuser
+              <kbd style="background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.3); color: #fff;">R</kbd>
+            </button>
+            <button class="btn btn-primary" type="button" onclick="validateSuggestion()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m5 12 5 5 9-11"/></svg>
+              Valider
+              <kbd style="background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.3); color: #fff;">V</kbd>
+            </button>
+          </footer>
+        </article>
+
+        <!-- File d'attente -->
+        <aside class="queue" aria-label="Suite de la file">
+          <div class="queue-head">
+            <span class="ttl">La suite</span>
+            <span class="count">22 en attente</span>
+          </div>
+          <div class="qfilter" role="group" aria-label="Filtres de la file">
+            <button class="qchip" aria-pressed="true">Toutes</button>
+            <button class="qchip" aria-pressed="false">Express</button>
+            <button class="qchip" aria-pressed="false">Régulière</button>
+            <button class="qchip" aria-pressed="false">Délicate</button>
+          </div>
+          <div class="queue-list" id="queueList">
+            <div class="qrow is-current">
+              <span class="qprio normale" aria-hidden="true"></span>
+              <div class="qmeta">
+                <div class="qobj">Manoir de l'Enfer</div>
+                <div class="qsub">@clem · livre · 7 champs</div>
+              </div>
+              <span class="qtime">47 min</span>
+            </div>
+            <div class="qrow">
+              <span class="qprio express" aria-hidden="true"></span>
+              <div class="qmeta">
+                <div class="qobj">Forêt de la Malédiction</div>
+                <div class="qsub"><span class="qbatch">×4 lot</span>@thibault · ISBN</div>
+              </div>
+              <span class="qtime">1 h</span>
+            </div>
+            <div class="qrow">
+              <span class="qprio express" aria-hidden="true"></span>
+              <div class="qmeta">
+                <div class="qobj">Cité des Voleurs</div>
+                <div class="qsub">@elise_p · typo résumé</div>
+              </div>
+              <span class="qtime">2 h</span>
+            </div>
+            <div class="qrow">
+              <span class="qprio delicate" aria-hidden="true"></span>
+              <div class="qmeta">
+                <div class="qobj">Iain McCaig — Nouvelle fiche</div>
+                <div class="qsub">@juliette_d · auteur</div>
+              </div>
+              <span class="qtime warn">5 h</span>
+            </div>
+            <div class="qrow">
+              <span class="qprio normale" aria-hidden="true"></span>
+              <div class="qmeta">
+                <div class="qobj">Loup Solitaire — Tome 7</div>
+                <div class="qsub">@romainp · livre · couverture</div>
+              </div>
+              <span class="qtime">7 h</span>
+            </div>
+            <div class="qrow">
+              <span class="qprio express" aria-hidden="true"></span>
+              <div class="qmeta">
+                <div class="qobj">Joe Dever</div>
+                <div class="qsub">@erwan · auteur · date naissance</div>
+              </div>
+              <span class="qtime warn">11 h</span>
+            </div>
+            <div class="qrow">
+              <span class="qprio normale" aria-hidden="true"></span>
+              <div class="qmeta">
+                <div class="qobj">Défis Fantastiques</div>
+                <div class="qsub">@clem · collection · ordre</div>
+              </div>
+              <span class="qtime warn">1 j</span>
+            </div>
+            <div class="qrow">
+              <span class="qprio delicate" aria-hidden="true"></span>
+              <div class="qmeta">
+                <div class="qobj">Le Vampire de Mortvania</div>
+                <div class="qsub"><span class="qbatch">nouv.</span>@anon_42 · livre</div>
+              </div>
+              <span class="qtime hot">4 j</span>
+            </div>
+            <div class="qrow">
+              <span class="qprio express" aria-hidden="true"></span>
+              <div class="qmeta">
+                <div class="qobj">Sorcier Montagne Feu</div>
+                <div class="qsub">@thibault · numéro série</div>
+              </div>
+              <span class="qtime hot">8 j</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- =============== 3. GESTION GLOBALE =============== -->
+    <section class="container mod-section" id="gestion">
+      <div class="mod-section-head">
+        <div>
+          <div class="ttl"><span class="num">III.</span> Gestion globale des fiches</div>
+          <div class="sub">Rechercher, modifier, dépublier — quand il faut intervenir hors du flux de suggestions.</div>
+        </div>
+        <div class="right">
+          <button class="btn btn-secondary btn-sm" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            Nouvelle fiche
+          </button>
+        </div>
+      </div>
+
+      <div class="gestion">
+        <div class="gestion-toolbar">
+          <div class="gestion-search">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input type="search" placeholder="Rechercher dans 2 481 fiches (titre, auteur, ISBN, contributeur…)" aria-label="Recherche dans les fiches" />
+          </div>
+          <div class="gestion-filters" role="group" aria-label="Filtrer par type">
+            <button class="qchip" aria-pressed="true">Tous · 2 481</button>
+            <button class="qchip" aria-pressed="false">Livres · 1 924</button>
+            <button class="qchip" aria-pressed="false">Auteurs · 156</button>
+            <button class="qchip" aria-pressed="false">Illustrateurs · 89</button>
+            <button class="qchip" aria-pressed="false">Collections · 42</button>
+            <button class="qchip" aria-pressed="false">Éditeurs · 28</button>
+            <button class="qchip" aria-pressed="false">Séries · 242</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="gestion-table">
+            <thead>
+              <tr>
+                <th class="col-name">Nom</th>
+                <th class="col-type">Type</th>
+                <th class="col-stat">Statut</th>
+                <th class="col-upd">Dernière maj</th>
+                <th class="col-act">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="col-name">
+                  <div class="cell-name">
+                    <span class="name-cover"></span>
+                    <div class="name-text">
+                      <div class="name-title">Le Sorcier de la Montagne de Feu</div>
+                      <div class="name-sub">LCA-0042 · S. Jackson &amp; I. Livingstone</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="type-pill livre"><span class="pip"></span>Livre</span></td>
+                <td><span class="badge badge-status-validated"><span class="dot"></span>Publié</span></td>
+                <td><span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted);">14 mai 2026</span></td>
+                <td class="col-act">
+                  <div class="cell-act">
+                    <button class="icon-btn" title="Modifier"><svg viewBox="0 0 24 24"><path d="m4 20 4-1 12-12-3-3L5 16l-1 4z"/></svg></button>
+                    <button class="icon-btn danger" title="Dépublier"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-name">
+                  <div class="cell-name">
+                    <span class="name-avatar">IL</span>
+                    <div class="name-text">
+                      <div class="name-title">Ian Livingstone</div>
+                      <div class="name-sub">auteur · 89 fiches associées</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="type-pill auteur"><span class="pip"></span>Auteur</span></td>
+                <td><span class="badge badge-status-validated"><span class="dot"></span>Publié</span></td>
+                <td><span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted);">12 mai 2026</span></td>
+                <td class="col-act">
+                  <div class="cell-act">
+                    <button class="icon-btn" title="Modifier"><svg viewBox="0 0 24 24"><path d="m4 20 4-1 12-12-3-3L5 16l-1 4z"/></svg></button>
+                    <button class="icon-btn danger" title="Dépublier"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-name">
+                  <div class="cell-name">
+                    <span class="name-cover encre"></span>
+                    <div class="name-text">
+                      <div class="name-title">Le Manoir de l'Enfer</div>
+                      <div class="name-sub">LCA-0214 · Steve Jackson · suggestion en cours</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="type-pill livre"><span class="pip"></span>Livre</span></td>
+                <td><span class="badge badge-status-pending"><span class="dot"></span>Suggestion</span></td>
+                <td><span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted);">il y a 47 min</span></td>
+                <td class="col-act">
+                  <div class="cell-act">
+                    <button class="icon-btn" title="Modifier"><svg viewBox="0 0 24 24"><path d="m4 20 4-1 12-12-3-3L5 16l-1 4z"/></svg></button>
+                    <button class="icon-btn danger" title="Dépublier"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-name">
+                  <div class="cell-name">
+                    <span class="name-avatar" style="background: var(--or-100); color: var(--or-700);">IM</span>
+                    <div class="name-text">
+                      <div class="name-title">Iain McCaig</div>
+                      <div class="name-sub">illustrateur · brouillon · 0 fiche associée</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="type-pill illu"><span class="pip"></span>Illustrateur</span></td>
+                <td><span class="badge badge-status-archived"><span class="dot"></span>Brouillon</span></td>
+                <td><span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted);">il y a 5 h</span></td>
+                <td class="col-act">
+                  <div class="cell-act">
+                    <button class="icon-btn" title="Modifier"><svg viewBox="0 0 24 24"><path d="m4 20 4-1 12-12-3-3L5 16l-1 4z"/></svg></button>
+                    <button class="icon-btn danger" title="Supprimer"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-name">
+                  <div class="cell-name">
+                    <span class="name-icon">
+                      <svg viewBox="0 0 24 24"><path d="M4 4h6v16H4zM10 4h4v16h-4zM14 4h6v16h-6z"/></svg>
+                    </span>
+                    <div class="name-text">
+                      <div class="name-title">Défis Fantastiques</div>
+                      <div class="name-sub">collection · 59 numéros · Solar/Gallimard</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="type-pill collec"><span class="pip"></span>Collection</span></td>
+                <td><span class="badge badge-status-validated"><span class="dot"></span>Publié</span></td>
+                <td><span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted);">02 mai 2026</span></td>
+                <td class="col-act">
+                  <div class="cell-act">
+                    <button class="icon-btn" title="Modifier"><svg viewBox="0 0 24 24"><path d="m4 20 4-1 12-12-3-3L5 16l-1 4z"/></svg></button>
+                    <button class="icon-btn danger" title="Dépublier"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-name">
+                  <div class="cell-name">
+                    <span class="name-cover sang"></span>
+                    <div class="name-text">
+                      <div class="name-title">Le Vampire de Mortvania</div>
+                      <div class="name-sub">non référencée · soumise par @anon_42</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="type-pill livre"><span class="pip"></span>Livre</span></td>
+                <td><span class="badge badge-status-rejected"><span class="dot"></span>Refusée</span></td>
+                <td><span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted);">il y a 1 h</span></td>
+                <td class="col-act">
+                  <div class="cell-act">
+                    <button class="icon-btn" title="Voir le motif"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></button>
+                    <button class="icon-btn danger" title="Supprimer définitivement"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-name">
+                  <div class="cell-name">
+                    <span class="name-icon" style="color: var(--sang-500);">
+                      <svg viewBox="0 0 24 24"><path d="M4 4h16v6H4zM4 14h16v6H4z"/></svg>
+                    </span>
+                    <div class="name-text">
+                      <div class="name-title">Gallimard · Folio Junior</div>
+                      <div class="name-sub">éditeur · 412 fiches associées</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="type-pill edit"><span class="pip"></span>Éditeur</span></td>
+                <td><span class="badge badge-status-validated"><span class="dot"></span>Publié</span></td>
+                <td><span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted);">28 avr. 2026</span></td>
+                <td class="col-act">
+                  <div class="cell-act">
+                    <button class="icon-btn" title="Modifier"><svg viewBox="0 0 24 24"><path d="m4 20 4-1 12-12-3-3L5 16l-1 4z"/></svg></button>
+                    <button class="icon-btn danger" title="Dépublier"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-name">
+                  <div class="cell-name">
+                    <span class="name-cover or"></span>
+                    <div class="name-text">
+                      <div class="name-title">L'Or Sombre des Mages</div>
+                      <div class="name-sub">LCA-0301 · Joe Dever</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="type-pill livre"><span class="pip"></span>Livre</span></td>
+                <td><span class="badge badge-status-validated"><span class="dot"></span>Publié</span></td>
+                <td><span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted);">hier</span></td>
+                <td class="col-act">
+                  <div class="cell-act">
+                    <button class="icon-btn" title="Modifier"><svg viewBox="0 0 24 24"><path d="m4 20 4-1 12-12-3-3L5 16l-1 4z"/></svg></button>
+                    <button class="icon-btn danger" title="Dépublier"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-name">
+                  <div class="cell-name">
+                    <span class="name-cover mousse"></span>
+                    <div class="name-text">
+                      <div class="name-title">La Forêt de la Malédiction</div>
+                      <div class="name-sub">LCA-0156 · I. Livingstone</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="type-pill livre"><span class="pip"></span>Livre</span></td>
+                <td><span class="badge badge-status-validated"><span class="dot"></span>Publié</span></td>
+                <td><span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted);">25 avr. 2026</span></td>
+                <td class="col-act">
+                  <div class="cell-act">
+                    <button class="icon-btn" title="Modifier"><svg viewBox="0 0 24 24"><path d="m4 20 4-1 12-12-3-3L5 16l-1 4z"/></svg></button>
+                    <button class="icon-btn danger" title="Dépublier"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-name">
+                  <div class="cell-name">
+                    <span class="name-icon" style="color: var(--brand-primary);">
+                      <svg viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h11v16H6a2 2 0 0 1-2-2z"/><path d="M17 4v16M9 8h5M9 12h5"/></svg>
+                    </span>
+                    <div class="name-text">
+                      <div class="name-title">Loup Solitaire</div>
+                      <div class="name-sub">série · 28 tomes · Joe Dever</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="type-pill serie"><span class="pip"></span>Série</span></td>
+                <td><span class="badge badge-status-validated"><span class="dot"></span>Publié</span></td>
+                <td><span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted);">10 avr. 2026</span></td>
+                <td class="col-act">
+                  <div class="cell-act">
+                    <button class="icon-btn" title="Modifier"><svg viewBox="0 0 24 24"><path d="m4 20 4-1 12-12-3-3L5 16l-1 4z"/></svg></button>
+                    <button class="icon-btn danger" title="Dépublier"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="gestion-foot">
+          <span>10 sur 2 481 résultats</span>
+          <div class="pager">
+            <button type="button" aria-label="Page précédente">‹</button>
+            <button type="button" aria-current="page">1</button>
+            <button type="button">2</button>
+            <button type="button">3</button>
+            <button type="button">…</button>
+            <button type="button">249</button>
+            <button type="button" aria-label="Page suivante">›</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =============== MODALE REFUS =============== -->
+  <div class="modal-backdrop" id="refuseBackdrop" role="dialog" aria-modal="true" aria-labelledby="refuseTitle">
+    <div class="modal">
+      <header class="modal-head">
+        <h3 id="refuseTitle">Justifier le refus</h3>
+        <button class="modal-close" type="button" aria-label="Fermer" onclick="closeRefuseModal()">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18 18 6"/></svg>
+        </button>
+      </header>
+      <div class="modal-body">
+        <p>Un motif est obligatoire. Le contributeur recevra une notification expliquant le refus pour qu'il puisse améliorer ses prochaines suggestions.</p>
+        <div class="reason-grid" role="radiogroup">
+          <label><span class="dot"></span><input type="radio" name="reason" value="non-source" checked />Information non sourcée</label>
+          <label><span class="dot"></span><input type="radio" name="reason" value="doublon" />Doublon de fiche existante</label>
+          <label><span class="dot"></span><input type="radio" name="reason" value="erreur" />Erreur factuelle</label>
+          <label><span class="dot"></span><input type="radio" name="reason" value="hors-perimetre" />Hors périmètre du wiki</label>
+          <label><span class="dot"></span><input type="radio" name="reason" value="vandalisme" />Spam / vandalisme</label>
+          <label><span class="dot"></span><input type="radio" name="reason" value="autre" />Autre motif</label>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="refuseNote">Message au contributeur <span style="color:var(--ink-muted);font-weight:400">(optionnel mais apprécié)</span></label>
+          <textarea class="textarea" id="refuseNote" rows="3" placeholder="Ex : « Merci pour ta proposition ! Pourrais-tu citer la source de cette date de réédition ? »"></textarea>
+        </div>
+      </div>
+      <footer class="modal-foot">
+        <button class="btn btn-ghost" type="button" onclick="closeRefuseModal()">Annuler</button>
+        <button class="btn btn-danger" type="button" onclick="confirmRefuse()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M6 18 18 6"/></svg>
+          Refuser &amp; notifier
+        </button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- =============== TOAST =============== -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <span class="ic"></span>
+    <span class="msg">Suggestion validée.</span>
+  </div>
+
+  <script>
+    /* ---------- Mobile split tabs ---------- */
+    document.querySelectorAll('.split-tabs').forEach(group => {
+      group.querySelectorAll('button[data-split-tab]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.dataset.splitTab;
+          group.querySelectorAll('button').forEach(b => b.setAttribute('aria-selected', b === btn ? 'true' : 'false'));
+          const card = group.closest('.sugg-card');
+          card.querySelectorAll('.split-col').forEach(col => {
+            col.classList.toggle('is-active', col.dataset.splitCol === target);
+          });
+        });
+      });
+    });
+
+    /* ---------- Queue chip filter (visual only) ---------- */
+    document.querySelectorAll('.qfilter .qchip, .gestion-filters .qchip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const siblings = chip.parentElement.querySelectorAll('.qchip');
+        siblings.forEach(s => s.setAttribute('aria-pressed', s === chip ? 'true' : 'false'));
+      });
+    });
+
+    /* ---------- Modal ---------- */
+    const backdrop = document.getElementById('refuseBackdrop');
+    function openRefuseModal() {
+      backdrop.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeRefuseModal() {
+      backdrop.classList.remove('is-open');
+      document.body.style.overflow = '';
+    }
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) closeRefuseModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && backdrop.classList.contains('is-open')) closeRefuseModal();
+    });
+
+    /* ---------- Card actions ---------- */
+    const card = document.getElementById('suggCard');
+    const toast = document.getElementById('toast');
+    const queueList = document.getElementById('queueList');
+
+    function showToast(message, kind) {
+      toast.classList.remove('ok', 'no');
+      toast.classList.add(kind === 'no' ? 'no' : 'ok');
+      const icHtml = kind === 'no'
+        ? '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18 18 6"/></svg>'
+        : '<svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-11"/></svg>';
+      toast.querySelector('.ic').innerHTML = icHtml;
+      toast.querySelector('.msg').textContent = message;
+      toast.classList.add('is-visible');
+      clearTimeout(showToast.t);
+      showToast.t = setTimeout(() => toast.classList.remove('is-visible'), 2600);
+    }
+
+    function flyOut(direction, msg, kind) {
+      card.classList.add(direction === 'left' ? 'is-leaving-left' : 'is-leaving');
+      showToast(msg, kind);
+      // After the slide-out, advance queue
+      setTimeout(() => {
+        const current = queueList.querySelector('.qrow.is-current');
+        if (current) {
+          current.style.transition = 'opacity 200ms, max-height 320ms, padding 320ms';
+          current.style.opacity = '0';
+          current.style.maxHeight = '0';
+          current.style.padding = '0 var(--sp-4)';
+          current.style.overflow = 'hidden';
+          setTimeout(() => current.remove(), 320);
+        }
+        const next = queueList.querySelector('.qrow:not(.is-current)');
+        if (next) next.classList.add('is-current');
+        // Reset card for "next" suggestion (visual placeholder — we keep content for demo)
+        setTimeout(() => {
+          card.classList.remove('is-leaving', 'is-leaving-left');
+        }, 320);
+      }, 280);
+    }
+
+    function validateSuggestion() {
+      flyOut('right', 'Suggestion validée. Le scribe te remercie.', 'ok');
+    }
+    function skipSuggestion() {
+      showToast('Suggestion reportée en fin de file.', 'ok');
+    }
+    function confirmRefuse() {
+      closeRefuseModal();
+      flyOut('left', 'Refus envoyé. Le contributeur a été notifié.', 'no');
+    }
+
+    /* ---------- Keyboard shortcuts ---------- */
+    document.addEventListener('keydown', (e) => {
+      if (e.target.matches('input, textarea, [contenteditable]')) return;
+      if (backdrop.classList.contains('is-open')) return;
+      if (e.key === 'v' || e.key === 'V') { e.preventDefault(); validateSuggestion(); }
+      else if (e.key === 'r' || e.key === 'R') { e.preventDefault(); openRefuseModal(); }
+      else if (e.key === 's' || e.key === 'S') { e.preventDefault(); skipSuggestion(); }
+      else if (e.key === 'm' || e.key === 'M') { e.preventDefault(); alert('Éditeur complet — ouvrir le formulaire'); }
+    });
+  </script>
+
+</body>
+</html>

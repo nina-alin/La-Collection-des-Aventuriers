@@ -1,0 +1,27 @@
+app_login:
+    path: /connexion
+    methods: GET
+    controller: App\Controller\SecurityController::login
+
+app_logout:
+    path: /deconnexion
+    methods: POST
+
+app_register:
+    path: /inscription
+    methods: [GET, POST]
+    controller: App\Controller\RegistrationController::register
+
+app_oauth_google:
+    path: /auth/google
+    methods: GET
+    controller: App\Controller\OAuth2Controller::redirectToGoogle
+
+app_oauth_google_callback:
+    path: /auth/google/callback
+    methods: GET
+
+app_oauth_google_consent:
+    path: /auth/google/consent
+    methods: [GET, POST]
+    controller: App\Controller\OAuth2Controller::rgpdConsent

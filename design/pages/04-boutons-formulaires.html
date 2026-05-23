@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>04 · Boutons &amp; formulaires — La Collection des Aventuriers</title>
+  <link rel="stylesheet" href="../assets/tokens.css" />
+  <link rel="stylesheet" href="../assets/components.css" />
+  <style>
+    .states-grid {
+      display: grid;
+      grid-template-columns: 60px repeat(4, 1fr);
+      gap: var(--sp-3);
+      align-items: center;
+      margin: var(--sp-4) 0;
+    }
+    @media (max-width: 720px) {
+      .states-grid {
+        grid-template-columns: 1fr;
+        gap: var(--sp-2);
+      }
+      .states-grid .row-label { grid-column: 1 / -1; margin-top: var(--sp-3); }
+    }
+    .states-grid .col-header {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+      text-align: center;
+    }
+    .states-grid .row-label {
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+    }
+    .states-grid .cell { display: grid; place-items: center; }
+
+    .icon { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .icon-lg { width: 18px; height: 18px; }
+
+    .form-stack { max-width: 480px; }
+    .form-row { display: grid; gap: var(--sp-3); grid-template-columns: 1fr; }
+    @media (min-width: 640px) { .form-row { grid-template-columns: 1fr 1fr; } }
+
+    .anatomy {
+      display: grid;
+      gap: var(--sp-3);
+      grid-template-columns: 1fr;
+      margin: var(--sp-4) 0;
+    }
+    @media (min-width: 720px) { .anatomy { grid-template-columns: 1fr 1fr; } }
+    .anatomy-card {
+      padding: var(--sp-4);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      background: var(--bg-elevated);
+    }
+    .anatomy-card h4 {
+      font-family: var(--font-display);
+      font-size: var(--fs-md);
+      margin-bottom: var(--sp-2);
+      color: var(--ink-strong);
+    }
+    .anatomy-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: var(--fs-sm);
+      color: var(--ink-muted);
+    }
+    .anatomy-card ul li::before {
+      content: "→ ";
+      color: var(--brand-primary);
+      font-family: var(--font-mono);
+    }
+    .anatomy-card code { color: var(--ink-strong); }
+  </style>
+</head>
+<body>
+  <header class="ds-header">
+    <a class="ds-brand" href="../index.html">
+      <span class="ds-sigil">A</span>
+      <span class="ds-brand-text">
+        <span class="ds-brand-title">La Collection des Aventuriers</span>
+        <span class="ds-brand-sub">Design System · v0.1</span>
+      </span>
+    </a>
+    <div class="ds-header-actions">
+      <button class="ds-theme-toggle" data-theme-toggle aria-label="Basculer le thème">
+        <span data-theme-icon>☀</span>
+        <span data-theme-label>Parchemin</span>
+      </button>
+    </div>
+  </header>
+
+  <nav class="ds-nav-mobile" aria-label="Pages">
+    <a href="../index.html">Aperçu</a>
+    <a href="01-couleurs.html">Couleurs</a>
+    <a href="02-typographie.html">Typo</a>
+    <a href="03-tokens.html">Tokens</a>
+    <a href="04-boutons-formulaires.html">Boutons</a>
+    <a href="05-cards.html">Cards</a>
+    <a href="06-badges-notation.html">Badges</a>
+    <a href="07-navigation.html">Nav</a>
+    <a href="08-feedback.html">Feedback</a>
+  </nav>
+
+  <div class="ds-shell">
+    <aside class="ds-nav" aria-label="Navigation">
+      <div class="ds-nav-group">
+        <div class="ds-nav-label">Aperçu</div>
+        <a class="ds-nav-link" href="../index.html"><span class="ds-nav-num">00</span>Vue d'ensemble</a>
+      </div>
+      <div class="ds-nav-group">
+        <div class="ds-nav-label">Fondations</div>
+        <a class="ds-nav-link" href="01-couleurs.html"><span class="ds-nav-num">01</span>Couleurs</a>
+        <a class="ds-nav-link" href="02-typographie.html"><span class="ds-nav-num">02</span>Typographie</a>
+        <a class="ds-nav-link" href="03-tokens.html"><span class="ds-nav-num">03</span>Espacement &amp; effets</a>
+      </div>
+      <div class="ds-nav-group">
+        <div class="ds-nav-label">Composants</div>
+        <a class="ds-nav-link" href="04-boutons-formulaires.html"><span class="ds-nav-num">04</span>Boutons &amp; formulaires</a>
+        <a class="ds-nav-link" href="05-cards.html"><span class="ds-nav-num">05</span>Cards Livre &amp; Auteur</a>
+        <a class="ds-nav-link" href="06-badges-notation.html"><span class="ds-nav-num">06</span>Badges &amp; notation</a>
+        <a class="ds-nav-link" href="07-navigation.html"><span class="ds-nav-num">07</span>Navigation &amp; avatars</a>
+        <a class="ds-nav-link" href="08-feedback.html"><span class="ds-nav-num">08</span>Modale &amp; toast</a>
+      </div>
+    </aside>
+
+    <main class="ds-main">
+      <div class="ds-eyebrow">04 · Composants</div>
+      <h1 class="ds-page-title">Boutons &amp; formulaires</h1>
+      <p class="ds-lede">
+        Quatre variantes de bouton couvrant tous les cas d'usage, des champs de formulaire
+        prêts pour le système de suggestions, et un seuil de <strong>44 px de hit-target</strong>
+        garanti partout pour le confort du pouce.
+      </p>
+
+      <!-- =============== Boutons =============== -->
+      <section class="ds-section" id="boutons">
+        <div class="ds-section-head">
+          <span class="ds-section-num">4.1</span>
+          <h2>Boutons</h2>
+        </div>
+        <p class="ds-section-desc">
+          La hiérarchie est stricte : <strong>une seule action primaire</strong> par écran ou
+          par formulaire. La secondaire accompagne ; les ghosts servent à la navigation
+          tertiaire ; <em>danger</em> est réservé aux actions destructives confirmées.
+        </p>
+
+        <!-- Matrice états × variantes -->
+        <div class="ds-example">
+          <div class="ds-example-label">
+            <span>États · Idle / Hover / Active / Disabled</span>
+            <span>Variantes verticales</span>
+          </div>
+          <div class="ds-example-canvas column">
+            <div class="states-grid">
+              <div></div>
+              <div class="col-header">Idle</div>
+              <div class="col-header">Hover</div>
+              <div class="col-header">Active</div>
+              <div class="col-header">Disabled</div>
+
+              <div class="row-label">Primaire</div>
+              <div class="cell"><button class="btn btn-primary">Suggérer un livre</button></div>
+              <div class="cell"><button class="btn btn-primary" style="background:var(--brand-primary-hover);border-color:var(--brand-primary-hover);">Suggérer un livre</button></div>
+              <div class="cell"><button class="btn btn-primary" style="background:var(--brand-primary-active);border-color:var(--brand-primary-active);transform:translateY(1px);">Suggérer un livre</button></div>
+              <div class="cell"><button class="btn btn-primary" disabled>Suggérer un livre</button></div>
+
+              <div class="row-label">Secondaire</div>
+              <div class="cell"><button class="btn btn-secondary">Voir la fiche</button></div>
+              <div class="cell"><button class="btn btn-secondary" style="background:color-mix(in oklab, var(--brand-primary) 8%, transparent);">Voir la fiche</button></div>
+              <div class="cell"><button class="btn btn-secondary" style="background:color-mix(in oklab, var(--brand-primary) 14%, transparent);transform:translateY(1px);">Voir la fiche</button></div>
+              <div class="cell"><button class="btn btn-secondary" disabled>Voir la fiche</button></div>
+
+              <div class="row-label">Ghost</div>
+              <div class="cell"><button class="btn btn-ghost">Annuler</button></div>
+              <div class="cell"><button class="btn btn-ghost" style="background:var(--bg-sunken);">Annuler</button></div>
+              <div class="cell"><button class="btn btn-ghost" style="background:var(--bg-sunken);transform:translateY(1px);">Annuler</button></div>
+              <div class="cell"><button class="btn btn-ghost" disabled>Annuler</button></div>
+
+              <div class="row-label">Danger</div>
+              <div class="cell"><button class="btn btn-danger">Refuser</button></div>
+              <div class="cell"><button class="btn btn-danger" style="background:color-mix(in oklab, var(--danger) 88%, black);border-color:color-mix(in oklab, var(--danger) 88%, black);">Refuser</button></div>
+              <div class="cell"><button class="btn btn-danger" style="background:color-mix(in oklab, var(--danger) 78%, black);transform:translateY(1px);">Refuser</button></div>
+              <div class="cell"><button class="btn btn-danger" disabled>Refuser</button></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Focus & tailles -->
+        <div class="ds-example">
+          <div class="ds-example-label"><span>Focus &amp; tailles</span><span>Clavier-first</span></div>
+          <div class="ds-example-canvas">
+            <button class="btn btn-primary" style="box-shadow: var(--ring-focus);">Focus visible</button>
+            <button class="btn btn-secondary btn-sm">Petit</button>
+            <button class="btn btn-secondary">Standard</button>
+            <button class="btn btn-secondary btn-lg">Grand</button>
+            <button class="btn btn-primary btn-icon" aria-label="Suggérer"><svg class="icon icon-lg" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+            <button class="btn btn-secondary"><svg class="icon" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg> Avec icône</button>
+            <button class="btn btn-primary btn-block" style="max-width:280px">Bloc — pleine largeur (mobile)</button>
+          </div>
+        </div>
+
+        <!-- Code -->
+        <div class="ds-example">
+          <div class="ds-example-label"><span>HTML</span><span>Bootstrap-compatible</span></div>
+          <div class="ds-example-code">&lt;button class="btn btn-primary"&gt;Suggérer un livre&lt;/button&gt;
+&lt;button class="btn btn-secondary"&gt;Voir la fiche&lt;/button&gt;
+&lt;button class="btn btn-ghost"&gt;Annuler&lt;/button&gt;
+&lt;button class="btn btn-danger"&gt;Refuser&lt;/button&gt;
+
+&lt;!-- Tailles --&gt;
+&lt;button class="btn btn-primary btn-sm"&gt;Petit&lt;/button&gt;
+&lt;button class="btn btn-primary btn-lg"&gt;Grand&lt;/button&gt;
+&lt;button class="btn btn-primary btn-block"&gt;Bloc&lt;/button&gt;</div>
+        </div>
+
+        <div class="anatomy">
+          <div class="anatomy-card">
+            <h4>Anatomie</h4>
+            <ul>
+              <li>Hit target <code>min-height: 44px</code> (28px en <code>.btn-sm</code> pour usage dense desktop uniquement)</li>
+              <li>Padding horizontal <code>20px</code> · vertical <code>10px</code></li>
+              <li>Border radius <code>--radius-md</code> · police <code>Inter 600</code> · taille <code>14px</code></li>
+              <li>Icône <code>16×16 px</code>, gap <code>8px</code> avec le label</li>
+            </ul>
+          </div>
+          <div class="anatomy-card">
+            <h4>Effet visuel</h4>
+            <ul>
+              <li>Primaire&nbsp;: aplat cuir, léger inset shadow pour suggérer la pression</li>
+              <li>Hover&nbsp;: assombrissement de 8% — pas de scale, pas de glow</li>
+              <li>Active&nbsp;: translation 1px vers le bas (toucher)</li>
+              <li>Focus visible&nbsp;: anneau cuir 3px translucide, toujours visible au clavier</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- =============== Formulaires =============== -->
+      <section class="ds-section" id="formulaires">
+        <div class="ds-section-head">
+          <span class="ds-section-num">4.2</span>
+          <h2>Champs &amp; formulaires</h2>
+        </div>
+        <p class="ds-section-desc">
+          Le formulaire de suggestion est le cœur fonctionnel de la plateforme. Tous les
+          champs partagent la même hauteur (44 px) et le même rythme de label/help text.
+        </p>
+
+        <div class="ds-example">
+          <div class="ds-example-label"><span>États du champ texte</span><span>Idle · Hover · Focus · Disabled · Erreur</span></div>
+          <div class="ds-example-canvas column">
+            <div class="form-stack" style="display:grid;gap:var(--sp-4);">
+              <div class="form-group">
+                <label class="form-label">Titre du livre</label>
+                <input class="input" type="text" placeholder="Le Sorcier de la Montagne de Feu" />
+                <span class="form-help">État au repos</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Titre du livre</label>
+                <input class="input" type="text" placeholder="Survol" style="border-color:var(--border-strong);" />
+                <span class="form-help">Hover — bordure renforcée</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Titre du livre</label>
+                <input class="input" type="text" value="Le Sorcier de la Montagne de Feu" style="border-color:var(--brand-primary); box-shadow: var(--ring-focus);" />
+                <span class="form-help">Focus — ring cuir 3px</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Titre du livre</label>
+                <input class="input" type="text" value="Verrouillé pendant la modération" disabled />
+                <span class="form-help">Disabled — fond sunken, opacité 0.7</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">ISBN <span class="required">*</span></label>
+                <input class="input is-invalid" type="text" value="978-2-07" />
+                <span class="form-help error">L'ISBN doit comporter 13 chiffres.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulaire complet -->
+        <div class="ds-example">
+          <div class="ds-example-label"><span>Formulaire de suggestion (complet)</span><span>Mobile-first · 480 px max</span></div>
+          <div class="ds-example-canvas">
+            <form class="form-stack" onsubmit="event.preventDefault();" style="width:100%; max-width:480px;">
+              <div class="form-group">
+                <label class="form-label" for="ex-title">Titre <span class="required">*</span></label>
+                <input class="input" id="ex-title" type="text" placeholder="Ex. Le Sorcier de la Montagne de Feu" />
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="ex-author">Auteur·rice</label>
+                  <input class="input" id="ex-author" type="text" placeholder="Steve Jackson" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="ex-year">Année</label>
+                  <input class="input" id="ex-year" type="number" placeholder="1982" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="ex-type">Type d'ouvrage</label>
+                <select class="select" id="ex-type">
+                  <option>Livre dont vous êtes le héros</option>
+                  <option>Roman graphique à choix</option>
+                  <option>Visual novel papier</option>
+                  <option>Autre format interactif</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="ex-isbn">ISBN</label>
+                <input class="input" id="ex-isbn" type="text" placeholder="978-2-07-051234-5" />
+                <span class="form-help">Code à 13 chiffres, séparateurs optionnels.</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="ex-notes">Notes pour la modération</label>
+                <textarea class="textarea" id="ex-notes" placeholder="Détails, source, raison de la suggestion…"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Tags</label>
+                <div style="display:flex; flex-wrap:wrap; gap: var(--sp-3);">
+                  <label class="choice"><input type="checkbox" checked /><span>Fantasy</span></label>
+                  <label class="choice"><input type="checkbox" /><span>Science-fiction</span></label>
+                  <label class="choice"><input type="checkbox" checked /><span>Horreur</span></label>
+                  <label class="choice"><input type="checkbox" disabled /><span>Polar (à venir)</span></label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Disponibilité</label>
+                <div style="display:flex; flex-direction: column; gap: 2px;">
+                  <label class="choice"><input type="radio" name="dispo" checked /><span>En vente neuf</span></label>
+                  <label class="choice"><input type="radio" name="dispo" /><span>Disponible en occasion uniquement</span></label>
+                  <label class="choice"><input type="radio" name="dispo" /><span>Épuisé / Collector</span></label>
+                </div>
+              </div>
+
+              <label class="switch">
+                <input type="checkbox" checked />
+                <span class="track"></span>
+                <span>Me notifier de la décision de modération</span>
+              </label>
+
+              <div style="display:flex; gap: var(--sp-3); margin-top: var(--sp-3); flex-wrap: wrap;">
+                <button class="btn btn-primary" type="submit">Envoyer la suggestion</button>
+                <button class="btn btn-ghost" type="button">Brouillon</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- HTML snippet -->
+        <div class="ds-example">
+          <div class="ds-example-label"><span>HTML · champ + label + help</span><span>Pattern type</span></div>
+          <div class="ds-example-code">&lt;div class="form-group"&gt;
+  &lt;label class="form-label" for="isbn"&gt;
+    ISBN &lt;span class="required"&gt;*&lt;/span&gt;
+  &lt;/label&gt;
+  &lt;input class="input is-invalid" id="isbn" type="text" value="978-2-07" /&gt;
+  &lt;span class="form-help error"&gt;
+    L'ISBN doit comporter 13 chiffres.
+  &lt;/span&gt;
+&lt;/div&gt;</div>
+        </div>
+      </section>
+
+      <section class="ds-section" id="effet">
+        <div class="ds-section-head">
+          <span class="ds-section-num">4.3</span>
+          <h2>Effet visuel recherché</h2>
+        </div>
+        <p class="ds-section-desc">
+          Les boutons et inputs doivent paraître <strong>solides et tactiles</strong>,
+          comme des pièces de jeu posées sur le parchemin. Pas de glassmorphism, pas de
+          glow néon, pas de gradient appuyé. Le focus est <em>fonctionnel</em> avant
+          d'être décoratif&nbsp;: l'anneau cuir doit toujours être visible au clavier.
+        </p>
+      </section>
+
+      <nav class="ds-pager">
+        <a class="prev" href="03-tokens.html">
+          <span class="ds-pager-eyebrow">← Précédent</span>
+          <span class="ds-pager-title">03 · Espacement &amp; effets</span>
+        </a>
+        <a class="next" href="05-cards.html">
+          <span class="ds-pager-eyebrow">Suivant →</span>
+          <span class="ds-pager-title">05 · Cards Livre &amp; Auteur</span>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/shell.js"></script>
+</body>
+</html>

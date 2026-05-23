@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>01 · Couleurs — La Collection des Aventuriers</title>
+  <link rel="stylesheet" href="../assets/tokens.css" />
+  <style>
+    /* --- Palette scale --- */
+    .palette {
+      display: grid;
+      gap: var(--sp-3);
+      grid-template-columns: 1fr;
+      margin: var(--sp-4) 0 var(--sp-6);
+    }
+    .palette-head {
+      display: flex;
+      align-items: baseline;
+      gap: var(--sp-3);
+      margin-bottom: var(--sp-2);
+    }
+    .palette-name {
+      font-family: var(--font-display);
+      font-size: var(--fs-xl);
+      font-weight: 600;
+      letter-spacing: var(--tracking-display);
+      color: var(--ink-strong);
+    }
+    .palette-role {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+      padding: 3px 8px;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill);
+    }
+    .palette-desc {
+      color: var(--ink-muted);
+      font-size: var(--fs-sm);
+      margin: 0 0 var(--sp-3);
+      max-width: 60ch;
+    }
+    .scale {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    @media (min-width: 720px) { .scale { grid-template-columns: repeat(10, 1fr); } }
+    .swatch {
+      aspect-ratio: 1;
+      padding: 8px 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: transform var(--motion-fast) var(--motion-ease);
+      position: relative;
+    }
+    .swatch:hover { transform: scale(1.04); z-index: 2; box-shadow: var(--shadow-md); }
+    .swatch-step { font-weight: 600; }
+    .swatch-hex { opacity: 0.78; text-transform: uppercase; }
+    .swatch.dim { color: rgba(255,255,255,0.85); }
+    .swatch.light { color: rgba(45,24,16,0.85); }
+    .swatch.is-base::after {
+      content: "●";
+      position: absolute;
+      top: 6px; right: 8px;
+      font-size: 10px;
+      opacity: 0.7;
+    }
+
+    /* Semantic tokens grid */
+    .sem-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--sp-3);
+    }
+    @media (min-width: 720px) { .sem-grid { grid-template-columns: 1fr 1fr; } }
+    .sem-card {
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      background: var(--bg-elevated);
+      overflow: hidden;
+    }
+    .sem-strip {
+      height: 56px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .sem-strip span { display: grid; place-items: center; font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps); }
+    .sem-body { padding: var(--sp-4); }
+    .sem-title { font-family: var(--font-display); font-size: var(--fs-lg); margin-bottom: 4px; color: var(--ink-strong); }
+    .sem-tokens { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-muted); display: flex; flex-direction: column; gap: 2px; }
+
+    /* Surface preview */
+    .surface-stack {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--sp-2);
+    }
+    @media (min-width: 640px) { .surface-stack { grid-template-columns: 1fr 1fr 1fr; } }
+    .surface {
+      border-radius: var(--radius-md);
+      padding: var(--sp-5);
+      border: 1px solid var(--border-default);
+      min-height: 120px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .surface b { display: block; font-family: var(--font-display); font-size: var(--fs-md); color: var(--ink-strong); margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+  <header class="ds-header">
+    <a class="ds-brand" href="../index.html">
+      <span class="ds-sigil">A</span>
+      <span class="ds-brand-text">
+        <span class="ds-brand-title">La Collection des Aventuriers</span>
+        <span class="ds-brand-sub">Design System · v0.1</span>
+      </span>
+    </a>
+    <div class="ds-header-actions">
+      <button class="ds-theme-toggle" data-theme-toggle aria-label="Basculer le thème">
+        <span data-theme-icon>☀</span>
+        <span data-theme-label>Parchemin</span>
+      </button>
+    </div>
+  </header>
+
+  <nav class="ds-nav-mobile" aria-label="Pages">
+    <a href="../index.html">Aperçu</a>
+    <a href="01-couleurs.html">Couleurs</a>
+    <a href="02-typographie.html">Typo</a>
+    <a href="03-tokens.html">Tokens</a>
+    <a href="04-boutons-formulaires.html">Boutons</a>
+    <a href="05-cards.html">Cards</a>
+    <a href="06-badges-notation.html">Badges</a>
+    <a href="07-navigation.html">Nav</a>
+    <a href="08-feedback.html">Feedback</a>
+  </nav>
+
+  <div class="ds-shell">
+    <aside class="ds-nav" aria-label="Navigation">
+      <div class="ds-nav-group">
+        <div class="ds-nav-label">Aperçu</div>
+        <a class="ds-nav-link" href="../index.html"><span class="ds-nav-num">00</span>Vue d'ensemble</a>
+      </div>
+      <div class="ds-nav-group">
+        <div class="ds-nav-label">Fondations</div>
+        <a class="ds-nav-link" href="01-couleurs.html"><span class="ds-nav-num">01</span>Couleurs</a>
+        <a class="ds-nav-link" href="02-typographie.html"><span class="ds-nav-num">02</span>Typographie</a>
+        <a class="ds-nav-link" href="03-tokens.html"><span class="ds-nav-num">03</span>Espacement &amp; effets</a>
+      </div>
+      <div class="ds-nav-group">
+        <div class="ds-nav-label">Composants</div>
+        <a class="ds-nav-link" href="04-boutons-formulaires.html"><span class="ds-nav-num">04</span>Boutons &amp; formulaires</a>
+        <a class="ds-nav-link" href="05-cards.html"><span class="ds-nav-num">05</span>Cards Livre &amp; Auteur</a>
+        <a class="ds-nav-link" href="06-badges-notation.html"><span class="ds-nav-num">06</span>Badges &amp; notation</a>
+        <a class="ds-nav-link" href="07-navigation.html"><span class="ds-nav-num">07</span>Navigation &amp; avatars</a>
+        <a class="ds-nav-link" href="08-feedback.html"><span class="ds-nav-num">08</span>Modale &amp; toast</a>
+      </div>
+    </aside>
+
+    <main class="ds-main">
+      <div class="ds-eyebrow">01 · Fondations</div>
+      <h1 class="ds-page-title">Couleurs &amp; lumière</h1>
+      <p class="ds-lede">
+        Deux thèmes à parité — <em>Parchemin</em> (clair, chaud) et <em>Grimoire</em> (sombre, profond) —
+        construits à partir de huit palettes brutes en dix paliers chacune. Les composants ne réfèrent
+        jamais une teinte par son palier ; ils consomment des <strong>tokens sémantiques</strong>
+        (<code>--brand-primary</code>, <code>--ink-strong</code>…) dont le mapping change selon le thème.
+      </p>
+
+      <!-- =============== 1. Palettes brutes =============== -->
+      <section class="ds-section" id="palettes">
+        <div class="ds-section-head">
+          <span class="ds-section-num">1.1</span>
+          <h2>Palettes brutes</h2>
+        </div>
+        <p class="ds-section-desc">
+          Survolez une teinte pour la mettre en avant. Le palier <strong>●</strong> est la couleur
+          "base" de la teinte — celle que vous citerez sans suffixe.
+        </p>
+
+        <!-- Parchemin -->
+        <div class="palette">
+          <div class="palette-head">
+            <span class="palette-name">Parchemin</span>
+            <span class="palette-role">Surface · base claire</span>
+          </div>
+          <p class="palette-desc">Hiérarchie chaude pour les fonds, les bordures et l'encre du mode clair. Saturation faible, chroma stable.</p>
+          <div class="scale">
+            <div class="swatch light" style="background:var(--parchemin-50)"><span class="swatch-step">50</span><span class="swatch-hex">#fbf6e9</span></div>
+            <div class="swatch light is-base" style="background:var(--parchemin-100)"><span class="swatch-step">100</span><span class="swatch-hex">#f5ecd9</span></div>
+            <div class="swatch light" style="background:var(--parchemin-200)"><span class="swatch-step">200</span><span class="swatch-hex">#ede1c5</span></div>
+            <div class="swatch light" style="background:var(--parchemin-300)"><span class="swatch-step">300</span><span class="swatch-hex">#d9c9a7</span></div>
+            <div class="swatch light" style="background:var(--parchemin-400)"><span class="swatch-step">400</span><span class="swatch-hex">#b8a172</span></div>
+            <div class="swatch dim" style="background:var(--parchemin-500)"><span class="swatch-step">500</span><span class="swatch-hex">#8a7558</span></div>
+            <div class="swatch dim" style="background:var(--parchemin-600)"><span class="swatch-step">600</span><span class="swatch-hex">#5a4632</span></div>
+            <div class="swatch dim" style="background:var(--parchemin-700)"><span class="swatch-step">700</span><span class="swatch-hex">#3d2e1f</span></div>
+            <div class="swatch dim" style="background:var(--parchemin-800)"><span class="swatch-step">800</span><span class="swatch-hex">#2d1810</span></div>
+            <div class="swatch dim" style="background:var(--parchemin-900)"><span class="swatch-step">900</span><span class="swatch-hex">#1a0e08</span></div>
+          </div>
+        </div>
+
+        <!-- Cuir -->
+        <div class="palette">
+          <div class="palette-head">
+            <span class="palette-name">Cuir</span>
+            <span class="palette-role">Brand · accent primaire</span>
+          </div>
+          <p class="palette-desc">Boutons primaires, liens actifs, focus rings. Évoque la reliure de cuir d'un livre ancien.</p>
+          <div class="scale">
+            <div class="swatch light" style="background:var(--cuir-50)"><span class="swatch-step">50</span><span class="swatch-hex">#faf3eb</span></div>
+            <div class="swatch light" style="background:var(--cuir-100)"><span class="swatch-step">100</span><span class="swatch-hex">#f0dcc1</span></div>
+            <div class="swatch light" style="background:var(--cuir-200)"><span class="swatch-step">200</span><span class="swatch-hex">#e0b88a</span></div>
+            <div class="swatch light" style="background:var(--cuir-300)"><span class="swatch-step">300</span><span class="swatch-hex">#c79460</span></div>
+            <div class="swatch dim" style="background:var(--cuir-400)"><span class="swatch-step">400</span><span class="swatch-hex">#a86b3a</span></div>
+            <div class="swatch dim is-base" style="background:var(--cuir-500)"><span class="swatch-step">500</span><span class="swatch-hex">#8b4513</span></div>
+            <div class="swatch dim" style="background:var(--cuir-600)"><span class="swatch-step">600</span><span class="swatch-hex">#6e360e</span></div>
+            <div class="swatch dim" style="background:var(--cuir-700)"><span class="swatch-step">700</span><span class="swatch-hex">#52280a</span></div>
+            <div class="swatch dim" style="background:var(--cuir-800)"><span class="swatch-step">800</span><span class="swatch-hex">#371a06</span></div>
+            <div class="swatch dim" style="background:var(--cuir-900)"><span class="swatch-step">900</span><span class="swatch-hex">#1f0e03</span></div>
+          </div>
+        </div>
+
+        <!-- Or -->
+        <div class="palette">
+          <div class="palette-head">
+            <span class="palette-name">Or</span>
+            <span class="palette-role">Brand · accent secondaire</span>
+          </div>
+          <p class="palette-desc">Étoiles, sceaux, ornements, highlight. À utiliser avec parcimonie pour les moments précieux.</p>
+          <div class="scale">
+            <div class="swatch light" style="background:var(--or-50)"><span class="swatch-step">50</span><span class="swatch-hex">#fdf8e7</span></div>
+            <div class="swatch light" style="background:var(--or-100)"><span class="swatch-step">100</span><span class="swatch-hex">#f7ebbb</span></div>
+            <div class="swatch light" style="background:var(--or-200)"><span class="swatch-step">200</span><span class="swatch-hex">#efd682</span></div>
+            <div class="swatch light" style="background:var(--or-300)"><span class="swatch-step">300</span><span class="swatch-hex">#e5be50</span></div>
+            <div class="swatch light" style="background:var(--or-400)"><span class="swatch-step">400</span><span class="swatch-hex">#d2a328</span></div>
+            <div class="swatch dim is-base" style="background:var(--or-500)"><span class="swatch-step">500</span><span class="swatch-hex">#b8860b</span></div>
+            <div class="swatch dim" style="background:var(--or-600)"><span class="swatch-step">600</span><span class="swatch-hex">#95690a</span></div>
+            <div class="swatch dim" style="background:var(--or-700)"><span class="swatch-step">700</span><span class="swatch-hex">#714e08</span></div>
+            <div class="swatch dim" style="background:var(--or-800)"><span class="swatch-step">800</span><span class="swatch-hex">#4d3506</span></div>
+            <div class="swatch dim" style="background:var(--or-900)"><span class="swatch-step">900</span><span class="swatch-hex">#2a1d03</span></div>
+          </div>
+        </div>
+
+        <!-- Sémantique compactes -->
+        <div class="palette">
+          <div class="palette-head">
+            <span class="palette-name">Mousse</span>
+            <span class="palette-role">Sémantique · succès / validée</span>
+          </div>
+          <div class="scale">
+            <div class="swatch light" style="background:var(--mousse-50)"><span class="swatch-step">50</span><span class="swatch-hex">#eef3e6</span></div>
+            <div class="swatch light" style="background:var(--mousse-100)"><span class="swatch-step">100</span><span class="swatch-hex">#d4e0bd</span></div>
+            <div class="swatch light" style="background:var(--mousse-300)"><span class="swatch-step">300</span><span class="swatch-hex">#8fa86a</span></div>
+            <div class="swatch dim is-base" style="background:var(--mousse-500)"><span class="swatch-step">500</span><span class="swatch-hex">#5b7c3a</span></div>
+            <div class="swatch dim" style="background:var(--mousse-700)"><span class="swatch-step">700</span><span class="swatch-hex">#3b5424</span></div>
+            <div class="swatch dim" style="background:var(--mousse-900)"><span class="swatch-step">900</span><span class="swatch-hex">#1e2c11</span></div>
+          </div>
+        </div>
+
+        <div class="palette">
+          <div class="palette-head">
+            <span class="palette-name">Ambre</span>
+            <span class="palette-role">Sémantique · attente / warning</span>
+          </div>
+          <div class="scale">
+            <div class="swatch light" style="background:var(--ambre-50)"><span class="swatch-step">50</span><span class="swatch-hex">#fdf5e3</span></div>
+            <div class="swatch light" style="background:var(--ambre-100)"><span class="swatch-step">100</span><span class="swatch-hex">#f6e2af</span></div>
+            <div class="swatch light" style="background:var(--ambre-300)"><span class="swatch-step">300</span><span class="swatch-hex">#dbb15c</span></div>
+            <div class="swatch dim is-base" style="background:var(--ambre-500)"><span class="swatch-step">500</span><span class="swatch-hex">#c08a2e</span></div>
+            <div class="swatch dim" style="background:var(--ambre-700)"><span class="swatch-step">700</span><span class="swatch-hex">#855d1a</span></div>
+            <div class="swatch dim" style="background:var(--ambre-900)"><span class="swatch-step">900</span><span class="swatch-hex">#43300d</span></div>
+          </div>
+        </div>
+
+        <div class="palette">
+          <div class="palette-head">
+            <span class="palette-name">Sang</span>
+            <span class="palette-role">Sémantique · danger / refusée</span>
+          </div>
+          <div class="scale">
+            <div class="swatch light" style="background:var(--sang-50)"><span class="swatch-step">50</span><span class="swatch-hex">#f9e9e5</span></div>
+            <div class="swatch light" style="background:var(--sang-100)"><span class="swatch-step">100</span><span class="swatch-hex">#edc4ba</span></div>
+            <div class="swatch dim" style="background:var(--sang-300)"><span class="swatch-step">300</span><span class="swatch-hex">#c97a68</span></div>
+            <div class="swatch dim is-base" style="background:var(--sang-500)"><span class="swatch-step">500</span><span class="swatch-hex">#9a3a2a</span></div>
+            <div class="swatch dim" style="background:var(--sang-700)"><span class="swatch-step">700</span><span class="swatch-hex">#6b271b</span></div>
+            <div class="swatch dim" style="background:var(--sang-900)"><span class="swatch-step">900</span><span class="swatch-hex">#36120c</span></div>
+          </div>
+        </div>
+
+        <div class="palette">
+          <div class="palette-head">
+            <span class="palette-name">Encre</span>
+            <span class="palette-role">Sémantique · info / modérateur</span>
+          </div>
+          <div class="scale">
+            <div class="swatch light" style="background:var(--encre-50)"><span class="swatch-step">50</span><span class="swatch-hex">#e8eef3</span></div>
+            <div class="swatch light" style="background:var(--encre-100)"><span class="swatch-step">100</span><span class="swatch-hex">#becfdd</span></div>
+            <div class="swatch dim" style="background:var(--encre-300)"><span class="swatch-step">300</span><span class="swatch-hex">#6e90ad</span></div>
+            <div class="swatch dim is-base" style="background:var(--encre-500)"><span class="swatch-step">500</span><span class="swatch-hex">#3a5a7c</span></div>
+            <div class="swatch dim" style="background:var(--encre-700)"><span class="swatch-step">700</span><span class="swatch-hex">#243e58</span></div>
+            <div class="swatch dim" style="background:var(--encre-900)"><span class="swatch-step">900</span><span class="swatch-hex">#11202f</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =============== 2. Tokens sémantiques =============== -->
+      <section class="ds-section" id="semantique">
+        <div class="ds-section-head">
+          <span class="ds-section-num">1.2</span>
+          <h2>Tokens sémantiques</h2>
+        </div>
+        <p class="ds-section-desc">
+          Ce sont eux que consomment les composants. Le mapping <em>Parchemin → Grimoire</em>
+          change automatiquement avec l'attribut <code>data-theme</code> sur <code>&lt;html&gt;</code>.
+          Basculez le thème en haut à droite pour le voir vivre.
+        </p>
+
+        <h3 style="margin: var(--sp-5) 0 var(--sp-3); font-size: var(--fs-md); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--ink-muted);">Surfaces</h3>
+        <div class="surface-stack">
+          <div class="surface" style="background:var(--bg-page); border-color:var(--border-default); color:var(--ink-default);">
+            <b>--bg-page</b>
+            <span>Fond principal de la page.</span>
+          </div>
+          <div class="surface" style="background:var(--bg-elevated); border-color:var(--border-default); color:var(--ink-default);">
+            <b>--bg-elevated</b>
+            <span>Cards, modales, panneaux flottants.</span>
+          </div>
+          <div class="surface" style="background:var(--bg-sunken); border-color:var(--border-default); color:var(--ink-default);">
+            <b>--bg-sunken</b>
+            <span>Champs, contenu enchâssé, code.</span>
+          </div>
+        </div>
+
+        <h3 style="margin: var(--sp-6) 0 var(--sp-3); font-size: var(--fs-md); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--ink-muted);">Sémantique d'état</h3>
+        <div class="sem-grid">
+          <div class="sem-card">
+            <div class="sem-strip">
+              <span style="background:var(--success-bg); color:var(--success)">BG</span>
+              <span style="background:var(--success-border); color:var(--success)">BORD</span>
+              <span style="background:var(--success); color:#fff">SOLID</span>
+            </div>
+            <div class="sem-body">
+              <div class="sem-title">Succès · Validée</div>
+              <div class="sem-tokens">
+                <span>--success</span>
+                <span>--success-bg</span>
+                <span>--success-border</span>
+              </div>
+            </div>
+          </div>
+          <div class="sem-card">
+            <div class="sem-strip">
+              <span style="background:var(--warning-bg); color:var(--warning)">BG</span>
+              <span style="background:var(--warning-border); color:var(--warning)">BORD</span>
+              <span style="background:var(--warning); color:#fff">SOLID</span>
+            </div>
+            <div class="sem-body">
+              <div class="sem-title">Attente · En cours</div>
+              <div class="sem-tokens">
+                <span>--warning</span>
+                <span>--warning-bg</span>
+                <span>--warning-border</span>
+              </div>
+            </div>
+          </div>
+          <div class="sem-card">
+            <div class="sem-strip">
+              <span style="background:var(--danger-bg); color:var(--danger)">BG</span>
+              <span style="background:var(--danger-border); color:var(--danger)">BORD</span>
+              <span style="background:var(--danger); color:#fff">SOLID</span>
+            </div>
+            <div class="sem-body">
+              <div class="sem-title">Danger · Refusée</div>
+              <div class="sem-tokens">
+                <span>--danger</span>
+                <span>--danger-bg</span>
+                <span>--danger-border</span>
+              </div>
+            </div>
+          </div>
+          <div class="sem-card">
+            <div class="sem-strip">
+              <span style="background:var(--info-bg); color:var(--info)">BG</span>
+              <span style="background:var(--info-border); color:var(--info)">BORD</span>
+              <span style="background:var(--info); color:#fff">SOLID</span>
+            </div>
+            <div class="sem-body">
+              <div class="sem-title">Info · Modérateur</div>
+              <div class="sem-tokens">
+                <span>--info</span>
+                <span>--info-bg</span>
+                <span>--info-border</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =============== 3. Variables Bootstrap =============== -->
+      <section class="ds-section" id="bootstrap">
+        <div class="ds-section-head">
+          <span class="ds-section-num">1.3</span>
+          <h2>Variables Bootstrap &amp; CSS</h2>
+        </div>
+        <p class="ds-section-desc">
+          Voici le mapping prêt à coller dans <code>_variables.scss</code> (avant l'import Bootstrap)
+          et dans une feuille <code>:root</code> partagée.
+        </p>
+
+        <div class="ds-example">
+          <div class="ds-example-label">
+            <span>SCSS · _variables.scss</span>
+            <span>Bootstrap 5.3+</span>
+          </div>
+          <div class="ds-example-code">// === Brand
+$primary:   #8b4513; // cuir-500
+$secondary: #b8860b; // or-500
+$success:   #5b7c3a; // mousse-500
+$warning:   #c08a2e; // ambre-500
+$danger:    #9a3a2a; // sang-500
+$info:      #3a5a7c; // encre-500
+
+// === Surfaces (light)
+$body-bg:           #f5ecd9; // parchemin-100
+$body-color:        #2d1810; // parchemin-800
+$body-secondary-bg: #ede1c5; // parchemin-200
+$body-tertiary-bg:  #fbf6e9; // parchemin-50
+
+// === Surfaces (dark)
+$body-bg-dark:           #1a120b; // grimoire-300
+$body-color-dark:        #f5ecd9; // parchemin-100
+$body-secondary-bg-dark: #241910; // grimoire-100
+$body-tertiary-bg-dark:  #2d1f12; // grimoire-50
+
+// === Typo
+$font-family-sans-serif: "Inter", system-ui, -apple-system, sans-serif;
+$font-family-monospace:  "IBM Plex Mono", monospace;
+$headings-font-family:   "Cinzel", serif;
+$headings-font-weight:   600;
+$headings-letter-spacing: 0.04em;
+
+// === Border &amp; shape
+$border-radius:    .5rem;   // 8
+$border-radius-sm: .25rem;  // 4
+$border-radius-lg: .75rem;  // 12
+$border-color:     #d9c9a7; // parchemin-300
+
+// === Focus
+$focus-ring-color: rgba(139, 69, 19, .30);
+$focus-ring-width: .1875rem; // 3px</div>
+        </div>
+
+        <div class="ds-example">
+          <div class="ds-example-label">
+            <span>CSS · :root tokens</span>
+            <span>Source de vérité</span>
+          </div>
+          <div class="ds-example-code">:root {
+  /* Brand */
+  --brand-primary:   #8b4513;
+  --brand-secondary: #b8860b;
+
+  /* Sémantique */
+  --success: #5b7c3a;
+  --warning: #c08a2e;
+  --danger:  #9a3a2a;
+  --info:    #3a5a7c;
+
+  /* Surfaces (light) */
+  --bg-page:     #f5ecd9;
+  --bg-elevated: #fbf6e9;
+  --bg-sunken:   #ede1c5;
+  --ink-strong:  #1a0e08;
+  --ink-default: #2d1810;
+  --ink-muted:   #5a4632;
+}
+[data-theme="dark"] {
+  --bg-page:     #1a120b;
+  --bg-elevated: #241910;
+  --bg-sunken:   #140d07;
+  --ink-strong:  #f5ecd9;
+  --ink-default: #e6d6b3;
+  --ink-muted:   #b8a172;
+  --brand-primary: #a86b3a; /* cuir-400 — accessible sur fond sombre */
+}</div>
+        </div>
+      </section>
+
+      <!-- =============== 4. Effet visuel =============== -->
+      <section class="ds-section" id="effet">
+        <div class="ds-section-head">
+          <span class="ds-section-num">1.4</span>
+          <h2>Effet visuel recherché</h2>
+        </div>
+        <p class="ds-section-desc">
+          En clair, l'œil doit recevoir une <strong>chaleur de papier ancien</strong> :
+          aucun gris désaturé, aucun blanc pur. En sombre, l'écran doit évoquer un
+          <strong>cuir tanné à la lueur d'une bougie</strong> : profond mais jamais noir absolu, avec
+          juste assez de chaleur dans l'encre pour ne pas paraître froid. Les accents
+          <em>Cuir</em> et <em>Or</em> portent l'identité ; les sémantiques restent
+          discrètes — leur saturation est volontairement basse pour ne jamais paraître
+          "alerte web 2.0".
+        </p>
+      </section>
+
+      <nav class="ds-pager">
+        <a class="prev" href="../index.html">
+          <span class="ds-pager-eyebrow">← Précédent</span>
+          <span class="ds-pager-title">Vue d'ensemble</span>
+        </a>
+        <a class="next" href="02-typographie.html">
+          <span class="ds-pager-eyebrow">Suivant →</span>
+          <span class="ds-pager-title">02 · Typographie</span>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/shell.js"></script>
+</body>
+</html>
