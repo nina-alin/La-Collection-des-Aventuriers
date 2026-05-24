@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Event\LoginFailureEvent;
 use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
@@ -80,7 +81,8 @@ class AuthenticationEventSubscriber implements EventSubscriberInterface
     {
         $ip = $event->getRequest()->getClientIp() ?? 'unknown';
         $passport = $event->getPassport();
-        $identifier = $passport?->getUser()?->getUserIdentifier() ?? 'unknown';
+        $badge = $passport?->getBadge(UserBadge::class);
+        $identifier = $badge?->getUserIdentifier() ?? 'unknown';
 
         $this->securityLogger->warning('Login failure', [
             'email' => $identifier,

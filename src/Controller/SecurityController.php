@@ -17,7 +17,7 @@ class SecurityController extends AbstractController
     ) {
     }
 
-    #[Route('/connexion', name: 'app_login', methods: ['GET'])]
+    #[Route('/connexion', name: 'app_login', methods: ['GET', 'POST'])]
     public function login(Request $request): Response
     {
         $ip = $request->getClientIp() ?? '0.0.0.0';

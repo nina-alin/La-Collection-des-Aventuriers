@@ -78,4 +78,31 @@ class UserTest extends TestCase
         $user2 = new User();
         $this->assertNotSame((string) $user1->getId(), (string) $user2->getId());
     }
+
+    public function testStatusDefaultsToActive(): void
+    {
+        $user = new User();
+        $this->assertSame('active', $user->getStatus());
+    }
+
+    public function testSetStatusStoresBanned(): void
+    {
+        $user = new User();
+        $user->setStatus('banned');
+        $this->assertSame('banned', $user->getStatus());
+    }
+
+    public function testDeletedAtIsNullByDefault(): void
+    {
+        $user = new User();
+        $this->assertNull($user->getDeletedAt());
+    }
+
+    public function testSetDeletedAtStoresValue(): void
+    {
+        $user = new User();
+        $dt = new \DateTimeImmutable('2026-01-01');
+        $user->setDeletedAt($dt);
+        $this->assertSame($dt, $user->getDeletedAt());
+    }
 }

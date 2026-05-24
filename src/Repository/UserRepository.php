@@ -6,6 +6,7 @@ use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -23,9 +24,11 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
         $user = $this->findOneByEmail($identifier);
 
         if ($user === null) {
-            throw new \Symfony\Component\Security\Core\Exception\UserNotFoundException(
-                sprintf('User "%s" not found.', $identifier)
-            );
+            throw new UserNotFoundException(sprintf('User "%s" not found.', $identifier));
+        }
+
+        if ($user->getDeletedAt() !== null) {
+            throw new UserNotFoundException(sprintf('User "%s" not found.', $identifier));
         }
 
         return $user;
@@ -54,5 +57,31 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
     public function isPseudoTaken(string $pseudo): bool
     {
         return $this->findOneByPseudo($pseudo) !== null;
+    }
+
+    public function countActiveAdministrators(): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT COUNT(*) FROM "user" WHERE status = \'active\' AND deleted_at IS NULL AND roles::jsonb @> \'["ROLE_ADMIN"]\'::jsonb';
+
+        return (int) $conn->fetchOne($sql);
+    }
+
+    public function countAccountsWithModerationCapability(): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT COUNT(*) FROM "user" WHERE status = \'active\' AND deleted_at IS NULL AND (roles::jsonb @> \'["ROLE_ADMIN"]\'::jsonb OR roles::jsonb @> \'["ROLE_MODERATOR"]\'::jsonb)';
+
+        return (int) $conn->fetchOne($sql);
+    }
+
+    /** @return User[] */
+    public function findAllNonDeleted(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->where('u.deletedAt IS NULL')
+            ->orderBy('u.createdAt', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 }

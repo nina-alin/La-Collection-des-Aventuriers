@@ -5,3 +5,12 @@ framework:
             limit: 5
             interval: '3600 seconds'
             cache_pool: cache.app.dbal
+
+when@test:
+    framework:
+        rate_limiter:
+            registration_limiter:
+                policy: sliding_window
+                limit: 10000
+                interval: '1 seconds'
+                cache_pool: cache.app
