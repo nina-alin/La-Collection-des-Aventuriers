@@ -1,5 +1,5 @@
 <div {{ stimulus_controller('toast', {autoDismissMs: autoDismissMs}) }}
-     class="toast {{ cssClass }}"
+     class="toast {{ cssClass|default('toast--' ~ type) }}"
      {{ type in ['error', 'warning'] ? 'role="alert"' : 'role="status"' }}>
     <button class="toast-close"
             {{ stimulus_action('toast', 'close') }}

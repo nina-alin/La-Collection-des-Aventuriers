@@ -11,11 +11,11 @@ class RegistrationControllerTest extends WebTestCase
 {
     protected function tearDown(): void
     {
-        parent::tearDown();
-
         $container = static::getContainer();
         $em = $container->get(EntityManagerInterface::class);
         $em->createQuery('DELETE FROM App\Entity\User u')->execute();
+
+        parent::tearDown();
     }
 
     public function testGetRegisterReturns200(): void

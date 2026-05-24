@@ -94,7 +94,7 @@ class GoogleAuthenticator extends OAuth2Authenticator
         $this->subscriber->logOAuth2Event('success', $token->getUserIdentifier());
 
         $targetPath = $request->getSession()->get('_security.'.$firewallName.'.target_path');
-        if ($targetPath) {
+        if ($targetPath && !str_contains($targetPath, '/auth/google/callback')) {
             return new RedirectResponse($targetPath);
         }
 

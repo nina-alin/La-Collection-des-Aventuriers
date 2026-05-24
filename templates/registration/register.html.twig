@@ -36,17 +36,17 @@
 
             <div class="form-group">
                 {{ form_label(registrationForm.plainPassword.first, 'Mot de passe', {label_attr: {class: 'form-label'}}) }}
-                {{ form_widget(registrationForm.plainPassword.first, {attr: {class: 'input' ~ (registrationForm.plainPassword.vars.errors|length ? ' is-invalid' : '')}}) }}
+                {{ form_widget(registrationForm.plainPassword.first, {attr: {class: 'input' ~ (registrationForm.plainPassword.first.vars.errors|length ? ' is-invalid' : '')}}) }}
+                {% if registrationForm.plainPassword.first.vars.errors|length %}
+                    {% for error in registrationForm.plainPassword.first.vars.errors %}
+                        <p class="form-help error">{{ error.message }}</p>
+                    {% endfor %}
+                {% endif %}
             </div>
 
             <div class="form-group">
                 {{ form_label(registrationForm.plainPassword.second, 'Confirmer le mot de passe', {label_attr: {class: 'form-label'}}) }}
-                {{ form_widget(registrationForm.plainPassword.second, {attr: {class: 'input' ~ (registrationForm.plainPassword.vars.errors|length ? ' is-invalid' : '')}}) }}
-                {% if registrationForm.plainPassword.vars.errors|length %}
-                    {% for error in registrationForm.plainPassword.vars.errors %}
-                        <p class="form-help error">{{ error.message }}</p>
-                    {% endfor %}
-                {% endif %}
+                {{ form_widget(registrationForm.plainPassword.second, {attr: {class: 'input' ~ (registrationForm.plainPassword.first.vars.errors|length ? ' is-invalid' : '')}}) }}
             </div>
 
             <div class="form-group">

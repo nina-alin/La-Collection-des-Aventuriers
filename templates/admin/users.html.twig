@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration — Utilisateurs — La Collection{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width:1000px;margin:2rem auto;padding:0 1rem">
+    <h1 style="margin-bottom:1.5rem">Gestion des utilisateurs</h1>
+
+    <table style="width:100%;border-collapse:collapse">
+        <thead>
+            <tr style="text-align:left;border-bottom:2px solid var(--border-default)">
+                <th style="padding:.75rem .5rem">Pseudo</th>
+                <th style="padding:.75rem .5rem">Email</th>
+                <th style="padding:.75rem .5rem">Rôle</th>
+                <th style="padding:.75rem .5rem">Statut</th>
+                <th style="padding:.75rem .5rem">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr style="border-bottom:1px solid var(--border-default)">
+                <td style="padding:.75rem .5rem">{{ user.pseudo }}</td>
+                <td style="padding:.75rem .5rem">{{ user.email }}</td>
+                <td style="padding:.75rem .5rem">
+                    {% if 'ROLE_ADMIN' in user.roles %}
+                        <span style="background:#dc2626;color:#fff;padding:.2rem .5rem;border-radius:4px;font-size:.75rem">Admin</span>
+                    {% elseif 'ROLE_MODERATOR' in user.roles %}
+                        <span style="background:#2563eb;color:#fff;padding:.2rem .5rem;border-radius:4px;font-size:.75rem">Modérateur</span>
+                    {% else %}
+                        <span style="background:#6b7280;color:#fff;padding:.2rem .5rem;border-radius:4px;font-size:.75rem">Utilisateur</span>
+                    {% endif %}
+                </td>
+                <td style="padding:.75rem .5rem">
+                    {% if user.status == 'banned' %}
+                        <span style="color:#dc2626">Suspendu</span>
+                    {% else %}
+                        <span style="color:#16a34a">Actif</span>
+                    {% endif %}
+                </td>
+                <td style="padding:.75rem .5rem">
+                    {% if user != app.user %}
+                    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+                        <form method="POST" action="{{ path('admin_change_role', {id: user.id}) }}" style="margin:0;display:flex;gap:.25rem">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('admin_user_' ~ user.id) }}">
+                            <select name="role" style="font-size:.875rem;padding:.25rem .5rem;border:1px solid var(--border-default);border-radius:var(--radius-sm)">
+                                <option value="ROLE_USER" {% if 'ROLE_ADMIN' not in user.roles and 'ROLE_MODERATOR' not in user.roles %}selected{% endif %}>Utilisateur</option>
+                                <option value="ROLE_MODERATOR" {% if 'ROLE_MODERATOR' in user.roles and 'ROLE_ADMIN' not in user.roles %}selected{% endif %}>Modérateur</option>
+                                <option value="ROLE_ADMIN" {% if 'ROLE_ADMIN' in user.roles %}selected{% endif %}>Admin</option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-ghost">Changer</button>
+                        </form>
+                        <form method="POST" action="{{ path('admin_ban_user', {id: user.id}) }}" style="margin:0">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('admin_user_' ~ user.id) }}">
+                            <button type="submit" class="btn btn-sm btn-secondary">Suspendre</button>
+                        </form>
+                        <form method="POST" action="{{ path('admin_delete_user', {id: user.id}) }}" style="margin:0">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('admin_user_' ~ user.id) }}">
+                            <button type="submit" class="btn btn-sm btn-secondary" style="color:#dc2626">Supprimer</button>
+                        </form>
+                    </div>
+                    {% else %}
+                        <span style="color:var(--text-muted);font-size:.875rem">(vous-même)</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
