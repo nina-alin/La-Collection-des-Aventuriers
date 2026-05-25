@@ -1,0 +1,315 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ book.title }} — La Collection des Aventuriers{% endblock %}
+
+{% block meta %}
+    {% set ogImage = book.coverImage
+        ? absolute_url(asset('uploads/books/covers/' ~ book.coverImage))
+        : absolute_url(asset('images/placeholder-cover.svg')) %}
+    <meta name="description" content="{{ book.summary ? (book.summary|slice(0, 157) ~ (book.summary|length > 157 ? '…' : '')) : book.title }}">
+    <meta property="og:title" content="{{ book.title }}">
+    <meta property="og:image" content="{{ ogImage }}">
+{% endblock %}
+
+{% block body %}
+<div class="container px-5 mx-5">
+
+    {# ============================== BREADCRUMB ============================== #}
+    <nav class="crumbs" aria-label="Fil d'Ariane">
+        <a href="{{ path('catalogue_index') }}">Catalogue</a>
+        <span class="sep">/</span>
+        <span class="here">{{ book.title }}</span>
+    </nav>
+
+    {# ============================== BOOK HERO ============================== #}
+    <section class="book">
+        <div class="book-hero">
+
+            {# ----- COVER COL ----- #}
+            <div class="cover-col">
+                <div class="cover-main" aria-label="Couverture du livre">
+                    <span class="cover-bookmark" aria-hidden="true"></span>
+                    <span class="cover-frame" aria-hidden="true"></span>
+                    {% if book.coverImage %}
+                        <img src="{{ asset('uploads/books/covers/' ~ book.coverImage) }}"
+                             alt="{{ book.title }}"
+                             style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+                    {% else %}
+                        <img src="{{ asset('images/placeholder-cover.svg') }}"
+                             alt="{{ book.title }}"
+                             style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+                    {% endif %}
+                    <span class="cover-title-art">{{ book.title }}</span>
+                </div>
+
+                {# Gallery tabs — US2 #}
+                {% set galleryImages = book.galleryImages %}
+                {% set tabOrder = ['Tome', 'Dos', 'Tranche', 'Pages', 'Carte'] %}
+                {% set imagesByTab = {} %}
+                {% for img in galleryImages %}
+                    {% set imagesByTab = imagesByTab|merge({(img.tab.value): img}) %}
+                {% endfor %}
+
+                <div class="gallery"
+                     role="tablist"
+                     aria-label="Visuels du livre"
+                     data-controller="gallery"
+                     {{ stimulus_controller('gallery') }}>
+                    {% set hasAnyImage = galleryImages|length > 0 %}
+                    {% set firstTab = true %}
+                    {% for tabLabel in tabOrder %}
+                        {% if imagesByTab[tabLabel] is defined or (tabLabel == 'Tome' and not hasAnyImage) %}
+                            {% set tabId = 'gallery-tab-' ~ tabLabel|lower %}
+                            {% set panelId = 'gallery-panel-' ~ tabLabel|lower %}
+                            <button class="gallery-thumb{% if firstTab %} is-active{% endif %}"
+                                    role="tab"
+                                    id="{{ tabId }}"
+                                    aria-selected="{{ firstTab ? 'true' : 'false' }}"
+                                    aria-controls="{{ panelId }}"
+                                    data-gallery-target="tab"
+                                    data-action="click->gallery#selectTab keydown->gallery#handleKey">
+                                <span class="glyph">{{ tabLabel }}</span>
+                            </button>
+                            {% set firstTab = false %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# ----- CONTENT COL ----- #}
+            <div class="content-col">
+
+                {# Saga/volume eyebrow — hidden if both null #}
+                {% if book.saga is not null or book.volumeNumber is not null %}
+                    <div class="ttl-eyebrow">
+                        {% if book.saga is not null %}
+                            <span>{{ book.saga }}</span>
+                        {% endif %}
+                        {% if book.saga is not null and book.volumeNumber is not null %}
+                            <span>·</span>
+                        {% endif %}
+                        {% if book.volumeNumber is not null %}
+                            <span>Volume n°{{ book.volumeNumber }}</span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <h1 class="book-title">{{ book.title }}</h1>
+
+                {# Original title — hidden if null #}
+                {% if book.originalTitle is not null %}
+                    <p class="book-title-original">
+                        <span class="label">Titre original</span>
+                        {{ book.originalTitle }}
+                    </p>
+                {% endif %}
+
+                {# Authors byline #}
+                {% if book.authors|length > 0 or book.illustrators|length > 0 %}
+                    <p class="by-line">
+                        {% if book.authors|length > 0 %}
+                            de
+                        {% endif %}
+                        {% for author in book.authors %}
+                            <span>{{ author.fullName }}</span>{% if not loop.last %} &amp;{% endif %}
+                        {% endfor %}
+                        {% if book.authors|length > 0 and book.illustrators|length > 0 %}
+                        ·
+                        {% endif %}
+                        {% if book.illustrators|length > 0 %}
+                            Illustré par
+                        {% endif %}
+                        {% for illustrator in book.illustrators %}
+                            <span>{{ illustrator.fullName }}</span>{% if not loop.last %} &amp;{% endif %}
+                        {% endfor %}
+                    </p>
+                {% endif %}
+
+                {# Action bar — authenticated users only — US4 #}
+                {% if app.user %}
+                    <div class="actions-grid" role="group" aria-label="Listes personnelles">
+                        <button class="action-toggle" data-kind="collection" type="button">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h12a2 2 0 0 1 2 2v14l-4-3-4 3-4-3-4 3V6a2 2 0 0 1 2-2z"/></svg>
+                            Ma Collection
+                        </button>
+                        <button class="action-toggle" data-kind="toread" type="button">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h14a3 3 0 0 1 3 3v13l-7-3-7 3V5z"/><path d="M7 9h8M7 13h6"/></svg>
+                            À lire
+                        </button>
+                        <button class="action-toggle" data-kind="tobuy" type="button">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h2l3 12h12l2-8H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
+                            À acheter
+                        </button>
+                        <button class="action-toggle" data-kind="favorite" type="button">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.5-9.5-9C1 8.5 3 5 6.5 5c2 0 3.5 1 5.5 3 2-2 3.5-3 5.5-3C21 5 23 8.5 21.5 12 19 16.5 12 21 12 21z"/></svg>
+                            Favori
+                        </button>
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>{# /.book-hero #}
+
+        {# ============================== RÉSUMÉ DU GRIMOIRE ============================== #}
+        {% if book.summary is not null and book.summary|trim|length > 0 %}
+            <section class="section" id="resume" aria-label="Résumé du grimoire">
+                <header class="section-head">
+                    <span class="section-num">§ 01</span>
+                    <h2>Résumé</h2>
+                </header>
+
+                <article class="summary-card">
+                    {% set firstChar = book.summary|slice(0, 1) %}
+                    {% set rest = book.summary|slice(1) %}
+                    <p><span class="lettrine" aria-hidden="true">{{ firstChar }}</span>{{ rest }}</p>
+
+                    {% if book.taverneUrl %}
+                    <div class="summary-foot">
+                        <a class="taverne-btn" href="{{ book.taverneUrl }}" target="_blank" rel="noopener noreferrer">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                            En discuter sur la Taverne des Aventuriers
+                        </a>
+                    </div>
+                    {% endif %}
+                </article>
+            </section>
+        {% else %}
+            {% if book.taverneUrl %}
+            <div style="margin-top:var(--sp-5);">
+                <a class="taverne-btn" href="{{ book.taverneUrl }}" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                    En discuter sur la Taverne des Aventuriers
+                </a>
+            </div>
+            {% endif %}
+        {% endif %}
+
+        {# ============================== FICHE TECHNIQUE ============================== #}
+        <section class="section" id="meta-section" aria-label="Fiche technique">
+            <header class="section-head">
+                <span class="section-num">§ 02</span>
+                <h2>Fiche technique</h2>
+            </header>
+
+            <div class="meta-grid">
+                {# Row 1 — Auteurs #}
+                {% if book.authors|length > 0 %}
+                    <div class="meta-row">
+                        <span class="meta-label">Auteurs</span>
+                        <span class="meta-value">
+                            {% for author in book.authors %}
+                                <span class="tag">{{ author.fullName }}<span class="role">Auteur</span></span>
+                            {% endfor %}
+                        </span>
+                    </div>
+                {% endif %}
+
+                {# Row 2 — Illustrateurs #}
+                {% if book.illustrators|length > 0 %}
+                    <div class="meta-row">
+                        <span class="meta-label">Illustrateurs</span>
+                        <span class="meta-value">
+                            {% for illustrator in book.illustrators %}
+                                <span class="tag">{{ illustrator.fullName }}<span class="role">Illustrateur</span></span>
+                            {% endfor %}
+                        </span>
+                    </div>
+                {% endif %}
+
+                {# Row 3 — Traducteur #}
+                {% if book.translator is not null %}
+                    <div class="meta-row">
+                        <span class="meta-label">Traduction</span>
+                        <span class="meta-value">
+                            <span class="tag">{{ book.translator.fullName }}<span class="role">Traducteur</span></span>
+                        </span>
+                    </div>
+                {% endif %}
+
+                {# Row 4 — Éditeur #}
+                {% if book.editor is not null %}
+                    <div class="meta-row">
+                        <span class="meta-label">Éditeur</span>
+                        <span class="meta-value">
+                            <span class="tag">{{ book.editor.name }}</span>
+                        </span>
+                    </div>
+                {% endif %}
+
+                {# Row 5 — Saga &amp;Volume — hidden if both null #}
+                {% if book.saga is not null or book.volumeNumber is not null %}
+                    <div class="meta-row">
+                        <span class="meta-label">Saga &amp; Volume</span>
+                        <span class="meta-value">
+                            <span class="tag coll">
+                                {{ book.saga }}{% if book.saga is not null and book.volumeNumber is not null %} · {% endif %}{% if book.volumeNumber is not null %}n°{{ book.volumeNumber }}{% endif %}
+                            </span>
+                        </span>
+                    </div>
+                {% endif %}
+
+                {# Row 6 — Édition #}
+                {% if book.editionInfo is not null and book.editionInfo|trim|length > 0 %}
+                    <div class="meta-row">
+                        <span class="meta-label">Édition</span>
+                        <span class="meta-value">{{ book.editionInfo }}</span>
+                    </div>
+                {% endif %}
+
+                {# Row 7 — ISBN #}
+                {% if book.isbn is not null %}
+                    <div class="meta-row">
+                        <span class="meta-label">ISBN</span>
+                        <span class="meta-value mono">{{ book.isbn }}</span>
+                    </div>
+                {% endif %}
+
+                {# Row 8 — Parution originale #}
+                {% if book.originalPublicationYear is not null %}
+                    <div class="meta-row">
+                        <span class="meta-label">Parution originale</span>
+                        <span class="meta-value">{{ book.originalPublicationYear }}</span>
+                    </div>
+                {% endif %}
+
+                {# Row 9 — Parution France #}
+                {% if book.frenchPublicationYear is not null %}
+                    <div class="meta-row">
+                        <span class="meta-label">Parution France</span>
+                        <span class="meta-value">{{ book.frenchPublicationYear }}</span>
+                    </div>
+                {% endif %}
+
+                {# Row 10 — Pages #}
+                {% if book.pages is not null %}
+                    <div class="meta-row">
+                        <span class="meta-label">Pages</span>
+                        <span class="meta-value mono">{{ book.pages }} p.</span>
+                    </div>
+                {% endif %}
+
+                {# Row 11 — Paragraphes #}
+                {% if book.paragraphs is not null %}
+                    <div class="meta-row">
+                        <span class="meta-label">Paragraphes</span>
+                        <span class="meta-value mono">{{ book.paragraphs }} §</span>
+                    </div>
+                {% endif %}
+
+                {# Row 12 — Langues — hidden if empty array #}
+                {% if book.languages|length > 0 %}
+                    <div class="meta-row">
+                        <span class="meta-label">Langues disponibles</span>
+                        <span class="meta-value">
+                            {% for lang in book.languages %}
+                                <span class="tag">{{ lang|upper }}</span>
+                            {% endfor %}
+                        </span>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+    </section>
+</div>
+{% endblock %}

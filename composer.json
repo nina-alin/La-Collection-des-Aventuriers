@@ -13,6 +13,7 @@
         "knpuniversity/oauth2-client-bundle": "^2.18",
         "league/oauth2-google": "^4.0",
         "platformsh/config-reader": "*",
+        "stof/doctrine-extensions-bundle": "^1.12",
         "symfony/asset": "7.2.*",
         "symfony/console": "7.2.*",
         "symfony/dotenv": "7.2.*",
@@ -31,7 +32,8 @@
         "symfony/ux-twig-component": "^2.35",
         "symfony/validator": "7.2.*",
         "symfony/webpack-encore-bundle": "^2.4",
-        "symfony/yaml": "7.2.*"
+        "symfony/yaml": "7.2.*",
+        "vich/uploader-bundle": "^2.4"
     },
     "config": {
         "allow-plugins": {
@@ -84,6 +86,7 @@
         }
     },
     "require-dev": {
+        "doctrine/doctrine-fixtures-bundle": "^4.3",
         "phpunit/phpunit": "^12.5",
         "symfony/browser-kit": "7.2.*",
         "symfony/css-selector": "7.2.*",

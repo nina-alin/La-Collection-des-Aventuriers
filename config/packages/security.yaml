@@ -1,4 +1,8 @@
 security:
+    role_hierarchy:
+        ROLE_MODERATOR: ROLE_USER
+        ROLE_ADMIN: [ROLE_MODERATOR, ROLE_USER]
+
     password_hashers:
         App\Entity\User:
             algorithm: bcrypt
@@ -59,6 +63,7 @@ security:
         - { path: ^/politique-de-confidentialite, roles: PUBLIC_ACCESS }
         - { path: ^/moderation, roles: ROLE_MODERATOR }
         - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/livre/, roles: PUBLIC_ACCESS }
         - { path: ^/, roles: IS_AUTHENTICATED_REMEMBERED }
 
 when@test:
