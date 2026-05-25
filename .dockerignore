@@ -1,0 +1,9 @@
+.git/
+node_modules/
+public/build/
+var/
+vendor/
+*.log
+.env.local
+.env.*.local
+compose.override.yaml
