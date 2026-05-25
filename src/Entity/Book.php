@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Collection as CollectionEntity;
 use App\Entity\Enum\BookStatus;
 use App\Repository\BookRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -13,6 +14,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 #[ORM\Entity(repositoryClass: BookRepository::class)]
 #[ORM\Index(columns: ['slug'], name: 'idx_book_slug')]
 #[ORM\Index(columns: ['status'], name: 'idx_book_status')]
+#[ORM\Index(columns: ['collection_id'], name: 'idx_book_collection_id')]
 #[UniqueEntity(fields: ['isbn'], message: 'Cet ISBN est déjà enregistré.')]
 class Book
 {
@@ -90,6 +92,10 @@ class Book
     /** @var Collection<int, BookImage> */
     #[ORM\OneToMany(targetEntity: BookImage::class, mappedBy: 'book', cascade: ['remove'], orphanRemoval: true)]
     private Collection $galleryImages;
+
+    #[ORM\ManyToOne(targetEntity: CollectionEntity::class, inversedBy: 'books')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?CollectionEntity $collection = null;
 
     public function __construct()
     {
@@ -357,6 +363,17 @@ class Book
                 $bookImage->setBook($this);
             }
         }
+        return $this;
+    }
+
+    public function getCollection(): ?CollectionEntity
+    {
+        return $this->collection;
+    }
+
+    public function setCollection(?CollectionEntity $collection): static
+    {
+        $this->collection = $collection;
         return $this;
     }
 }

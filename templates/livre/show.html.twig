@@ -17,6 +17,10 @@
     {# ============================== BREADCRUMB ============================== #}
     <nav class="crumbs" aria-label="Fil d'Ariane">
         <a href="{{ path('catalogue_index') }}">Catalogue</a>
+        {% if book.collection %}
+            <span class="sep">/</span>
+            <a href="{{ path('app_collection_show', {slug: book.collection.slug}) }}">{{ book.collection.nom }}</a>
+        {% endif %}
         <span class="sep">/</span>
         <span class="here">{{ book.title }}</span>
     </nav>
@@ -83,7 +87,11 @@
                 {% if book.saga is not null or book.volumeNumber is not null %}
                     <div class="ttl-eyebrow">
                         {% if book.saga is not null %}
-                            <span>{{ book.saga }}</span>
+                            {% if book.collection %}
+                                <a href="{{ path('app_collection_show', {slug: book.collection.slug}) }}">{{ book.saga }}</a>
+                            {% else %}
+                                <span>{{ book.saga }}</span>
+                            {% endif %}
                         {% endif %}
                         {% if book.saga is not null and book.volumeNumber is not null %}
                             <span>·</span>
@@ -161,7 +169,7 @@
                 <article class="summary-card">
                     {% set firstChar = book.summary|slice(0, 1) %}
                     {% set rest = book.summary|slice(1) %}
-                    <p><span class="lettrine" aria-hidden="true">{{ firstChar }}</span>{{ rest }}</p>
+                    <p class="d-flex"><span class="lettrine" aria-hidden="true">{{ firstChar }}</span>{{ rest }}</p>
 
                     {% if book.taverneUrl %}
                     <div class="summary-foot">
@@ -242,7 +250,13 @@
                         <span class="meta-label">Saga &amp; Volume</span>
                         <span class="meta-value">
                             <span class="tag coll">
-                                {{ book.saga }}{% if book.saga is not null and book.volumeNumber is not null %} · {% endif %}{% if book.volumeNumber is not null %}n°{{ book.volumeNumber }}{% endif %}
+                                {% if book.collection and book.saga is not null %}
+                                    <a href="{{ path('app_collection_show', {slug: book.collection.slug}) }}">{{ book.saga }}</a>
+                                {% else %}
+                                    {{ book.saga }}
+                                {% endif %}
+                                {% if book.saga is not null and book.volumeNumber is not null %} · {% endif %}
+                                {% if book.volumeNumber is not null %}n°{{ book.volumeNumber }}{% endif %}
                             </span>
                         </span>
                     </div>

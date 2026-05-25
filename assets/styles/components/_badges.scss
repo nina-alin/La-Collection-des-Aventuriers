@@ -58,3 +58,59 @@
     color: var(--brand-primary);
     border-color: color-mix(in oklab, var(--brand-primary) 30%, transparent);
 }
+
+// Collection genre badges
+.badge-genre-medieval-fantastique {
+    background: color-mix(in oklab, var(--brand-primary) 12%, var(--bg-elevated));
+    color: var(--brand-primary);
+    border-color: color-mix(in oklab, var(--brand-primary) 30%, transparent);
+}
+
+.badge-genre-science-fiction {
+    background: var(--info-bg);
+    color: var(--info);
+    border-color: var(--info-border);
+}
+
+.badge-genre-horreur {
+    background: var(--danger-bg);
+    color: var(--danger);
+    border-color: var(--danger-border);
+}
+
+.badge-genre-espionnage {
+    background: var(--bg-sunken);
+    color: var(--ink-muted);
+    border-color: var(--border-default);
+}
+
+.badge-genre-aventure {
+    background: var(--warning-bg);
+    color: var(--warning);
+    border-color: var(--warning-border);
+}
+
+.badge-genre-contemporain {
+    background: var(--success-bg);
+    color: var(--success);
+    border-color: var(--success-border);
+}
+
+// Collection statut badges
+.badge-statut-en-cours {
+    background: var(--warning-bg);
+    color: var(--warning);
+    border-color: var(--warning-border);
+}
+
+.badge-statut-terminee {
+    background: var(--success-bg);
+    color: var(--success);
+    border-color: var(--success-border);
+}
+
+.badge-statut-reeditee {
+    background: var(--info-bg);
+    color: var(--info);
+    border-color: var(--info-border);
+}
