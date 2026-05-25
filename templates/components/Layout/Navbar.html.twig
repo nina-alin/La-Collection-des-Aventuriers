@@ -6,34 +6,36 @@
         <a class="lp-brand" href="{{ path('home') }}">
             <span class="sigil">A</span>
             <span class="lp-brand-text">
-                <span class="lp-brand-title">La Collection</span>
+                <span class="lp-brand-title">La Collection des Aventuriers</span>
                 <span class="lp-brand-sub">Wiki des fictions interactives</span>
             </span>
         </a>
         <nav aria-label="Navigation principale">
-            <ul class="lp-nav-links">
-                <li>
-                    <a href="{{ path('home') }}"
-                       class="lp-nav-link{% if path == '/' %} active{% endif %}"
-                       {% if path == '/' %}aria-current="page"{% endif %}>
-                        Accueil
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ path('catalogue_index') }}"
-                       class="lp-nav-link{% if path starts with '/catalogue' %} active{% endif %}"
-                       {% if path starts with '/catalogue' %}aria-current="page"{% endif %}>
-                        Catalogue
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ path('suggestions_index') }}"
-                       class="lp-nav-link{% if path starts with '/suggestions' %} active{% endif %}"
-                       {% if path starts with '/suggestions' %}aria-current="page"{% endif %}>
-                        Suggestions
-                    </a>
-                </li>
-            </ul>
+            {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+                <ul class="lp-nav-links">
+                    <li>
+                        <a href="{{ path('home') }}"
+                           class="lp-nav-link{% if path == '/' %} active{% endif %}"
+                           {% if path == '/' %}aria-current="page"{% endif %}>
+                            Accueil
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('catalogue_index') }}"
+                           class="lp-nav-link{% if path starts with '/catalogue' %} active{% endif %}"
+                           {% if path starts with '/catalogue' %}aria-current="page"{% endif %}>
+                            Catalogue
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('suggestions_index') }}"
+                           class="lp-nav-link{% if path starts with '/suggestions' %} active{% endif %}"
+                           {% if path starts with '/suggestions' %}aria-current="page"{% endif %}>
+                            Suggestions
+                        </a>
+                    </li>
+                </ul>
+            {% endif %}
         </nav>
         {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
         <div class="lp-user-menu" style="position:relative">

@@ -24,6 +24,7 @@ class BookRepository extends ServiceEntityRepository
             ->leftJoin('b.translator', 't')->addSelect('t')
             ->leftJoin('b.editor', 'e')->addSelect('e')
             ->leftJoin('b.galleryImages', 'g')->addSelect('g')
+            ->leftJoin('b.collection', 'c')->addSelect('c')
             ->where('b.slug = :slug')
             ->setParameter('slug', $slug)
             ->getQuery()

@@ -1,0 +1,112 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ collection.nom }}{% if currentPage > 1 %} (page {{ currentPage }}){% endif %} — La Collection dont vous êtes le héros{% endblock %}
+
+{% block meta %}
+    <link rel="canonical" href="{{ path('app_collection_show', {slug: collection.slug}) }}">
+    <meta name="description" content="{{ collection.description|slice(0, 157) }}{{ collection.description|length > 157 ? '…' : '' }}">
+{% endblock %}
+
+{% block body %}
+<div class="container px-5 mx-5">
+
+    {# Breadcrumb #}
+    <nav class="crumbs" aria-label="Fil d'Ariane">
+        <a href="{{ path('catalogue_index') }}">Catalogue</a>
+        <span class="sep">/</span>
+        <span class="here">{{ collection.nom }}</span>
+    </nav>
+
+    {# Collection header #}
+    <section class="collection-header">
+        <div class="collection-hero">
+            <div class="collection-logo">
+                {% if collection.imageLogo %}
+                    <img src="{{ asset('uploads/collections/' ~ collection.imageLogo) }}"
+                         alt="{{ collection.nom }}">
+                {% else %}
+                    <img src="{{ asset('images/placeholder-cover.svg') }}"
+                         alt="{{ collection.nom }}">
+                {% endif %}
+            </div>
+            <div class="collection-meta">
+                <h1 class="collection-nom">{{ collection.nom }}</h1>
+                {% if collection.nomOriginal %}
+                    <p class="collection-nom-original">{{ collection.nomOriginal }}</p>
+                {% endif %}
+                <div class="collection-badges">
+                    <span class="badge badge-genre-{{ collection.genre.value }}">{{ collection.genre.value }}</span>
+                    <span class="badge badge-statut-{{ collection.statut.value }}">{{ collection.statut.value }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="collection-description">
+            <p>{{ collection.description }}</p>
+        </div>
+
+        <dl class="collection-info">
+            {% if collection.createurs|length > 0 %}
+                <div class="meta-row">
+                    <dt>Créateurs</dt>
+                    <dd>{{ collection.createurs|join(', ') }}</dd>
+                </div>
+            {% endif %}
+            {% if collection.anneeCreation %}
+                <div class="meta-row">
+                    <dt>Année de création</dt>
+                    <dd>{{ collection.anneeCreation }}</dd>
+                </div>
+            {% endif %}
+            {% if collection.editeurHistorique %}
+                <div class="meta-row">
+                    <dt>Éditeur historique</dt>
+                    <dd>{{ collection.editeurHistorique }}</dd>
+                </div>
+            {% endif %}
+        </dl>
+    </section>
+
+    {# Book list #}
+    <section class="section" id="livres">
+        <header class="section-head">
+            <h2>Livres <span class="badge">{{ totalBooks }}</span></h2>
+        </header>
+
+        {% if totalBooks == 0 %}
+            <p class="collection-empty">Aucun livre disponible</p>
+        {% else %}
+            <div class="collection-books">
+                {% for book in books %}
+                    <a href="{{ path('app_book_show', {slug: book.slug}) }}" class="collection-book-card">
+                        {% if book.coverImage %}
+                            <img src="{{ asset('uploads/books/covers/' ~ book.coverImage) }}"
+                                 alt="{{ book.title }}">
+                        {% else %}
+                            <img src="{{ asset('images/placeholder-cover.svg') }}"
+                                 alt="{{ book.title }}">
+                        {% endif %}
+                        {% if book.volumeNumber %}
+                            <span class="volume">n°{{ book.volumeNumber }}</span>
+                        {% endif %}
+                        <span class="book-title">{{ book.title }}</span>
+                    </a>
+                {% endfor %}
+            </div>
+
+            {% if totalPages > 1 %}
+                <nav class="pagination" aria-label="Pagination">
+                    {% if currentPage > 1 %}
+                        <a class="pagination-prev" href="{{ path('app_collection_show', {slug: collection.slug, page: currentPage - 1}) }}">← Précédent</a>
+                    {% endif %}
+                    <span class="pagination-info">Page {{ currentPage }} / {{ totalPages }}</span>
+                    {% if currentPage < totalPages %}
+                        <a class="pagination-next" href="{{ path('app_collection_show', {slug: collection.slug, page: currentPage + 1}) }}">Suivant →</a>
+                    {% endif %}
+                </nav>
+            {% endif %}
+        {% endif %}
+    </section>
+
+</div>
+{% endblock %}
