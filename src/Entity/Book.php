@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Entity\Collection as CollectionEntity;
 use App\Entity\Enum\BookStatus;
+use App\EntityListener\BookSoftDeleteListener;
 use App\Repository\BookRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -12,10 +13,12 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
+#[ORM\EntityListeners([BookSoftDeleteListener::class])]
 #[ORM\Index(columns: ['slug'], name: 'idx_book_slug')]
 #[ORM\Index(columns: ['status'], name: 'idx_book_status')]
 #[ORM\Index(columns: ['collection_id'], name: 'idx_book_collection_id')]
 #[UniqueEntity(fields: ['isbn'], message: 'Cet ISBN est déjà enregistré.')]
+#[Gedmo\SoftDeleteable(fieldName: 'deletedAt', timeAware: false)]
 class Book
 {
     #[ORM\Id]
@@ -72,18 +75,12 @@ class Book
     #[ORM\Column(type: 'json')]
     private array $languages = [];
 
-    /** @var Collection<int, Author> */
-    #[ORM\ManyToMany(targetEntity: Author::class, inversedBy: 'books')]
-    #[ORM\JoinTable(name: 'book_author')]
-    private Collection $authors;
+    /** @var Collection<int, Contribution> */
+    #[ORM\OneToMany(targetEntity: Contribution::class, mappedBy: 'book')]
+    private Collection $contributions;
 
-    /** @var Collection<int, Illustrator> */
-    #[ORM\ManyToMany(targetEntity: Illustrator::class, inversedBy: 'books')]
-    #[ORM\JoinTable(name: 'book_illustrator')]
-    private Collection $illustrators;
-
-    #[ORM\ManyToOne(targetEntity: Translator::class, inversedBy: 'books')]
-    private ?Translator $translator = null;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $deletedAt = null;
 
     #[ORM\ManyToOne(targetEntity: Editor::class, inversedBy: 'books')]
     #[ORM\JoinColumn(nullable: false)]
@@ -99,8 +96,7 @@ class Book
 
     public function __construct()
     {
-        $this->authors = new ArrayCollection();
-        $this->illustrators = new ArrayCollection();
+        $this->contributions = new ArrayCollection();
         $this->galleryImages = new ArrayCollection();
     }
 
@@ -279,54 +275,20 @@ class Book
         return $this;
     }
 
-    /** @return Collection<int, Author> */
-    public function getAuthors(): Collection
+    /** @return Collection<int, Contribution> */
+    public function getContributions(): Collection
     {
-        return $this->authors;
+        return $this->contributions;
     }
 
-    public function addAuthor(Author $author): static
+    public function getDeletedAt(): ?\DateTimeInterface
     {
-        if (!$this->authors->contains($author)) {
-            $this->authors->add($author);
-        }
-        return $this;
+        return $this->deletedAt;
     }
 
-    public function removeAuthor(Author $author): static
+    public function setDeletedAt(?\DateTimeInterface $deletedAt): static
     {
-        $this->authors->removeElement($author);
-        return $this;
-    }
-
-    /** @return Collection<int, Illustrator> */
-    public function getIllustrators(): Collection
-    {
-        return $this->illustrators;
-    }
-
-    public function addIllustrator(Illustrator $illustrator): static
-    {
-        if (!$this->illustrators->contains($illustrator)) {
-            $this->illustrators->add($illustrator);
-        }
-        return $this;
-    }
-
-    public function removeIllustrator(Illustrator $illustrator): static
-    {
-        $this->illustrators->removeElement($illustrator);
-        return $this;
-    }
-
-    public function getTranslator(): ?Translator
-    {
-        return $this->translator;
-    }
-
-    public function setTranslator(?Translator $translator): static
-    {
-        $this->translator = $translator;
+        $this->deletedAt = $deletedAt;
         return $this;
     }
 

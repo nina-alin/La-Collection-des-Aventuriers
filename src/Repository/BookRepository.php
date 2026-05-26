@@ -19,9 +19,8 @@ class BookRepository extends ServiceEntityRepository
     public function findBySlugWithRelations(string $slug): ?Book
     {
         return $this->createQueryBuilder('b')
-            ->leftJoin('b.authors', 'a')->addSelect('a')
-            ->leftJoin('b.illustrators', 'i')->addSelect('i')
-            ->leftJoin('b.translator', 't')->addSelect('t')
+            ->leftJoin('b.contributions', 'contrib')->addSelect('contrib')
+            ->leftJoin('contrib.contributor', 'contributor')->addSelect('contributor')
             ->leftJoin('b.editor', 'e')->addSelect('e')
             ->leftJoin('b.galleryImages', 'g')->addSelect('g')
             ->leftJoin('b.collection', 'c')->addSelect('c')

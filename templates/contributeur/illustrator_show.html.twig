@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ contributor.pseudo ?? (contributor.firstName ~ ' ' ~ contributor.lastName) }} — Illustrateur — La Collection des Aventuriers{% endblock %}
+
+{% block body %}
+<main class="container py-4">
+
+    <header class="mb-5 d-flex gap-4 align-items-start">
+        <div>
+            {% if contributor.portraitImage %}
+                <img src="{{ asset('uploads/contributors/' ~ contributor.portraitImage) }}"
+                     alt="{{ contributor.firstName }} {{ contributor.lastName }}"
+                     width="120" height="120"
+                     class="rounded-circle object-fit-cover">
+            {% else %}
+                <span class="d-flex align-items-center justify-content-center rounded-circle bg-secondary"
+                      style="width:120px;height:120px;font-size:48px;font-family:var(--font-display);"
+                      aria-label="{{ contributor.firstName }} {{ contributor.lastName }}">
+                    {{ (contributor.pseudo ? contributor.pseudo|slice(0,1) : contributor.firstName|slice(0,1))|upper }}
+                </span>
+            {% endif %}
+        </div>
+        <div>
+            <h1 class="mb-1">
+                {{ contributor.pseudo ?? (contributor.firstName ~ ' ' ~ contributor.lastName) }}
+            </h1>
+            {% if contributor.pseudo %}
+                <p class="text-muted mb-1">{{ contributor.firstName }} {{ contributor.lastName }}</p>
+            {% endif %}
+            {% if contributor.nationality %}
+                <p class="text-muted small mb-0">{{ contributor.nationality }}</p>
+            {% endif %}
+        </div>
+    </header>
+
+    <section aria-label="Illustrations">
+        <h2 class="h4 mb-3">Couvertures illustrées</h2>
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
+            {% for contribution in contributions %}
+                <div class="col">
+                    <a href="{{ path('app_book_show', {slug: contribution.book.slug}) }}" class="d-block text-decoration-none">
+                        {% if contribution.book.coverImage %}
+                            <img src="{{ asset('uploads/books/covers/' ~ contribution.book.coverImage) }}"
+                                 alt="{{ contribution.book.title }}"
+                                 class="img-fluid rounded w-100"
+                                 style="aspect-ratio:2/3;object-fit:cover;">
+                        {% else %}
+                            <div class="d-flex align-items-center justify-content-center rounded bg-secondary-subtle"
+                                 style="aspect-ratio:2/3;"
+                                 aria-label="Cover not available">
+                                <span class="text-muted small text-center px-2">{{ contribution.book.title }}</span>
+                            </div>
+                            <span class="visually-hidden">Cover not available</span>
+                        {% endif %}
+                        <p class="mt-1 small text-truncate text-body">{{ contribution.book.title }}</p>
+                    </a>
+                </div>
+            {% else %}
+                <div class="col">
+                    <p class="text-muted">Aucune illustration répertoriée.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+</main>
+{% endblock %}

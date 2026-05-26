@@ -1,0 +1,21 @@
+{% if loading %}
+<div class="card-author card-author--skeleton">
+    <div class="skeleton-circle"></div>
+    <div class="skeleton-line skeleton-line--title"></div>
+    <div class="skeleton-line skeleton-line--meta"></div>
+</div>
+{% else %}
+<div class="card-author">
+    <div class="author-portrait">
+        {% if avatarUrl %}
+            <img src="{{ avatarUrl }}" alt="{{ name }}" width="96" height="96">
+        {% else %}
+            <span style="font-size: 32px; font-family: var(--font-display); color: #fbf6e9;">?</span>
+        {% endif %}
+    </div>
+    <span class="author-name">{{ name }}</span>
+    {% if bookCount is not null %}
+        <span class="author-role">{{ bookCount }} livre{{ bookCount > 1 ? 's' : '' }}</span>
+    {% endif %}
+</div>
+{% endif %}

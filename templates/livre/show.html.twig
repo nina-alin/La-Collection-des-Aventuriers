@@ -112,24 +112,33 @@
                     </p>
                 {% endif %}
 
-                {# Authors byline #}
-                {% if book.authors|length > 0 or book.illustrators|length > 0 %}
+                {# Contributors byline #}
+                {% set authors = book.contributions|filter(c => c.role.value == 'Author') %}
+                {% set illustrators = book.contributions|filter(c => c.role.value == 'Illustrator') %}
+                {% set traductors = book.contributions|filter(c => c.role.value == 'Traductor') %}
+                {% if authors|length > 0 or illustrators|length > 0 or traductors|length > 0 %}
                     <p class="by-line">
-                        {% if book.authors|length > 0 %}
+                        {% if authors|length > 0 %}
                             de
+                            {% for contrib in authors %}
+                                <span>{{ contrib.contributor.firstName }} {{ contrib.contributor.lastName }}</span>{% if not loop.last %} &amp;{% endif %}
+                            {% endfor %}
                         {% endif %}
-                        {% for author in book.authors %}
-                            <span>{{ author.fullName }}</span>{% if not loop.last %} &amp;{% endif %}
-                        {% endfor %}
-                        {% if book.authors|length > 0 and book.illustrators|length > 0 %}
-                        ·
+                        {% if authors|length > 0 and illustrators|length > 0 %}
+                            ·
                         {% endif %}
-                        {% if book.illustrators|length > 0 %}
+                        {% if illustrators|length > 0 %}
                             Illustré par
+                            {% for contrib in illustrators %}
+                                <span>{{ contrib.contributor.firstName }} {{ contrib.contributor.lastName }}</span>{% if not loop.last %} &amp;{% endif %}
+                            {% endfor %}
                         {% endif %}
-                        {% for illustrator in book.illustrators %}
-                            <span>{{ illustrator.fullName }}</span>{% if not loop.last %} &amp;{% endif %}
-                        {% endfor %}
+                        {% if traductors|length > 0 %}
+                            · Traduit par
+                            {% for contrib in traductors %}
+                                <span>{{ contrib.contributor.firstName }} {{ contrib.contributor.lastName }}</span>{% if not loop.last %} &amp;{% endif %}
+                            {% endfor %}
+                        {% endif %}
                     </p>
                 {% endif %}
 
@@ -201,35 +210,40 @@
 
             <div class="meta-grid">
                 {# Row 1 — Auteurs #}
-                {% if book.authors|length > 0 %}
+                {% set authors = book.contributions|filter(c => c.role.value == 'Author') %}
+                {% if authors|length > 0 %}
                     <div class="meta-row">
                         <span class="meta-label">Auteurs</span>
                         <span class="meta-value">
-                            {% for author in book.authors %}
-                                <span class="tag">{{ author.fullName }}<span class="role">Auteur</span></span>
+                            {% for contrib in authors %}
+                                <span class="tag">{{ contrib.contributor.firstName }} {{ contrib.contributor.lastName }}<span class="role">Auteur</span></span>
                             {% endfor %}
                         </span>
                     </div>
                 {% endif %}
 
                 {# Row 2 — Illustrateurs #}
-                {% if book.illustrators|length > 0 %}
+                {% set illustrators = book.contributions|filter(c => c.role.value == 'Illustrator') %}
+                {% if illustrators|length > 0 %}
                     <div class="meta-row">
                         <span class="meta-label">Illustrateurs</span>
                         <span class="meta-value">
-                            {% for illustrator in book.illustrators %}
-                                <span class="tag">{{ illustrator.fullName }}<span class="role">Illustrateur</span></span>
+                            {% for contrib in illustrators %}
+                                <span class="tag">{{ contrib.contributor.firstName }} {{ contrib.contributor.lastName }}<span class="role">Illustrateur</span></span>
                             {% endfor %}
                         </span>
                     </div>
                 {% endif %}
 
-                {# Row 3 — Traducteur #}
-                {% if book.translator is not null %}
+                {# Row 3 — Traducteurs #}
+                {% set traductors = book.contributions|filter(c => c.role.value == 'Traductor') %}
+                {% if traductors|length > 0 %}
                     <div class="meta-row">
                         <span class="meta-label">Traduction</span>
                         <span class="meta-value">
-                            <span class="tag">{{ book.translator.fullName }}<span class="role">Traducteur</span></span>
+                            {% for contrib in traductors %}
+                                <span class="tag">{{ contrib.contributor.firstName }} {{ contrib.contributor.lastName }}<span class="role">Traducteur</span></span>
+                            {% endfor %}
                         </span>
                     </div>
                 {% endif %}
