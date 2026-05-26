@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Twig\Components\Author;
+namespace App\Twig\Components\Contributor;
 
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 use Symfony\UX\TwigComponent\Attribute\PostMount;
@@ -16,6 +16,6 @@ class Card
     #[PostMount]
     public function postMount(): void
     {
-        $this->name = $this->name ?? 'Auteur inconnu';
+        $this->name = $this->name ?? 'Contributeur inconnu';
     }
 }

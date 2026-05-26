@@ -2,12 +2,14 @@
 
 namespace App\DataFixtures;
 
-use App\DataFixtures\Factory\AuthorFactory;
 use App\DataFixtures\Factory\BookFactory;
 use App\DataFixtures\Factory\CollectionFactory;
+use App\DataFixtures\Factory\ContributionFactory;
+use App\DataFixtures\Factory\ContributorFactory;
 use App\DataFixtures\Factory\EditorFactory;
 use App\DataFixtures\Factory\UserFactory;
 use App\Entity\Enum\BookStatus;
+use App\Entity\Enum\ContributionRole;
 use App\Entity\Enum\GenreCollection;
 use App\Entity\Enum\StatutCollection;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -22,12 +24,6 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        // --- Authors ---
-        $jackson = AuthorFactory::new(['firstName' => 'Steve', 'lastName' => 'Jackson']);
-        $livingstone = AuthorFactory::new(['firstName' => 'Ian', 'lastName' => 'Livingstone']);
-        $manager->persist($jackson);
-        $manager->persist($livingstone);
-
         // --- Editors ---
         $gallimard = EditorFactory::new(['name' => 'Gallimard Jeunesse']);
         $folio = EditorFactory::new(['name' => 'Folio Junior']);
@@ -73,8 +69,8 @@ class AppFixtures extends Fixture
             'volumeNumber'           => 1,
             'languages'              => ['fr', 'en'],
             'summary'                => 'Dans les entrailles de la Montagne de Feu vit le Sorcier, gardien d\'un trésor fabuleux.',
+            'coverImage'             => 'sorcier.jpg',
         ]);
-        $sorcier->addAuthor($jackson)->addAuthor($livingstone);
         $manager->persist($sorcier);
 
         $citadelle = BookFactory::new([
@@ -83,17 +79,115 @@ class AppFixtures extends Fixture
             'editor'     => $gallimard,
             'collection' => $defis,
             'volumeNumber' => 2,
+            'coverImage'   => 'citadelle.jpg',
         ]);
-        $citadelle->addAuthor($jackson);
         $manager->persist($citadelle);
 
+        // SC-006: book without cover image
         $pending = BookFactory::new([
             'title'  => 'Livre en Attente de Modération',
             'status' => BookStatus::PENDING,
             'editor' => $folio,
         ]);
-        $pending->addAuthor($livingstone);
         $manager->persist($pending);
+
+        $manager->flush();
+
+        // --- SC-006 Contributors ---
+
+        // (1) Author-only contributor with portraitImage
+        $jackson = ContributorFactory::new([
+            'firstName'    => 'Steve',
+            'lastName'     => 'Jackson',
+            'biography'    => 'Auteur britannique de livres-jeux, co-créateur de la série Défis Fantastiques.',
+            'nationality'  => 'GB',
+            'portraitImage' => 'jackson.jpg',
+        ]);
+        $manager->persist($jackson);
+
+        // (2) Illustrator-only contributor with portraitImage
+        $russ = ContributorFactory::new([
+            'firstName'    => 'Russ',
+            'lastName'     => 'Nicholson',
+            'biography'    => 'Illustrateur britannique, connu pour ses illustrations de Défis Fantastiques.',
+            'nationality'  => 'GB',
+            'portraitImage' => 'nicholson.jpg',
+        ]);
+        $manager->persist($russ);
+
+        // (3) Multi-role contributor (Author + Illustrator + Traductor on different books)
+        $livingstone = ContributorFactory::new([
+            'firstName'    => 'Ian',
+            'lastName'     => 'Livingstone',
+            'biography'    => 'Auteur et illustrateur britannique, co-fondateur de Games Workshop.',
+            'nationality'  => 'GB',
+            'portraitImage' => 'livingstone.jpg',
+        ]);
+        $manager->persist($livingstone);
+
+        // (4) Contributor without portraitImage
+        $anonyme = ContributorFactory::withoutPortrait([
+            'firstName' => 'Traducteur',
+            'lastName'  => 'Anonyme',
+        ]);
+        $manager->persist($anonyme);
+
+        $manager->flush();
+
+        // --- Contributions ---
+        $contrib1 = ContributionFactory::new([
+            'contributor' => $jackson,
+            'book'        => $sorcier,
+            'role'        => ContributionRole::Author,
+        ]);
+        $manager->persist($contrib1);
+
+        $contrib2 = ContributionFactory::new([
+            'contributor' => $livingstone,
+            'book'        => $sorcier,
+            'role'        => ContributionRole::Author,
+        ]);
+        $manager->persist($contrib2);
+
+        $contrib3 = ContributionFactory::new([
+            'contributor' => $jackson,
+            'book'        => $citadelle,
+            'role'        => ContributionRole::Author,
+        ]);
+        $manager->persist($contrib3);
+
+        $contrib4 = ContributionFactory::new([
+            'contributor' => $russ,
+            'book'        => $sorcier,
+            'role'        => ContributionRole::Illustrator,
+        ]);
+        $manager->persist($contrib4);
+
+        // Multi-role: livingstone as Illustrator on citadelle
+        $contrib5 = ContributionFactory::new([
+            'contributor' => $livingstone,
+            'book'        => $citadelle,
+            'role'        => ContributionRole::Illustrator,
+        ]);
+        $manager->persist($contrib5);
+
+        // Multi-role: livingstone as Traductor on pending
+        $contrib6 = ContributionFactory::new([
+            'contributor' => $livingstone,
+            'book'        => $pending,
+            'role'        => ContributionRole::Traductor,
+        ]);
+        $manager->persist($contrib6);
+
+        // Anonyme as Traductor on sorcier
+        $contrib7 = ContributionFactory::new([
+            'contributor' => $anonyme,
+            'book'        => $sorcier,
+            'role'        => ContributionRole::Traductor,
+        ]);
+        $manager->persist($contrib7);
+
+        $manager->flush();
 
         // --- Users ---
         $admin = UserFactory::new([

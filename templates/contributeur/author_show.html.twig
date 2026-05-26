@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ contributor.pseudo ?? (contributor.firstName ~ ' ' ~ contributor.lastName) }} — La Collection des Aventuriers{% endblock %}
+
+{% block body %}
+<main class="container py-4">
+
+    <header class="mb-4 d-flex gap-4 align-items-start">
+        <div>
+            {% if contributor.portraitImage %}
+                <img src="{{ asset('uploads/contributors/' ~ contributor.portraitImage) }}"
+                     alt="{{ contributor.firstName }} {{ contributor.lastName }}"
+                     width="120" height="120"
+                     class="rounded-circle object-fit-cover">
+            {% else %}
+                <span class="d-flex align-items-center justify-content-center rounded-circle bg-secondary"
+                      style="width:120px;height:120px;font-size:48px;font-family:var(--font-display);"
+                      aria-label="{{ contributor.firstName }} {{ contributor.lastName }}">
+                    {{ (contributor.pseudo ? contributor.pseudo|slice(0,1) : contributor.firstName|slice(0,1))|upper }}
+                </span>
+            {% endif %}
+        </div>
+        <div>
+            <h1 class="mb-1">
+                {{ contributor.pseudo ?? (contributor.firstName ~ ' ' ~ contributor.lastName) }}
+            </h1>
+            {% if contributor.pseudo %}
+                <p class="text-muted mb-1">{{ contributor.firstName }} {{ contributor.lastName }}</p>
+            {% endif %}
+            {% if contributor.nationality %}
+                <p class="text-muted small mb-0">{{ contributor.nationality }}</p>
+            {% endif %}
+        </div>
+    </header>
+
+    {% if contributor.biography %}
+        <section class="mb-5" aria-label="Biographie">
+            <h2 class="h4">Biographie</h2>
+            <p>{{ contributor.biography }}</p>
+        </section>
+    {% endif %}
+
+    <section aria-label="Bibliographie">
+        <h2 class="h4">Œuvres</h2>
+        <ul class="list-unstyled">
+            {% for contribution in contributions %}
+                <li class="mb-3">
+                    <a href="{{ path('app_book_show', {slug: contribution.book.slug}) }}">
+                        {{ contribution.book.title }}
+                    </a>
+                    {% if contribution.book.frenchPublicationYear %}
+                        <span class="text-muted">({{ contribution.book.frenchPublicationYear }})</span>
+                    {% endif %}
+                    {% if contribution.details %}
+                        <span class="text-muted small"> — {{ contribution.details }}</span>
+                    {% endif %}
+                </li>
+            {% else %}
+                <li class="text-muted">Aucune œuvre répertoriée.</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+</main>
+{% endblock %}

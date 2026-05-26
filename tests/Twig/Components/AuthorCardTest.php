@@ -2,7 +2,7 @@
 
 namespace App\Tests\Twig\Components;
 
-use App\Twig\Components\Author\Card;
+use App\Twig\Components\Contributor\Card;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\UX\TwigComponent\Test\InteractsWithTwigComponents;
 
@@ -14,7 +14,7 @@ class AuthorCardTest extends KernelTestCase
     {
         $component = $this->mountTwigComponent(Card::class, []);
 
-        $this->assertSame('Auteur inconnu', $component->name);
+        $this->assertSame('Contributeur inconnu', $component->name);
     }
 
     public function testCustomName(): void
