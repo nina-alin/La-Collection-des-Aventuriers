@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block body %}
-<div class="container px-5 mx-5">
+<div class="container">
 
     {# ============================== BREADCRUMB ============================== #}
     <nav class="crumbs" aria-label="Fil d'Ariane">
@@ -113,9 +113,10 @@
                 {% endif %}
 
                 {# Contributors byline #}
-                {% set authors = book.contributions|filter(c => c.role.value == 'Author') %}
-                {% set illustrators = book.contributions|filter(c => c.role.value == 'Illustrator') %}
-                {% set traductors = book.contributions|filter(c => c.role.value == 'Traductor') %}
+                {% set contributions = book.contributions.toArray %}
+                {% set authors = contributions|filter(c => c.role.value == 'Author') %}
+                {% set illustrators = contributions|filter(c => c.role.value == 'Illustrator') %}
+                {% set traductors = contributions|filter(c => c.role.value == 'Traductor') %}
                 {% if authors|length > 0 or illustrators|length > 0 or traductors|length > 0 %}
                     <p class="by-line">
                         {% if authors|length > 0 %}
@@ -210,7 +211,8 @@
 
             <div class="meta-grid">
                 {# Row 1 — Auteurs #}
-                {% set authors = book.contributions|filter(c => c.role.value == 'Author') %}
+                {% set contributions = book.contributions.toArray %}
+                {% set authors = contributions|filter(c => c.role.value == 'Author') %}
                 {% if authors|length > 0 %}
                     <div class="meta-row">
                         <span class="meta-label">Auteurs</span>
@@ -223,7 +225,7 @@
                 {% endif %}
 
                 {# Row 2 — Illustrateurs #}
-                {% set illustrators = book.contributions|filter(c => c.role.value == 'Illustrator') %}
+                {% set illustrators = contributions|filter(c => c.role.value == 'Illustrator') %}
                 {% if illustrators|length > 0 %}
                     <div class="meta-row">
                         <span class="meta-label">Illustrateurs</span>
@@ -236,7 +238,7 @@
                 {% endif %}
 
                 {# Row 3 — Traducteurs #}
-                {% set traductors = book.contributions|filter(c => c.role.value == 'Traductor') %}
+                {% set traductors = contributions|filter(c => c.role.value == 'Traductor') %}
                 {% if traductors|length > 0 %}
                     <div class="meta-row">
                         <span class="meta-label">Traduction</span>

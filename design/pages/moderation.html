@@ -6,6 +6,7 @@
   <title>Salle de Modération — La Collection des Aventuriers</title>
   <link rel="stylesheet" href="../assets/tokens.css" />
   <link rel="stylesheet" href="../assets/components.css" />
+  <link rel="stylesheet" href="../assets/menus.css" />
   <style>
     /* ============================================================
        CONTAINER + SESSION HEADER  (cohérent avec catalogue/profil)
@@ -1297,17 +1298,140 @@
         </nav>
       </div>
       <div class="sh-right">
-        <button class="sh-icon-btn" aria-label="Notifications (3 non lues)">
-          <svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
-          <span class="dot" aria-hidden="true"></span>
-        </button>
-        <button class="sh-user" aria-haspopup="menu">
-          <span class="avatar size-sm">MA<span class="avatar-role mod"></span></span>
-          <span class="sh-user-text">
-            <span class="sh-user-name">Marius Aubry</span>
-            <span class="sh-user-role">Modérateur</span>
-          </span>
-        </button>
+        <div class="menu-anchor">
+          <button class="sh-icon-btn has-unread" type="button" id="notif-trigger" aria-label="Notifications (3 non lues)" aria-haspopup="dialog" aria-expanded="false" aria-controls="notif-menu">
+            <svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+            <span class="dot" aria-hidden="true"></span>
+          </button>
+
+          <!-- ============ Dropdown : NOTIFICATIONS ============ -->
+          <div class="menu-card" id="notif-menu" data-anchor="notifications" role="dialog" aria-modal="false" aria-label="Notifications">
+            <header class="menu-head">
+              <span class="ttl">Notifications <span class="count-badge">3</span></span>
+              <button class="mark-all" type="button" data-action="mark-all-read">Tout marquer lu</button>
+            </header>
+            <div class="notif-list" role="list">
+              <div class="notif-list-sep">Nouvelles · aujourd'hui</div>
+              <a class="notif-item unread success" href="suggestions.html" role="listitem">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
+                <div class="body">
+                  <div class="msg">Ta suggestion sur <strong>Le Repaire des Vampires</strong> a été validée par la guilde.</div>
+                  <div class="time">il y a 12 min <span class="ctx">· par @aelius_mod</span></div>
+                </div>
+                <span class="dot-unread" aria-label="Non lue"></span>
+              </a>
+              <a class="notif-item unread info" href="livre.html" role="listitem">
+                <span class="ic illustr" aria-hidden="true">DF</span>
+                <div class="body">
+                  <div class="msg"><strong>Steve Jackson</strong> a publié une nouvelle fiche dans une collection que tu suis (Défis Fantastiques).</div>
+                  <div class="time">il y a 2 h <span class="ctx">· Défis Fantastiques nº62</span></div>
+                </div>
+                <span class="dot-unread"></span>
+              </a>
+              <a class="notif-item unread warn" href="moderation.html" role="listitem">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></span>
+                <div class="body">
+                  <div class="msg">Trois suggestions attendent ton aval dans la <strong>Salle de Modération</strong>.</div>
+                  <div class="time">il y a 5 h</div>
+                </div>
+                <span class="dot-unread"></span>
+              </a>
+              <div class="notif-list-sep">Plus anciennes</div>
+              <a class="notif-item info" href="#" role="listitem">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-9 8.5 8.5 8.5 0 0 1-7.6-4.7L3 21l1.7-1.4A8.38 8.38 0 0 1 3 11.5a8.5 8.5 0 0 1 17 0z"/></svg></span>
+                <div class="body">
+                  <div class="msg"><strong>@nael_lc</strong> a commenté ta note sur <strong>L'Œil d'Émeraude</strong>.</div>
+                  <div class="time">hier · 18:42</div>
+                </div>
+                <span class="dot-unread"></span>
+              </a>
+              <a class="notif-item success" href="#" role="listitem">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+                <div class="body">
+                  <div class="msg">Félicitations — tu viens d'atteindre le rang <strong>Compagnon · Niveau 4</strong>.</div>
+                  <div class="time">il y a 3 j</div>
+                </div>
+                <span class="dot-unread"></span>
+              </a>
+            </div>
+            <footer class="menu-foot">
+              <a href="#">Voir toutes les notifications
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+              </a>
+              <button class="pref-link" type="button">Préférences</button>
+            </footer>
+          </div>
+        </div>
+
+        <div class="menu-anchor">
+          <button class="sh-user" type="button" id="user-trigger" aria-haspopup="menu" aria-expanded="false" aria-controls="user-menu" aria-label="Menu utilisateur">
+            <span class="avatar size-sm">MA<span class="avatar-role mod"></span></span>
+            <span class="sh-user-text">
+              <span class="sh-user-name">Marius Aubry</span>
+              <span class="sh-user-role">Modérateur</span>
+            </span>
+            <svg class="sh-user-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+
+          <!-- ============ Dropdown : USER MENU ============ -->
+          <div class="menu-card user-card" id="user-menu" data-anchor="user" role="menu" aria-label="Compte utilisateur">
+            <header class="menu-head-user">
+              <span class="avatar size-md" aria-hidden="true">MA<span class="avatar-role mod"></span></span>
+              <div class="ident">
+                <div class="hello">Bonjour</div>
+                <div class="name">Marius Aubry</div>
+                <span class="badge badge-role-mod"><span class="dot" aria-hidden="true"></span>Modérateur</span>
+              </div>
+            </header>
+            <div class="menu-section">
+              <a class="menu-link" href="profil.html" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg></span>
+                Mon Profil
+                <span class="lnk-meta">Aventurier</span>
+              </a>
+              <a class="menu-link" href="suggestions.html" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"/><path d="M14 4h6v6M10 14 20 4"/></svg></span>
+                Mes Suggestions
+                <span class="lnk-meta">17 validées</span>
+              </a>
+              <a class="menu-link" href="profil.html#settings" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+                Paramètres
+                <kbd>⌘,</kbd>
+              </a>
+            </div>
+            <div class="menu-section">
+              <div class="menu-section-label">Outils de modération</div>
+              <a class="menu-link role-action" href="moderation.html" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 4 9 8 10 4-1 8-5 8-10V6l-8-4z"/><path d="m9 12 2 2 4-4"/></svg></span>
+                Salle de Modération
+                <span class="badge-new">23 à relire</span>
+              </a>
+            </div>
+            <div class="menu-section">
+              <button class="menu-toggle-row" type="button" data-action="toggle-theme">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24" id="theme-icon-menu"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></span>
+                <span>Thème <strong id="theme-name" style="color: var(--ink-strong);">Parchemin</strong></span>
+                <label class="switch" onclick="event.stopPropagation();">
+                  <input type="checkbox" id="theme-switch-menu" />
+                  <span class="track" aria-hidden="true"></span>
+                </label>
+              </button>
+              <a class="menu-link" href="#" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg></span>
+                Aide &amp; raccourcis
+                <kbd>?</kbd>
+              </a>
+            </div>
+            <div class="logout-section">
+              <a class="menu-link logout" href="#" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M10.85 12.15 19 4M15 7l3 3M14 8l3 3"/></svg></span>
+                Se déconnecter
+                <span class="lnk-meta">Sortir</span>
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </header>
@@ -1323,7 +1447,7 @@
             <span class="role-pip">Vue Modérateur</span>
           </div>
           <h1>La <em>Salle de Modération</em></h1>
-          <p class="lede">Vingt-trois suggestions attendent ton aval, scribe. Trois sont dans le rouge, douze ne demandent qu'un coup d'œil. Bonne traque.</p>
+          <p class="lede">23 suggestions sont en attente.</p>
         </div>
         <div class="head-cta">
           <button class="btn btn-ghost btn-sm" type="button">
@@ -1337,24 +1461,6 @@
         </div>
       </div>
     </section>
-
-    <!-- =============== UX ANALYSIS NOTE =============== -->
-    <div class="container">
-      <div class="scribe-note">
-        <span class="scribe-mark">UX</span>
-        <div class="scribe-body">
-          <div class="eyebrow">Note du scribe — éviter la noyade</div>
-          <div class="title">Trois voies de traitement, pour ne jamais traiter une file comme un long fleuve.</div>
-          <ul>
-            <li><strong>Voie Express</strong> — typos, dates, ISBN : présentées en lot, validables en série (touche <kbd style="font-family:var(--font-mono);font-size:10px;background:var(--bg-page);border:1px solid var(--border-default);border-bottom-width:2px;padding:1px 5px;border-radius:4px;">A</kbd> = tout valider). Idéal pour les sessions de 5 minutes.</li>
-            <li><strong>Voie Régulière</strong> — modifications structurelles : split-view côte à côte, raccourcis <kbd style="font-family:var(--font-mono);font-size:10px;background:var(--bg-page);border:1px solid var(--border-default);border-bottom-width:2px;padding:1px 5px;border-radius:4px;">V</kbd> / <kbd style="font-family:var(--font-mono);font-size:10px;background:var(--bg-page);border:1px solid var(--border-default);border-bottom-width:2px;padding:1px 5px;border-radius:4px;">R</kbd> / <kbd style="font-family:var(--font-mono);font-size:10px;background:var(--bg-page);border:1px solid var(--border-default);border-bottom-width:2px;padding:1px 5px;border-radius:4px;">S</kbd> (Skip).</li>
-            <li><strong>Voie Délicate</strong> — nouvelles fiches ou refontes : prévisualisation complète, badge <em>Délicate</em> rouge pour signaler le temps requis.</li>
-            <li><strong>Confiance contributeur</strong> — un taux historique &gt;90% allume un badge "✓ Fiable" : tu peux valider d'un trait sans relire ligne à ligne.</li>
-            <li><strong>Anti-blocage</strong> — la touche <kbd style="font-family:var(--font-mono);font-size:10px;background:var(--bg-page);border:1px solid var(--border-default);border-bottom-width:2px;padding:1px 5px;border-radius:4px;">S</kbd> reporte une suggestion en fin de file plutôt que de t'épuiser sur un cas ambigu.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
 
     <!-- =============== 1. VUE D'ENSEMBLE =============== -->
     <section class="container mod-section" id="overview">
@@ -1679,12 +1785,6 @@
           <div class="queue-head">
             <span class="ttl">La suite</span>
             <span class="count">22 en attente</span>
-          </div>
-          <div class="qfilter" role="group" aria-label="Filtres de la file">
-            <button class="qchip" aria-pressed="true">Toutes</button>
-            <button class="qchip" aria-pressed="false">Express</button>
-            <button class="qchip" aria-pressed="false">Régulière</button>
-            <button class="qchip" aria-pressed="false">Délicate</button>
           </div>
           <div class="queue-list" id="queueList">
             <div class="qrow is-current">
@@ -2186,5 +2286,7 @@
     });
   </script>
 
+  <div class="menu-backdrop" id="menu-backdrop" aria-hidden="true"></div>
+  <script src="../assets/menus.js"></script>
 </body>
 </html>
