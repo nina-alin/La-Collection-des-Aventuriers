@@ -1,65 +1,263 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ contributor.pseudo ?? (contributor.firstName ~ ' ' ~ contributor.lastName) }} — La Collection des Aventuriers{% endblock %}
+{% block title %}{{ contributor.firstName }} {{ contributor.lastName }} — La Collection des Aventuriers{% endblock %}
 
 {% block body %}
-<main class="container py-4">
+{% set sagaColors = {
+    'Loup Solitaire': 'mousse',
+    'Légendes de Magnamund': 'encre',
+    'Le Monde de Loup Solitaire': 'encre',
+    'Défis Fantastiques': 'sang',
+    'Sorcellerie!': 'or',
+    'Feux de la Forge': 'parchemin',
+} %}
+{% set sagaAbbreviations = {
+    'Loup Solitaire': 'LS',
+    'Légendes de Magnamund': 'LM',
+    'Le Monde de Loup Solitaire': 'MLS',
+    'Défis Fantastiques': 'DF',
+    'Sorcellerie!': 'SO',
+    'Feux de la Forge': 'FF',
+} %}
 
-    <header class="mb-4 d-flex gap-4 align-items-start">
-        <div>
-            {% if contributor.portraitImage %}
-                <img src="{{ asset('uploads/contributors/' ~ contributor.portraitImage) }}"
-                     alt="{{ contributor.firstName }} {{ contributor.lastName }}"
-                     width="120" height="120"
-                     class="rounded-circle object-fit-cover">
-            {% else %}
-                <span class="d-flex align-items-center justify-content-center rounded-circle bg-secondary"
-                      style="width:120px;height:120px;font-size:48px;font-family:var(--font-display);"
-                      aria-label="{{ contributor.firstName }} {{ contributor.lastName }}">
-                    {{ (contributor.pseudo ? contributor.pseudo|slice(0,1) : contributor.firstName|slice(0,1))|upper }}
-                </span>
-            {% endif %}
-        </div>
-        <div>
-            <h1 class="mb-1">
-                {{ contributor.pseudo ?? (contributor.firstName ~ ' ' ~ contributor.lastName) }}
-            </h1>
-            {% if contributor.pseudo %}
-                <p class="text-muted mb-1">{{ contributor.firstName }} {{ contributor.lastName }}</p>
-            {% endif %}
-            {% if contributor.nationality %}
-                <p class="text-muted small mb-0">{{ contributor.nationality }}</p>
-            {% endif %}
-        </div>
-    </header>
+<div class="container">
 
-    {% if contributor.biography %}
-        <section class="mb-5" aria-label="Biographie">
-            <h2 class="h4">Biographie</h2>
-            <p>{{ contributor.biography }}</p>
-        </section>
-    {% endif %}
+    <nav class="crumbs" aria-label="Fil d'ariane">
+        <a href="{{ path('home') }}">Accueil</a>
+        <span class="sep">›</span>
+        <a href="{{ path('catalogue_index') }}">Catalogue</a>
+        <span class="sep">›</span>
+        <span class="here">{{ contributor.firstName }} {{ contributor.lastName }}</span>
+    </nav>
 
-    <section aria-label="Bibliographie">
-        <h2 class="h4">Œuvres</h2>
-        <ul class="list-unstyled">
-            {% for contribution in contributions %}
-                <li class="mb-3">
-                    <a href="{{ path('app_book_show', {slug: contribution.book.slug}) }}">
-                        {{ contribution.book.title }}
+    <section class="auteur">
+        <div class="auteur-grid">
+
+            {# ============================== LEFT COLUMN ============================== #}
+            <div>
+                <div class="portrait-card">
+                    <div class="portrait-eyebrow">
+                        Auteur · fiche encyclopédique
+                        <span class="ref">{{ contributor.slug }}</span>
+                    </div>
+
+                    <div class="portrait-frame">
+                        <span class="corner tl" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M3 3v8M3 3h8M3 11c0 4 4 8 8 8M11 7c0-2-1-3-3-3M9 14c-1-1-1-3-1-4"/></svg>
+                        </span>
+                        <span class="corner tr" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M3 3v8M3 3h8M3 11c0 4 4 8 8 8M11 7c0-2-1-3-3-3M9 14c-1-1-1-3-1-4"/></svg>
+                        </span>
+                        <span class="corner bl" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M3 3v8M3 3h8M3 11c0 4 4 8 8 8M11 7c0-2-1-3-3-3M9 14c-1-1-1-3-1-4"/></svg>
+                        </span>
+                        <span class="corner br" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M3 3v8M3 3h8M3 11c0 4 4 8 8 8M11 7c0-2-1-3-3-3M9 14c-1-1-1-3-1-4"/></svg>
+                        </span>
+                        {% if contributor.portraitImage %}
+                            <div class="portrait-inner">
+                                <img src="{{ asset('uploads/contributors/' ~ contributor.portraitImage) }}"
+                                     alt="Portrait de {{ contributor.firstName }} {{ contributor.lastName }}"
+                                     class="portrait-img">
+                            </div>
+                        {% else %}
+                            <div class="portrait-inner"
+                                 role="img"
+                                 aria-label="Portrait de {{ contributor.firstName }} {{ contributor.lastName }} non disponible">
+                                <span class="portrait-caption">portrait · à déposer</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="nameplate">
+                        <span class="nameplate-first">Maître Aventurier</span>
+                        <span class="nameplate-name">{{ contributor.firstName }} {{ contributor.lastName }}</span>
+                    </div>
+
+                    <dl class="vitals">
+                        <div class="vitals-row">
+                            <dt class="vitals-label">Prénom</dt>
+                            <dd class="vitals-value">{{ contributor.firstName }}</dd>
+                        </div>
+                        <div class="vitals-row">
+                            <dt class="vitals-label">Nom</dt>
+                            <dd class="vitals-value">{{ contributor.lastName }}</dd>
+                        </div>
+                        {% if contributor.pseudo %}
+                        <div class="vitals-row">
+                            <dt class="vitals-label">Pseudonyme</dt>
+                            <dd class="vitals-value">{{ contributor.pseudo }}</dd>
+                        </div>
+                        {% endif %}
+                        {% if contributor.nationality %}
+                        <div class="vitals-row">
+                            <dt class="vitals-label">Nationalité</dt>
+                            <dd class="vitals-value">{{ contributor.nationality }}</dd>
+                        </div>
+                        {% endif %}
+                    </dl>
+
+                    {% if contributor.birthDate %}
+                    <div class="life" aria-label="Dates de vie">
+                        <div class="life-cell">
+                            <span class="life-glyph" aria-hidden="true">
+                                <svg viewBox="0 0 24 24">
+                                    <circle cx="12" cy="14" r="3.5"/>
+                                    <path d="M12 7v-2M6 9l-1.4-1.4M18 9l1.4-1.4M4 14h-2M22 14h-2"/>
+                                </svg>
+                            </span>
+                            <span class="life-year">{{ contributor.birthDate|date('Y') }}</span>
+                            {% if contributor.deathDate is null and contributorAge is not null %}
+                                <span class="life-place">({{ contributorAge }} ans)</span>
+                            {% endif %}
+                        </div>
+                        {% if contributor.deathDate %}
+                        <span class="life-sep" aria-hidden="true">✦</span>
+                        <div class="life-cell">
+                            <span class="life-glyph" aria-hidden="true">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M12 4v16M8 8h8"/>
+                                </svg>
+                            </span>
+                            <span class="life-year">{{ contributor.deathDate|date('Y') }}</span>
+                            {% if contributorAgeAtDeath is not null %}
+                                <span class="life-place">({{ contributorAgeAtDeath }} ans)</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                </div>{# end .portrait-card #}
+
+                <article class="bio-card" aria-label="Biographie">
+                    <div class="bio-eyebrow">Biographie</div>
+                    {% if contributor.biography %}
+                        <div class="bio-body is-collapsed" id="bio-body">
+                            <div class="bio-text">
+                                <p>
+                                    <span class="lettrine" aria-hidden="true">{{ contributor.biography|slice(0, 1) }}</span>{{ contributor.biography|slice(1) }}
+                                </p>
+                            </div>
+                        </div>
+                        <button class="bio-toggle"
+                                type="button"
+                                id="bio-toggle"
+                                aria-controls="bio-body"
+                                aria-expanded="false">
+                            <span class="bio-toggle-text">Lire la suite</span>
+                            <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+                        </button>
+                    {% else %}
+                        <p>Biographie non disponible.</p>
+                    {% endif %}
+                </article>
+            </div>{# end left column #}
+
+            {# ============================== RIGHT COLUMN — BIBLIOGRAPHY ============================== #}
+            <section class="bibliography" aria-labelledby="biblio-title">
+                <header class="biblio-head">
+                    <div class="biblio-title-block">
+                        <div class="biblio-eyebrow">Œuvres répertoriées</div>
+                        <h2 class="biblio-title" id="biblio-title">
+                            Sa bibliographie<span class="count">· {{ totalCount }} fiches</span>
+                        </h2>
+                        {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                            <span class="biblio-counter">0 dans ta collection</span>
+                        {% endif %}
+                    </div>
+                    <div class="biblio-toolbar">
+                        <div class="toolbar-select" aria-label="Trier par">
+                            <span class="lbl">Trier ·</span>
+                            <a href="?sort=chrono{% if activeSaga %}&amp;saga={{ activeSaga }}{% endif %}"
+                               class="{{ activeSort == 'chrono' ? 'is-active' : '' }}">Chronologique</a>
+                            <span>·</span>
+                            <a href="?sort=alpha{% if activeSaga %}&amp;saga={{ activeSaga }}{% endif %}"
+                               class="{{ activeSort == 'alpha' ? 'is-active' : '' }}">Alphabétique</a>
+                        </div>
+                        <button class="toolbar-select"
+                                id="btn-view-toggle"
+                                type="button"
+                                aria-label="Basculer la vue"
+                                aria-pressed="false"
+                                onclick="var g=document.querySelector('.books-grid'),p=this;g.classList.toggle('is-list');p.setAttribute('aria-pressed',g.classList.contains('is-list'))">
+                            Vue · Grille
+                        </button>
+                    </div>
+                </header>
+
+                <div class="collection-filters" role="group" aria-label="Filtrer par saga">
+                    <a href="?" class="coll-pill" aria-pressed="{{ activeSaga is null ? 'true' : 'false' }}">
+                        TOUT <span class="num">· {{ totalCount }}</span>
                     </a>
-                    {% if contribution.book.frenchPublicationYear %}
-                        <span class="text-muted">({{ contribution.book.frenchPublicationYear }})</span>
-                    {% endif %}
-                    {% if contribution.details %}
-                        <span class="text-muted small"> — {{ contribution.details }}</span>
-                    {% endif %}
-                </li>
-            {% else %}
-                <li class="text-muted">Aucune œuvre répertoriée.</li>
-            {% endfor %}
-        </ul>
+                    {% for group in sagaGroups %}
+                        <a href="?saga={{ group.slug }}&amp;sort={{ activeSort }}"
+                           class="coll-pill"
+                           aria-pressed="{{ activeSaga == group.slug ? 'true' : 'false' }}">
+                            {{ group.name|upper }} <span class="num">· {{ group.count }}</span>
+                        </a>
+                    {% endfor %}
+                </div>
+
+                {% if contributions is empty %}
+                    <p>Aucune œuvre répertoriée.</p>
+                {% else %}
+                    <ul class="books-grid" role="list">
+                        {% for contribution in contributions %}
+                            {% set bgColor = sagaColors[contribution.book.saga] ?? '' %}
+                            {% set abbr = sagaAbbreviations[contribution.book.saga] ?? (contribution.book.saga ? contribution.book.saga|slice(0, 2)|upper : '—') %}
+                            <li>
+                                <a class="book-card" href="{{ path('app_book_show', {slug: contribution.book.slug}) }}">
+                                    <div class="bc-cover"{% if bgColor %} data-bg="{{ bgColor }}"{% endif %}>
+                                        <span class="bc-bookmark" aria-hidden="true"></span>
+                                        <span class="bc-frame" aria-hidden="true"></span>
+                                        <span class="bc-ref">{{ abbr }}{% if contribution.book.volumeNumber %} nº{{ contribution.book.volumeNumber }}{% endif %}</span>
+                                        <span class="bc-cover-title">{{ contribution.book.title }}</span>
+                                    </div>
+                                    <div class="bc-body">
+                                        <div class="bc-edition">
+                                            <span>{% if contribution.book.editionInfo %}{{ contribution.book.editionInfo }}{% endif %}</span>
+                                            <span>{% if contribution.book.frenchPublicationYear %}{{ contribution.book.frenchPublicationYear }}{% endif %}</span>
+                                        </div>
+                                        <div class="bc-title">{{ contribution.book.title }}</div>
+                                        <div class="bc-meta">
+                                            <span class="bc-editor">{{ contribution.book.editor.name }}</span>
+                                            {% if contribution.book.collection %}
+                                                <span class="bc-collection">{{ contribution.book.collection.nom }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="bc-footer">
+                                        <span class="bc-status"><span class="dot"></span>NON POSSÉDÉ</span>
+                                    </div>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+            </section>{# end .bibliography #}
+
+        </div>{# end .auteur-grid #}
     </section>
 
-</main>
+</div>{# end .container #}
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+(function () {
+    var toggle = document.getElementById('bio-toggle');
+    var body   = document.getElementById('bio-body');
+    var label  = toggle && toggle.querySelector('.bio-toggle-text');
+    if (!toggle || !body) return;
+    toggle.addEventListener('click', function () {
+        var isCollapsed = body.classList.toggle('is-collapsed');
+        toggle.setAttribute('aria-expanded', String(!isCollapsed));
+        toggle.classList.toggle('is-open', !isCollapsed);
+        if (label) label.textContent = isCollapsed ? 'Lire la suite' : 'Replier';
+    });
+})();
+</script>
 {% endblock %}
