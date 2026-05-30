@@ -37,3 +37,10 @@ Thumbs.db
 
 # Docker local overrides
 compose.override.yaml
+
+# Cover image uploads
+/public/uploads/covers/*
+!/public/uploads/covers/.gitkeep
+!/public/uploads/covers/tmp/
+/public/uploads/covers/tmp/*
+!/public/uploads/covers/tmp/.gitkeep

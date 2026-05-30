@@ -1,0 +1,91 @@
+<div id="step-4-heading">
+  <h2 class="h5 mb-3">Étape 4 : Aperçu et soumission</h2>
+</div>
+
+{# Quota warning #}
+{% if pendingCount >= 20 %}
+  <div class="alert alert-warning" role="alert">
+    <strong>Quota atteint</strong> — vous avez déjà {{ pendingCount }} suggestion(s) en attente.
+    Vous ne pouvez pas soumettre de nouvelle suggestion tant qu'une proposition n'est pas traitée.
+  </div>
+{% endif %}
+
+{# Diff legend (correction mode) #}
+{% if mode == 'CORRECTION' and originalData is not empty %}
+  {% set diff = formData|filter((v, k) => originalData[k] is defined and originalData[k] != v) %}
+  <div class="diff-legend alert alert-info mb-3" role="status">
+    <strong>{{ diff|length }} champ{{ diff|length > 1 ? 's' : '' }} modifié{{ diff|length > 1 ? 's' : '' }}</strong>
+    {% if diff|length == 0 %}— aucune modification détectée.{% endif %}
+  </div>
+{% endif %}
+
+{# Cover thumbnail #}
+{% if coverImageTempPath %}
+  <div class="preview-cover mb-3">
+    <img src="{{ asset(coverImageTempPath) }}" alt="Couverture soumise" class="img-thumbnail" style="max-height:160px;" />
+  </div>
+{% endif %}
+
+{# Field preview table #}
+<dl class="preview-fields">
+  {% set fieldLabels = {
+    title: 'Titre',
+    subtitle: 'Sous-titre',
+    author: 'Auteur(s)',
+    illustrator: 'Illustrateur',
+    traductor: 'Traducteur',
+    editor: 'Éditeur',
+    collection: 'Collection',
+    isbn: 'ISBN',
+    publicationFr: 'Parution France',
+    originalEdition: 'Édition originale',
+    paragraphs: 'Paragraphes',
+  } %}
+  {% for key, label in fieldLabels %}
+    {% if formData[key] is defined and formData[key] is not empty %}
+      <div class="preview-field row mb-1 {{ mode == 'CORRECTION' and originalData[key] is defined and originalData[key] != formData[key] ? 'is-modified' : '' }}">
+        <dt class="col-4 text-muted">{{ label }}</dt>
+        <dd class="col-8 mb-0">
+          {{ formData[key] }}
+          {% if mode == 'CORRECTION' and originalData[key] is defined and originalData[key] != formData[key] %}
+            <span class="badge bg-warning text-dark ms-1">modifié</span>
+            <small class="text-muted d-block">Avant : {{ originalData[key] }}</small>
+          {% endif %}
+        </dd>
+      </div>
+    {% endif %}
+  {% endfor %}
+</dl>
+
+{# Toast area #}
+<div aria-live="polite" class="mt-3">
+  {% for message in app.flashes('success') %}
+    <div class="alert alert-success">{{ message }}</div>
+  {% endfor %}
+  {% for message in app.flashes('error') %}
+    <div class="alert alert-danger">{{ message }}</div>
+  {% endfor %}
+</div>
+
+{# Navigation + Submit #}
+<div class="d-flex justify-content-between mt-4">
+  <button type="button" class="btn"
+          data-action="live#action"
+          data-live-action-param="goToStep"
+          data-live-step-param="3">
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    Précédent
+  </button>
+
+  <button type="button" class="btn btn-primary"
+          data-action="live#action"
+          data-live-action-param="submitSuggestion"
+          {{ (pendingCount >= 20 or isSubmitting or formData is empty or errors is not empty) ? 'disabled aria-disabled="true"' : '' }}>
+    {% if isSubmitting %}
+      <span class="spinner me-1" role="status" aria-label="Envoi en cours…"></span>
+      Envoi en cours…
+    {% else %}
+      Soumettre à la modération
+    {% endif %}
+  </button>
+</div>

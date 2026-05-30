@@ -1,0 +1,67 @@
+<div id="step-1-heading">
+  <h2 class="h5 mb-3">Étape 1 : Type de proposition</h2>
+</div>
+
+{% if errors.step1 is defined %}
+  <div class="alert alert-warning" role="alert" aria-live="assertive">{{ errors.step1 }}</div>
+{% endif %}
+
+{# Mode selection #}
+<fieldset class="mb-4">
+  <legend class="form-label fw-semibold mb-2">Quel type de proposition ?</legend>
+  <div class="mode-toggle" role="radiogroup" aria-label="Mode de proposition">
+    <label class="type-card {{ mode == 'NEW_ENTRY' ? 'is-selected' : '' }}">
+      <input type="radio" name="mode" value="NEW_ENTRY"
+             data-model="mode"
+             {{ mode == 'NEW_ENTRY' ? 'checked' : '' }}
+             aria-label="Nouvelle fiche — Ajouter une entrée encore absente du grimoire" />
+      <span class="ic" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      </span>
+      <span class="tx">
+        <span class="t">Nouvelle fiche</span>
+        <span class="d">Ajouter une entrée encore absente du grimoire.</span>
+      </span>
+    </label>
+    <label class="type-card {{ mode == 'CORRECTION' ? 'is-selected' : '' }}">
+      <input type="radio" name="mode" value="CORRECTION"
+             data-model="mode"
+             {{ mode == 'CORRECTION' ? 'checked' : '' }}
+             aria-label="Corriger une fiche — Signaler une erreur ou compléter une fiche existante" />
+      <span class="ic" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
+      </span>
+      <span class="tx">
+        <span class="t">Corriger une fiche</span>
+        <span class="d">Signaler une erreur ou compléter une fiche existante.</span>
+      </span>
+    </label>
+  </div>
+</fieldset>
+
+{# Entity type selection #}
+<div class="mb-4">
+  <label for="entity-type" class="form-label fw-semibold">Type d'entité</label>
+  <select id="entity-type" name="entityType" class="select"
+          data-model="entityType"
+          aria-required="true"
+          aria-label="Type d'entité à soumettre">
+    <option value="">— Sélectionnez un type —</option>
+    <option value="BOOK"        {{ entityType == 'BOOK'        ? 'selected' : '' }}>Livre</option>
+    <option value="AUTHOR"      {{ entityType == 'AUTHOR'      ? 'selected' : '' }}>Auteur</option>
+    <option value="ILLUSTRATOR" {{ entityType == 'ILLUSTRATOR' ? 'selected' : '' }}>Illustrateur</option>
+    <option value="TRADUCTOR"   {{ entityType == 'TRADUCTOR'   ? 'selected' : '' }}>Traducteur</option>
+    <option value="EDITOR"      {{ entityType == 'EDITOR'      ? 'selected' : '' }}>Éditeur</option>
+    <option value="COLLECTION"  {{ entityType == 'COLLECTION'  ? 'selected' : '' }}>Collection</option>
+  </select>
+</div>
+
+<div class="d-flex justify-content-end">
+  <button type="button" class="btn btn-primary"
+          data-action="live#action"
+          data-live-action-param="nextStep"
+          {{ (mode is null or entityType is null) ? 'aria-disabled="true" disabled' : '' }}>
+    Suivant
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+</div>
