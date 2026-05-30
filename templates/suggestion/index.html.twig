@@ -1,0 +1,137 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Suggestions — La Collection{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+
+  {# Page header #}
+  <section class="page-head mb-4">
+    <div class="eyebrow text-muted small mb-1">Atelier des Chroniqueurs · contribution collaborative</div>
+    <h1>Enrichis le grimoire, <em>fiche par fiche</em>.</h1>
+    <p class="lede text-muted">
+      Propose une nouvelle entrée ou corrige un détail existant. Chaque suggestion est relue
+      par un modérateur dans les 48 h ; tu peux suivre l'état de tes propositions à droite.
+    </p>
+
+    {# Dashboard banner (US4) #}
+    <div class="contributor-banner" role="region" aria-label="Tableau de bord contributeur">
+      <div class="crest" aria-hidden="true">
+        <span>{{ metrics.currentLevel ? metrics.currentLevel.rankNumber : '?' }}</span>
+      </div>
+      <div class="contributor-text">
+        <div class="rank">
+          {% if metrics.currentLevel %}
+            Rang {{ metrics.currentLevel.rankNumber }} · {{ metrics.currentLevel.name }}
+          {% else %}
+            Aucun rang
+          {% endif %}
+        </div>
+        <div class="title">
+          {% if metrics.deltaToNext is not null and metrics.deltaToNext > 0 %}
+            Tu es à <em>{{ metrics.deltaToNext }} fiche{{ metrics.deltaToNext > 1 ? 's' : '' }}</em>
+            du rang suivant.
+          {% elseif metrics.currentLevel %}
+            Tu as atteint le rang le plus élevé. Félicitations !
+          {% endif %}
+        </div>
+      </div>
+      <div class="contributor-stats" aria-label="Statistiques de contribution">
+        <div class="stat">
+          <div class="val success">{{ metrics.validatedCount }}</div>
+          <div class="lbl">Validées</div>
+        </div>
+        <div class="stat">
+          <div class="val pending">{{ metrics.pendingCount }}</div>
+          <div class="lbl">En attente</div>
+        </div>
+        <div class="stat">
+          <div class="val rate">
+            {% if metrics.acceptanceRate is not null %}
+              {{ (metrics.acceptanceRate * 100)|round }}&#160;%
+            {% else %}
+              &mdash;
+            {% endif %}
+          </div>
+          <div class="lbl">Taux d'acceptation</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# Mobile tab switcher (US3) #}
+  <div class="panel-tabs" role="tablist" aria-label="Vues"
+       {{ stimulus_controller('suggestion-tabs') }}>
+    <button role="tab" id="tab-action" aria-selected="true" aria-controls="pane-action">
+      ✦ Proposer
+    </button>
+    <button role="tab" id="tab-suivi" aria-selected="false" aria-controls="pane-suivi">
+      Mon suivi
+      <span class="pill" data-suggestion-tabs-target="pendingBadge">{{ metrics.pendingCount }}</span>
+    </button>
+  </div>
+
+  {# Two-panel layout #}
+  <div class="layout" id="layout">
+
+    {# Left panel: Wizard #}
+    <section class="panel" data-pane="action" id="pane-action" role="tabpanel" aria-labelledby="tab-action">
+      <div class="panel-head">
+        <div class="panel-title">
+          <span class="num" aria-hidden="true">1</span>
+          Créer une fiche
+        </div>
+      </div>
+      <div class="panel-body">
+        <twig:Suggestion:WizardComponent />
+      </div>
+    </section>
+
+    {# Right panel: Suivi (US3) #}
+    <section class="panel" data-pane="suivi" id="pane-suivi" role="tabpanel" aria-labelledby="tab-suivi"
+             {{ stimulus_controller('suggestion-polling', {feedUrl: path('app_suggestions_feed')}) }}>
+
+      <div class="panel-head">
+        <div class="panel-title">
+          <span class="num" aria-hidden="true">2</span>
+          Mon suivi
+        </div>
+      </div>
+
+      {# Status filter buttons #}
+      <div class="suivi-filters" role="group" aria-label="Filtrer par statut">
+        <button class="suivi-filter" aria-pressed="true" data-filter="all"
+                data-action="suggestion-polling#filterAll">
+          Toutes <span class="ct" data-suggestion-polling-target="countAll">0</span>
+        </button>
+        <button class="suivi-filter" aria-pressed="false" data-filter="pending"
+                data-action="suggestion-polling#filterPending">
+          En attente <span class="ct" data-suggestion-polling-target="countPending">0</span>
+        </button>
+        <button class="suivi-filter" aria-pressed="false" data-filter="validated"
+                data-action="suggestion-polling#filterValidated">
+          Validées <span class="ct" data-suggestion-polling-target="countValidated">0</span>
+        </button>
+        <button class="suivi-filter" aria-pressed="false" data-filter="refused"
+                data-action="suggestion-polling#filterRefused">
+          Refusées <span class="ct" data-suggestion-polling-target="countRefused">0</span>
+        </button>
+      </div>
+
+      {# Suggestion card list #}
+      <div class="suivi-list" data-suggestion-polling-target="list" aria-live="polite" aria-label="Liste des suggestions">
+        <p class="text-muted text-center py-4" data-suggestion-polling-target="emptyState">
+          Vous n'avez pas encore soumis de suggestion.
+        </p>
+      </div>
+
+      {# Polling suspended indicator #}
+      <div class="polling-suspended d-none" data-suggestion-polling-target="suspendedIndicator" role="alert">
+        Mise à jour suspendue — <button type="button" data-action="suggestion-polling#resume">Réessayer</button>
+      </div>
+    </section>
+
+  </div>{# /layout #}
+
+</div>{# /container #}
+{% endblock %}

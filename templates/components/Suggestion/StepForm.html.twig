@@ -1,0 +1,220 @@
+<div id="step-2-heading">
+  <h2 class="h5 mb-3">Étape 2 : Détails</h2>
+</div>
+
+{# Pre-fill banner for correction mode #}
+{% if mode == 'CORRECTION' and originalData is not empty %}
+  <div class="prefill-banner alert alert-info mb-3" role="region" aria-label="Données pré-remplies">
+    <strong>Fiche source chargée</strong> — modifiez les champs à corriger.
+    <button type="button" class="btn btn-sm btn-ghost" aria-expanded="true"
+            aria-controls="prefill-details">Afficher / masquer</button>
+  </div>
+{% endif %}
+
+{# Source entity autocomplete (correction mode only) #}
+{% if mode == 'CORRECTION' %}
+  <div class="mb-3">
+    <label for="source-entity" class="form-label fw-semibold">Fiche à corriger</label>
+    <div {{ stimulus_controller('suggestion-autocomplete', {type: entityType|lower, createUrl: path('app_suggestions_create_entity', {type: entityType|lower})}) }}>
+      <input type="text" id="source-entity" class="input"
+             placeholder="Rechercher une fiche…"
+             aria-label="Rechercher la fiche source à corriger"
+             aria-autocomplete="list"
+             aria-expanded="false"
+             role="combobox"
+             data-suggestion-autocomplete-target="input" />
+      <ul role="listbox" class="autocomplete-dropdown d-none"
+          data-suggestion-autocomplete-target="dropdown"></ul>
+    </div>
+  </div>
+{% endif %}
+
+{# Book fields (shown when entityType = BOOK) #}
+{% if entityType == 'BOOK' or entityType is null %}
+
+  <div class="row g-3">
+
+    <div class="col-12">
+      <label for="field-title" class="form-label fw-semibold">
+        Titre <span class="text-danger" aria-hidden="true">*</span>
+      </label>
+      <input type="text" id="field-title" class="input {{ errors.title is defined ? 'is-invalid' : '' }}"
+             data-model="formData.title"
+             value="{{ formData.title ?? '' }}"
+             placeholder="ex. L'Œil d'Émeraude"
+             aria-required="true"
+             aria-describedby="field-title-help {{ errors.title is defined ? 'field-title-error' : '' }}" />
+      <div id="field-title-help" class="form-help">Titre exact tel qu'il apparaît sur la couverture.</div>
+      {% if errors.title is defined %}
+        <div id="field-title-error" class="form-help error" aria-live="assertive">{{ errors.title }}</div>
+      {% endif %}
+    </div>
+
+    <div class="col-12">
+      <label for="field-subtitle" class="form-label">Sous-titre</label>
+      <input type="text" id="field-subtitle" class="input"
+             data-model="formData.subtitle"
+             value="{{ formData.subtitle ?? '' }}"
+             placeholder="ex. Le Cycle de l'Anneau, tome 1"
+             aria-describedby="field-subtitle-help" />
+      <div id="field-subtitle-help" class="form-help">Laissez vide si absent.</div>
+    </div>
+
+    <div class="col-md-6">
+      <label for="field-author" class="form-label fw-semibold">Auteur(s)</label>
+      <div {{ stimulus_controller('suggestion-autocomplete', {type: 'author', createUrl: path('app_suggestions_create_entity', {type: 'author'})}) }}>
+        <input type="text" id="field-author" class="input"
+               data-model="formData.author"
+               value="{{ formData.author ?? '' }}"
+               placeholder="Rechercher ou créer un auteur"
+               aria-label="Auteur(s) du livre"
+               role="combobox"
+               aria-autocomplete="list"
+               data-suggestion-autocomplete-target="input" />
+        <ul role="listbox" class="autocomplete-dropdown d-none"
+            data-suggestion-autocomplete-target="dropdown"></ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <label for="field-illustrator" class="form-label">Illustrateur</label>
+      <div {{ stimulus_controller('suggestion-autocomplete', {type: 'illustrator', createUrl: path('app_suggestions_create_entity', {type: 'illustrator'})}) }}>
+        <input type="text" id="field-illustrator" class="input"
+               data-model="formData.illustrator"
+               value="{{ formData.illustrator ?? '' }}"
+               placeholder="Rechercher ou créer un illustrateur"
+               aria-label="Illustrateur du livre"
+               role="combobox"
+               aria-autocomplete="list"
+               data-suggestion-autocomplete-target="input" />
+        <ul role="listbox" class="autocomplete-dropdown d-none"
+            data-suggestion-autocomplete-target="dropdown"></ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <label for="field-traductor" class="form-label">Traducteur</label>
+      <div {{ stimulus_controller('suggestion-autocomplete', {type: 'traductor', createUrl: path('app_suggestions_create_entity', {type: 'traductor'})}) }}>
+        <input type="text" id="field-traductor" class="input"
+               data-model="formData.traductor"
+               value="{{ formData.traductor ?? '' }}"
+               placeholder="Rechercher ou créer un traducteur"
+               aria-label="Traducteur du livre"
+               role="combobox"
+               aria-autocomplete="list"
+               data-suggestion-autocomplete-target="input" />
+        <ul role="listbox" class="autocomplete-dropdown d-none"
+            data-suggestion-autocomplete-target="dropdown"></ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <label for="field-editor" class="form-label fw-semibold">Éditeur</label>
+      <div {{ stimulus_controller('suggestion-autocomplete', {type: 'editor', createUrl: path('app_suggestions_create_entity', {type: 'editor'})}) }}>
+        <input type="text" id="field-editor" class="input"
+               data-model="formData.editor"
+               value="{{ formData.editor ?? '' }}"
+               placeholder="Rechercher ou créer un éditeur"
+               aria-label="Éditeur du livre"
+               role="combobox"
+               aria-autocomplete="list"
+               data-suggestion-autocomplete-target="input" />
+        <ul role="listbox" class="autocomplete-dropdown d-none"
+            data-suggestion-autocomplete-target="dropdown"></ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <label for="field-collection" class="form-label">Collection</label>
+      <div {{ stimulus_controller('suggestion-autocomplete', {type: 'collection', createUrl: path('app_suggestions_create_entity', {type: 'collection'})}) }}>
+        <input type="text" id="field-collection" class="input"
+               data-model="formData.collection"
+               value="{{ formData.collection ?? '' }}"
+               placeholder="Rechercher ou créer une collection"
+               aria-label="Collection du livre"
+               role="combobox"
+               aria-autocomplete="list"
+               data-suggestion-autocomplete-target="input" />
+        <ul role="listbox" class="autocomplete-dropdown d-none"
+            data-suggestion-autocomplete-target="dropdown"></ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <label for="field-isbn" class="form-label">ISBN</label>
+      <input type="text" id="field-isbn" class="input {{ errors.isbn is defined ? 'is-invalid' : '' }}"
+             data-model="formData.isbn"
+             value="{{ formData.isbn ?? '' }}"
+             placeholder="978-2-XXXXXXXXXX"
+             aria-label="ISBN du livre (10 ou 13 chiffres)"
+             aria-describedby="field-isbn-help {{ errors.isbn is defined ? 'field-isbn-error' : '' }}"
+             inputmode="numeric"
+             maxlength="17"
+             {{ stimulus_controller('suggestion-autocomplete', {isbnMode: true}) }} />
+      <div id="field-isbn-help" class="form-help">Format ISBN-10 ou ISBN-13 (tirets optionnels).</div>
+      {% if errors.isbn is defined %}
+        <div id="field-isbn-error" class="form-help error" aria-live="assertive">{{ errors.isbn }}</div>
+      {% endif %}
+    </div>
+
+    <div class="col-md-6">
+      <label for="field-publication-fr" class="form-label">Parution France</label>
+      <input type="number" id="field-publication-fr" class="input {{ errors.publicationFr is defined ? 'is-invalid' : '' }}"
+             data-model="formData.publicationFr"
+             value="{{ formData.publicationFr ?? '' }}"
+             placeholder="{{ 'now'|date('Y') }}"
+             min="1800" max="{{ ('now'|date('Y') + 2) }}"
+             aria-label="Année de parution en France"
+             aria-describedby="{{ errors.publicationFr is defined ? 'field-pub-fr-error' : '' }}" />
+      {% if errors.publicationFr is defined %}
+        <div id="field-pub-fr-error" class="form-help error" aria-live="assertive">{{ errors.publicationFr }}</div>
+      {% endif %}
+    </div>
+
+    <div class="col-md-6">
+      <label for="field-original-edition" class="form-label">Édition originale</label>
+      <input type="number" id="field-original-edition" class="input"
+             data-model="formData.originalEdition"
+             value="{{ formData.originalEdition ?? '' }}"
+             placeholder="ex. 1982"
+             min="1800" max="{{ ('now'|date('Y') + 2) }}"
+             aria-label="Année de l'édition originale" />
+    </div>
+
+    <div class="col-12">
+      <label for="field-paragraphs" class="form-label">
+        Nombre de paragraphes
+      </label>
+      <input type="number" id="field-paragraphs" class="input {{ errors.paragraphs is defined ? 'is-invalid' : '' }}"
+             data-model="formData.paragraphs"
+             value="{{ formData.paragraphs ?? '' }}"
+             placeholder="ex. 400"
+             min="1" max="800"
+             aria-describedby="field-paragraphs-help {{ errors.paragraphs is defined ? 'field-paragraphs-error' : '' }}"
+             aria-label="Nombre de paragraphes du livre-jeu" />
+      <div id="field-paragraphs-help" class="form-help">Maximum 800 paragraphes.</div>
+      {% if errors.paragraphs is defined %}
+        <div id="field-paragraphs-error" class="form-help error" aria-live="assertive">{{ errors.paragraphs }}</div>
+      {% endif %}
+    </div>
+
+  </div>{# /row #}
+
+{% endif %}
+
+{# Navigation #}
+<div class="d-flex justify-content-between mt-4">
+  <button type="button" class="btn"
+          data-action="live#action"
+          data-live-action-param="goToStep"
+          data-live-step-param="1">
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    Précédent
+  </button>
+  <button type="button" class="btn btn-primary"
+          data-action="live#action"
+          data-live-action-param="nextStep">
+    Suivant
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+</div>

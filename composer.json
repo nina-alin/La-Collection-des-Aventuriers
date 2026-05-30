@@ -30,6 +30,7 @@
         "symfony/stimulus-bundle": "^2.35",
         "symfony/twig-bundle": "7.2.*",
         "symfony/uid": "7.2.*",
+        "symfony/ux-live-component": "^2.36",
         "symfony/ux-turbo": "^2.36",
         "symfony/ux-twig-component": "^2.35",
         "symfony/validator": "7.2.*",

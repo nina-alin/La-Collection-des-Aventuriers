@@ -1,0 +1,63 @@
+<div id="step-3-heading">
+  <h2 class="h5 mb-3">Étape 3 : Couverture</h2>
+</div>
+
+<div class="upload-zone mb-4"
+     {{ stimulus_controller('suggestion-upload') }}
+     data-suggestion-upload-live-component-value="true"
+     aria-label="Zone de dépôt de la couverture">
+
+  {% if coverImageTempPath %}
+    {# Success state #}
+    <div class="upload-state upload-success" data-suggestion-upload-target="state">
+      <img src="{{ asset(coverImageTempPath) }}" alt="Aperçu de la couverture" class="cover-preview" style="max-height:200px;" />
+      <p class="mt-2 text-success">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+        Image chargée avec succès.
+      </p>
+    </div>
+  {% else %}
+    {# Idle / drag-over / invalid / loading states #}
+    <div class="upload-state upload-idle" data-suggestion-upload-target="state">
+      <svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <p class="mt-2">Glissez une image ici ou</p>
+      <label class="btn btn-secondary btn-sm mt-1">
+        Choisir un fichier
+        <input type="file"
+               accept="image/jpeg,image/png,image/webp"
+               class="d-none"
+               aria-label="Sélectionner la couverture (JPEG, PNG ou WEBP, max 4 Mo)"
+               data-suggestion-upload-target="input"
+               data-action="change->suggestion-upload#handleFileChange" />
+      </label>
+      <p class="form-help mt-2">JPEG, PNG ou WEBP · max 4 Mo · format 3:4 recommandé</p>
+    </div>
+  {% endif %}
+
+  {# Error message slot #}
+  {% if errors.cover is defined %}
+    <div class="upload-error mt-2" role="alert" aria-live="assertive">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      {{ errors.cover }}
+    </div>
+  {% endif %}
+
+</div>
+
+<p class="form-help text-muted">La couverture est facultative. Vous pouvez passer cette étape.</p>
+
+<div class="d-flex justify-content-between mt-4">
+  <button type="button" class="btn"
+          data-action="live#action"
+          data-live-action-param="goToStep"
+          data-live-step-param="2">
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    Précédent
+  </button>
+  <button type="button" class="btn btn-primary"
+          data-action="live#action"
+          data-live-action-param="nextStep">
+    Suivant
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+</div>

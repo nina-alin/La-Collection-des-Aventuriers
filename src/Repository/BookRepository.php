@@ -21,6 +21,27 @@ class BookRepository extends ServiceEntityRepository
         return $this->count([]);
     }
 
+    public function findByTitleLike(string $q, int $limit = 10): array
+    {
+        return $this->createQueryBuilder('b')
+            ->where('LOWER(b.title) LIKE LOWER(:q)')
+            ->setParameter('q', '%' . $q . '%')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findOneByTitleCaseInsensitive(string $value, bool $useOriginalTitle = false): ?Book
+    {
+        $field = $useOriginalTitle ? 'b.originalTitle' : 'b.title';
+        return $this->createQueryBuilder('b')
+            ->where("LOWER($field) = LOWER(:value)")
+            ->setParameter('value', $value)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function findBySlugWithRelations(string $slug): ?Book
     {
         return $this->createQueryBuilder('b')
