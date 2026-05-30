@@ -1,5 +1,5 @@
 <!--
-## Sync Impact Report
+## Sync Impact Report — v1.0.0
 
 **Version Change**: [template] → 1.0.0
 **Modified Principles**: N/A (initial ratification — all principles new)
@@ -10,6 +10,16 @@
 - ✅ `.specify/templates/spec-template.md` — scope/requirements align with collection-only perimeter
 - ✅ `.specify/templates/tasks-template.md` — task categorization aligns with Symfony project phases
 - ⚠ `.specify/templates/commands/` — directory not found; no command templates to update
+**Deferred TODOs**: None
+
+## Sync Impact Report — v1.1.0
+
+**Version Change**: 1.0.0 → 1.1.0
+**Modified Principles**: Principle III (quantitative ratings exception added), Principle IV (ROLE_USER description updated)
+**Added Sections**: Principle III Exception block
+**Removed Sections**: None
+**Templates Requiring Updates**:
+- ✅ `.specify/templates/plan-template.md` — Complexity Tracking table already covers III violations; no structural change needed
 **Deferred TODOs**: None
 -->
 
@@ -47,15 +57,25 @@ All content submitted by standard users (`ROLE_USER`) MUST default to `PENDING`
 status. Only `ROLE_MODERATOR` or `ROLE_ADMIN` MAY transition content to `PUBLISHED`.
 No user-submitted content MAY bypass this workflow.
 
+**Exception — Quantitative Ratings**: Numeric book ratings (`Review` entity, score
+1–10) and their optional associated comments are personal user expressions, not
+editorial content. They MUST be published immediately without a `PENDING` phase.
+This exception applies solely to `Review` entities — all other user-submitted
+content (encyclopedia entries, descriptions, etc.) remains subject to the full
+PENDING workflow.
+
 **Rationale**: Collaborative encyclopedia quality control. Prevents vandalism and
-ensures editorial accuracy before public visibility.
+ensures editorial accuracy before public visibility. The ratings exception is
+justified by the quantitative, non-editorial nature of scores and the UX requirement
+for immediate Turbo Stream feedback (spec.md SC-002, SC-007).
 
 ### IV. RBAC — Trois Niveaux de Droits (NON-NÉGOCIABLE)
 
 Access control MUST be implemented using the Symfony Security component with at
 minimum three roles:
 - `ROLE_USER`: personal collection management, wishlist management, content
-  submission (PENDING status only)
+  submission (PENDING status only), book rating submission (immediate publication —
+  see Principle III exception)
 - `ROLE_MODERATOR`: approve or reject pending submissions
   (transition PENDING → PUBLISHED or REJECTED)
 - `ROLE_ADMIN`: full platform administration, user management, configuration
@@ -114,4 +134,4 @@ Violations MUST be justified in `plan.md` under the Complexity Tracking table.
 Compliance review is expected at each code review. `ROLE_ADMIN` approval is required
 for MAJOR version amendments.
 
-**Version**: 1.0.0 | **Ratified**: 2026-05-23 | **Last Amended**: 2026-05-23
+**Version**: 1.1.0 | **Ratified**: 2026-05-23 | **Last Amended**: 2026-05-30

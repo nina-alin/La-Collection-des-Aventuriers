@@ -90,6 +90,10 @@ class Book
     #[ORM\OneToMany(targetEntity: BookImage::class, mappedBy: 'book', cascade: ['remove'], orphanRemoval: true)]
     private Collection $galleryImages;
 
+    /** @var Collection<int, Review> */
+    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'book', cascade: ['remove'], orphanRemoval: true)]
+    private Collection $reviews;
+
     #[ORM\ManyToOne(targetEntity: CollectionEntity::class, inversedBy: 'books')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?CollectionEntity $collection = null;
@@ -98,6 +102,7 @@ class Book
     {
         $this->contributions = new ArrayCollection();
         $this->galleryImages = new ArrayCollection();
+        $this->reviews = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -337,5 +342,11 @@ class Book
     {
         $this->collection = $collection;
         return $this;
+    }
+
+    /** @return Collection<int, Review> */
+    public function getReviews(): Collection
+    {
+        return $this->reviews;
     }
 }

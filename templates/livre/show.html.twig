@@ -341,5 +341,31 @@
         </section>
 
     </section>
+
+    {# ============================== COMMUNITY SECTION ============================== #}
+    <section class="section" id="community" aria-label="Notes et avis de la communauté">
+        <header class="section-head">
+            <span class="section-num">§ 03</span>
+            <h2>Notes &amp; Avis</h2>
+        </header>
+
+        <div id="stats-header">
+            {% include 'livre/_stats_header.html.twig' %}
+        </div>
+
+        <div id="histogram">
+            {% include 'livre/_histogram.html.twig' %}
+        </div>
+
+        <div id="review-form">
+            {% include 'livre/_review_form.html.twig' %}
+        </div>
+
+        {# reviews-list: T034 inserts <turbo-frame id="reviews-list"> here #}
+        <turbo-frame id="reviews-list" src="{{ path('app_book_reviews', {slug: book.slug}) }}">
+            <p>Chargement des avis…</p>
+        </turbo-frame>
+    </section>
+
 </div>
 {% endblock %}
