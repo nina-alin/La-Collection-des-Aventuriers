@@ -1,0 +1,11 @@
+<div id="histogram" class="histogram" aria-label="Distribution des notes" {% if reviewStats.totalCount == 0 %}hidden{% endif %}>
+    {% set maxCount = max(reviewStats.distribution) %}
+    {% for i in 0..9 %}
+        <span
+            class="histo-bar{% if reviewStats.distribution[i] > 0 %} has-value{% endif %}{% if reviewStats.totalCount > 0 and reviewStats.distribution[i] == maxCount %} is-mode{% endif %}"
+            data-val="{{ i + 1 }}"
+            style="height: {{ reviewStats.histogramHeights[i] }}%"
+            aria-label="Note {{ i + 1 }}: {{ reviewStats.distribution[i] }} avis"
+        ></span>
+    {% endfor %}
+</div>

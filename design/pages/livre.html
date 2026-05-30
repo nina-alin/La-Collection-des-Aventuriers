@@ -538,6 +538,196 @@
       outline: none;
     }
     .rating-pip:focus-visible::before { box-shadow: var(--ring-focus); }
+    /* My comment composer — partagé avec ma note */
+    .my-comment {
+      margin-top: var(--sp-3);
+      padding: var(--sp-4);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+    }
+    .my-comment-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--sp-3);
+      margin-bottom: var(--sp-3);
+      flex-wrap: wrap;
+    }
+    .my-comment-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted);
+    }
+    .my-comment-label::before {
+      content: "";
+      width: 22px; height: 1px;
+      background: var(--cuir-400);
+    }
+    .my-comment-vis {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border-default);
+      color: var(--ink-muted);
+      background: var(--bg-page);
+    }
+    .my-comment-vis svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .my-comment-frame {
+      position: relative;
+      background:
+        repeating-linear-gradient(0deg,
+          transparent 0, transparent 27px,
+          color-mix(in oklab, var(--cuir-400) 22%, transparent) 27px,
+          color-mix(in oklab, var(--cuir-400) 22%, transparent) 28px),
+        var(--parchemin-50);
+      border: 1px solid var(--cuir-300);
+      border-radius: var(--radius-md);
+      padding: 2px;
+    }
+    [data-theme="dark"] .my-comment-frame {
+      background:
+        repeating-linear-gradient(0deg,
+          transparent 0, transparent 27px,
+          color-mix(in oklab, var(--or-400) 14%, transparent) 27px,
+          color-mix(in oklab, var(--or-400) 14%, transparent) 28px),
+        var(--grimoire-100);
+      border-color: var(--cuir-700);
+    }
+    .my-comment-frame::before,
+    .my-comment-frame::after {
+      content: "";
+      position: absolute;
+      width: 12px; height: 12px;
+      border: 1px solid var(--cuir-400);
+      pointer-events: none;
+    }
+    .my-comment-frame::before { top: 6px; left: 6px;  border-right: 0; border-bottom: 0; }
+    .my-comment-frame::after  { bottom: 6px; right: 6px; border-left: 0; border-top: 0; }
+    [data-theme="dark"] .my-comment-frame::before,
+    [data-theme="dark"] .my-comment-frame::after { border-color: var(--or-400); }
+    .my-comment-input {
+      width: 100%;
+      display: block;
+      background: transparent;
+      border: 0;
+      resize: vertical;
+      min-height: 96px;
+      padding: 14px 18px;
+      font-family: var(--font-body);
+      font-size: var(--fs-sm);
+      line-height: 28px;
+      color: var(--parchemin-900);
+      outline: none;
+    }
+    [data-theme="dark"] .my-comment-input { color: var(--ink-default); }
+    .my-comment-input::placeholder {
+      color: var(--ink-subtle);
+      font-style: italic;
+    }
+    .my-comment-input:focus { box-shadow: none; }
+    .my-comment-frame:focus-within { border-color: var(--or-500); box-shadow: var(--ring-focus); }
+    .my-comment-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--sp-3);
+      padding: 6px 10px 8px;
+      flex-wrap: wrap;
+    }
+    .my-comment-tools {
+      display: flex; gap: 4px;
+    }
+    .ct-btn {
+      appearance: none;
+      width: 28px; height: 28px;
+      display: grid; place-items: center;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      color: var(--ink-muted);
+      cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .ct-btn:hover { color: var(--ink-strong); background: var(--bg-page); border-color: var(--border-subtle); }
+    .ct-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .ct-btn[data-tool="bold"]   svg { stroke-width: 2.4; }
+    .ct-divider {
+      width: 1px;
+      align-self: stretch;
+      background: var(--border-subtle);
+      margin: 4px 4px;
+    }
+    .my-comment-counter {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+      font-variant-numeric: tabular-nums;
+    }
+    .my-comment-counter .num { color: var(--ink-default); font-weight: 600; }
+    .my-comment-counter.is-near { color: var(--or-700); }
+    .my-comment-counter.is-over .num { color: var(--sang-500); }
+    .my-comment-foot {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--sp-3);
+      margin-top: var(--sp-3);
+      flex-wrap: wrap;
+    }
+    .my-comment-tip {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .my-comment-tip svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; flex-shrink: 0; }
+    .my-comment-actions {
+      display: flex; gap: 8px;
+      margin-left: auto;
+    }
+    .my-comment-cancel {
+      appearance: none;
+      padding: 0 14px;
+      min-height: 36px;
+      background: transparent;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: var(--fs-sm);
+      font-weight: 500;
+      color: var(--ink-muted);
+      cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .my-comment-cancel:hover { color: var(--ink-strong); border-color: var(--border-strong); }
+    .my-comment-submit {
+      appearance: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 0 16px;
+      min-height: 36px;
+      background: var(--brand-primary);
+      color: var(--brand-primary-ink);
+      border: 1px solid var(--brand-primary);
+      border-radius: var(--radius-md);
+      font-family: var(--font-display);
+      font-size: var(--fs-sm);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .my-comment-submit:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+    .my-comment-submit:disabled {
+      opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none;
+    }
+    .my-comment-submit svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
     .my-rating-help {
       font-family: var(--font-mono);
       font-size: 10px;
@@ -1338,6 +1528,59 @@
               </div>
               <div class="my-rating-help">Clique sur un écusson pour évaluer · Mise à jour le 12 mai</div>
             </div>
+
+            <!-- My comment composer -->
+            <div class="my-comment" id="myComment">
+              <div class="my-comment-head">
+                <span class="my-comment-label">Mon commentaire</span>
+                <span class="my-comment-vis" title="Visibilité du commentaire">
+                  <svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                  Public · communauté
+                </span>
+              </div>
+              <div class="my-comment-frame">
+                <textarea
+                  class="my-comment-input"
+                  id="myCommentInput"
+                  placeholder="Partage ton impression sur ce livre, son atmosphère, sa difficulté… (max. 1 000 caractères, ton commentaire sera lié à ta note)"
+                  maxlength="1100"
+                  rows="4"
+                  aria-label="Ton commentaire sur ce livre"></textarea>
+                <div class="my-comment-toolbar">
+                  <div class="my-comment-tools" role="group" aria-label="Mise en forme">
+                    <button class="ct-btn" data-tool="bold" type="button" aria-label="Gras" title="Gras">
+                      <svg viewBox="0 0 24 24"><path d="M7 5h7a4 4 0 0 1 0 8H7zM7 13h8a4 4 0 0 1 0 8H7z"/></svg>
+                    </button>
+                    <button class="ct-btn" data-tool="italic" type="button" aria-label="Italique" title="Italique">
+                      <svg viewBox="0 0 24 24"><path d="M14 5h6M4 19h6M15 5l-6 14"/></svg>
+                    </button>
+                    <span class="ct-divider" aria-hidden="true"></span>
+                    <button class="ct-btn" data-tool="quote" type="button" aria-label="Citation" title="Citer un passage">
+                      <svg viewBox="0 0 24 24"><path d="M7 7c-2 0-3 1.5-3 3v6h6v-6H6.5c0-1.5 1-2.5 2.5-2.5zM17 7c-2 0-3 1.5-3 3v6h6v-6h-3.5c0-1.5 1-2.5 2.5-2.5z"/></svg>
+                    </button>
+                    <button class="ct-btn" data-tool="spoiler" type="button" aria-label="Marquer comme spoiler" title="Marquer comme spoiler">
+                      <svg viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 6.1A9 9 0 0 1 22 12s-1 2-3 3.6M6.1 6.1C3.5 7.7 2 12 2 12s4 7 10 7c2 0 3.7-.5 5-1.3"/><path d="M14.5 14.5a3 3 0 0 1-5-5"/></svg>
+                    </button>
+                  </div>
+                  <span class="my-comment-counter" id="myCommentCount">
+                    <span class="num">0</span> / 1 000
+                  </span>
+                </div>
+              </div>
+              <div class="my-comment-foot">
+                <span class="my-comment-tip">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+                  La charte de la collection s'applique. Reste courtois.
+                </span>
+                <div class="my-comment-actions">
+                  <button class="my-comment-cancel" id="myCommentCancel" type="button">Effacer</button>
+                  <button class="my-comment-submit" id="myCommentSubmit" type="button" disabled>
+                    <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+                    Publier mon avis
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
         </div><!-- /.book-hero -->
@@ -1684,6 +1927,49 @@
           this.setAttribute('aria-pressed', 'true');
         });
       });
+
+      // -------- My comment composer --------
+      var cmtInput  = document.getElementById('myCommentInput');
+      var cmtCount  = document.getElementById('myCommentCount');
+      var cmtSubmit = document.getElementById('myCommentSubmit');
+      var cmtCancel = document.getElementById('myCommentCancel');
+      if (cmtInput && cmtCount && cmtSubmit) {
+        var MAX = 1000;
+        function refresh() {
+          var n = cmtInput.value.length;
+          var num = cmtCount.querySelector('.num');
+          if (num) num.textContent = n;
+          cmtCount.classList.toggle('is-near', n >= MAX * 0.85 && n < MAX);
+          cmtCount.classList.toggle('is-over', n >= MAX);
+          cmtSubmit.disabled = (n < 3 || n > MAX);
+        }
+        cmtInput.addEventListener('input', refresh);
+        cmtCancel && cmtCancel.addEventListener('click', function () {
+          cmtInput.value = ''; refresh(); cmtInput.focus();
+        });
+        cmtSubmit.addEventListener('click', function () {
+          if (cmtSubmit.disabled) return;
+          var orig = cmtSubmit.innerHTML;
+          cmtSubmit.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg> Avis publié — merci !';
+          cmtSubmit.disabled = true;
+          setTimeout(function () { cmtSubmit.innerHTML = orig; refresh(); }, 2400);
+        });
+        // Toolbar: simple wrap behaviour (b/i/quote/spoiler)
+        document.querySelectorAll('.my-comment-tools .ct-btn').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var tool = b.getAttribute('data-tool');
+            var s = cmtInput.selectionStart, e = cmtInput.selectionEnd;
+            var sel = cmtInput.value.slice(s, e) || 'texte';
+            var wrap = { bold: ['**', '**'], italic: ['_', '_'], quote: ['> ', ''], spoiler: ['||', '||'] }[tool] || ['', ''];
+            var prefix = wrap[0], suffix = wrap[1];
+            var ins = prefix + sel + suffix;
+            cmtInput.setRangeText(ins, s, e, 'end');
+            cmtInput.focus();
+            refresh();
+          });
+        });
+        refresh();
+      }
     })();
   </script>
   <div class="menu-backdrop" id="menu-backdrop" aria-hidden="true"></div>

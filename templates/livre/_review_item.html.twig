@@ -1,0 +1,39 @@
+<article class="review">
+    <div class="review-author">
+        <div class="review-avatar">
+            {% set initials = review.user|user_initials %}
+            {% if initials %}
+                <span class="avatar-initials">{{ initials }}</span>
+            {% else %}
+                <img src="{{ asset('images/placeholder-avatar.svg') }}" alt="Avatar">
+            {% endif %}
+        </div>
+        <div class="review-author-meta">
+            <span class="review-author-name">
+                {{ review.user ? review.user.displayName ?? review.user.pseudo : 'Utilisateur supprimé' }}
+            </span>
+            {% if review.user %}
+                {% if 'ROLE_ADMIN' in review.user.roles %}
+                    <span class="role-pip admin">Admin</span>
+                {% elseif 'ROLE_MODERATOR' in review.user.roles %}
+                    <span class="role-pip">Modérateur</span>
+                {% endif %}
+            {% endif %}
+        </div>
+        <span
+            data-controller="relative-date"
+            data-relative-date-timestamp-value="{{ review.updatedAt|date('c') }}"
+            class="review-date"
+        >{{ review.updatedAt|date('d/m/Y') }}</span>
+    </div>
+
+    {% if review.comment %}
+        <div class="review-comment">{{ review.comment }}</div>
+    {% endif %}
+
+    <div class="review-score">
+        <span class="mini-shield" aria-hidden="true"></span>
+        <span>{{ review.score }}</span>
+        <span class="out">/10</span>
+    </div>
+</article>

@@ -1,0 +1,86 @@
+<div id="review-form">
+    {% if app.user %}
+        <form
+            method="POST"
+            action="{{ path('app_book_review_submit', {slug: book.slug}) }}"
+            data-controller="char-counter"
+        >
+            <input type="hidden" name="_method" value="POST">
+            <input type="hidden" name="_token" id="review_token" value="{{ csrf_token('review_submit') }}">
+
+            <div
+                data-controller="shield-selector"
+                class="my-rating"
+            >
+                <div class="my-rating-head">
+                    <span class="my-rating-label">Ma note personnelle</span>
+                </div>
+                <div class="rating-track" role="radiogroup" aria-label="Attribuer une note sur 10">
+                    {% for i in 1..10 %}
+                        <button
+                            type="button"
+                            class="rating-pip{% if userReview and userReview.score >= i %} is-on{% endif %}"
+                            data-val="{{ i }}"
+                            data-shield-selector-target="pip"
+                            role="radio"
+                            aria-label="Note {{ i }} sur 10"
+                            aria-checked="{{ userReview and userReview.score == i ? 'true' : 'false' }}"
+                            data-action="click->shield-selector#select keydown->shield-selector#keydown"
+                        ></button>
+                    {% endfor %}
+                    <input
+                        type="hidden"
+                        name="score"
+                        value="{{ userReview ? userReview.score : '' }}"
+                        data-shield-selector-target="input"
+                    >
+                </div>
+            </div>
+
+            <div class="my-comment">
+                <div class="my-comment-head">
+                    <span class="my-comment-label">Mon commentaire</span>
+                </div>
+                <div class="my-comment-frame">
+                    <textarea
+                        name="comment"
+                        class="my-comment-input"
+                        rows="4"
+                        placeholder="Partage ton impression sur ce livre… (max. 1 000 caractères)"
+                        aria-label="Ton commentaire sur ce livre"
+                        data-char-counter-target="input"
+                        data-action="input->char-counter#update"
+                    >{{ userReview ? userReview.comment : '' }}</textarea>
+                    <div class="my-comment-toolbar">
+                        <span class="my-comment-counter">
+                            <span data-char-counter-target="counter">{{ userReview and userReview.comment ? userReview.comment|length : 0 }} / 1000</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="my-comment-foot">
+                    <div class="my-comment-actions">
+                        <button
+                            type="submit"
+                            class="my-comment-submit"
+                            data-char-counter-target="submit"
+                        >
+                            {{ userReview ? 'Modifier mon avis' : 'Publier mon avis' }}
+                        </button>
+                        {% if userReview %}
+                            <button
+                                type="submit"
+                                formaction="{{ path('app_book_review_delete', {slug: book.slug, id: userReview.id}) }}"
+                                formmethod="POST"
+                                name="_method"
+                                value="DELETE"
+                                class="my-comment-cancel"
+                            >Supprimer mon avis</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </form>
+    {% else %}
+        <p><a href="{{ path('app_login') }}">Connecte-toi</a> pour noter ce livre.</p>
+    {% endif %}
+</div>

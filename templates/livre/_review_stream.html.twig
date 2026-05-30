@@ -1,0 +1,16 @@
+<turbo-stream action="replace" target="stats-header">
+    <template>{% include 'livre/_stats_header.html.twig' %}</template>
+</turbo-stream>
+<turbo-stream action="replace" target="histogram">
+    <template>{% include 'livre/_histogram.html.twig' %}</template>
+</turbo-stream>
+<turbo-stream action="replace" target="reviews-list">
+    <template>
+        <turbo-frame id="reviews-list" src="{{ path('app_book_reviews', {slug: book.slug}) }}">
+            <p>Chargement…</p>
+        </turbo-frame>
+    </template>
+</turbo-stream>
+<turbo-stream action="replace" target="review-form">
+    <template>{% include 'livre/_review_form.html.twig' %}</template>
+</turbo-stream>

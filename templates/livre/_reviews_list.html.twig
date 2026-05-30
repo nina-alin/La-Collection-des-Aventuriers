@@ -1,0 +1,38 @@
+<turbo-frame id="reviews-list">
+    <div class="reviews-filter" role="group" aria-label="Filtres des avis">
+        <button
+            aria-pressed="{{ filter == 'recentes' ? 'true' : 'false' }}"
+            data-turbo-frame="reviews-list"
+            onclick="window.location.href='{{ path('app_book_reviews', {slug: book.slug, filter: 'recentes', page: 1}) }}'"
+        >RÉCENTES</button>
+        <button
+            aria-pressed="{{ filter == 'avec_commentaire' ? 'true' : 'false' }}"
+            data-turbo-frame="reviews-list"
+            onclick="window.location.href='{{ path('app_book_reviews', {slug: book.slug, filter: 'avec_commentaire', page: 1}) }}'"
+        >AVEC COMMENTAIRE</button>
+    </div>
+
+    {% if paginator|length == 0 %}
+        <p data-empty-state>Aucune évaluation pour l'instant</p>
+    {% else %}
+        <div class="reviews-list">
+            {% for review in paginator %}
+                {% include 'livre/_review_item.html.twig' %}
+            {% endfor %}
+        </div>
+
+        {% if totalPages > 1 %}
+            <nav class="pagination" aria-label="Pagination des avis">
+                {% for p in 1..totalPages %}
+                    {% set params = app.request.query.all|merge({page: p, slug: book.slug}) %}
+                    <a
+                        href="{{ path('app_book_reviews', params) }}"
+                        data-turbo-frame="reviews-list"
+                        class="pagination-link{% if p == page %} is-current{% endif %}"
+                        aria-current="{{ p == page ? 'page' : 'false' }}"
+                    >{{ p }}</a>
+                {% endfor %}
+            </nav>
+        {% endif %}
+    {% endif %}
+</turbo-frame>

@@ -1,0 +1,28 @@
+<div id="stats-header" class="stats-header">
+    {% if reviewStats.totalCount == 0 %}
+        <p class="stats-empty">Aucune évaluation pour l'instant</p>
+    {% else %}
+        <div class="score-row">
+            <div class="score-shield" aria-hidden="true">
+                <span class="score-val">{{ reviewStats.averageScore }}</span>
+            </div>
+            <div class="score-meta">
+                <span class="score-count">{{ reviewStats.totalCount }} aventurier{% if reviewStats.totalCount > 1 %}s{% endif %} ont noté ce livre</span>
+                {% if reviewStats.lastEvaluators|length > 0 %}
+                    <div class="score-evaluators" aria-label="Derniers évaluateurs">
+                        {% for evaluator in reviewStats.lastEvaluators %}
+                            {% set initials = evaluator|user_initials %}
+                            <div class="evaluator-avatar" aria-label="{{ evaluator ? evaluator.displayName : 'Utilisateur supprimé' }}">
+                                {% if initials %}
+                                    <span class="avatar-initials">{{ initials }}</span>
+                                {% else %}
+                                    <img src="{{ asset('images/placeholder-avatar.svg') }}" alt="Avatar">
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>

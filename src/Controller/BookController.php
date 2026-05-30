@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\BookRepository;
+use App\Repository\ReviewRepository;
 use App\Service\BookAccessChecker;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,6 +17,7 @@ class BookController extends AbstractController
         string $slug,
         BookRepository $bookRepository,
         BookAccessChecker $bookAccessChecker,
+        ReviewRepository $reviewRepository,
     ): Response {
         $book = $bookRepository->findBySlugWithRelations($slug);
 
@@ -25,8 +27,18 @@ class BookController extends AbstractController
 
         $bookAccessChecker->assertViewable($book, $this->getUser());
 
+        $reviewStats = $reviewRepository->getStatsForBook($book);
+
+        /** @var \App\Entity\User|null $currentUser */
+        $currentUser = $this->getUser();
+        $userReview = $currentUser !== null
+            ? $reviewRepository->findByUserAndBook($currentUser, $book)
+            : null;
+
         return $this->render('livre/show.html.twig', [
             'book' => $book,
+            'reviewStats' => $reviewStats,
+            'userReview' => $userReview,
         ]);
     }
 }
