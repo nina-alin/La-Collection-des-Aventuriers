@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Form\RegistrationFormType;
+use App\Repository\UserRepository;
 use App\Service\EmailVerificationService;
 use App\Service\UserRegistrationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,6 +22,7 @@ class RegistrationController extends AbstractController
         private readonly RateLimiterFactory $registrationLimiter,
         private readonly UserRegistrationService $registrationService,
         private readonly EmailVerificationService $verificationService,
+        private readonly UserRepository $userRepository,
     ) {
     }
 
@@ -69,6 +71,7 @@ class RegistrationController extends AbstractController
                     'registrationForm' => $form->createView(),
                     'state' => 'form',
                     'emailSendError' => null,
+                    'stat_aventuriers' => $this->userRepository->countActive(),
                 ], new Response(null, Response::HTTP_TOO_MANY_REQUESTS));
             }
 
@@ -106,6 +109,7 @@ class RegistrationController extends AbstractController
             'registrationForm' => $form->createView(),
             'state' => $state,
             'emailSendError' => $emailSendError,
+            'stat_aventuriers' => $this->userRepository->countActive(),
         ]);
     }
 }

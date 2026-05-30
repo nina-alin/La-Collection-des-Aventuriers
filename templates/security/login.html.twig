@@ -48,15 +48,15 @@
 
     <div class="auth-cover-stats">
       <div>
-        <span class="stat-num">2 481</span>
+        <span class="stat-num">{{ stat_fiches|number_format(0, '', '\u{202F}') }}</span>
         <span class="stat-label">Fiches</span>
       </div>
       <div>
-        <span class="stat-num">156</span>
+        <span class="stat-num">{{ stat_auteurs|number_format(0, '', '\u{202F}') }}</span>
         <span class="stat-label">Auteurs</span>
       </div>
       <div>
-        <span class="stat-num">3 040</span>
+        <span class="stat-num">{{ stat_aventuriers|number_format(0, '', '\u{202F}') }}</span>
         <span class="stat-label">Aventuriers</span>
       </div>
     </div>

@@ -20,6 +20,11 @@ class ContributorRepository extends ServiceEntityRepository
         parent::__construct($registry, Contributor::class);
     }
 
+    public function countAll(): int
+    {
+        return $this->count([]);
+    }
+
     public function findBySlugAndRole(string $slug, ContributionRole $role): ?Contributor
     {
         return $this->getEntityManager()

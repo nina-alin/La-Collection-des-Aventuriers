@@ -16,6 +16,11 @@ class BookRepository extends ServiceEntityRepository
         parent::__construct($registry, Book::class);
     }
 
+    public function countAll(): int
+    {
+        return $this->count([]);
+    }
+
     public function findBySlugWithRelations(string $slug): ?Book
     {
         return $this->createQueryBuilder('b')

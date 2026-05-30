@@ -75,6 +75,15 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
         return (int) $conn->fetchOne($sql);
     }
 
+    public function countActive(): int
+    {
+        return (int) $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->where('u.deletedAt IS NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     /** @return User[] */
     public function findAllNonDeleted(): array
     {
