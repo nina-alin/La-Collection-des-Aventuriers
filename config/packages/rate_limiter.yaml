@@ -5,6 +5,16 @@ framework:
             limit: 5
             interval: '3600 seconds'
             cache_pool: cache.app.dbal
+        password_reset_limiter:
+            policy: sliding_window
+            limit: 5
+            interval: '3600 seconds'
+            cache_pool: cache.app.dbal
+        resend_limiter:
+            policy: sliding_window
+            limit: 5
+            interval: '3600 seconds'
+            cache_pool: cache.app.dbal
 
 when@test:
     framework:

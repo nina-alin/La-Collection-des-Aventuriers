@@ -23,16 +23,21 @@ class RegistrationFormType extends AbstractType
             ->add('pseudo', TextType::class, [
                 'constraints' => [
                     new NotBlank(['message' => 'Le pseudo est obligatoire.']),
-                    new \Symfony\Component\Validator\Constraints\Regex([
-                        'pattern' => '/^[a-zA-Z0-9_]{3,30}$/',
-                        'message' => 'Le pseudo doit comporter entre 3 et 30 caractères (lettres, chiffres, underscore).',
-                    ]),
                     new Length([
                         'min' => 3,
                         'max' => 30,
-                        'minMessage' => 'Le pseudo doit comporter entre 3 et 30 caractères (lettres, chiffres, underscore).',
-                        'maxMessage' => 'Le pseudo doit comporter entre 3 et 30 caractères (lettres, chiffres, underscore).',
+                        'minMessage' => 'Le pseudo doit comporter entre 3 et 30 caractères (lettres, chiffres, tiret, underscore).',
+                        'maxMessage' => 'Le pseudo doit comporter entre 3 et 30 caractères (lettres, chiffres, tiret, underscore).',
                     ]),
+                    new \Symfony\Component\Validator\Constraints\Regex([
+                        'pattern' => '/^[a-zA-Z0-9_-]+$/',
+                        'message' => 'Le pseudo ne peut contenir que des lettres, chiffres, tirets et underscores.',
+                    ]),
+                ],
+                'attr' => [
+                    'minlength' => 3,
+                    'maxlength' => 30,
+                    'pattern' => '[a-zA-Z0-9_-]+',
                 ],
             ])
             ->add('email', EmailType::class, [

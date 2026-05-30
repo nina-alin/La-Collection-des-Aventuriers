@@ -20,6 +20,10 @@ class SecurityController extends AbstractController
     #[Route('/connexion', name: 'app_login', methods: ['GET', 'POST'])]
     public function login(Request $request): Response
     {
+        if ($this->getUser() !== null) {
+            return $this->redirectToRoute('home');
+        }
+
         $ip = $request->getClientIp() ?? '0.0.0.0';
         $blocked = $this->bruteForce->isBlocked($ip);
         $remainingMinutes = 0;

@@ -44,6 +44,8 @@ security:
                 samesite: lax
                 always_remember_me: false
                 remember_me_parameter: _remember_me
+                token_provider:
+                    doctrine: true
             logout:
                 path: app_logout
                 target: app_login
@@ -56,6 +58,9 @@ security:
         - { path: ^/connexion, roles: PUBLIC_ACCESS }
         - { path: ^/inscription, roles: PUBLIC_ACCESS }
         - { path: ^/auth/google, roles: PUBLIC_ACCESS }
+        - { path: ^/mot-de-passe-oublie, roles: PUBLIC_ACCESS }
+        - { path: ^/reinitialiser-mot-de-passe, roles: PUBLIC_ACCESS }
+        - { path: ^/confirmation-email, roles: PUBLIC_ACCESS }
         - { path: ^/politique-de-confidentialite, roles: PUBLIC_ACCESS }
         - { path: ^/moderation, roles: ROLE_MODERATOR }
         - { path: ^/admin, roles: ROLE_ADMIN }

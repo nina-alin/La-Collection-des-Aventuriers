@@ -4,6 +4,7 @@ namespace App\Security;
 
 use App\EventSubscriber\AuthenticationEventSubscriber;
 use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
@@ -28,6 +29,7 @@ class GoogleAuthenticator extends OAuth2Authenticator
         private readonly RouterInterface $router,
         private readonly AuthenticationEventSubscriber $subscriber,
         private readonly UserRepository $userRepository,
+        private readonly EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -84,14 +86,41 @@ class GoogleAuthenticator extends OAuth2Authenticator
         ]);
 
         return new SelfValidatingPassport(
-            new UserBadge((string) $googleEmail, fn() => $this->userRepository->loadUserByIdentifier((string) $googleEmail))
+            new UserBadge((string) $googleEmail, function () use ($googleEmail) {
+                $user = $this->userRepository->loadUserByIdentifier((string) $googleEmail);
+                // Google verifies email addresses — bypass the UserChecker email_not_verified gate
+                $user->setIsEmailVerified(true);
+
+                return $user;
+            })
         );
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
+        $pending = $request->getSession()->get('_google_oauth_pending');
         $request->getSession()->remove('_google_oauth_pending');
         $this->subscriber->logOAuth2Event('success', $token->getUserIdentifier());
+
+        /** @var \App\Entity\User $user */
+        $user = $token->getUser();
+        $needsFlush = false;
+
+        if (!$user->isEmailVerified()) {
+            $user->setIsEmailVerified(true);
+            $needsFlush = true;
+        }
+
+        if ($pending !== null && $user->getGoogleId() === null) {
+            $user->setGoogleId($pending['google_id'] ?? null);
+            $user->setDisplayName($pending['display_name'] ?? null);
+            $user->setAvatarUrl($pending['avatar_url'] ?? null);
+            $needsFlush = true;
+        }
+
+        if ($needsFlush) {
+            $this->entityManager->flush();
+        }
 
         $targetPath = $request->getSession()->get('_security.'.$firewallName.'.target_path');
         if ($targetPath && !str_contains($targetPath, '/auth/google/callback')) {
