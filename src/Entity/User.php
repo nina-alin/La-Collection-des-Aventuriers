@@ -14,6 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '"user"')]
+#[ORM\EntityListeners(['App\EntityListener\UserGoogleVerifiedListener'])]
 #[UniqueEntity(fields: ['email'], message: 'Cette adresse email est déjà associée à un compte.')]
 #[UniqueEntity(fields: ['pseudo'], message: 'Ce pseudo n\'est pas disponible.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -29,8 +30,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 30, unique: true)]
     #[Assert\NotBlank]
-    #[Assert\Regex(pattern: '/^[a-zA-Z0-9_]{3,30}$/')]
     #[Assert\Length(min: 3, max: 30)]
+    #[Assert\Regex(pattern: '/^[a-zA-Z0-9_-]+$/')]
     private string $pseudo = '';
 
     #[ORM\Column(nullable: true)]
@@ -47,6 +48,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 2048, nullable: true)]
     private ?string $avatarUrl = null;
+
+    #[ORM\Column(options: ['default' => false])]
+    private bool $isEmailVerified = false;
 
     #[ORM\Column(length: 10, options: ['default' => 'active'])]
     private string $status = 'active';
@@ -196,6 +200,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function isEmailVerified(): bool
+    {
+        return $this->isEmailVerified;
+    }
+
+    public function setIsEmailVerified(bool $isEmailVerified): static
+    {
+        $this->isEmailVerified = $isEmailVerified;
+
+        return $this;
     }
 
     /** @return Collection<int, Review> */

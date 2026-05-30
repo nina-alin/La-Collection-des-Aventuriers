@@ -20,6 +20,10 @@ class UserChecker implements UserCheckerInterface
         if ($user->getDeletedAt() !== null) {
             throw new CustomUserMessageAccountStatusException('Compte supprimé.');
         }
+
+        if (!$user->isEmailVerified() && $user->getGoogleId() === null) {
+            throw new CustomUserMessageAccountStatusException('email_not_verified');
+        }
     }
 
     public function checkPostAuth(UserInterface $user): void

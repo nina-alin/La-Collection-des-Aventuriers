@@ -9,6 +9,7 @@ Encore
     .setOutputPath('public/build/')
     .setPublicPath('/build')
     .addEntry('app', './assets/bootstrap.js')
+    .addEntry('auth', './assets/styles/pages/auth.css')
     .splitEntryChunks()
     .enableStimulusBridge('./assets/controllers.json')
     .enableSingleRuntimeChunk()

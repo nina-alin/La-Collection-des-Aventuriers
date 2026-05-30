@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if state == 'success' %}E-mail confirmé{% else %}Lien invalide{% endif %} — La Collection des Aventuriers</title>
+  {{ encore_entry_link_tags('app') }}
+  {{ encore_entry_link_tags('auth') }}
+</head>
+<body>
+<div class="auth" data-screen-label="Confirmation e-mail">
+  <aside class="auth-cover" aria-hidden="true">
+    <div class="auth-cover-inner">
+      <a class="auth-cover-brand" href="{{ path('home') }}">
+        <span class="auth-cover-sigil">A</span>
+        <span class="auth-cover-brand-text">
+          <span class="auth-cover-brand-title">La Collection des Aventuriers</span>
+          <span class="auth-cover-brand-sub">Le wiki des fictions interactives</span>
+        </span>
+      </a>
+    </div>
+  </aside>
+
+  <main class="auth-content">
+    <div class="auth-body">
+      <div class="auth-card">
+        {% if state == 'success' %}
+          <div class="auth-confirm-icon success">
+            <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+          </div>
+          <div class="auth-eyebrow">C'est confirmé</div>
+          <h1 class="auth-title">Adresse confirmée&nbsp;!</h1>
+          <p class="auth-subtitle">
+            Ton adresse e-mail est vérifiée. Tu peux maintenant accéder à ta collection.
+          </p>
+          <a class="btn btn-primary btn-lg btn-block" href="{{ path('app_login') }}">
+            Se connecter
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+        {% else %}
+          <div class="auth-confirm-icon error" style="color:var(--danger);border-color:var(--danger-border);background:var(--danger-bg);">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          </div>
+          <div class="auth-eyebrow">Lien invalide</div>
+          <h1 class="auth-title">Ce lien a expiré</h1>
+          <p class="auth-subtitle">
+            Le lien de confirmation est invalide ou a expiré. Retourne sur la page d'inscription pour en demander un nouveau.
+          </p>
+          <a class="btn btn-secondary btn-lg btn-block" href="{{ path('app_register') }}">
+            Retourner à l'inscription
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <footer class="auth-legal">
+      <span>© {{ "now"|date("Y") }} · La Collection des Aventuriers</span>
+    </footer>
+  </main>
+</div>
+
+{{ encore_entry_script_tags('app') }}
+</body>
+</html>

@@ -1,97 +1,293 @@
-{% extends 'base.html.twig' %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscription — La Collection des Aventuriers</title>
+  {{ encore_entry_link_tags('app') }}
+  {{ encore_entry_link_tags('auth') }}
+</head>
+<body>
+<div class="auth" data-screen-label="Inscription">
 
-{% block title %}Inscription — La Collection{% endblock %}
+  <!-- ============ COUVERTURE (gauche) ============ -->
+  <aside class="auth-cover" aria-hidden="true">
+    <div class="auth-cover-inner">
+      <a class="auth-cover-brand" href="{{ path('home') }}">
+        <span class="auth-cover-sigil">A</span>
+        <span class="auth-cover-brand-text">
+          <span class="auth-cover-brand-title">La Collection des Aventuriers</span>
+          <span class="auth-cover-brand-sub">Le wiki des fictions interactives</span>
+        </span>
+      </a>
 
-{% block body %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-8 col-lg-6">
-            <h1 class="mb-4">Créer un compte</h1>
+      <div>
+        <div class="auth-cover-eyebrow">L'inscription est gratuite</div>
+        <h2 class="auth-cover-headline">Rejoins une guilde de <em>passionnés</em>.</h2>
+        <p class="auth-cover-lede">
+          Crée ton compte d'aventurier et participe à bâtir le plus grand wiki
+          francophone des livres dont vous êtes le héros.
+        </p>
+      </div>
 
-            {% for message in app.flashes('error') %}
-                <div class="alert alert-danger" role="alert">{{ message }}</div>
-            {% endfor %}
-
-            {{ form_start(registrationForm, {attr: {novalidate: 'novalidate'}}) }}
-
-            <div class="form-group">
-                {{ form_label(registrationForm.pseudo, 'Pseudo', {label_attr: {class: 'form-label'}}) }}
-                {{ form_widget(registrationForm.pseudo, {attr: {class: 'input' ~ (registrationForm.pseudo.vars.errors|length ? ' is-invalid' : '')}}) }}
-                {% if registrationForm.pseudo.vars.errors|length %}
-                    {% for error in registrationForm.pseudo.vars.errors %}
-                        <p class="form-help error">{{ error.message }}</p>
-                    {% endfor %}
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                {{ form_label(registrationForm.email, 'Adresse email', {label_attr: {class: 'form-label'}}) }}
-                {{ form_widget(registrationForm.email, {attr: {class: 'input' ~ (registrationForm.email.vars.errors|length ? ' is-invalid' : '')}}) }}
-                {% if registrationForm.email.vars.errors|length %}
-                    {% for error in registrationForm.email.vars.errors %}
-                        <p class="form-help error">{{ error.message }}</p>
-                    {% endfor %}
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                {{ form_label(registrationForm.plainPassword.first, 'Mot de passe', {label_attr: {class: 'form-label'}}) }}
-                {{ form_widget(registrationForm.plainPassword.first, {attr: {class: 'input' ~ (registrationForm.plainPassword.first.vars.errors|length ? ' is-invalid' : '')}}) }}
-                {% if registrationForm.plainPassword.first.vars.errors|length %}
-                    {% for error in registrationForm.plainPassword.first.vars.errors %}
-                        <p class="form-help error">{{ error.message }}</p>
-                    {% endfor %}
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                {{ form_label(registrationForm.plainPassword.second, 'Confirmer le mot de passe', {label_attr: {class: 'form-label'}}) }}
-                {{ form_widget(registrationForm.plainPassword.second, {attr: {class: 'input' ~ (registrationForm.plainPassword.first.vars.errors|length ? ' is-invalid' : '')}}) }}
-            </div>
-
-            <div class="form-group">
-                <label class="choice">
-                    {{ form_widget(registrationForm.rgpdConsent) }}
-                    <span>
-                        J'accepte les
-                        <a href="/politique-de-confidentialite" target="_blank">conditions d'utilisation et la politique de confidentialité</a>.
-                    </span>
-                </label>
-                {% if registrationForm.rgpdConsent.vars.errors|length %}
-                    {% for error in registrationForm.rgpdConsent.vars.errors %}
-                        <p class="form-help error">{{ error.message }}</p>
-                    {% endfor %}
-                {% endif %}
-            </div>
-
-            <div class="d-flex flex-column gap-3 mt-4">
-                <button type="submit" class="btn btn-primary btn-block btn-lg">
-                    Créer mon compte
-                </button>
-
-                <div class="text-center" style="color: var(--ink-muted); font-size: var(--fs-sm);">ou</div>
-
-                <a href="{{ path('app_oauth_google') }}"
-                   class="btn btn-block"
-                   data-loading-text="Redirection vers Google…"
-                   onclick="this.classList.add('disabled'); this.setAttribute('aria-disabled','true'); this.innerHTML='<span class=\'spinner-border spinner-border-sm\' role=\'status\'></span> Redirection vers Google…';">
-                    <svg width="18" height="18" viewBox="0 0 24 24" style="flex-shrink:0">
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                    </svg>
-                    Se connecter avec Google
-                </a>
-            </div>
-
-            {{ form_end(registrationForm) }}
-
-            <p class="text-center mt-4" style="font-size: var(--fs-sm); color: var(--ink-muted);">
-                Déjà un compte ?
-                <a href="{{ path('app_login') }}">Se connecter</a>
-            </p>
-        </div>
+      <ul class="auth-cover-list">
+        <li>
+          <span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
+          <span>Constitue ta <strong>collection</strong> et ta liste de souhaits.</span>
+        </li>
+        <li>
+          <span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
+          <span>Propose des <strong>fiches</strong> et corrige le catalogue.</span>
+        </li>
+        <li>
+          <span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
+          <span>Gagne des galons et deviens <strong>modérateur</strong>.</span>
+        </li>
+      </ul>
     </div>
+
+    <div class="auth-cover-stats">
+      <div>
+        <span class="stat-num">24</span>
+        <span class="stat-label">Fiches / sem.</span>
+      </div>
+      <div>
+        <span class="stat-num">{{ stat_aventuriers|number_format(0, '', '\u{202F}') }}</span>
+        <span class="stat-label">Aventuriers</span>
+      </div>
+      <div>
+        <span class="stat-num">100%</span>
+        <span class="stat-label">Gratuit</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ FORMULAIRE (droite) ============ -->
+  <main class="auth-content">
+    <div class="auth-topbar">
+      <div class="auth-topbar-spacer"></div>
+      <div class="auth-switch">
+        <span class="muted">Déjà membre&nbsp;?</span>
+        <a class="btn btn-secondary btn-sm" href="{{ path('app_login') }}">Se connecter</a>
+      </div>
+      <button class="auth-theme-toggle" data-theme-toggle aria-label="Basculer le thème">
+        <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+
+    <div class="auth-body">
+
+      {% if state == 'confirmation' %}
+        <!-- vue confirmation -->
+        <div class="auth-card">
+          <div class="auth-confirm-icon info">
+            <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+          </div>
+          <div class="auth-eyebrow">Presque terminé</div>
+          <h1 class="auth-title">Vérifie ta boîte de réception</h1>
+          <p class="auth-subtitle">
+            Nous avons envoyé un lien de confirmation à ton adresse e-mail.
+            Clique dessus pour sceller ton inscription et entrer dans la collection.
+          </p>
+          <p class="auth-resend">
+            Rien reçu&nbsp;? Pense à vérifier tes indésirables, ou
+            <form method="POST" action="{{ path('app_resend_confirmation') }}" style="display:inline;">
+              <input type="hidden" name="email" value="{{ app.request.request.get('email', '') }}">
+              <input type="hidden" name="_csrf_token" value="{{ csrf_token('resend_confirmation') }}">
+              <button type="submit">renvoyer le lien</button>
+            </form>.
+          </p>
+          <div class="auth-foot">
+            Mauvaise adresse&nbsp;? <a href="{{ path('app_register') }}">Recommencer</a>
+          </div>
+        </div>
+
+      {% else %}
+        <!-- vue formulaire -->
+        <div class="auth-card">
+          <a class="auth-mini-brand" href="{{ path('home') }}">
+            <span class="sigil">A</span>
+            <span class="txt">La Collection<br>des Aventuriers</span>
+          </a>
+
+          <div class="auth-eyebrow">Inscription</div>
+          <h1 class="auth-title">Rejoindre la guilde</h1>
+          <p class="auth-subtitle">Crée ton compte en moins d'une minute — aucune carte requise.</p>
+
+          {% if emailSendError %}
+            <div class="auth-note error" role="alert">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span>{{ emailSendError }}</span>
+            </div>
+          {% endif %}
+
+          {% for message in app.flashes('error') %}
+            <div class="auth-note error" role="alert">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+
+          <div class="auth-oauth">
+            <a href="{{ path('app_oauth_google') }}" class="btn btn-oauth btn-block" data-turbo="false">
+              <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.76h3.56c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.56-2.76c-.98.66-2.23 1.06-3.72 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.11A6.6 6.6 0 0 1 5.5 12c0-.73.13-1.45.34-2.11V7.05H2.18A11 11 0 0 0 1 12c0 1.77.42 3.45 1.18 4.95l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.05l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+              S'inscrire avec Google
+            </a>
+          </div>
+
+          <div class="auth-divider">ou par courriel</div>
+
+          {{ form_start(registrationForm, {attr: {novalidate: 'novalidate', 'data-controller': 'auth-submit', 'data-action': 'submit->auth-submit#submit'}}) }}
+
+          <div class="form-group">
+            <label class="form-label" for="{{ registrationForm.pseudo.vars.id }}">
+              Nom d'aventurier <span class="required" aria-hidden="true">*</span>
+            </label>
+            {{ form_widget(registrationForm.pseudo, {attr: {
+              class: 'input' ~ (registrationForm.pseudo.vars.errors|length ? ' is-invalid' : ''),
+              placeholder: 'Ex. nael_lc',
+              autocomplete: 'username',
+              minlength: 3,
+              maxlength: 30,
+              pattern: '[a-zA-Z0-9_-]+'
+            }}) }}
+            <span class="form-help">Visible publiquement sur tes contributions.</span>
+            {% if registrationForm.pseudo.vars.errors|length %}
+              <div id="{{ registrationForm.pseudo.vars.id }}_errors" role="alert">
+                {% for error in registrationForm.pseudo.vars.errors %}
+                  <p class="form-help error">{{ error.message }}</p>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="{{ registrationForm.email.vars.id }}">
+              Adresse e-mail <span class="required" aria-hidden="true">*</span>
+            </label>
+            {{ form_widget(registrationForm.email, {attr: {
+              class: 'input' ~ (registrationForm.email.vars.errors|length ? ' is-invalid' : ''),
+              placeholder: 'aventurier@exemple.fr',
+              autocomplete: 'email'
+            }}) }}
+            {% if registrationForm.email.vars.errors|length %}
+              <div id="{{ registrationForm.email.vars.id }}_errors" role="alert">
+                {% for error in registrationForm.email.vars.errors %}
+                  <p class="form-help error">{{ error.message }}</p>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="form-group" data-controller="auth-password"
+               data-action="auth-password:score->auth-password#score">
+            <label class="form-label" for="{{ registrationForm.plainPassword.first.vars.id }}">
+              Mot de passe <span class="required" aria-hidden="true">*</span>
+            </label>
+            <div class="input-affix">
+              {{ form_widget(registrationForm.plainPassword.first, {attr: {
+                class: 'input' ~ (registrationForm.plainPassword.first.vars.errors|length ? ' is-invalid' : ''),
+                placeholder: 'Choisis un mot de passe',
+                autocomplete: 'new-password',
+                'data-auth-password-target': 'input',
+                'data-action': 'input->auth-password#score'
+              }}) }}
+              <button type="button" class="affix-btn" aria-pressed="false" aria-label="Afficher le mot de passe"
+                      data-auth-password-target="toggle"
+                      data-action="click->auth-password#toggle">
+                <svg class="eye" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M1 1l22 22"/></svg>
+              </button>
+            </div>
+            <div class="pw-meter" id="pw-meter" data-score="0" data-auth-password-target="meter">
+              <div class="pw-meter-bars"><span></span><span></span><span></span><span></span></div>
+              <div class="pw-meter-label"><span>Robustesse</span><span class="lvl" data-auth-password-target="meterLabel">—</span></div>
+            </div>
+            <ul class="pw-reqs" id="pw-reqs" data-auth-password-target="reqs">
+              <li data-req="len"><span class="check"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>8 caractères min.</li>
+              <li data-req="case"><span class="check"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>Maj. &amp; min.</li>
+              <li data-req="num"><span class="check"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>Un chiffre</li>
+              <li data-req="sym"><span class="check"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>Un symbole</li>
+            </ul>
+            {% if registrationForm.plainPassword.first.vars.errors|length %}
+              <div role="alert">
+                {% for error in registrationForm.plainPassword.first.vars.errors %}
+                  <p class="form-help error">{{ error.message }}</p>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="form-group" data-controller="auth-password">
+            <label class="form-label" for="{{ registrationForm.plainPassword.second.vars.id }}">
+              Confirmer le mot de passe <span class="required" aria-hidden="true">*</span>
+            </label>
+            <div class="input-affix">
+              {{ form_widget(registrationForm.plainPassword.second, {attr: {
+                class: 'input' ~ (registrationForm.plainPassword.second.vars.errors|length ? ' is-invalid' : ''),
+                placeholder: 'Répète le mot de passe',
+                autocomplete: 'new-password',
+                'data-auth-password-target': 'input'
+              }}) }}
+              <button type="button" class="affix-btn" aria-pressed="false" aria-label="Afficher le mot de passe"
+                      data-auth-password-target="toggle"
+                      data-action="click->auth-password#toggle">
+                <svg class="eye" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M1 1l22 22"/></svg>
+              </button>
+            </div>
+            {% if registrationForm.plainPassword.second.vars.errors|length %}
+              <div role="alert">
+                {% for error in registrationForm.plainPassword.second.vars.errors %}
+                  <p class="form-help error">{{ error.message }}</p>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="form-group" style="margin-top: var(--sp-4);">
+            <label class="choice">
+              {{ form_widget(registrationForm.rgpdConsent) }}
+              <span>J'accepte les <a href="/politique-de-confidentialite" target="_blank">conditions d'utilisation et la politique de confidentialité</a>.</span>
+            </label>
+            {% if registrationForm.rgpdConsent.vars.errors|length %}
+              <div role="alert">
+                {% for error in registrationForm.rgpdConsent.vars.errors %}
+                  <p class="form-help error">{{ error.message }}</p>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <button class="btn btn-primary btn-lg btn-block auth-submit" type="submit"
+                  data-auth-submit-target="button">
+            <span data-auth-submit-target="label">
+              Créer mon compte
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </span>
+          </button>
+
+          {{ form_end(registrationForm) }}
+
+          <div class="auth-foot">
+            Déjà un compte&nbsp;? <a href="{{ path('app_login') }}">Se connecter</a>
+          </div>
+        </div>
+      {% endif %}
+
+    </div>
+
+    <footer class="auth-legal">
+      <span>© {{ "now"|date("Y") }} · La Collection des Aventuriers</span>
+      <div class="auth-legal-links">
+        <a href="#">Aide</a>
+        <a href="/politique-de-confidentialite">Confidentialité</a>
+        <a href="#">CGU</a>
+      </div>
+    </footer>
+  </main>
 </div>
-{% endblock %}
+
+{{ encore_entry_script_tags('app') }}
+</body>
+</html>

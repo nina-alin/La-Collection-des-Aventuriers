@@ -1,87 +1,202 @@
-{% extends 'base.html.twig' %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion — La Collection des Aventuriers</title>
+  {{ encore_entry_link_tags('app') }}
+  {{ encore_entry_link_tags('auth') }}
+</head>
+<body>
+<div class="auth" data-screen-label="Connexion">
 
-{% block title %}Connexion — La Collection{% endblock %}
+  <!-- ============ COUVERTURE (gauche) ============ -->
+  <aside class="auth-cover" aria-hidden="true">
+    <div class="auth-cover-inner">
+      <a class="auth-cover-brand" href="{{ path('home') }}">
+        <span class="auth-cover-sigil">A</span>
+        <span class="auth-cover-brand-text">
+          <span class="auth-cover-brand-title">La Collection des Aventuriers</span>
+          <span class="auth-cover-brand-sub">Le wiki des fictions interactives</span>
+        </span>
+      </a>
 
-{% block body %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-8 col-lg-6">
-            <h1 class="mb-4">Se connecter</h1>
+      <div>
+        <div class="auth-cover-eyebrow">Bon retour parmi nous</div>
+        <h2 class="auth-cover-headline">Reprends l'aventure là où tu l'avais <em>laissée</em>.</h2>
+        <p class="auth-cover-lede">
+          Ta collection, tes notes de lecture et tes suggestions t'attendent
+          dans le grimoire.
+        </p>
+      </div>
 
-            {% for message in app.flashes('error') %}
-                <div class="alert alert-danger" role="alert">{{ message }}</div>
-            {% endfor %}
-
-            {% if brute_blocked %}
-                <div class="alert alert-warning" role="alert">
-                    Trop de tentatives. Réessayez dans {{ remaining_minutes }} minute{{ remaining_minutes > 1 ? 's' : '' }}.
-                </div>
-            {% endif %}
-
-            {% if authenticationError %}
-                <div class="alert alert-danger" role="alert">
-                    Identifiant ou mot de passe incorrect.
-                </div>
-            {% endif %}
-
-            <form method="POST" action="{{ path('app_login') }}" novalidate>
-                <div class="form-group">
-                    <label class="form-label" for="username">Adresse email</label>
-                    <input type="email"
-                           id="username"
-                           name="_username"
-                           class="input"
-                           value="{{ lastUsername }}"
-                           autocomplete="email"
-                           autofocus
-                           required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="password">Mot de passe</label>
-                    <input type="password"
-                           id="password"
-                           name="_password"
-                           class="input"
-                           autocomplete="current-password"
-                           required>
-                </div>
-
-                <div class="form-group">
-                    <label class="choice">
-                        <input type="checkbox" name="_remember_me">
-                        <span>Se souvenir de moi</span>
-                    </label>
-                </div>
-
-                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-
-                <div class="d-flex flex-column gap-3 mt-4">
-                    <button type="submit" class="btn btn-primary btn-block btn-lg"{% if brute_blocked %} disabled aria-disabled="true"{% endif %}>
-                        Se connecter
-                    </button>
-
-                    <div class="text-center" style="color: var(--ink-muted); font-size: var(--fs-sm);">ou</div>
-
-                    <a href="{{ path('app_oauth_google') }}"
-                       class="btn btn-block"
-                       onclick="this.classList.add('disabled'); this.setAttribute('aria-disabled','true'); this.innerHTML='<span class=\'spinner-border spinner-border-sm\' role=\'status\'></span> Redirection vers Google…';">
-                        <svg width="18" height="18" viewBox="0 0 24 24" style="flex-shrink:0">
-                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                        </svg>
-                        Se connecter avec Google
-                    </a>
-                </div>
-            </form>
-
-            <p class="text-center mt-4" style="font-size: var(--fs-sm); color: var(--ink-muted);">
-                Pas encore de compte ?
-                <a href="{{ path('app_register') }}">Créer un compte</a>
-            </p>
-        </div>
+      <ul class="auth-cover-list">
+        <li>
+          <span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
+          <span>Retrouve ta <strong>collection</strong> et ta liste « à acheter ».</span>
+        </li>
+        <li>
+          <span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
+          <span>Suis l'avancée de tes <strong>suggestions</strong> en modération.</span>
+        </li>
+        <li>
+          <span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
+          <span>Note, commente et complète les <strong>fiches</strong> du wiki.</span>
+        </li>
+      </ul>
     </div>
+
+    <div class="auth-cover-stats">
+      <div>
+        <span class="stat-num">{{ stat_fiches|number_format(0, '', '\u{202F}') }}</span>
+        <span class="stat-label">Fiches</span>
+      </div>
+      <div>
+        <span class="stat-num">{{ stat_auteurs|number_format(0, '', '\u{202F}') }}</span>
+        <span class="stat-label">Auteurs</span>
+      </div>
+      <div>
+        <span class="stat-num">{{ stat_aventuriers|number_format(0, '', '\u{202F}') }}</span>
+        <span class="stat-label">Aventuriers</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ FORMULAIRE (droite) ============ -->
+  <main class="auth-content">
+    <div class="auth-topbar">
+      <div class="auth-topbar-spacer"></div>
+      <div class="auth-switch">
+        <span class="muted">Pas encore de compte&nbsp;?</span>
+        <a class="btn btn-secondary btn-sm" href="{{ path('app_register') }}">Créer un compte</a>
+      </div>
+      <button class="auth-theme-toggle" data-theme-toggle aria-label="Basculer le thème">
+        <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+
+    <div class="auth-body">
+      <div class="auth-card">
+        <a class="auth-mini-brand" href="{{ path('home') }}">
+          <span class="sigil">A</span>
+          <span class="txt">La Collection<br>des Aventuriers</span>
+        </a>
+
+        <div class="auth-eyebrow">Connexion</div>
+        <h1 class="auth-title">Ouvrir le grimoire</h1>
+        <p class="auth-subtitle">Connecte-toi pour retrouver ta collection et tes contributions.</p>
+
+        {% if brute_blocked %}
+          <div class="auth-note error" role="alert" aria-live="assertive">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>Trop de tentatives. Réessayez dans <strong>{{ remaining_minutes }} minute{{ remaining_minutes > 1 ? 's' : '' }}</strong>.</span>
+          </div>
+        {% endif %}
+
+        {% if authenticationError %}
+          {% if authenticationError.messageKey == 'email_not_verified' %}
+            <div class="auth-note error" role="alert" id="login-error" aria-describedby="login-error">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <div>
+                <strong>Adresse e-mail non confirmée.</strong>
+                Vérifie ta boîte de réception ou
+                <form method="POST" action="{{ path('app_resend_confirmation') }}" style="display:inline;">
+                  <input type="hidden" name="email" value="{{ lastUsername }}">
+                  <input type="hidden" name="_csrf_token" value="{{ csrf_token('resend_confirmation') }}">
+                  <button type="submit" class="auth-resend" style="display:inline;padding:0;font:inherit;font-weight:600;color:var(--brand-primary);background:none;border:none;cursor:pointer;">renvoyer le lien</button>
+                </form>.
+              </div>
+            </div>
+          {% else %}
+            <div class="auth-note error" role="alert" id="login-error" aria-describedby="login-error">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span>Identifiant ou mot de passe incorrect.</span>
+            </div>
+          {% endif %}
+        {% endif %}
+
+        {% for message in app.flashes('error') %}
+          <div class="auth-note error" role="alert">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>{{ message }}</span>
+          </div>
+        {% endfor %}
+
+        <div class="auth-oauth">
+          <a href="{{ path('app_oauth_google') }}" class="btn btn-oauth btn-block" data-turbo="false">
+            <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.76h3.56c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.56-2.76c-.98.66-2.23 1.06-3.72 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.11A6.6 6.6 0 0 1 5.5 12c0-.73.13-1.45.34-2.11V7.05H2.18A11 11 0 0 0 1 12c0 1.77.42 3.45 1.18 4.95l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.05l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+            Continuer avec Google
+          </a>
+        </div>
+
+        <div class="auth-divider">ou par courriel</div>
+
+        <form method="POST" action="{{ path('app_login') }}" novalidate
+              data-controller="auth-submit"
+              data-action="submit->auth-submit#submit">
+          <div class="form-group">
+            <label class="form-label" for="username">Adresse e-mail</label>
+            <input class="input" type="email" id="username" name="_username"
+                   value="{{ lastUsername }}" autocomplete="email"
+                   placeholder="aventurier@exemple.fr" required
+                   aria-describedby="{% if authenticationError %}login-error{% endif %}">
+          </div>
+
+          <div class="form-group">
+            <div class="field-label-row">
+              <label class="form-label" for="password">Mot de passe</label>
+              <a class="form-link" href="{{ path('app_password_reset_request') }}">Oublié&nbsp;?</a>
+            </div>
+            <div class="input-affix" data-controller="auth-password">
+              <input class="input" type="password" id="password" name="_password"
+                     autocomplete="current-password" placeholder="••••••••" required
+                     data-auth-password-target="input"
+                     aria-describedby="{% if authenticationError %}login-error{% endif %}">
+              <button type="button" class="affix-btn" aria-pressed="false" aria-label="Afficher le mot de passe"
+                      data-auth-password-target="toggle"
+                      data-action="click->auth-password#toggle">
+                <svg class="eye" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M1 1l22 22"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="auth-row-between">
+            <label class="switch">
+              <input type="checkbox" name="_remember_me">
+              <span class="track"></span>
+              <span>Rester connecté</span>
+            </label>
+          </div>
+
+          <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+          <button class="btn btn-primary btn-lg btn-block auth-submit" type="submit"
+                  data-auth-submit-target="button"
+                  {% if brute_blocked %} disabled aria-disabled="true"{% endif %}>
+            <span data-auth-submit-target="label">Entrer dans la collection
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </span>
+          </button>
+        </form>
+
+        <div class="auth-foot">
+          Pas encore membre&nbsp;? <a href="{{ path('app_register') }}">Rejoindre la guilde</a>
+        </div>
+      </div>
+    </div>
+
+    <footer class="auth-legal">
+      <span>© {{ "now"|date("Y") }} · La Collection des Aventuriers</span>
+      <div class="auth-legal-links">
+        <a href="#">Aide</a>
+        <a href="/politique-de-confidentialite">Confidentialité</a>
+        <a href="#">CGU</a>
+      </div>
+    </footer>
+  </main>
 </div>
-{% endblock %}
+
+{{ encore_entry_script_tags('app') }}
+</body>
+</html>

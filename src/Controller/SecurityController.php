@@ -2,6 +2,9 @@
 
 namespace App\Controller;
 
+use App\Repository\BookRepository;
+use App\Repository\ContributorRepository;
+use App\Repository\UserRepository;
 use App\Service\BruteForceProtectionService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,12 +17,19 @@ class SecurityController extends AbstractController
     public function __construct(
         private readonly BruteForceProtectionService $bruteForce,
         private readonly AuthenticationUtils $authenticationUtils,
+        private readonly BookRepository $bookRepository,
+        private readonly ContributorRepository $contributorRepository,
+        private readonly UserRepository $userRepository,
     ) {
     }
 
     #[Route('/connexion', name: 'app_login', methods: ['GET', 'POST'])]
     public function login(Request $request): Response
     {
+        if ($this->getUser() !== null) {
+            return $this->redirectToRoute('home');
+        }
+
         $ip = $request->getClientIp() ?? '0.0.0.0';
         $blocked = $this->bruteForce->isBlocked($ip);
         $remainingMinutes = 0;
@@ -33,6 +43,9 @@ class SecurityController extends AbstractController
             'authenticationError' => $this->authenticationUtils->getLastAuthenticationError(),
             'brute_blocked' => $blocked,
             'remaining_minutes' => $remainingMinutes,
+            'stat_fiches' => $this->bookRepository->countAll(),
+            'stat_auteurs' => $this->contributorRepository->countAll(),
+            'stat_aventuriers' => $this->userRepository->countActive(),
         ]);
     }
 }

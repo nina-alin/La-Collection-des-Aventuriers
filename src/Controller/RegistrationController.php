@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Form\RegistrationFormType;
+use App\Repository\UserRepository;
+use App\Service\EmailVerificationService;
 use App\Service\UserRegistrationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,13 +21,21 @@ class RegistrationController extends AbstractController
         #[Autowire(service: 'limiter.registration_limiter')]
         private readonly RateLimiterFactory $registrationLimiter,
         private readonly UserRegistrationService $registrationService,
-        private readonly Security $security,
+        private readonly EmailVerificationService $verificationService,
+        private readonly UserRepository $userRepository,
     ) {
     }
 
     #[Route('/inscription', name: 'app_register', methods: ['GET', 'POST'])]
     public function register(Request $request): Response
     {
+        if ($this->getUser() !== null) {
+            return $this->redirectToRoute('home');
+        }
+
+        $state = 'form';
+        $emailSendError = null;
+
         $ip = $request->getClientIp() ?? '0.0.0.0';
         $limiter = $this->registrationLimiter->create($ip);
         $limit = $limiter->consume(0);
@@ -36,6 +47,11 @@ class RegistrationController extends AbstractController
                 $remaining,
                 $remaining > 1 ? 's' : '',
             ));
+        }
+
+        $confirmationFlash = $request->getSession()->getFlashBag()->get('confirmation');
+        if (!empty($confirmationFlash)) {
+            $state = 'confirmation';
         }
 
         $form = $this->createForm(RegistrationFormType::class);
@@ -53,6 +69,9 @@ class RegistrationController extends AbstractController
 
                 return $this->render('registration/register.html.twig', [
                     'registrationForm' => $form->createView(),
+                    'state' => 'form',
+                    'emailSendError' => null,
+                    'stat_aventuriers' => $this->userRepository->countActive(),
                 ], new Response(null, Response::HTTP_TOO_MANY_REQUESTS));
             }
 
@@ -63,18 +82,23 @@ class RegistrationController extends AbstractController
 
                 try {
                     $user = $this->registrationService->register($pseudo, $email, $plainPassword);
-                    $this->security->login($user, 'form_login');
 
-                    return $this->redirectToRoute('home');
+                    try {
+                        $this->verificationService->sendConfirmationEmail($user);
+                        $state = 'confirmation';
+                    } catch (\RuntimeException $e) {
+                        $emailSendError = 'Impossible d\'envoyer l\'e-mail de confirmation. Contactez le support.';
+                        $state = 'form';
+                    }
                 } catch (\RuntimeException $e) {
                     $message = $e->getMessage();
-                    if (str_contains($message, 'email')) {
+                    if (str_contains($message, 'email') || str_contains($message, 'Email')) {
                         $form->get('email')->addError(
-                            new \Symfony\Component\Form\FormError($message)
+                            new \Symfony\Component\Form\FormError('Ces informations sont déjà utilisées.')
                         );
                     } else {
                         $form->get('pseudo')->addError(
-                            new \Symfony\Component\Form\FormError($message)
+                            new \Symfony\Component\Form\FormError('Ces informations sont déjà utilisées.')
                         );
                     }
                 }
@@ -83,6 +107,9 @@ class RegistrationController extends AbstractController
 
         return $this->render('registration/register.html.twig', [
             'registrationForm' => $form->createView(),
+            'state' => $state,
+            'emailSendError' => $emailSendError,
+            'stat_aventuriers' => $this->userRepository->countActive(),
         ]);
     }
 }
