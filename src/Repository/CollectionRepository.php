@@ -20,6 +20,25 @@ class CollectionRepository extends ServiceEntityRepository
         parent::__construct($registry, Collection::class);
     }
 
+    public function findForGlobalSearch(string $q, int $limit = 3): array
+    {
+        return $this->createQueryBuilder('gc')
+            ->where('LOWER(gc.nom) LIKE :q')
+            ->setParameter('q', '%' . mb_strtolower($q) . '%')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findMostPopular(int $limit = 2): array
+    {
+        return $this->createQueryBuilder('gc')
+            ->orderBy('SIZE(gc.books)', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findBySlug(string $slug): ?Collection
     {
         return $this->findOneBy(['slug' => $slug]);
