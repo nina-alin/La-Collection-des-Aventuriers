@@ -38,6 +38,35 @@
             {% endif %}
         </nav>
         {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+        <form class="sh-search"
+              data-controller="search"
+              data-search-url-livre-value="{{ path('app_book_show', {slug: '__SLUG__'}) }}"
+              data-search-url-collection-value="{{ path('app_collection_show', {slug: '__SLUG__'}) }}"
+              data-search-url-auteur-value="{{ path('app_author_show', {slug: '__SLUG__'}) }}"
+              data-search-catalogue-value="{{ path('catalogue_index') }}"
+              role="search" action="" novalidate>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input type="search"
+                   data-search-target="input"
+                   role="combobox"
+                   aria-expanded="false"
+                   aria-controls="search-listbox"
+                   aria-haspopup="listbox"
+                   aria-autocomplete="list"
+                   aria-label="Recherche globale"
+                   placeholder="Rechercher un livre, un auteur, une collection…"
+                   autocomplete="off">
+            <div class="search-dropdown" hidden data-search-target="panel">
+                <div class="search-dd-head" data-search-target="head"></div>
+                <div class="search-dd-body">
+                    <div id="search-listbox" role="listbox" data-search-target="results"></div>
+                </div>
+                <div class="search-dd-foot" data-search-target="foot"></div>
+            </div>
+            <span class="visually-hidden" data-search-target="status" aria-live="polite" aria-atomic="true"></span>
+        </form>
+        {% endif %}
+        {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
         <div class="lp-user-menu" style="position:relative">
             <button class="btn btn-ghost btn-sm"
                     type="button"

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Book;
+use App\Entity\Enum\BookStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -40,6 +41,35 @@ class BookRepository extends ServiceEntityRepository
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
+    }
+
+    public function findForGlobalSearch(string $q, int $limit = 5): array
+    {
+        return $this->createQueryBuilder('b')
+            ->leftJoin('b.contributions', 'contrib')->addSelect('contrib')
+            ->leftJoin('contrib.contributor', 'contributor')->addSelect('contributor')
+            ->leftJoin('b.editor', 'e')->addSelect('e')
+            ->where('LOWER(b.title) LIKE :q')
+            ->andWhere('b.status = :published')
+            ->setParameter('q', '%' . mb_strtolower($q) . '%')
+            ->setParameter('published', BookStatus::PUBLISHED)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findMostPopular(int $limit = 4): array
+    {
+        return $this->createQueryBuilder('b')
+            ->leftJoin('b.contributions', 'contrib')->addSelect('contrib')
+            ->leftJoin('contrib.contributor', 'contributor')->addSelect('contributor')
+            ->leftJoin('b.editor', 'e')->addSelect('e')
+            ->where('b.status = :published')
+            ->setParameter('published', BookStatus::PUBLISHED)
+            ->orderBy('SIZE(b.reviews)', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
     }
 
     public function findBySlugWithRelations(string $slug): ?Book

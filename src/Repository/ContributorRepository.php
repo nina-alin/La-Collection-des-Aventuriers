@@ -25,6 +25,25 @@ class ContributorRepository extends ServiceEntityRepository
         return $this->count([]);
     }
 
+    public function findForGlobalSearch(string $q, int $limit = 3): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('LOWER(c.firstName) LIKE :q OR LOWER(c.lastName) LIKE :q OR LOWER(c.pseudo) LIKE :q')
+            ->setParameter('q', '%' . mb_strtolower($q) . '%')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findMostPopular(int $limit = 2): array
+    {
+        return $this->createQueryBuilder('c')
+            ->orderBy('SIZE(c.contributions)', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findBySlugAndRole(string $slug, ContributionRole $role): ?Contributor
     {
         return $this->getEntityManager()
