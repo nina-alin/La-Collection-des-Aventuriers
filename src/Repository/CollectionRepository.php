@@ -9,6 +9,7 @@ use App\Entity\Collection;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\Review;
 
 /**
  * @extends ServiceEntityRepository<Collection>
@@ -58,5 +59,38 @@ class CollectionRepository extends ServiceEntityRepository
             ->setMaxResults($perPage);
 
         return new Paginator($qb, fetchJoinCollection: false);
+    }
+
+    /** @return array{min: ?int, max: ?int} */
+    public function getPublicationYearRange(Collection $collection): array
+    {
+        $row = $this->getEntityManager()->createQueryBuilder()
+            ->select('MIN(b.frenchPublicationYear) AS yearMin, MAX(b.frenchPublicationYear) AS yearMax')
+            ->from(Book::class, 'b')
+            ->where('b.collection = :collection')
+            ->andWhere('b.frenchPublicationYear IS NOT NULL')
+            ->setParameter('collection', $collection)
+            ->getQuery()
+            ->getSingleResult();
+
+        return [
+            'min' => $row['yearMin'] !== null ? (int) $row['yearMin'] : null,
+            'max' => $row['yearMax'] !== null ? (int) $row['yearMax'] : null,
+        ];
+    }
+
+    public function computeAverageRating(Collection $collection): ?float
+    {
+        $row = $this->getEntityManager()->createQueryBuilder()
+            ->select('AVG(r.score) AS avgScore')
+            ->from(Review::class, 'r')
+            ->join('r.book', 'b')
+            ->where('b.collection = :collection')
+            ->andWhere('b.deletedAt IS NULL')
+            ->setParameter('collection', $collection)
+            ->getQuery()
+            ->getSingleResult();
+
+        return $row['avgScore'] !== null ? round((float) $row['avgScore'], 1) : null;
     }
 }

@@ -13,6 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\ORM\Mapping\OrderBy;
 
 #[ORM\Entity(repositoryClass: CollectionRepository::class)]
 #[ORM\Table(name: 'collection')]
@@ -70,10 +71,16 @@ class Collection
     #[ORM\OneToMany(targetEntity: Book::class, mappedBy: 'collection')]
     private DoctrineCollection $books;
 
+    /** @var DoctrineCollection<int, CollectionPublishingHistory> */
+    #[ORM\OneToMany(targetEntity: CollectionPublishingHistory::class, mappedBy: 'collection')]
+    #[OrderBy(['startYear' => 'ASC', 'id' => 'ASC'])]
+    private DoctrineCollection $publishingHistory;
+
     public function __construct()
     {
         $this->id = Uuid::v4();
         $this->books = new ArrayCollection();
+        $this->publishingHistory = new ArrayCollection();
     }
 
     public function getId(): Uuid
@@ -195,5 +202,11 @@ class Collection
     public function getBooks(): DoctrineCollection
     {
         return $this->books;
+    }
+
+    /** @return DoctrineCollection<int, CollectionPublishingHistory> */
+    public function getPublishingHistory(): DoctrineCollection
+    {
+        return $this->publishingHistory;
     }
 }
