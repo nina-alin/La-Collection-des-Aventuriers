@@ -13,7 +13,14 @@ class Card
     public ?string $author = null;
     public ?float $rating = null;
     public ?int $bookId = null;
+    public ?string $slug = null;
+    public ?string $editionInfo = null;
+    public ?int $publicationYear = null;
+    public ?string $collectionRef = null;
     public bool $loading = false;
+    public bool $isFavorite = false;
+    public bool $isOwned = false;
+    public bool $isWishlist = false;
 
     #[PostMount]
     public function postMount(): void

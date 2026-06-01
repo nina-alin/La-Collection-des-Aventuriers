@@ -21,7 +21,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ path('catalogue_index') }}"
+                        <a href="{{ path('app_catalogue') }}"
                            class="lp-nav-link{% if path starts with '/catalogue' %} active{% endif %}"
                            {% if path starts with '/catalogue' %}aria-current="page"{% endif %}>
                             Catalogue
@@ -43,7 +43,7 @@
               data-search-url-livre-value="{{ path('app_book_show', {slug: '__SLUG__'}) }}"
               data-search-url-collection-value="{{ path('app_collection_show', {slug: '__SLUG__'}) }}"
               data-search-url-auteur-value="{{ path('app_author_show', {slug: '__SLUG__'}) }}"
-              data-search-catalogue-value="{{ path('catalogue_index') }}"
+              data-search-catalogue-value="{{ path('app_catalogue') }}"
               role="search" action="" novalidate>
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
             <input type="search"
@@ -104,7 +104,7 @@
         <svg viewBox="0 0 24 24"><path d="M3 12L12 4l9 8"/><path d="M5 10v10a1 1 0 0 0 1 1h4v-7h4v7h4a1 1 0 0 0 1-1V10"/></svg>
         Accueil
     </a>
-    <a href="{{ path('catalogue_index') }}"
+    <a href="{{ path('app_catalogue') }}"
        class="bottom-nav-item{% if path starts with '/catalogue' %} active{% endif %}"
        {% if path starts with '/catalogue' %}aria-current="page"{% endif %}>
         <svg viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h11v16H6a2 2 0 0 1-2-2z"/><path d="M17 4v16M9 8h5M9 12h5"/></svg>

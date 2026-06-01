@@ -98,11 +98,16 @@ class Book
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?CollectionEntity $collection = null;
 
+    /** @var Collection<int, UserBook> */
+    #[ORM\OneToMany(targetEntity: UserBook::class, mappedBy: 'book', cascade: ['remove'])]
+    private Collection $userBooks;
+
     public function __construct()
     {
         $this->contributions = new ArrayCollection();
         $this->galleryImages = new ArrayCollection();
         $this->reviews = new ArrayCollection();
+        $this->userBooks = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -348,5 +353,11 @@ class Book
     public function getReviews(): Collection
     {
         return $this->reviews;
+    }
+
+    /** @return Collection<int, UserBook> */
+    public function getUserBooks(): Collection
+    {
+        return $this->userBooks;
     }
 }

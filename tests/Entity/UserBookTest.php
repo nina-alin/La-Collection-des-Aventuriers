@@ -1,0 +1,193 @@
+<?php
+
+namespace App\Tests\Entity;
+
+use App\Dto\ActiveFilterState;
+use App\Entity\Book;
+use App\Entity\Editor;
+use App\Entity\Enum\UserBookStatus;
+use App\Entity\User;
+use App\Entity\UserBook;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Uid\Uuid;
+
+class UserBookTest extends TestCase
+{
+    public function testUserBookStatusEnumValues(): void
+    {
+        $this->assertSame('dans-ma-collection', UserBookStatus::DANS_MA_COLLECTION->value);
+        $this->assertSame('a-acheter', UserBookStatus::A_ACHETER->value);
+        $this->assertSame('a-lire', UserBookStatus::A_LIRE->value);
+        $this->assertSame('lu', UserBookStatus::LU->value);
+        $this->assertSame('pas-dans-ma-collection', UserBookStatus::PAS_DANS_MA_COLLECTION->value);
+    }
+
+    public function testUserBookStatusEnumFromValue(): void
+    {
+        $this->assertSame(UserBookStatus::DANS_MA_COLLECTION, UserBookStatus::from('dans-ma-collection'));
+        $this->assertSame(UserBookStatus::A_ACHETER, UserBookStatus::from('a-acheter'));
+        $this->assertSame(UserBookStatus::PAS_DANS_MA_COLLECTION, UserBookStatus::from('pas-dans-ma-collection'));
+    }
+
+    public function testUserBookStatusEnumCasesCount(): void
+    {
+        $this->assertCount(5, UserBookStatus::cases());
+    }
+
+    public function testUserBookConstruction(): void
+    {
+        [$user, $book] = $this->makeUserAndBook();
+
+        $userBook = new UserBook($user, $book);
+
+        $this->assertSame($user, $userBook->getUser());
+        $this->assertSame($book, $userBook->getBook());
+        $this->assertSame(UserBookStatus::DANS_MA_COLLECTION, $userBook->getStatus());
+        $this->assertFalse($userBook->isFavorite());
+        $this->assertNull($userBook->getId());
+        $this->assertInstanceOf(\DateTimeImmutable::class, $userBook->getCreatedAt());
+        $this->assertInstanceOf(\DateTimeImmutable::class, $userBook->getUpdatedAt());
+    }
+
+    public function testUserBookWithCustomStatus(): void
+    {
+        [$user, $book] = $this->makeUserAndBook();
+
+        $userBook = new UserBook($user, $book, UserBookStatus::A_LIRE);
+
+        $this->assertSame(UserBookStatus::A_LIRE, $userBook->getStatus());
+    }
+
+    public function testUserBookSetStatus(): void
+    {
+        [$user, $book] = $this->makeUserAndBook();
+        $userBook = new UserBook($user, $book);
+
+        $userBook->setStatus(UserBookStatus::LU);
+
+        $this->assertSame(UserBookStatus::LU, $userBook->getStatus());
+    }
+
+    public function testUserBookSetIsFavorite(): void
+    {
+        [$user, $book] = $this->makeUserAndBook();
+        $userBook = new UserBook($user, $book);
+
+        $userBook->setIsFavorite(true);
+
+        $this->assertTrue($userBook->isFavorite());
+    }
+
+    public function testActiveFilterStateCountZeroFilters(): void
+    {
+        $state = new ActiveFilterState();
+
+        $this->assertSame(0, $state->countActiveFilters());
+    }
+
+    public function testActiveFilterStateCountEditors(): void
+    {
+        $state = new ActiveFilterState(editors: [1, 2, 3]);
+
+        $this->assertSame(3, $state->countActiveFilters());
+    }
+
+    public function testActiveFilterStateCountParagraphRange(): void
+    {
+        $state = new ActiveFilterState(paragraphMin: 100, paragraphMax: 400);
+
+        $this->assertSame(1, $state->countActiveFilters());
+    }
+
+    public function testActiveFilterStateCountParagraphMinOnly(): void
+    {
+        $state = new ActiveFilterState(paragraphMin: 100);
+
+        $this->assertSame(1, $state->countActiveFilters());
+    }
+
+    public function testActiveFilterStateCountCollectionStatus(): void
+    {
+        $state = new ActiveFilterState(collectionStatus: 'dans-ma-collection');
+
+        $this->assertSame(1, $state->countActiveFilters());
+    }
+
+    public function testActiveFilterStateCountFavorites(): void
+    {
+        $state = new ActiveFilterState(onlyFavorites: true);
+
+        $this->assertSame(1, $state->countActiveFilters());
+    }
+
+    public function testActiveFilterStateCountSearchQuery(): void
+    {
+        $state = new ActiveFilterState(searchQuery: 'Loup Noir');
+
+        $this->assertSame(1, $state->countActiveFilters());
+    }
+
+    public function testActiveFilterStateCountSortExcluded(): void
+    {
+        $state = new ActiveFilterState(sort: 'alpha');
+
+        $this->assertSame(0, $state->countActiveFilters());
+    }
+
+    public function testActiveFilterStateCountPageExcluded(): void
+    {
+        $state = new ActiveFilterState(page: 5);
+
+        $this->assertSame(0, $state->countActiveFilters());
+    }
+
+    public function testActiveFilterStateCountAllFilters(): void
+    {
+        $state = new ActiveFilterState(
+            editors: [1, 2],
+            paragraphMin: 100,
+            paragraphMax: 400,
+            collectionStatus: 'lu',
+            onlyFavorites: true,
+            hideModeration: true,
+            searchQuery: 'test',
+        );
+
+        // 2 editors + 1 paragraph range + 1 collection status + 1 favorites + 1 hideModeration + 1 search = 7
+        $this->assertSame(7, $state->countActiveFilters());
+    }
+
+    public function testActiveFilterStateToUrlParamsDefaults(): void
+    {
+        $state = new ActiveFilterState();
+
+        $this->assertSame([], $state->toUrlParams());
+    }
+
+    public function testActiveFilterStateToUrlParamsWithValues(): void
+    {
+        $state = new ActiveFilterState(
+            sort: 'alpha',
+            editors: [3, 7],
+            paragraphMin: 200,
+            searchQuery: 'Loup',
+            page: 2,
+        );
+
+        $params = $state->toUrlParams();
+
+        $this->assertSame('alpha', $params['sort']);
+        $this->assertSame([3, 7], $params['editors']);
+        $this->assertSame(200, $params['paragraphMin']);
+        $this->assertSame('Loup', $params['q']);
+        $this->assertSame(2, $params['page']);
+    }
+
+    /** @return array{0: User, 1: Book} */
+    private function makeUserAndBook(): array
+    {
+        $user = $this->createMock(User::class);
+        $book = $this->createMock(Book::class);
+        return [$user, $book];
+    }
+}
