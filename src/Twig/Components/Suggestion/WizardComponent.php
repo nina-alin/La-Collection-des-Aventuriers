@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
+use Symfony\UX\LiveComponent\Attribute\LiveArg;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\ComponentToolsTrait;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
@@ -66,7 +67,7 @@ class WizardComponent extends AbstractController
     }
 
     #[LiveAction]
-    public function goToStep(int $step): void
+    public function goToStep(#[LiveArg] int $step): void
     {
         if ($step >= 1 && $step <= 4) {
             $this->step = $step;

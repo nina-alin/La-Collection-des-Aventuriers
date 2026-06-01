@@ -1,0 +1,103 @@
+@import url('../../../design/assets/menus.css');
+
+/* Avatar — from design/assets/components.css (not imported globally) */
+.avatar {
+  --av-size: 40px;
+  position: relative;
+  width: var(--av-size);
+  height: var(--av-size);
+  border-radius: 50%;
+  background: var(--cuir-100);
+  color: var(--cuir-700);
+  display: inline-grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: calc(var(--av-size) * 0.40);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  border: 2px solid var(--bg-elevated);
+  user-select: none;
+  overflow: hidden;
+}
+[data-theme="dark"] .avatar { background: var(--cuir-800); color: var(--cuir-200); }
+.avatar.size-xs { --av-size: 24px; }
+.avatar.size-sm { --av-size: 32px; }
+.avatar.size-md { --av-size: 40px; }
+.avatar.size-lg { --av-size: 56px; }
+.avatar.size-xl { --av-size: 80px; }
+.avatar-role {
+  position: absolute;
+  bottom: -2px; right: -2px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 2px solid var(--bg-elevated);
+  display: grid; place-items: center;
+}
+.avatar-role::before {
+  content: "";
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--ink-muted);
+}
+.avatar-role.mod::before   { background: var(--info); }
+.avatar-role.admin::before { background: var(--brand-primary); }
+
+/* Mobile user menu — fixed overlay outside backdrop-filter topbar.
+   Topbar = 10px padding + 44px content + 10px padding = 64px.
+   Trigger at <600px = padding:2px + 32px avatar + 2px = 36px → center = (64-36)/2 = 14px */
+.lp-mobile-user-menu {
+  position: fixed;
+  top: 14px;
+  right: var(--sp-4, 16px);
+  z-index: 200;
+}
+.lp-mobile-user-menu .menu-anchor {
+  position: static;
+}
+
+/* User trigger button — from design/dashboard.html inline styles */
+.sh-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 12px 4px 4px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all var(--motion-fast) var(--motion-ease);
+}
+.sh-user:hover { border-color: var(--brand-primary); }
+.sh-user-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+@media (max-width: 600px) {
+  .sh-user-text { display: none; }
+  .sh-user { padding: 2px; }
+}
+.sh-user-name {
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ink-strong);
+}
+.sh-user-role {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--info);
+}
+.sh-user-chevron {
+  color: var(--ink-muted);
+  width: 14px;
+  height: 14px;
+}
+@media (max-width: 600px) {
+  .sh-user-chevron { display: none; }
+}
