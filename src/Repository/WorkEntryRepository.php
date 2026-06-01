@@ -28,4 +28,14 @@ class WorkEntryRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function countPending(): int
+    {
+        return (int) $this->createQueryBuilder('w')
+            ->select('COUNT(w.id)')
+            ->where('w.status = :status')
+            ->setParameter('status', 'PENDING')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

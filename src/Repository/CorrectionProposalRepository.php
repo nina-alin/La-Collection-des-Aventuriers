@@ -28,4 +28,14 @@ class CorrectionProposalRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function countPending(): int
+    {
+        return (int) $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->where('c.status = :status')
+            ->setParameter('status', 'PENDING')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

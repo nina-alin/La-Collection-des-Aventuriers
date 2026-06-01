@@ -1,0 +1,111 @@
+{% set triggerId = 'user-trigger-' ~ instanceId %}
+{% set menuId = 'user-menu-' ~ instanceId %}
+{% set avatarStyle = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%' %}
+
+<div class="menu-anchor"
+     data-controller="profile-menu"
+     data-profile-menu-open-value="false">
+
+    <button type="button"
+            class="sh-user"
+            id="{{ triggerId }}"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="{{ menuId }}"
+            aria-label="Menu utilisateur"
+            data-profile-menu-target="trigger"
+            data-action="click->profile-menu#toggle">
+        <span class="avatar size-sm" aria-hidden="true">
+            {% if menuData.avatarUrl %}<img src="{{ menuData.avatarUrl }}" alt="" style="{{ avatarStyle }}" onerror="this.remove()">{% endif %}
+            {{ app.user|user_initials }}
+            {% if menuData.highestRole == 'ROLE_ADMIN' %}<span class="avatar-role admin"></span>{% elseif menuData.highestRole == 'ROLE_MODERATOR' %}<span class="avatar-role mod"></span>{% endif %}
+        </span>
+        <span class="sh-user-text">
+            <span class="sh-user-name">{{ menuData.displayName ?? menuData.pseudo }}</span>
+            {% if menuData.highestRole == 'ROLE_ADMIN' %}
+                <span class="sh-user-role">Administrateur</span>
+            {% elseif menuData.highestRole == 'ROLE_MODERATOR' %}
+                <span class="sh-user-role">Modérateur</span>
+            {% endif %}
+        </span>
+        <svg class="sh-user-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+
+    <div class="menu-backdrop"
+         data-profile-menu-target="backdrop"
+         data-action="click->profile-menu#close"></div>
+
+    <div class="menu-card user-card"
+         id="{{ menuId }}"
+         data-anchor="user"
+         role="menu"
+         aria-label="Compte utilisateur"
+         data-profile-menu-target="card">
+
+        <header class="menu-head-user">
+            <span class="avatar size-md" aria-hidden="true">
+                {% if menuData.avatarUrl %}<img src="{{ menuData.avatarUrl }}" alt="" style="{{ avatarStyle }}" onerror="this.remove()">{% endif %}
+                {{ app.user|user_initials }}
+                {% if menuData.highestRole == 'ROLE_ADMIN' %}<span class="avatar-role admin"></span>{% elseif menuData.highestRole == 'ROLE_MODERATOR' %}<span class="avatar-role mod"></span>{% endif %}
+            </span>
+            <div class="ident">
+                <div class="hello">BONJOUR</div>
+                <div class="name">{{ menuData.displayName ?? menuData.pseudo }}</div>
+                {% if menuData.highestRole == 'ROLE_ADMIN' %}
+                    <span class="badge badge-role-admin"><span class="dot" aria-hidden="true"></span>ADMINISTRATEUR</span>
+                {% elseif menuData.highestRole == 'ROLE_MODERATOR' %}
+                    <span class="badge badge-role-mod"><span class="dot" aria-hidden="true"></span>MODÉRATEUR</span>
+                {% endif %}
+            </div>
+        </header>
+
+        <div class="menu-section">
+            <a class="menu-link" href="#" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg></span>
+                Mon Profil
+                <span class="lnk-meta">{{ menuData.rankName ?? '—' }}</span>
+            </a>
+            <a class="menu-link" href="{{ path('suggestions_index') }}" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"/><path d="M14 4h6v6M10 14 20 4"/></svg></span>
+                Mes Suggestions
+                <span class="lnk-meta">{{ menuData.validatedCount }} VALIDÉES</span>
+            </a>
+        </div>
+
+        {% if is_granted('ROLE_MODERATOR') %}
+        <div class="menu-section">
+            <div class="menu-section-label">OUTILS DE MODÉRATION</div>
+            <a class="menu-link role-action" href="#" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 4 9 8 10 4-1 8-5 8-10V6l-8-4z"/><path d="m9 12 2 2 4-4"/></svg></span>
+                Salle de Modération
+                <span class="badge-new">{{ menuData.pendingModerationCount }} À RELIRE</span>
+            </a>
+        </div>
+        {% endif %}
+
+        <div class="menu-section">
+            <button class="menu-toggle-row" type="button" data-action="click->profile-menu#toggleTheme">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></span>
+                <span>Thème <strong>Parchemin</strong></span>
+                <label class="switch" onclick="event.stopPropagation();">
+                    <input type="checkbox" id="theme-switch-{{ instanceId }}">
+                    <span class="track" aria-hidden="true"></span>
+                </label>
+            </button>
+        </div>
+
+        <div class="logout-section">
+            <form method="POST" action="{{ path('app_logout') }}" style="margin:0">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
+                <button type="submit" class="menu-link logout" role="menuitem">
+                    <span class="lnk-ic" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M10.85 12.15 19 4M15 7l3 3M14 8l3 3"/></svg>
+                    </span>
+                    Se déconnecter
+                    <span class="lnk-meta">SORTIR</span>
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
