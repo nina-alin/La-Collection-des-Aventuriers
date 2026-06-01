@@ -13,99 +13,303 @@
     {# Breadcrumb #}
     <nav class="crumbs" aria-label="Fil d'Ariane">
         <a href="{{ path('catalogue_index') }}">Catalogue</a>
-        <span class="sep">/</span>
+        <span class="sep">›</span>
+        <a href="{{ path('catalogue_index') }}">Collections</a>
+        <span class="sep">›</span>
         <span class="here">{{ collection.nom }}</span>
     </nav>
 
-    {# Collection header #}
-    <section class="collection-header">
-        <div class="collection-hero">
-            <div class="collection-logo">
+    {# ============================== HERO ============================== #}
+    <section class="coll-hero" aria-labelledby="coll-title">
+
+        {# Emblem #}
+        <div class="coll-emblem" aria-hidden="true">
+            <div class="coll-emblem-inner">
                 {% if collection.imageLogo %}
                     <img src="{{ asset('uploads/collections/' ~ collection.imageLogo) }}"
-                         alt="{{ collection.nom }}">
+                         alt="{{ collection.nom }}"
+                         style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
                 {% else %}
-                    <img src="{{ asset('images/placeholder-cover.svg') }}"
-                         alt="{{ collection.nom }}">
+                    <span class="coll-emblem-glyph">{{ collection.nom|slice(0,2)|upper }}</span>
                 {% endif %}
             </div>
-            <div class="collection-meta">
-                <h1 class="collection-nom">{{ collection.nom }}</h1>
-                {% if collection.nomOriginal %}
-                    <p class="collection-nom-original">{{ collection.nomOriginal }}</p>
-                {% endif %}
-                <div class="collection-badges">
-                    <span class="badge badge-genre-{{ collection.genre.value }}">{{ collection.genre.value }}</span>
-                    <span class="badge badge-statut-{{ collection.statut.value }}">{{ collection.statut.value }}</span>
+            {% if heroMeta.yearMin is not null %}
+                <span class="coll-emblem-ribbon">Collection · {{ heroMeta.yearMin }}{% if heroMeta.yearMax and heroMeta.yearMax != heroMeta.yearMin %} — {{ heroMeta.yearMax }}{% endif %}</span>
+            {% else %}
+                <span class="coll-emblem-ribbon">Collection</span>
+            {% endif %}
+        </div>
+
+        {# Content #}
+        <div class="coll-content">
+            <div class="coll-eyebrow">
+                <span>Série · {{ collection.genre.value }}</span>
+            </div>
+
+            <h1 class="coll-title" id="coll-title">{{ collection.nom }}</h1>
+
+            {% if collection.nomOriginal %}
+                <p class="coll-title-original">
+                    <span class="label">V.O.</span>{{ collection.nomOriginal }}
+                </p>
+            {% endif %}
+
+            <dl class="coll-meta">
+                <div>
+                    <dt>Tomes recensés</dt>
+                    <dd>{{ totalBooks }} <span class="out">volumes</span></dd>
+                </div>
+                <div>
+                    <dt>Période</dt>
+                    <dd>
+                        {% if heroMeta.yearMin is not null and heroMeta.yearMax is not null %}
+                            {% if heroMeta.yearMin == heroMeta.yearMax %}
+                                {{ heroMeta.yearMin }}
+                            {% else %}
+                                {{ heroMeta.yearMin }} — {{ heroMeta.yearMax }}
+                            {% endif %}
+                        {% elseif heroMeta.yearMin is not null %}
+                            {{ heroMeta.yearMin }}
+                        {% else %}
+                            <span class="out">–</span>
+                        {% endif %}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Note moyenne série</dt>
+                    <dd>
+                        {% if heroMeta.averageRating is not null %}
+                            {{ heroMeta.averageRating|number_format(1, ',') }} <span class="out">/ 10</span>
+                        {% else %}
+                            <span class="out">–</span>
+                        {% endif %}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Statut éditorial</dt>
+                    <dd>{{ collection.statut.value|replace({'-': ' '})|capitalize }}</dd>
+                </div>
+            </dl>
+
+            <div class="coll-cta">
+                <button type="button" class="seal-btn" aria-pressed="false">
+                    <span class="seal" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-9.5-9A5.5 5.5 0 0 1 12 6.5 5.5 5.5 0 0 1 21.5 12c-2.5 4.65-9.5 9-9.5 9z"/></svg>
+                    </span>
+                    <span class="seal-btn-text">
+                        <span>Ajouter aux favoris</span>
+                        <span class="seal-label-sm">Sceller cette collection</span>
+                    </span>
+                </button>
+
+                <a href="#" class="btn btn-ghost">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                    Suggérer un tome manquant
+                </a>
+            </div>
+
+            {# ============================== COMPLETION (US3) ============================== #}
+            <div class="progress-card" aria-labelledby="progress-label">
+                <div class="progress-head">
+                    <div class="progress-head-left">
+                        <span class="progress-title" id="progress-label">Votre quête de complétion</span>
+                        <span class="progress-pct">42,8 %</span>
+                    </div>
+                    <div class="progress-numbers">
+                        <span class="have">12</span><span class="sep">/</span><span class="total">28</span>
+                        <span class="lbl">tomes possédés</span>
+                    </div>
+                </div>
+                <div class="progress-track"
+                     role="progressbar"
+                     aria-valuemin="0"
+                     aria-valuemax="28"
+                     aria-valuenow="12"
+                     aria-valuetext="12 sur 28 tomes possédés">
+                    <div class="progress-fill" style="width: 42.8%;"></div>
+                    <div class="progress-ticks" style="--tomes: 28;">
+                        {% for i in 1..28 %}<span></span>{% endfor %}
+                    </div>
+                </div>
+                <div class="progress-foot">
+                    <span class="quest">Il vous manque <strong>16 tomes</strong> pour boucler la saga {{ collection.nom }}.</span>
+                    <span>Mis à jour il y a 2 jours</span>
                 </div>
             </div>
         </div>
-
-        <div class="collection-description">
-            <p>{{ collection.description }}</p>
-        </div>
-
-        <dl class="collection-info">
-            {% if collection.createurs|length > 0 %}
-                <div class="meta-row">
-                    <dt>Créateurs</dt>
-                    <dd>{{ collection.createurs|join(', ') }}</dd>
-                </div>
-            {% endif %}
-            {% if collection.anneeCreation %}
-                <div class="meta-row">
-                    <dt>Année de création</dt>
-                    <dd>{{ collection.anneeCreation }}</dd>
-                </div>
-            {% endif %}
-            {% if collection.editeurHistorique %}
-                <div class="meta-row">
-                    <dt>Éditeur historique</dt>
-                    <dd>{{ collection.editeurHistorique }}</dd>
-                </div>
-            {% endif %}
-        </dl>
     </section>
 
-    {# Book list #}
-    <section class="section" id="livres">
-        <header class="section-head">
-            <h2>Livres <span class="badge">{{ totalBooks }}</span></h2>
-        </header>
+    {# ============================== TOMES (US2) ============================== #}
+    <section class="tomes-section" aria-labelledby="tomes-title"
+             data-controller="collection-sort">
+        <div class="tomes-head">
+            <h2 class="tomes-title" id="tomes-title">
+                Les Tomes <span class="num">{{ totalBooks }} volumes</span>
+            </h2>
 
-        {% if totalBooks == 0 %}
-            <p class="collection-empty">Aucun livre disponible</p>
-        {% else %}
-            <div class="collection-books">
-                {% for book in books %}
-                    <a href="{{ path('app_book_show', {slug: book.slug}) }}" class="collection-book-card">
-                        {% if book.coverImage %}
-                            <img src="{{ asset('uploads/books/covers/' ~ book.coverImage) }}"
-                                 alt="{{ book.title }}">
-                        {% else %}
-                            <img src="{{ asset('images/placeholder-cover.svg') }}"
-                                 alt="{{ book.title }}">
-                        {% endif %}
-                        {% if book.volumeNumber %}
-                            <span class="volume">n°{{ book.volumeNumber }}</span>
-                        {% endif %}
-                        <span class="book-title">{{ book.title }}</span>
-                    </a>
-                {% endfor %}
+            <div class="tomes-controls">
+                <div class="filter-pills" role="group" aria-label="Filtrer par statut">
+                    <button class="filter-pill" data-kind="all" aria-pressed="true" type="button">
+                        <span class="dot" aria-hidden="true"></span>
+                        Tous <span class="count">{{ totalBooks }}</span>
+                    </button>
+                    <button class="filter-pill" data-kind="owned" aria-pressed="false" type="button" disabled>
+                        <span class="dot" aria-hidden="true"></span>
+                        Possédés
+                    </button>
+                    <button class="filter-pill" data-kind="missing" aria-pressed="false" type="button" disabled>
+                        <span class="dot" aria-hidden="true"></span>
+                        Manquants
+                    </button>
+                </div>
+
+                <div class="seg" role="group" aria-label="Trier les tomes">
+                    <button type="button"
+                            aria-pressed="true"
+                            data-sort="volume"
+                            data-action="collection-sort#sortByVolume">
+                        <svg viewBox="0 0 24 24"><path d="M4 6h12M4 12h9M4 18h6"/><path d="M18 14l3 3-3 3"/></svg>
+                        Numéro
+                    </button>
+                    <button type="button"
+                            aria-pressed="false"
+                            data-sort="rating"
+                            data-action="collection-sort#sortByRating">
+                        <svg viewBox="0 0 24 24"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>
+                        Note
+                    </button>
+                </div>
             </div>
+        </div>
 
-            {% if totalPages > 1 %}
-                <nav class="pagination" aria-label="Pagination">
-                    {% if currentPage > 1 %}
-                        <a class="pagination-prev" href="{{ path('app_collection_show', {slug: collection.slug, page: currentPage - 1}) }}">← Précédent</a>
-                    {% endif %}
-                    <span class="pagination-info">Page {{ currentPage }} / {{ totalPages }}</span>
-                    {% if currentPage < totalPages %}
-                        <a class="pagination-next" href="{{ path('app_collection_show', {slug: collection.slug, page: currentPage + 1}) }}">Suivant →</a>
-                    {% endif %}
-                </nav>
-            {% endif %}
+        <div class="tomes-grid" data-collection-sort-target="grid">
+            {% for book in books %}
+                {% set hues = ['forest','storm','ember','amber','ink','gold'] %}
+                {% set hue = hues[(book.volumeNumber ?? 0) % 6] %}
+                {% set avgRating = '' %}
+                {% if book.reviews|length > 0 %}
+                    {% set total = 0 %}
+                    {% for review in book.reviews %}{% set total = total + review.score %}{% endfor %}
+                    {% set avgRating = (total / book.reviews|length)|round(1) %}
+                {% endif %}
+
+                <a class="tome"
+                   href="{{ path('app_book_show', {slug: book.slug}) }}"
+                   data-hue="{{ hue }}"
+                   data-volume="{{ book.volumeNumber ?? 0 }}"
+                   data-rating="{{ avgRating }}">
+                    <div class="tome-cover">
+                        <span class="tome-cover-frame" aria-hidden="true"></span>
+                        {% if book.volumeNumber %}
+                            <span class="tome-num">Tome <strong>{{ book.volumeNumber }}</strong></span>
+                        {% endif %}
+                        <span class="tome-missing-mark" aria-label="Statut inconnu">?</span>
+                        <span class="tome-title-art">{{ book.title }}</span>
+                    </div>
+                    <div class="tome-body">
+                        <div class="tome-ref">
+                            <span>{% if book.volumeNumber %}T{{ '%02d'|format(book.volumeNumber) }}{% endif %}{% if book.frenchPublicationYear %} · {{ book.frenchPublicationYear }}{% endif %}</span>
+                            {% if book.paragraphs %}<span>{{ book.paragraphs }} §</span>{% endif %}
+                        </div>
+                        <div class="tome-title">{{ book.title }}</div>
+                        <div class="tome-meta">
+                            <span class="tome-score">
+                                {% if avgRating != '' %}
+                                    <span class="star">★</span>{{ avgRating }}<span class="out">/10</span>
+                                {% else %}
+                                    <span class="out">–</span>
+                                {% endif %}
+                            </span>
+                            <span class="tome-year">
+                                {% set authorNames = [] %}
+                                {% for contribution in book.contributions %}
+                                    {% if contribution.deletedAt is null %}
+                                        {% set authorNames = authorNames|merge([contribution.contributor.firstName ~ ' ' ~ contribution.contributor.lastName]) %}
+                                    {% endif %}
+                                {% endfor %}
+                                {{ authorNames|join(' · ') }}
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            {% else %}
+                <p class="collection-empty">Aucun tome disponible</p>
+            {% endfor %}
+        </div>
+
+        {% if totalPages > 1 %}
+            <nav class="pagination" aria-label="Pagination">
+                {% if currentPage > 1 %}
+                    <a class="pagination-prev" href="{{ path('app_collection_show', {slug: collection.slug, page: currentPage - 1}) }}">← Précédent</a>
+                {% endif %}
+                <span class="pagination-info">Page {{ currentPage }} / {{ totalPages }}</span>
+                {% if currentPage < totalPages %}
+                    <a class="pagination-next" href="{{ path('app_collection_show', {slug: collection.slug, page: currentPage + 1}) }}">Suivant →</a>
+                {% endif %}
+            </nav>
         {% endif %}
+    </section>
+
+    {# ============================== EXTRA PANELS ============================== #}
+    <section class="extra" aria-label="Informations complémentaires">
+
+        {# ============================== PUBLISHING HISTORY (US4) ============================== #}
+        {% if publishingHistory|length > 1 %}
+            <div class="panel" aria-labelledby="editors-title">
+                <div class="panel-head">
+                    <h2 class="panel-title" id="editors-title">Éditeurs successifs</h2>
+                    <span class="panel-sub">{{ publishingHistory|length }} entrées</span>
+                </div>
+                <div class="editors-list">
+                    {% for entry in publishingHistory %}
+                        <div class="editor-row">
+                            <div class="editor-period">
+                                <strong>{{ entry.startYear }}{% if entry.endYear %} — {{ entry.endYear }}{% else %} — …{% endif %}</strong>
+                                {% if entry.editionName %}{{ entry.editionName }}{% endif %}
+                            </div>
+                            <div class="editor-body">
+                                {% if entry.editor %}
+                                    <span class="editor-tag">
+                                        <span class="crest">{{ entry.editor.name|slice(0,2)|upper }}</span>
+                                        {{ entry.editor.name }}
+                                    </span>
+                                {% else %}
+                                    <span class="editor-tag">
+                                        <span class="crest">?</span>
+                                        (éditeur inconnu)
+                                    </span>
+                                {% endif %}
+                                {% if entry.details %}
+                                    <span class="editor-stat">{{ entry.details }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        {# ============================== CONTRIBUTORS (US5) ============================== #}
+        {% if recurringContributors.pills|length > 0 %}
+            <div class="panel" aria-labelledby="authors-title">
+                <div class="panel-head">
+                    <h2 class="panel-title" id="authors-title">Auteurs &amp; illustrateurs récurrents</h2>
+                    <span class="panel-sub">{{ recurringContributors.uniqueCount }} contributeur{{ recurringContributors.uniqueCount > 1 ? 's' : '' }}</span>
+                </div>
+                <div class="authors-cloud">
+                    {% set roleRoutes = {'Author': 'app_author_show', 'Illustrator': 'app_illustrator_show', 'Traductor': 'app_traductor_show'} %}
+                    {% for pill in recurringContributors.pills %}
+                        <a href="{{ path(roleRoutes[pill.role.value] ?? 'app_author_show', {slug: pill.contributor.slug}) }}" class="author-tag">
+                            <span class="avatar">{{ pill.initials }}</span>
+                            {{ pill.contributor.firstName }} {{ pill.contributor.lastName }}
+                            <span class="role">{{ pill.role.value|upper }}</span>
+                            <span class="count">{{ pill.count }}</span>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
     </section>
 
 </div>

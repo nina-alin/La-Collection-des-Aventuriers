@@ -57,7 +57,7 @@ class CollectionControllerTest extends WebTestCase
         $client->request('GET', '/collections/' . $collection->getSlug());
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('h1.collection-nom', $collection->getNom());
+        $this->assertSelectorTextContains('h1.coll-title', $collection->getNom());
     }
 
     public function testUnknownSlugReturns404(): void
@@ -85,7 +85,7 @@ class CollectionControllerTest extends WebTestCase
         $client->request('GET', '/collections/' . $collection->getSlug() . '?page=2');
 
         $this->assertResponseIsSuccessful();
-        $this->assertCount(5, $client->getCrawler()->filter('.collection-book-card'));
+        $this->assertCount(5, $client->getCrawler()->filter('.tome'));
     }
 
     public function testPageBeyondMaxReturns404(): void
@@ -138,7 +138,7 @@ class CollectionControllerTest extends WebTestCase
         $client->request('GET', '/collections/' . $collection->getSlug());
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('.collection-empty', 'Aucun livre disponible');
+        $this->assertSelectorTextContains('.collection-empty', 'Aucun tome disponible');
     }
 
     public function testImageLogoRendersImg(): void
@@ -155,7 +155,7 @@ class CollectionControllerTest extends WebTestCase
         $client->request('GET', '/collections/' . $collection->getSlug());
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('.collection-logo img[src*="defis-fantastiques.png"]');
+        $this->assertSelectorExists('.coll-emblem-inner img[src*="defis-fantastiques.png"]');
     }
 
     public function testNoImageLogoRendersPlaceholder(): void
@@ -169,6 +169,6 @@ class CollectionControllerTest extends WebTestCase
         $client->request('GET', '/collections/' . $collection->getSlug());
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('.collection-logo img[src*="placeholder-cover.svg"]');
+        $this->assertSelectorExists('.coll-emblem-glyph');
     }
 }

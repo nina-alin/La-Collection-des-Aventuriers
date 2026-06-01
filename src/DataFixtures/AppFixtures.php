@@ -8,6 +8,7 @@ use App\DataFixtures\Factory\ContributionFactory;
 use App\DataFixtures\Factory\ContributorFactory;
 use App\DataFixtures\Factory\EditorFactory;
 use App\DataFixtures\Factory\UserFactory;
+use App\Entity\CollectionPublishingHistory;
 use App\Entity\Enum\BookStatus;
 use App\Entity\Enum\ContributionRole;
 use App\Entity\Enum\GenreCollection;
@@ -51,6 +52,35 @@ class AppFixtures extends Fixture
             'anneeCreation' => 1984,
         ]);
         $manager->persist($ldvelh);
+
+        // --- Publishing History for Loup Solitaire ---
+        $scriptarium = EditorFactory::new(['name' => 'Scriptarium']);
+        $manager->persist($scriptarium);
+        $manager->flush();
+
+        $history1 = new CollectionPublishingHistory();
+        $history1->setCollection($ldvelh);
+        $history1->setEditor($gallimard);
+        $history1->setStartYear(1984);
+        $history1->setEndYear(1992);
+        $history1->setEditionName('Première édition FR');
+        $history1->setDetails('Tomes 1 à 14 · traduction Camille Fabien');
+        $manager->persist($history1);
+
+        $history2 = new CollectionPublishingHistory();
+        $history2->setCollection($ldvelh);
+        $history2->setEditor($folio);
+        $history2->setStartYear(1993);
+        $history2->setEndYear(1998);
+        $history2->setEditionName('Reprise');
+        $history2->setDetails('Tomes 15 à 28 · couvertures refondues');
+        $manager->persist($history2);
+
+        $history3 = new CollectionPublishingHistory();
+        $history3->setCollection($ldvelh);
+        $history3->setEditor($scriptarium);
+        $history3->setStartYear(2017);
+        $manager->persist($history3);
 
         $manager->flush();
 
