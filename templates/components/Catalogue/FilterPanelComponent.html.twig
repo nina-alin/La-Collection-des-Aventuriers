@@ -1,0 +1,256 @@
+<div {{ attributes }}>
+    <div class="filters-head">
+        <span class="filters-head-title">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
+            Filtres
+        </span>
+        <button type="button" class="filters-close" aria-label="Fermer les filtres" data-action="catalogue-fab#closeModal">×</button>
+        <button
+            type="button"
+            class="filters-collapse"
+            aria-label="Réduire les filtres"
+            aria-expanded="true"
+            data-action="catalogue-view#toggleRail"
+        >
+            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+    </div>
+
+    <div class="filters-body">
+
+        {# ── CRÉATEUR · AUTEUR & ILLUSTRATEUR ── #}
+        <details class="filter-group" open>
+            <summary>
+                <span>Créateur · Auteur &amp; Illustrateur</span>
+                <span class="grp-meta">
+                    {% if selectedContributors|length > 0 %}
+                        <span class="grp-count">{{ selectedContributors|length }}</span>
+                    {% endif %}
+                    <span class="chev" aria-hidden="true"></span>
+                </span>
+            </summary>
+            <div class="grp-body">
+                <input
+                    class="filter-search"
+                    type="search"
+                    placeholder="Rechercher un créateur…"
+                    data-model="debounce(300)|contributorSearch"
+                    aria-label="Rechercher un créateur"
+                    value="{{ contributorSearch }}"
+                >
+                {% for item in this.visibleContributors %}
+                {% set contribId = "#{item.contributor.id}" %}
+                {% set roleLabel = item.role == 'Author' ? 'auteur' : 'illustrateur' %}
+                <label class="choice filter-row">
+                    <span class="d-flex flex-row align-items-center gap-3">
+                        <input
+                            type="checkbox"
+                            name="selectedContributors[]"
+                            value="{{ contribId }}"
+                            data-model="selectedContributors"
+                            aria-label="{{ item.contributor.firstName }} {{ item.contributor.lastName }}"
+                            {% if contribId in selectedContributors %}checked{% endif %}
+                        >
+                        <strong>{{ item.contributor.firstName }} {{ item.contributor.lastName }}</strong>
+                        <span style="color:var(--ink-muted);font-size:var(--fs-xs);margin-left:4px;">· {{ roleLabel }}</span>
+                    </span>
+                    <span class="count">{{ item.bookCount }}</span>
+                </label>
+                {% endfor %}
+                {% if not showAllContributors and contributorSearch == '' and this.contributorsMore > 0 %}
+                <button
+                    type="button"
+                    class="filter-show-more"
+                    data-action="live#action"
+                    data-live-action-param="showMoreContributors"
+                >+ {{ this.contributorsMore }} autres créateurs</button>
+                {% endif %}
+            </div>
+        </details>
+
+        {# ── ÉDITEUR & COLLECTION ── #}
+        <details class="filter-group" open>
+            <summary>
+                <span>Éditeur &amp; Collection</span>
+                <span class="grp-meta">
+                    {% if selectedEditors|length > 0 %}
+                        <span class="grp-count">{{ selectedEditors|length }}</span>
+                    {% endif %}
+                    <span class="chev" aria-hidden="true"></span>
+                </span>
+            </summary>
+            <div class="grp-body">
+                <input
+                    class="filter-search"
+                    type="search"
+                    placeholder="Filtrer les éditeurs…"
+                    data-model="debounce(300)|editorSearch"
+                    aria-label="Rechercher un éditeur"
+                    value="{{ editorSearch }}"
+                >
+                {% for editor in this.visibleEditors %}
+                <label class="choice filter-row">
+                    <span class="d-flex flex-row align-items-center gap-3">
+                        <input
+                            type="checkbox"
+                            name="selectedEditors[]"
+                            value="{{ editor.id }}"
+                            data-model="selectedEditors"
+                            aria-label="{{ editor.name }}"
+                            {% if editor.id in selectedEditors %}checked{% endif %}
+                        >
+                        {{ editor.name }}
+                    </span>
+                </label>
+                {% endfor %}
+                {% if not showAllEditors and editorSearch == '' and this.editorsMore > 0 %}
+                <button
+                    type="button"
+                    class="filter-show-more"
+                    data-action="live#action"
+                    data-live-action-param="showMoreEditors"
+                >+ {{ this.editorsMore }} autres éditeurs</button>
+                {% endif %}
+            </div>
+        </details>
+
+        {# ── FORMAT · PARAGRAPHES ── #}
+        <details class="filter-group" open>
+            <summary>
+                <span>Format · Paragraphes</span>
+                <span class="grp-meta">
+                    {% if paragraphMin is not null or paragraphMax is not null %}
+                        <span class="grp-count">{{ paragraphMin ?? '…' }}–{{ paragraphMax ?? '…' }} §</span>
+                    {% endif %}
+                    <span class="chev" aria-hidden="true"></span>
+                </span>
+            </summary>
+            <div class="grp-body">
+                {% set bounds_min = paragraphBounds.min ?? 0 %}
+                {% set bounds_max = paragraphBounds.max ?? 999 %}
+                {% set val_min = paragraphMin ?? bounds_min %}
+                {% set val_max = paragraphMax ?? bounds_max %}
+                <div
+                    class="range-slider-wrap"
+                    data-controller="range-slider"
+                    data-range-slider-min-value="{{ bounds_min }}"
+                    data-range-slider-max-value="{{ bounds_max }}"
+                >
+                    {# Visual track #}
+                    <div class="range-slider-track">
+                        <div class="range-slider-fill" data-range-slider-target="fill"></div>
+                        <div class="range-slider-handle" data-range-slider-target="handleMin"></div>
+                        <div class="range-slider-handle" data-range-slider-target="handleMax"></div>
+                        {# Transparent range inputs sit on top #}
+                        <div class="range-slider-inputs">
+                            <input
+                                type="range"
+                                min="{{ bounds_min }}"
+                                max="{{ bounds_max }}"
+                                value="{{ val_min }}"
+                                data-model="paragraphMin"
+                                data-range-slider-target="min"
+                                aria-label="Paragraphes minimum"
+                                aria-valuemin="{{ bounds_min }}"
+                                aria-valuemax="{{ bounds_max }}"
+                                aria-valuenow="{{ val_min }}"
+                            >
+                            <input
+                                type="range"
+                                min="{{ bounds_min }}"
+                                max="{{ bounds_max }}"
+                                value="{{ val_max }}"
+                                data-model="paragraphMax"
+                                data-range-slider-target="max"
+                                aria-label="Paragraphes maximum"
+                                aria-valuemin="{{ bounds_min }}"
+                                aria-valuemax="{{ bounds_max }}"
+                                aria-valuenow="{{ val_max }}"
+                            >
+                        </div>
+                    </div>
+                    <div class="range-values">
+                        <span><strong data-range-slider-target="labelMin">{{ val_min }}</strong> § min</span>
+                        <span><strong data-range-slider-target="labelMax">{{ val_max }}</strong> § max</span>
+                    </div>
+                    <div class="range-presets" role="group" aria-label="Tranches usuelles">
+                        {% if bounds_min <= 200 %}<button class="range-preset{% if paragraphMax is not null and paragraphMax <= 200 %} is-active{% endif %}" type="button" data-action="live#action" data-live-action-param="setPreset" data-live-min-param="{{ bounds_min }}" data-live-max-param="200">&lt; 200 §</button>{% endif %}
+                        {% if bounds_max >= 200 %}<button class="range-preset{% if paragraphMin == 200 and paragraphMax == 400 %} is-active{% endif %}" type="button" data-action="live#action" data-live-action-param="setPreset" data-live-min-param="200" data-live-max-param="400">200 — 400 §</button>{% endif %}
+                        {% if bounds_max >= 400 %}<button class="range-preset{% if paragraphMin == 400 and paragraphMax == 600 %} is-active{% endif %}" type="button" data-action="live#action" data-live-action-param="setPreset" data-live-min-param="400" data-live-max-param="600">400 — 600 §</button>{% endif %}
+                        {% if bounds_max >= 600 %}<button class="range-preset{% if paragraphMin is not null and paragraphMin >= 600 %} is-active{% endif %}" type="button" data-action="live#action" data-live-action-param="setPreset" data-live-min-param="600" data-live-max-param="{{ bounds_max }}">600 § +</button>{% endif %}
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        {# ── STATUT DANS MA COLLECTION — authenticated only ── #}
+        {% if app.user %}
+        <details class="filter-group filter-section--collection-status" open>
+            <summary>
+                <span>Statut dans ma collection</span>
+                <span class="grp-meta">
+                    {% if collectionStatus is not null or onlyFavorites %}
+                        <span class="grp-count">actif</span>
+                    {% endif %}
+                    <span class="chev" aria-hidden="true"></span>
+                </span>
+            </summary>
+            <div class="grp-body">
+                <select
+                    data-model="collectionStatus"
+                    class="select"
+                    aria-label="Statut dans ma collection"
+                >
+                    <option value="">Tous les livres</option>
+                    <option value="dans-ma-collection" {% if collectionStatus == 'dans-ma-collection' %}selected{% endif %}>Dans ma collection</option>
+                    <option value="a-acheter" {% if collectionStatus == 'a-acheter' %}selected{% endif %}>À acheter (chasse)</option>
+                    <option value="a-lire" {% if collectionStatus == 'a-lire' %}selected{% endif %}>À lire</option>
+                    <option value="lu" {% if collectionStatus == 'lu' %}selected{% endif %}>Lus</option>
+                    <option value="pas-dans-ma-collection" {% if collectionStatus == 'pas-dans-ma-collection' %}selected{% endif %}>Pas dans ma collection</option>
+                </select>
+                <label class="switch" style="margin-top:12px;">
+                    <input
+                        type="checkbox"
+                        data-model="onlyFavorites"
+                        {% if onlyFavorites %}checked{% endif %}
+                        aria-label="Uniquement mes favoris"
+                    >
+                    <span class="track"></span>
+                    <span>Uniquement mes favoris</span>
+                </label>
+                <label class="switch" style="margin-top:6px;">
+                    <input
+                        type="checkbox"
+                        data-model="hideModeration"
+                        {% if hideModeration %}checked{% endif %}
+                        aria-label="Cacher les fiches en modération"
+                    >
+                    <span class="track"></span>
+                    <span>Cacher les fiches en modération</span>
+                </label>
+            </div>
+        </details>
+        {% endif %}
+
+    </div>
+    {# /filters-body #}
+
+    {# ── Panel Footer ── #}
+    <div class="filters-footer">
+        <button
+            type="button"
+            data-action="live#action"
+            data-live-action-param="clearPanel"
+            class="btn btn-ghost btn-sm"
+            style="flex:0 0 auto;"
+        >Effacer</button>
+        <button
+            type="button"
+            data-action="live#action"
+            data-live-action-param="applyFilters"
+            class="btn btn-primary btn-sm"
+            style="flex:1;min-width:0;"
+            aria-live="polite"
+        >Appliquer <span style="font-family:var(--font-mono);opacity:.75;margin-left:4px;">· {{ this.expectedCount }}</span></button>
+    </div>
+</div>

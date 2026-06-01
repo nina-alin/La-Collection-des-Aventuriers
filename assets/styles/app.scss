@@ -33,8 +33,15 @@
 @import "components/badges";
 @import "components/rating";
 
+// base overrides — Bootstrap reboot defaults body bg to var(--bs-body-bg) which
+// isn't reachable via @use module scoping; apply design token directly instead
+body {
+    background-color: var(--bg-page);
+}
+
 // page imports
 @import "pages/livre";
 @import "pages/collection";
 @import "pages/auteur";
 @import "pages/suggestions";
+@import "pages/catalogue";

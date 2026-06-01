@@ -14,12 +14,6 @@ class DefaultController extends AbstractController
         return $this->render('home/index.html.twig');
     }
 
-    #[Route('/catalogue', name: 'catalogue_index')]
-    public function catalogue(): Response
-    {
-        return $this->render('home/index.html.twig');
-    }
-
     #[Route('/suggestions', name: 'suggestions_index')]
     public function suggestions(): Response
     {

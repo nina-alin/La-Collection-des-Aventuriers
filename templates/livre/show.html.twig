@@ -16,7 +16,7 @@
 
     {# ============================== BREADCRUMB ============================== #}
     <nav class="crumbs" aria-label="Fil d'Ariane">
-        <a href="{{ path('catalogue_index') }}">Catalogue</a>
+        <a href="{{ path('app_catalogue') }}">Catalogue</a>
         {% if book.collection %}
             <span class="sep">/</span>
             <a href="{{ path('app_collection_show', {slug: book.collection.slug}) }}">{{ book.collection.nom }}</a>

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Contributor;
+use App\Entity\Enum\BookStatus;
 use App\Entity\Enum\ContributionRole;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -42,6 +43,50 @@ class ContributorRepository extends ServiceEntityRepository
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * @return array<array{contributor: Contributor, role: string, bookCount: int}>
+     */
+    public function findByNameSearchWithRoleAndCount(string $q, int $limit = 20): array
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->select('c AS contributor, contrib.role AS role, COUNT(DISTINCT b.id) AS bookCount')
+            ->from(Contributor::class, 'c')
+            ->innerJoin('c.contributions', 'contrib')
+            ->innerJoin('contrib.book', 'b', 'WITH', 'b.status = :published')
+            ->where('contrib.role IN (:roles)')
+            ->setParameter('published', BookStatus::PUBLISHED)
+            ->setParameter('roles', [ContributionRole::Author->value, ContributionRole::Illustrator->value])
+            ->groupBy('c.id, contrib.role')
+            ->orderBy('bookCount', 'DESC')
+            ->addOrderBy('c.lastName', 'ASC');
+
+        if ($q !== '') {
+            $qb->andWhere('LOWER(c.firstName) LIKE :q OR LOWER(c.lastName) LIKE :q OR LOWER(c.pseudo) LIKE :q')
+               ->setParameter('q', '%' . mb_strtolower($q) . '%');
+        }
+
+        $rows = $qb->setMaxResults($limit * 2)->getQuery()->getResult();
+
+        $merged = [];
+        foreach ($rows as $row) {
+            $contributor = $row['contributor'];
+            $id          = $contributor->getId()->toString();
+            $role        = $row['role'];
+            $bookCount   = (int) $row['bookCount'];
+
+            if (!isset($merged[$id])) {
+                $merged[$id] = ['contributor' => $contributor, 'role' => $role, 'bookCount' => $bookCount];
+            } elseif ($role === ContributionRole::Author->value) {
+                $merged[$id]['role']      = $role;
+                $merged[$id]['bookCount'] = max($bookCount, $merged[$id]['bookCount']);
+            }
+        }
+
+        uasort($merged, fn($a, $b) => $b['bookCount'] <=> $a['bookCount']);
+
+        return array_values(array_slice($merged, 0, $limit));
     }
 
     public function findBySlugAndRole(string $slug, ContributionRole $role): ?Contributor

@@ -1,0 +1,289 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Catalogue{% endblock %}
+
+{% block body %}
+<div class="container">
+
+    {# ── Page head ── #}
+    <div class="page-head">
+        <p class="eyebrow">Encyclopédie · {{ totalItems }} livre{% if totalItems != 1 %}s{% endif %} recensé{% if totalItems != 1 %}s{% endif %}</p>
+        <h1>Le <em>Catalogue</em></h1>
+        <p class="lede">Filtre par éditeur, créateur ou format ; trie par note, parution ou ordre alphabétique.</p>
+    </div>
+
+    {# ── Two-column layout ── #}
+    <div class="catalogue" id="catalogue-layout" data-controller="catalogue-view">
+
+        {# ── Filters rail ── #}
+        <aside class="filters" id="catalogue-filter-rail" aria-label="Filtres">
+            <twig:Catalogue:FilterPanelComponent
+                :activeFilterState="activeFilterState"
+                :paragraphBounds="paragraphBounds"
+            />
+        </aside>
+
+        {# ── Results column ── #}
+        <section class="results" aria-label="Résultats">
+
+            {# ── In-page search ── #}
+            <div
+                class="catalog-search"
+                data-controller="catalogue-search"
+                data-catalogue-search-suggestions-url-value="{{ path('app_catalogue_search_suggestions') }}"
+                style="margin-bottom:var(--sp-4);"
+            >
+                <div class="catalog-search-inner">
+                    <svg class="icon-loupe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                    <input
+                        type="text"
+                        placeholder="Rechercher un livre ou un auteur…"
+                        autocomplete="off"
+                        data-catalogue-search-target="input"
+                        aria-label="Recherche dans le catalogue"
+                        value="{{ activeFilterState.searchQuery ?? '' }}"
+                    >
+                </div>
+                <div
+                    class="catalog-search-pop"
+                    data-catalogue-search-target="dropdown"
+                    aria-live="polite"
+                    hidden
+                ></div>
+            </div>
+
+            {# ── Results bar: count + sort + view toggle ── #}
+            <div class="results-bar">
+                <div class="results-count" aria-live="polite" aria-atomic="true">
+                    <strong>{{ totalItems }}</strong>
+                    <span>livre{% if totalItems != 1 %}s{% endif %}</span>
+                </div>
+                <div class="results-actions">
+                    <form
+                        method="get"
+                        action="{{ path('app_catalogue') }}"
+                        data-turbo-action="replace"
+                        style="display:contents;"
+                    >
+                        {% for key, value in activeFilterState.toUrlParams() %}
+                            {% if key != 'sort' and key != 'page' %}
+                                {% if value is iterable %}
+                                    {% for v in value %}
+                                        <input type="hidden" name="{{ key }}[]" value="{{ v }}">
+                                    {% endfor %}
+                                {% else %}
+                                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        <label class="visually-hidden" for="topSort">Trier par</label>
+                        <select
+                            id="topSort"
+                            name="sort"
+                            class="select"
+                            onchange="this.form.submit()"
+                            aria-label="Trier par"
+                        >
+                            <option value="note-desc" {% if activeFilterState.sort == 'note-desc' %}selected{% endif %}>Trier · Note décroissante</option>
+                            <option value="alpha" {% if activeFilterState.sort == 'alpha' %}selected{% endif %}>Trier · A → Z</option>
+                            <option value="parution-fr" {% if activeFilterState.sort == 'parution-fr' %}selected{% endif %}>Trier · Parution récente</option>
+                            <option value="parution-orig" {% if activeFilterState.sort == 'parution-orig' %}selected{% endif %}>Trier · Parution ancienne</option>
+                            <option value="recent" {% if activeFilterState.sort == 'recent' %}selected{% endif %}>Trier · Récemment ajouté</option>
+                        </select>
+                    </form>
+                    <div class="view-toggle" role="group" aria-label="Mode d'affichage">
+                        <button type="button" aria-pressed="true" aria-label="Vue grille" data-action="catalogue-view#setGrid">
+                            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                        </button>
+                        <button type="button" aria-pressed="false" aria-label="Vue liste" data-action="catalogue-view#setList">
+                            <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {# ── Active filter chips ── #}
+            {% if activeFilterState.countActiveFilters() > 0 %}
+            <div class="filter-chips" aria-live="polite" aria-label="Filtres actifs">
+                {% for contribId in activeFilterState.contributors %}
+                    <span class="chip">
+                        <span class="chip-label">Créateur</span>
+                        <strong>{{ contributorsMap[contribId] ?? ('#' ~ contribId|slice(0, 8)) }}</strong>
+                        <a
+                            href="{{ filter_url(activeFilterState, {'contributors': activeFilterState.contributors|filter((v) => v != contribId)}) }}"
+                            class="chip-close"
+                            aria-label="Retirer le filtre créateur {{ contributorsMap[contribId] ?? contribId }}"
+                        >×</a>
+                    </span>
+                {% endfor %}
+
+                {% for editorId in activeFilterState.editors %}
+                    <span class="chip">
+                        <span class="chip-label">Éditeur</span>
+                        <strong>{{ editorsMap[editorId] ?? ('#' ~ editorId) }}</strong>
+                        <a
+                            href="{{ filter_url(activeFilterState, {'editors': activeFilterState.editors|filter((v) => v != editorId)}) }}"
+                            class="chip-close"
+                            aria-label="Retirer le filtre éditeur {{ editorsMap[editorId] ?? editorId }}"
+                        >×</a>
+                    </span>
+                {% endfor %}
+
+                {% if activeFilterState.paragraphMin is not null or activeFilterState.paragraphMax is not null %}
+                    <span class="chip">
+                        <span class="chip-label">Paragraphes</span>
+                        <strong>
+                            {% if activeFilterState.paragraphMin is not null and activeFilterState.paragraphMax is not null %}
+                                {{ activeFilterState.paragraphMin }}–{{ activeFilterState.paragraphMax }} §
+                            {% elseif activeFilterState.paragraphMin is not null %}
+                                ≥ {{ activeFilterState.paragraphMin }} §
+                            {% else %}
+                                ≤ {{ activeFilterState.paragraphMax }} §
+                            {% endif %}
+                        </strong>
+                        <a
+                            href="{{ filter_url(activeFilterState, {'paragraphMin': null, 'paragraphMax': null}) }}"
+                            class="chip-close"
+                            aria-label="Retirer le filtre paragraphes"
+                        >×</a>
+                    </span>
+                {% endif %}
+
+                {% if activeFilterState.collectionStatus is not null %}
+                    <span class="chip">
+                        <span class="chip-label">Collection</span>
+                        <strong>{{ activeFilterState.collectionStatus }}</strong>
+                        <a href="{{ filter_url(activeFilterState, {'collectionStatus': null}) }}" class="chip-close" aria-label="Retirer le filtre statut">×</a>
+                    </span>
+                {% endif %}
+
+                {% if activeFilterState.onlyFavorites %}
+                    <span class="chip">
+                        <span class="chip-label">Favoris</span>
+                        <strong>uniquement</strong>
+                        <a href="{{ filter_url(activeFilterState, {'onlyFavorites': null}) }}" class="chip-close" aria-label="Retirer le filtre favoris">×</a>
+                    </span>
+                {% endif %}
+
+                {% if activeFilterState.searchQuery is not null %}
+                    <span class="chip">
+                        <span class="chip-label">Recherche</span>
+                        <strong>"{{ activeFilterState.searchQuery }}"</strong>
+                        <a href="{{ filter_url(activeFilterState, {'q': null}) }}" class="chip-close" aria-label="Retirer la recherche">×</a>
+                    </span>
+                {% endif %}
+
+                <a href="{{ path('app_catalogue') }}" class="chip-clear">Tout effacer ({{ activeFilterState.countActiveFilters() }})</a>
+            </div>
+            {% endif %}
+
+            {# ── Book grid ── #}
+            <div
+                class="grid"
+                id="grid"
+                data-catalogue-view-target="grid"
+                aria-live="polite"
+                aria-label="Résultats de la recherche"
+            >
+                {% for book in books %}
+                    {% set userBook = userBooksMap[book.id] ?? null %}
+                    <twig:Book:Card
+                        :bookId="book.id"
+                        :slug="book.slug"
+                        :title="book.title"
+                        :coverUrl="book.coverImage"
+                        :author="authorsMap[book.id] ?? null"
+                        :rating="ratingsMap[book.id] ?? null"
+                        :editionInfo="book.editionInfo"
+                        :publicationYear="book.frenchPublicationYear"
+                        :collectionRef="collectionRefsMap[book.id] ?? null"
+                        :isFavorite="userBook is not null and userBook.isFavorite"
+                        :isOwned="userBook is not null and userBook.status.value == 'dans-ma-collection'"
+                        :isWishlist="userBook is not null and userBook.status.value == 'a-acheter'"
+                    />
+                {% else %}
+                    <div class="empty-state" role="status" style="grid-column:1/-1;text-align:center;padding:var(--sp-8);">
+                        <p>Aucun livre ne correspond à vos filtres.</p>
+                        <a href="{{ path('app_catalogue') }}" class="btn btn-ghost btn-sm" style="margin-top:var(--sp-3);">Effacer tous les filtres</a>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {# ── Pagination ── #}
+            {% if totalPages > 1 %}
+            <nav class="pagination" aria-label="Pagination du catalogue">
+                <div class="pagination-arrows">
+                    {% if currentPage > 1 %}
+                        <a href="{{ filter_url(activeFilterState, {'page': currentPage - 1}) }}" class="page-arrow" rel="prev">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+                            Précédent
+                        </a>
+                    {% endif %}
+
+                    {% for p in 1..totalPages %}
+                        {% if p == currentPage %}
+                            <span class="page-num is-current" aria-current="page">{{ p }}</span>
+                        {% elseif p == 1 or p == totalPages or (p >= currentPage - 2 and p <= currentPage + 2) %}
+                            <a href="{{ filter_url(activeFilterState, {'page': p}) }}" class="page-num">{{ p }}</a>
+                        {% elseif p == currentPage - 3 or p == currentPage + 3 %}
+                            <span class="page-ellipsis" aria-hidden="true">…</span>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if currentPage < totalPages %}
+                        <a href="{{ filter_url(activeFilterState, {'page': currentPage + 1}) }}" class="page-arrow" rel="next">
+                            Suivant
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="pagination-meta">
+                    Page <strong>{{ currentPage }}</strong> sur <strong>{{ totalPages }}</strong>
+                </div>
+            </nav>
+            {% endif %}
+
+        </section>
+        {# /results #}
+
+    </div>
+    {# /catalogue #}
+
+</div>
+{# /container #}
+
+{# ── Mobile FAB ── #}
+<div data-controller="catalogue-fab">
+    <button
+        type="button"
+        class="filter-fab"
+        data-catalogue-fab-target="fab"
+        data-action="catalogue-fab#openModal"
+        aria-label="Filtrer et trier"
+    >
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
+        FILTRER &amp; TRIER
+        {% set activeCount = activeFilterState.countActiveFilters() %}
+        {% if activeCount > 0 %}
+            <span class="badge-count" aria-label="{{ activeCount }} filtre(s) actif(s)">{{ activeCount }}</span>
+        {% endif %}
+    </button>
+
+    <div class="filters-backdrop" data-catalogue-fab-target="overlay" data-action="catalogue-fab#closeModal"></div>
+
+    <div
+        class="filters"
+        data-catalogue-fab-target="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Filtres"
+        style="display:none;z-index:61;"
+    >
+        <twig:Catalogue:FilterPanelComponent
+            :activeFilterState="activeFilterState"
+            :paragraphBounds="paragraphBounds"
+        />
+    </div>
+</div>
+
+{% endblock %}

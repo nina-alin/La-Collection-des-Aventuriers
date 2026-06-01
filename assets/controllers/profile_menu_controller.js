@@ -11,6 +11,7 @@ export default class extends Controller {
         this._boundOnKeydown = this.onKeydown.bind(this);
         this._boundOnTouchStart = this._onTouchStart.bind(this);
         this._boundOnTouchEnd = this._onTouchEnd.bind(this);
+        this._boundOnDocumentClick = this._onDocumentClick.bind(this);
     }
 
     connect() {
@@ -23,6 +24,7 @@ export default class extends Controller {
 
     disconnect() {
         document.removeEventListener('keydown', this._boundOnKeydown);
+        document.removeEventListener('click', this._boundOnDocumentClick);
     }
 
     toggle() {
@@ -47,10 +49,12 @@ export default class extends Controller {
             var selectors = 'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
             this._focusableElements = Array.from(this.cardTarget.querySelectorAll(selectors));
             document.addEventListener('keydown', this._boundOnKeydown);
+            document.addEventListener('click', this._boundOnDocumentClick);
             this.cardTarget.addEventListener('touchstart', this._boundOnTouchStart, { passive: true });
             this.cardTarget.addEventListener('touchend', this._boundOnTouchEnd, { passive: true });
         } else {
             document.removeEventListener('keydown', this._boundOnKeydown);
+            document.removeEventListener('click', this._boundOnDocumentClick);
             this.cardTarget.removeEventListener('touchstart', this._boundOnTouchStart);
             this.cardTarget.removeEventListener('touchend', this._boundOnTouchEnd);
             if (this._everOpened) {
@@ -98,6 +102,12 @@ export default class extends Controller {
         var theme = isOn ? 'parchment' : 'dark';
         document.documentElement.dataset.theme = theme;
         localStorage.setItem('theme', theme);
+    }
+
+    _onDocumentClick(e) {
+        if (!this.element.contains(e.target)) {
+            this.close();
+        }
     }
 
     _onTouchStart(e) {
