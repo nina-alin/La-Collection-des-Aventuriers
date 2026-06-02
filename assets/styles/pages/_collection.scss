@@ -476,6 +476,10 @@
     @media (min-width: 1180px) { grid-template-columns: repeat(4, 1fr); gap: var(--sp-5); }
 }
 
+.tome-wrap {
+    position: relative;
+}
+
 .tome {
     position: relative;
     display: flex; flex-direction: column;
@@ -483,7 +487,6 @@
     border: 1px solid var(--border-default);
     border-radius: var(--radius-lg);
     overflow: hidden;
-    text-decoration: none;
     color: inherit;
     transition:
         transform var(--motion-base) var(--motion-ease-out),
@@ -495,6 +498,88 @@
         box-shadow: var(--shadow-md);
         text-decoration: none;
         border-color: var(--border-strong);
+    }
+}
+
+.tome-link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: var(--radius-lg);
+}
+
+.tome--missing {
+    background: var(--bg-sunken);
+    border-color: var(--border-subtle);
+
+    .tome-cover {
+        filter: grayscale(0.85) brightness(0.65);
+    }
+
+    .tome-body {
+        opacity: 0.75;
+    }
+}
+
+.tome-wishlist-bar {
+    position: relative;
+    z-index: 2;
+    margin-top: -44px;
+    height: 44px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-2);
+    padding: 0 var(--sp-3);
+    background: rgba(20, 13, 7, 0.82);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: #fbf6e9;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    pointer-events: none;
+}
+
+.tome:hover .tome-wishlist-bar {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.tome-wishlist-label {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-1);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    opacity: 0.85;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+.tome-wishlist-btn {
+    flex-shrink: 0;
+    padding: 3px var(--sp-3);
+    border-radius: var(--radius-full);
+    background: rgba(245, 236, 217, 0.15);
+    border: 1px solid rgba(245, 236, 217, 0.35);
+    color: #fbf6e9;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.12s ease;
+
+    &:hover {
+        background: rgba(245, 236, 217, 0.28);
     }
 }
 
@@ -574,6 +659,11 @@
     border: 1px solid rgba(245,236,217,0.25);
 
     svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+}
+
+.tome-status--owned {
+    background: var(--mousse-500);
+    border-color: rgba(245,236,217,0.45);
 }
 
 .tome-missing-mark {

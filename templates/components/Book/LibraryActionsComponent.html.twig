@@ -1,0 +1,34 @@
+<div {{ attributes }} class="actions-grid" role="group" aria-label="Listes personnelles">
+    <button class="action-toggle{% if this.isOwned() %} is-active{% endif %}"
+            data-action="live#action"
+            data-live-action-param="toggleOwned"
+            aria-pressed="{{ this.isOwned() ? 'true' : 'false' }}"
+            type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h12a2 2 0 0 1 2 2v14l-4-3-4 3-4-3-4 3V6a2 2 0 0 1 2-2z"/></svg>
+        Ma Collection
+    </button>
+    <button class="action-toggle{% if this.isToRead() %} is-active{% endif %}"
+            data-action="live#action"
+            data-live-action-param="toggleToRead"
+            aria-pressed="{{ this.isToRead() ? 'true' : 'false' }}"
+            type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h14a3 3 0 0 1 3 3v13l-7-3-7 3V5z"/><path d="M7 9h8M7 13h6"/></svg>
+        À lire
+    </button>
+    <button class="action-toggle{% if this.isToBuy() %} is-active{% endif %}"
+            data-action="live#action"
+            data-live-action-param="toggleToBuy"
+            aria-pressed="{{ this.isToBuy() ? 'true' : 'false' }}"
+            type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h2l3 12h12l2-8H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
+        À acheter
+    </button>
+    <button class="action-toggle{% if this.isFavorite() %} is-active{% endif %}"
+            data-action="live#action"
+            data-live-action-param="toggleFavorite"
+            aria-pressed="{{ this.isFavorite() ? 'true' : 'false' }}"
+            type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.5-9.5-9C1 8.5 3 5 6.5 5c2 0 3.5 1 5.5 3 2-2 3.5-3 5.5-3C21 5 23 8.5 21.5 12 19 16.5 12 21 12 21z"/></svg>
+        Favori
+    </button>
+</div>

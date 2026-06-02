@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use App\Entity\Enum\UserBookStatus;
 use App\Repository\UserBookRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -27,8 +26,14 @@ class UserBook
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Book $book;
 
-    #[ORM\Column(length: 30, enumType: UserBookStatus::class)]
-    private UserBookStatus $status = UserBookStatus::DANS_MA_COLLECTION;
+    #[ORM\Column(options: ['default' => false])]
+    private bool $isOwned = false;
+
+    #[ORM\Column(options: ['default' => false])]
+    private bool $isToRead = false;
+
+    #[ORM\Column(options: ['default' => false])]
+    private bool $isToBuy = false;
 
     #[ORM\Column(options: ['default' => false])]
     private bool $isFavorite = false;
@@ -39,11 +44,10 @@ class UserBook
     #[ORM\Column]
     private \DateTimeImmutable $updatedAt;
 
-    public function __construct(User $user, Book $book, UserBookStatus $status = UserBookStatus::DANS_MA_COLLECTION)
+    public function __construct(User $user, Book $book)
     {
         $this->user      = $user;
         $this->book      = $book;
-        $this->status    = $status;
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }
@@ -69,14 +73,36 @@ class UserBook
         return $this->book;
     }
 
-    public function getStatus(): UserBookStatus
+    public function isOwned(): bool
     {
-        return $this->status;
+        return $this->isOwned;
     }
 
-    public function setStatus(UserBookStatus $status): static
+    public function setIsOwned(bool $isOwned): static
     {
-        $this->status = $status;
+        $this->isOwned = $isOwned;
+        return $this;
+    }
+
+    public function isToRead(): bool
+    {
+        return $this->isToRead;
+    }
+
+    public function setIsToRead(bool $isToRead): static
+    {
+        $this->isToRead = $isToRead;
+        return $this;
+    }
+
+    public function isToBuy(): bool
+    {
+        return $this->isToBuy;
+    }
+
+    public function setIsToBuy(bool $isToBuy): static
+    {
+        $this->isToBuy = $isToBuy;
         return $this;
     }
 
@@ -89,6 +115,11 @@ class UserBook
     {
         $this->isFavorite = $isFavorite;
         return $this;
+    }
+
+    public function isAllInactive(): bool
+    {
+        return !$this->isOwned && !$this->isToRead && !$this->isToBuy && !$this->isFavorite;
     }
 
     public function getCreatedAt(): \DateTimeImmutable

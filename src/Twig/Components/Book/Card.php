@@ -21,6 +21,7 @@ class Card
     public bool $isFavorite = false;
     public bool $isOwned = false;
     public bool $isWishlist = false;
+    public bool $isMissing = false;
 
     #[PostMount]
     public function postMount(): void

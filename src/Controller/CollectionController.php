@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Repository\CollectionRepository;
+use App\Repository\UserBookRepository;
 use App\Service\CollectionService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,7 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class CollectionController extends AbstractController
 {
     #[Route('/collections/{slug}', name: 'app_collection_show', methods: ['GET'])]
-    public function show(string $slug, Request $request, CollectionRepository $repo, CollectionService $collectionService): Response
+    public function show(string $slug, Request $request, CollectionRepository $repo, CollectionService $collectionService, UserBookRepository $userBookRepository): Response
     {
         $collection = $repo->findBySlug($slug);
         if ($collection === null) {
@@ -40,6 +41,29 @@ class CollectionController extends AbstractController
         $recurringContributors = $collectionService->getRecurringContributors($collection);
         $publishingHistory = $collectionService->getPublishingHistory($collection);
 
+        $user = $this->getUser();
+        $ownedCount = null;
+        $ownedBookIds = null;
+
+        if ($user !== null) {
+            $ownedCount = $userBookRepository->countOwnedByUserForCollection($user, $collection);
+
+            $pageBookIds = [];
+            foreach ($books as $b) {
+                $pageBookIds[] = $b->getId();
+            }
+            $ownedBookIds = [];
+            $toBuyBookIds = [];
+            foreach ($userBookRepository->findByUserAndBookIds($user, $pageBookIds) as $ub) {
+                if ($ub->isOwned()) {
+                    $ownedBookIds[] = $ub->getBook()->getId();
+                }
+                if ($ub->isToBuy()) {
+                    $toBuyBookIds[] = $ub->getBook()->getId();
+                }
+            }
+        }
+
         return $this->render('collection/show.html.twig', [
             'collection'           => $collection,
             'books'                => $books,
@@ -49,6 +73,9 @@ class CollectionController extends AbstractController
             'heroMeta'             => $heroMeta,
             'recurringContributors' => $recurringContributors,
             'publishingHistory'    => $publishingHistory,
+            'ownedCount'           => $ownedCount,
+            'ownedBookIds'         => $ownedBookIds,
+            'toBuyBookIds'         => $toBuyBookIds ?? null,
         ]);
     }
 }

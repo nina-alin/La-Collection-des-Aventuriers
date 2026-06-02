@@ -13,7 +13,6 @@ use App\Entity\Enum\BookStatus;
 use App\Entity\Enum\ContributionRole;
 use App\Entity\Enum\GenreCollection;
 use App\Entity\Enum\StatutCollection;
-use App\Entity\Enum\UserBookStatus;
 use App\Entity\UserBook;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -1537,59 +1536,48 @@ class AppFixtures extends Fixture
         // =====================================================================
         // USER BOOKS
         // =====================================================================
+        // [user, book, isOwned, isToRead, isToBuy, isFavorite]
+        // LU and PAS_DANS_MA_COLLECTION entries omitted (deleted by migration — clean start)
         $userBooks = [
             // utilisateur — défis fantastiques
-            [$user, $dfSorcier,     UserBookStatus::DANS_MA_COLLECTION, true],
-            [$user, $dfCitadelle,   UserBookStatus::A_ACHETER,          false],
-            [$user, $dfForet,       UserBookStatus::DANS_MA_COLLECTION, false],
-            [$user, $dfVille,       UserBookStatus::DANS_MA_COLLECTION, false],
-            [$user, $dfLabyrinthe,  UserBookStatus::LU,                 false],
-            [$user, $dfTemple,      UserBookStatus::A_LIRE,             false],
+            [$user, $dfSorcier,   true,  false, false, true],
+            [$user, $dfCitadelle, false, false, true,  false],
+            [$user, $dfForet,     true,  false, false, false],
+            [$user, $dfVille,     true,  false, false, false],
+            [$user, $dfTemple,    false, true,  false, false],
             // utilisateur — loup solitaire
-            [$user, $lsFaucons,    UserBookStatus::DANS_MA_COLLECTION, true],
-            [$user, $lsMarais,     UserBookStatus::DANS_MA_COLLECTION, false],
-            [$user, $lsMort,       UserBookStatus::DANS_MA_COLLECTION, false],
-            [$user, $lsArmees,     UserBookStatus::A_ACHETER,          false],
-            [$user, $lsPlaines,    UserBookStatus::A_ACHETER,          false],
+            [$user, $lsFaucons,  true,  false, false, true],
+            [$user, $lsMarais,   true,  false, false, false],
+            [$user, $lsMort,     true,  false, false, false],
+            [$user, $lsArmees,   false, false, true,  false],
+            [$user, $lsPlaines,  false, false, true,  false],
             // utilisateur — sorcellerie
-            [$user, $soCity,     UserBookStatus::DANS_MA_COLLECTION, true],
-            [$user, $soKhare,    UserBookStatus::DANS_MA_COLLECTION, false],
-            [$user, $soSerpents, UserBookStatus::A_ACHETER,          false],
-            [$user, $soCouronne, UserBookStatus::A_ACHETER,          false],
+            [$user, $soCity,     true,  false, false, true],
+            [$user, $soKhare,    true,  false, false, false],
+            [$user, $soSerpents, false, false, true,  false],
+            [$user, $soCouronne, false, false, true,  false],
             // utilisateur — voie du tigre
-            [$user, $vtEnnemi, UserBookStatus::DANS_MA_COLLECTION, true],
-            [$user, $vtArene,  UserBookStatus::A_ACHETER,          false],
+            [$user, $vtEnnemi, true,  false, false, true],
+            [$user, $vtArene,  false, false, true,  false],
             // utilisateur — chair de poule
-            [$user, $cpCamp,   UserBookStatus::LU,  false],
-            [$user, $cpNeige,  UserBookStatus::LU,  false],
-            [$user, $cpMasque, UserBookStatus::LU,  false],
-            [$user, $cpMomie,  UserBookStatus::A_LIRE, false],
-            // utilisateur — blood sword
-            [$user, $bsGuerriers, UserBookStatus::PAS_DANS_MA_COLLECTION, false],
+            [$user, $cpMomie, false, true, false, false],
             // admin
-            [$admin, $dfSorcier,    UserBookStatus::LU,                 false],
-            [$admin, $dfCitadelle,  UserBookStatus::LU,                 false],
-            [$admin, $dfLabyrinthe, UserBookStatus::LU,                 false],
-            [$admin, $lsFaucons,    UserBookStatus::DANS_MA_COLLECTION, true],
-            [$admin, $lsMarais,     UserBookStatus::DANS_MA_COLLECTION, false],
-            [$admin, $soCity,       UserBookStatus::DANS_MA_COLLECTION, true],
-            [$admin, $soCouronne,   UserBookStatus::DANS_MA_COLLECTION, true],
-            [$admin, $gqChateau,    UserBookStatus::LU,                 false],
-            [$admin, $scMission,    UserBookStatus::LU,                 false],
-            [$admin, $vtEnnemi,     UserBookStatus::DANS_MA_COLLECTION, false],
+            [$admin, $lsFaucons,  true, false, false, true],
+            [$admin, $lsMarais,   true, false, false, false],
+            [$admin, $soCity,     true, false, false, true],
+            [$admin, $soCouronne, true, false, false, true],
+            [$admin, $vtEnnemi,   true, false, false, false],
             // moderator
-            [$moderator, $dfSorcier,   UserBookStatus::DANS_MA_COLLECTION, false],
-            [$moderator, $dfCitadelle, UserBookStatus::DANS_MA_COLLECTION, false],
-            [$moderator, $dfForet,     UserBookStatus::A_LIRE,             false],
-            [$moderator, $lsFaucons,   UserBookStatus::DANS_MA_COLLECTION, false],
-            [$moderator, $cpCamp,      UserBookStatus::LU,                 false],
-            [$moderator, $mtCrypte,    UserBookStatus::LU,                 false],
-            [$moderator, $mtAbbaye,    UserBookStatus::A_ACHETER,          false],
+            [$moderator, $dfSorcier,   true,  false, false, false],
+            [$moderator, $dfCitadelle, true,  false, false, false],
+            [$moderator, $dfForet,     false, true,  false, false],
+            [$moderator, $lsFaucons,   true,  false, false, false],
+            [$moderator, $mtAbbaye,    false, false, true,  false],
         ];
 
-        foreach ($userBooks as [$theUser, $book, $status, $isFav]) {
-            $ub = new UserBook($theUser, $book, $status);
-            $ub->setIsFavorite($isFav);
+        foreach ($userBooks as [$theUser, $book, $isOwned, $isToRead, $isToBuy, $isFav]) {
+            $ub = new UserBook($theUser, $book);
+            $ub->setIsOwned($isOwned)->setIsToRead($isToRead)->setIsToBuy($isToBuy)->setIsFavorite($isFav);
             $manager->persist($ub);
         }
 

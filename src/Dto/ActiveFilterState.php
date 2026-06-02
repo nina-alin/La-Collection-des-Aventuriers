@@ -47,7 +47,7 @@ readonly class ActiveFilterState
             $paragraphMax = $paragraphMin;
         }
 
-        $validStatuses = ['dans-ma-collection', 'a-acheter', 'a-lire', 'lu', 'pas-dans-ma-collection'];
+        $validStatuses = ['dans-ma-collection', 'a-acheter', 'a-lire'];
         $collectionStatus = $request->query->get('collectionStatus');
         if (!in_array($collectionStatus, $validStatuses, true)) {
             $collectionStatus = null;
