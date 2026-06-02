@@ -67,7 +67,12 @@
         </form>
         {% endif %}
         {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
-        <twig:Layout:ProfileMenu instanceId="desktop" />
+        <div class="lp-header-actions">
+            {% if is_granted('ROLE_USER') %}
+                <twig:Notification:NotificationPanelComponent />
+            {% endif %}
+            <twig:Layout:ProfileMenu instanceId="desktop" />
+        </div>
         {% else %}
         <a href="{{ path('app_login') }}" class="btn btn-sm btn-secondary">Se connecter</a>
         {% endif %}
@@ -88,6 +93,9 @@
    (backdrop-filter on the topbar makes position:fixed children relative to topbar, not viewport) #}
 {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
 <div class="lp-mobile-user-menu d-md-none">
+    {% if is_granted('ROLE_USER') %}
+        <twig:Notification:NotificationPanelComponent />
+    {% endif %}
     <twig:Layout:ProfileMenu instanceId="mobile" />
 </div>
 {% else %}

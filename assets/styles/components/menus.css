@@ -101,3 +101,59 @@
 @media (max-width: 600px) {
   .sh-user-chevron { display: none; }
 }
+
+/* notif-item as <button> reset (design uses <a> tags; we use <button> for LiveComponent actions) */
+button.notif-item {
+  appearance: none;
+  width: 100%;
+  background: none;
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  font: inherit;
+}
+
+/* Notification empty state (missing from design/assets/menus.css) */
+.notif-empty {
+  padding: var(--sp-6) var(--sp-4);
+  text-align: center;
+  color: var(--ink-muted);
+}
+.notif-empty .glyph {
+  width: 44px; height: 44px;
+  margin: 0 auto var(--sp-3);
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--bg-sunken);
+  color: var(--ink-muted);
+}
+.notif-empty .glyph svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.notif-empty .lg { font-family: var(--font-display); font-size: var(--fs-md); color: var(--ink-strong); margin: 0 0 4px; }
+.notif-empty .sm { font-size: var(--fs-xs); margin: 0; }
+
+/* Notification bell button */
+.sh-icon-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: 50%;
+  color: var(--ink-default);
+  cursor: pointer;
+  transition: all var(--motion-fast) var(--motion-ease);
+}
+.sh-icon-btn:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+.sh-icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.sh-icon-btn .dot { position: absolute; top: 7px; right: 7px; width: 8px; height: 8px; border-radius: 50%; background: var(--danger); border: 2px solid var(--bg-page); opacity: 0; pointer-events: none; }
+.sh-icon-btn.has-unread .dot { opacity: 1; }
+
+/* Navbar header actions (bell + profile) */
+.lp-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  justify-self: end;
+}

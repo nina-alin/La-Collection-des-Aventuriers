@@ -93,4 +93,25 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
             ->getQuery()
             ->getResult();
     }
+
+    /** @return User[] */
+    public function findByRole(string $role): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = sprintf(
+            'SELECT id FROM "user" WHERE status = \'active\' AND deleted_at IS NULL AND roles::jsonb @> \'["%s"]\'::jsonb',
+            addslashes($role)
+        );
+        $ids = $conn->fetchFirstColumn($sql);
+
+        if (empty($ids)) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('u')
+            ->where('u.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+    }
 }

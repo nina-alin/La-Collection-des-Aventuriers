@@ -6,8 +6,10 @@ use App\Entity\Enum\SuggestionEntityType;
 use App\Entity\Enum\SuggestionMode;
 use App\Entity\Suggestion;
 use App\Entity\User;
+use App\Event\ModerationPendingEvent;
 use App\Repository\SuggestionRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Uid\Uuid;
 
 class SuggestionService
@@ -17,6 +19,7 @@ class SuggestionService
     public function __construct(
         private readonly SuggestionRepository $suggestionRepository,
         private readonly EntityManagerInterface $entityManager,
+        private readonly EventDispatcherInterface $dispatcher,
     ) {
     }
 
@@ -52,6 +55,8 @@ class SuggestionService
 
         $this->entityManager->persist($suggestion);
         $this->entityManager->flush();
+
+        $this->dispatcher->dispatch(new ModerationPendingEvent($suggestion));
 
         return $suggestion;
     }

@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes paramètres — La Collection des Aventuriers{% endblock %}
+
+{% block body %}
+<div class="container">
+    <nav class="crumbs" aria-label="Fil d'Ariane">
+        <a href="{{ path('home') }}">Accueil</a>
+        <span class="sep">›</span>
+        <span class="here">Mes paramètres</span>
+    </nav>
+
+    <h1>Mes paramètres</h1>
+
+    <section id="notifications" aria-labelledby="notif-prefs-title">
+        <h2 id="notif-prefs-title">Notifications</h2>
+        {% include 'profile/_notification_preferences.html.twig' %}
+    </section>
+</div>
+{% endblock %}
