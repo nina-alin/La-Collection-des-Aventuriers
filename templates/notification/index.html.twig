@@ -1,0 +1,83 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes notifications — La Collection des Aventuriers{% endblock %}
+
+{% block body %}
+<div class="container">
+    <nav class="crumbs" aria-label="Fil d'Ariane">
+        <a href="{{ path('home') }}">Accueil</a>
+        <span class="sep">›</span>
+        <span class="here">Notifications</span>
+    </nav>
+
+    <div class="page-header">
+        <h1>Mes notifications</h1>
+        {% if notifications|length > 0 %}
+            <form method="post" action="{{ path('notification_mark_all_read') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('notifications_read_all') }}">
+                <button type="submit" class="btn btn-ghost btn-sm">Tout marquer lu</button>
+            </form>
+        {% endif %}
+    </div>
+
+    {% if notifications|length == 0 %}
+        <div class="notif-empty">
+            <p>Vous n'avez aucune notification.</p>
+        </div>
+    {% else %}
+        <div class="notif-list notif-list--page">
+            {% for notification in notifications %}
+                {% set typeClass = 'info' %}
+                {% if notification.type.value == 'contribution_validated' %}{% set typeClass = 'success' %}
+                {% elseif notification.type.value == 'book_activity' %}{% set typeClass = 'info illustr' %}
+                {% elseif notification.type.value == 'moderation_pending' %}{% set typeClass = 'warn' %}
+                {% elseif notification.type.value == 'rank_up' %}{% set typeClass = 'success' %}
+                {% endif %}
+
+                <form method="post" action="{{ path('notification_mark_read', {id: notification.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('notification_read_' ~ notification.id) }}">
+                    <button type="submit"
+                            class="notif-item notif-item--{{ typeClass }}{% if not notification.isRead() %} notif-item--unread{% endif %}">
+                        <span class="notif-icon" aria-hidden="true">
+                            {% if notification.type.value == 'contribution_validated' %}
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            {% elseif notification.type.value == 'book_activity' %}
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                            {% elseif notification.type.value == 'moderation_pending' %}
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            {% elseif notification.type.value == 'rank_up' %}
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            {% endif %}
+                        </span>
+                        <span class="notif-body">
+                            <span class="notif-message">{{ notification.message }}</span>
+                            <span class="notif-time">{{ notification.createdAt|date('d/m/Y H:i') }}</span>
+                        </span>
+                        {% if not notification.isRead() %}
+                            <span class="notif-pastille" aria-hidden="true"></span>
+                        {% endif %}
+                    </button>
+                </form>
+            {% endfor %}
+        </div>
+
+        {% if totalPages > 1 %}
+            <nav class="pagination" aria-label="Pagination">
+                {% if currentPage > 1 %}
+                    <a href="{{ path('notification_history', {page: currentPage - 1}) }}" class="pagination__prev">‹ Précédent</a>
+                {% endif %}
+                {% for p in 1..totalPages %}
+                    <a href="{{ path('notification_history', {page: p}) }}"
+                       class="pagination__page{% if p == currentPage %} pagination__page--active{% endif %}"
+                       {% if p == currentPage %}aria-current="page"{% endif %}>
+                        {{ p }}
+                    </a>
+                {% endfor %}
+                {% if currentPage < totalPages %}
+                    <a href="{{ path('notification_history', {page: currentPage + 1}) }}" class="pagination__next">Suivant ›</a>
+                {% endif %}
+            </nav>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

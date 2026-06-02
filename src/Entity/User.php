@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '"user"')]
-#[ORM\EntityListeners(['App\EntityListener\UserGoogleVerifiedListener'])]
+#[ORM\EntityListeners(['App\EntityListener\UserGoogleVerifiedListener', 'App\EntityListener\UserCreatedListener'])]
 #[UniqueEntity(fields: ['email'], message: 'Cette adresse email est déjà associée à un compte.')]
 #[UniqueEntity(fields: ['pseudo'], message: 'Ce pseudo n\'est pas disponible.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -60,6 +60,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $timezone = null;
 
     /** @var Collection<int, Review> */
     #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'user')]
@@ -213,6 +216,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    public function getTimezone(): ?string { return $this->timezone; }
+    public function setTimezone(?string $timezone): static { $this->timezone = $timezone; return $this; }
 
     /** @return Collection<int, Review> */
     public function getReviews(): Collection

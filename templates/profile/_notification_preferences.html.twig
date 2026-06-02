@@ -1,0 +1,53 @@
+<form method="post" action="{{ path('profile_notification_preferences') }}" id="notification-preferences-form">
+    <input type="hidden" name="_token" value="{{ csrf_token('notification_preferences') }}">
+
+    <div class="prefs-list">
+        <label class="pref-item">
+            <input type="checkbox"
+                   name="contribution_validated"
+                   value="1"
+                   {% if preference.contributionValidated %}checked{% endif %}>
+            <span class="pref-label">
+                <strong>Contributions validées</strong>
+                <span class="pref-desc">Reçois une notification quand une de tes contributions est approuvée.</span>
+            </span>
+        </label>
+
+        <label class="pref-item">
+            <input type="checkbox"
+                   name="book_activity"
+                   value="1"
+                   {% if preference.bookActivity %}checked{% endif %}>
+            <span class="pref-label">
+                <strong>Activité de collections suivies</strong>
+                <span class="pref-desc">Reçois une notification quand un nouveau livre est ajouté à une collection que tu suis.</span>
+            </span>
+        </label>
+
+        {% if is_granted('ROLE_MODERATOR') %}
+        <label class="pref-item">
+            <input type="checkbox"
+                   name="moderation_pending"
+                   value="1"
+                   {% if preference.moderationPending %}checked{% endif %}>
+            <span class="pref-label">
+                <strong>Modération en attente</strong>
+                <span class="pref-desc">Reçois une notification quand une suggestion attend ta modération.</span>
+            </span>
+        </label>
+        {% endif %}
+
+        <label class="pref-item">
+            <input type="checkbox"
+                   name="rank_up"
+                   value="1"
+                   {% if preference.rankUp %}checked{% endif %}>
+            <span class="pref-label">
+                <strong>Montée de rang</strong>
+                <span class="pref-desc">Reçois une notification quand tu atteins un nouveau niveau de contributeur.</span>
+            </span>
+        </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Enregistrer les préférences</button>
+</form>

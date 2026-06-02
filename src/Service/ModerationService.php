@@ -7,13 +7,16 @@ namespace App\Service;
 use App\Entity\CorrectionProposal;
 use App\Entity\ModerationLog;
 use App\Entity\WorkEntry;
+use App\Event\ContributionValidatedEvent;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ModerationService
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager)
-    {
-    }
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly EventDispatcherInterface $dispatcher,
+    ) {}
 
     public function approve(WorkEntry|CorrectionProposal $entity, string $moderatorId): void
     {
@@ -31,6 +34,10 @@ class ModerationService
         );
         $this->entityManager->persist($log);
         $this->entityManager->flush();
+
+        if ($entity instanceof WorkEntry && $entity->getAuthor() !== null) {
+            $this->dispatcher->dispatch(new ContributionValidatedEvent($entity, $entity->getAuthor()));
+        }
     }
 
     public function reject(WorkEntry|CorrectionProposal $entity, string $moderatorId, ?string $reason): void

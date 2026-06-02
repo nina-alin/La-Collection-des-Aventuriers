@@ -1,7 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-    static targets = ['pip', 'input'];
+    static targets = ['pip', 'input', 'display'];
 
     connect() {
         const container = this.element.querySelector('[role="radiogroup"]');
@@ -44,6 +44,10 @@ export default class extends Controller {
             this.inputTarget.value = val;
         }
         this._updatePips(val);
+        if (this.hasDisplayTarget) {
+            this.displayTarget.textContent = val;
+            this.displayTarget.closest('.my-rating-value')?.style.removeProperty('visibility');
+        }
     }
 
     _updatePips(selectedVal) {

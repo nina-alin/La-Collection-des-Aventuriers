@@ -1,0 +1,106 @@
+{# Outer div owns the Stimulus controller; inner {{ attributes }} owns the Live Component controller.
+   Splitting them prevents duplicate data-controller attributes. #}
+<div class="menu-anchor" data-controller="notification-panel">
+<div {{ attributes }}>
+
+    {# Bell button #}
+    <button class="sh-icon-btn{% if this.getUnreadCount() > 0 %} has-unread{% endif %}"
+            type="button"
+            aria-label="Notifications{% if this.getUnreadCount() > 0 %} ({{ this.getUnreadCount() }} non lues){% endif %}"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            aria-controls="notif-menu"
+            data-notification-panel-target="bell"
+            data-action="notification-panel#toggle">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+        <span class="dot" aria-hidden="true"></span>
+    </button>
+
+    {# Panel #}
+    <div class="menu-card" id="notif-menu" data-anchor="notifications"
+         role="dialog" aria-modal="false" aria-label="Notifications"
+         hidden
+         data-notification-panel-target="panel">
+
+        <header class="menu-head">
+            <span class="ttl">Notifications{% if this.getUnreadCount() > 0 %} <span class="count-badge">{{ this.getUnreadCount() }}</span>{% endif %}</span>
+            {% if this.getUnreadCount() > 0 %}
+                <button class="mark-all" type="button"
+                        data-action="live#action"
+                        data-live-action-param="markAllRead">
+                    Tout marquer lu
+                </button>
+            {% endif %}
+        </header>
+
+        <div class="notif-list" role="list" data-loading="addClass(skeleton)">
+            {% set notifications = this.getNotifications() %}
+            {% set todayBoundary = this.getTodayBoundary() %}
+
+            {% if notifications is empty %}
+                <div class="notif-empty">
+                    <div class="glyph">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+                    </div>
+                    <p class="lg">Aucune notification</p>
+                    <p class="sm">Tu es à jour !</p>
+                </div>
+            {% else %}
+                {% set shownToday = false %}
+                {% set shownOlder = false %}
+                {% for notification in notifications %}
+                    {% if notification.createdAt >= todayBoundary %}
+                        {% if not shownToday %}
+                            <div class="notif-list-sep">Nouvelles · aujourd'hui</div>
+                            {% set shownToday = true %}
+                        {% endif %}
+                    {% else %}
+                        {% if not shownOlder %}
+                            <div class="notif-list-sep">Plus anciennes</div>
+                            {% set shownOlder = true %}
+                        {% endif %}
+                    {% endif %}
+
+                    {% set typeClass = 'info' %}
+                    {% if notification.type.value == 'contribution_validated' %}{% set typeClass = 'success' %}
+                    {% elseif notification.type.value == 'moderation_pending' %}{% set typeClass = 'warn' %}
+                    {% elseif notification.type.value == 'rank_up' %}{% set typeClass = 'success' %}
+                    {% endif %}
+
+                    <button type="button"
+                            role="listitem"
+                            class="notif-item {{ typeClass }}{% if not notification.isRead() %} unread{% endif %}"
+                            data-action="live#action"
+                            data-live-action-param="markRead"
+                            data-live-id-param="{{ notification.id }}">
+                        <span class="ic{% if notification.type.value == 'book_activity' %} illustr{% endif %}" aria-hidden="true">
+                            {% if notification.type.value == 'contribution_validated' %}
+                                <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+                            {% elseif notification.type.value == 'book_activity' %}
+                                {{ notification.message|slice(0,2)|upper }}
+                            {% elseif notification.type.value == 'moderation_pending' %}
+                                <svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                            {% elseif notification.type.value == 'rank_up' %}
+                                <svg viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            {% endif %}
+                        </span>
+                        <div class="body">
+                            <div class="msg">{{ notification.message }}</div>
+                            <div class="time">{{ notification.createdAt|date('d/m/Y H:i') }}</div>
+                        </div>
+                        <span class="dot-unread"{% if not notification.isRead() %} aria-label="Non lue"{% endif %}></span>
+                    </button>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <footer class="menu-foot">
+            <a href="{{ path('notification_history') }}">Voir toutes les notifications
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </a>
+            <a href="{{ path('profile_settings') }}#notifications" class="pref-link">Préférences</a>
+        </footer>
+    </div>
+
+</div>
+</div>
