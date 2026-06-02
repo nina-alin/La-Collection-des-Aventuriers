@@ -92,16 +92,6 @@
             </dl>
 
             <div class="coll-cta">
-                <button type="button" class="seal-btn" aria-pressed="false">
-                    <span class="seal" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-9.5-9A5.5 5.5 0 0 1 12 6.5 5.5 5.5 0 0 1 21.5 12c-2.5 4.65-9.5 9-9.5 9z"/></svg>
-                    </span>
-                    <span class="seal-btn-text">
-                        <span>Ajouter aux favoris</span>
-                        <span class="seal-label-sm">Sceller cette collection</span>
-                    </span>
-                </button>
-
                 <a href="#" class="btn btn-ghost">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
                     Suggérer un tome manquant
@@ -109,33 +99,51 @@
             </div>
 
             {# ============================== COMPLETION (US3) ============================== #}
-            <div class="progress-card" aria-labelledby="progress-label">
-                <div class="progress-head">
-                    <div class="progress-head-left">
-                        <span class="progress-title" id="progress-label">Votre quête de complétion</span>
-                        <span class="progress-pct">42,8 %</span>
+            {% if ownedCount is not null %}
+                {% set missingCount = totalBooks - ownedCount %}
+                {% set pct = totalBooks > 0 ? (ownedCount / totalBooks * 100)|round(1) : 0 %}
+                <div class="progress-card" aria-labelledby="progress-label">
+                    <div class="progress-head">
+                        <div class="progress-head-left">
+                            <span class="progress-title" id="progress-label">Votre quête de complétion</span>
+                            <span class="progress-pct">{{ pct|number_format(1, ',') }} %</span>
+                        </div>
+                        <div class="progress-numbers">
+                            <span class="have">{{ ownedCount }}</span><span class="sep">/</span><span class="total">{{ totalBooks }}</span>
+                            <span class="lbl">tomes possédés</span>
+                        </div>
                     </div>
-                    <div class="progress-numbers">
-                        <span class="have">12</span><span class="sep">/</span><span class="total">28</span>
-                        <span class="lbl">tomes possédés</span>
+                    <div class="progress-track"
+                         role="progressbar"
+                         aria-valuemin="0"
+                         aria-valuemax="{{ totalBooks }}"
+                         aria-valuenow="{{ ownedCount }}"
+                         aria-valuetext="{{ ownedCount }} sur {{ totalBooks }} tomes possédés">
+                        <div class="progress-fill" style="width: {{ pct }}%;"></div>
+                        <div class="progress-ticks" style="--tomes: {{ totalBooks }};">
+                            {% for i in 1..totalBooks %}<span></span>{% endfor %}
+                        </div>
+                    </div>
+                    <div class="progress-foot">
+                        {% if missingCount == 0 %}
+                            <span class="quest">Vous possédez tous les tomes de {{ collection.nom }}. Quête accomplie !</span>
+                        {% else %}
+                            <span class="quest">Il vous manque <strong>{{ missingCount }} tome{{ missingCount > 1 ? 's' : '' }}</strong> pour boucler la saga {{ collection.nom }}.</span>
+                        {% endif %}
                     </div>
                 </div>
-                <div class="progress-track"
-                     role="progressbar"
-                     aria-valuemin="0"
-                     aria-valuemax="28"
-                     aria-valuenow="12"
-                     aria-valuetext="12 sur 28 tomes possédés">
-                    <div class="progress-fill" style="width: 42.8%;"></div>
-                    <div class="progress-ticks" style="--tomes: 28;">
-                        {% for i in 1..28 %}<span></span>{% endfor %}
+            {% else %}
+                <div class="progress-card progress-card--guest" aria-labelledby="progress-label">
+                    <div class="progress-head">
+                        <div class="progress-head-left">
+                            <span class="progress-title" id="progress-label">Votre quête de complétion</span>
+                        </div>
+                    </div>
+                    <div class="progress-foot">
+                        <span class="quest"><a href="{{ path('app_login') }}">Connectez-vous</a> pour suivre votre progression dans cette collection.</span>
                     </div>
                 </div>
-                <div class="progress-foot">
-                    <span class="quest">Il vous manque <strong>16 tomes</strong> pour boucler la saga {{ collection.nom }}.</span>
-                    <span>Mis à jour il y a 2 jours</span>
-                </div>
-            </div>
+            {% endif %}
         </div>
     </section>
 
@@ -192,46 +200,71 @@
                     {% for review in book.reviews %}{% set total = total + review.score %}{% endfor %}
                     {% set avgRating = (total / book.reviews|length)|round(1) %}
                 {% endif %}
+                {% set isOwned = ownedBookIds is not null and book.id in ownedBookIds %}
+                {% set isMissing = ownedBookIds is not null and not isOwned %}
+                {% set isInWishlist = toBuyBookIds is not null and book.id in toBuyBookIds %}
 
-                <a class="tome"
-                   href="{{ path('app_book_show', {slug: book.slug}) }}"
-                   data-hue="{{ hue }}"
-                   data-volume="{{ book.volumeNumber ?? 0 }}"
-                   data-rating="{{ avgRating }}">
-                    <div class="tome-cover">
-                        <span class="tome-cover-frame" aria-hidden="true"></span>
-                        {% if book.volumeNumber %}
-                            <span class="tome-num">Tome <strong>{{ book.volumeNumber }}</strong></span>
+                <div class="tome-wrap"
+                     data-volume="{{ book.volumeNumber ?? 0 }}"
+                     data-rating="{{ avgRating }}">
+                    <div class="tome{{ isMissing ? ' tome--missing' : '' }}"
+                         data-hue="{{ hue }}">
+                        <div class="tome-cover">
+                            <span class="tome-cover-frame" aria-hidden="true"></span>
+                            {% if book.volumeNumber %}
+                                <span class="tome-num">Tome <strong>{{ book.volumeNumber }}</strong></span>
+                            {% endif %}
+                            {% if isOwned %}
+                                <span class="tome-status tome-status--owned" aria-label="Possédé">
+                                    <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+                                </span>
+                            {% else %}
+                                <span class="tome-missing-mark" aria-label="{{ ownedBookIds is not null ? 'Non possédé' : 'Statut inconnu' }}">?</span>
+                            {% endif %}
+                            <span class="tome-title-art">{{ book.title }}</span>
+                        </div>
+                        {% if isInWishlist %}
+                            <div class="tome-wishlist-bar">
+                                <span class="tome-wishlist-label">
+                                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                                    Dans ma liste d'achat
+                                </span>
+                                <button type="submit" form="wl-{{ book.id }}" class="tome-wishlist-btn">Retirer</button>
+                            </div>
                         {% endif %}
-                        <span class="tome-missing-mark" aria-label="Statut inconnu">?</span>
-                        <span class="tome-title-art">{{ book.title }}</span>
-                    </div>
-                    <div class="tome-body">
-                        <div class="tome-ref">
-                            <span>{% if book.volumeNumber %}T{{ '%02d'|format(book.volumeNumber) }}{% endif %}{% if book.frenchPublicationYear %} · {{ book.frenchPublicationYear }}{% endif %}</span>
-                            {% if book.paragraphs %}<span>{{ book.paragraphs }} §</span>{% endif %}
-                        </div>
-                        <div class="tome-title">{{ book.title }}</div>
-                        <div class="tome-meta">
-                            <span class="tome-score">
-                                {% if avgRating != '' %}
-                                    <span class="star">★</span>{{ avgRating }}<span class="out">/10</span>
-                                {% else %}
-                                    <span class="out">–</span>
-                                {% endif %}
-                            </span>
-                            <span class="tome-year">
-                                {% set authorNames = [] %}
-                                {% for contribution in book.contributions %}
-                                    {% if contribution.deletedAt is null %}
-                                        {% set authorNames = authorNames|merge([contribution.contributor.firstName ~ ' ' ~ contribution.contributor.lastName]) %}
+                        <div class="tome-body">
+                            <div class="tome-ref">
+                                <span>{% if book.volumeNumber %}T{{ '%02d'|format(book.volumeNumber) }}{% endif %}{% if book.frenchPublicationYear %} · {{ book.frenchPublicationYear }}{% endif %}</span>
+                                {% if book.paragraphs %}<span>{{ book.paragraphs }} §</span>{% endif %}
+                            </div>
+                            <div class="tome-title">{{ book.title }}</div>
+                            <div class="tome-meta">
+                                <span class="tome-score">
+                                    {% if avgRating != '' %}
+                                        <span class="star">★</span>{{ avgRating }}<span class="out">/10</span>
+                                    {% else %}
+                                        <span class="out">–</span>
                                     {% endif %}
-                                {% endfor %}
-                                {{ authorNames|join(' · ') }}
-                            </span>
+                                </span>
+                                <span class="tome-year">
+                                    {% set authorNames = [] %}
+                                    {% for contribution in book.contributions %}
+                                        {% if contribution.deletedAt is null %}
+                                            {% set authorNames = authorNames|merge([contribution.contributor.firstName ~ ' ' ~ contribution.contributor.lastName]) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {{ authorNames|join(' · ') }}
+                                </span>
+                            </div>
                         </div>
+                        <a class="tome-link" href="{{ path('app_book_show', {slug: book.slug}) }}" aria-label="{{ book.title }}"></a>
                     </div>
-                </a>
+                    {% if isInWishlist %}
+                        <form id="wl-{{ book.id }}" method="post" action="{{ path('app_userbook_remove_wishlist', {id: book.id}) }}" hidden>
+                            <input type="hidden" name="_token" value="{{ csrf_token('remove_wishlist_' ~ book.id) }}">
+                        </form>
+                    {% endif %}
+                </div>
             {% else %}
                 <p class="collection-empty">Aucun tome disponible</p>
             {% endfor %}

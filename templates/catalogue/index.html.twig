@@ -198,8 +198,9 @@
                         :publicationYear="book.frenchPublicationYear"
                         :collectionRef="collectionRefsMap[book.id] ?? null"
                         :isFavorite="userBook is not null and userBook.isFavorite"
-                        :isOwned="userBook is not null and userBook.status.value == 'dans-ma-collection'"
-                        :isWishlist="userBook is not null and userBook.status.value == 'a-acheter'"
+                        :isOwned="userBook is not null and userBook.isOwned"
+                        :isWishlist="userBook is not null and userBook.isToBuy"
+                        :isMissing="app.user is not null and (userBook is null or not userBook.isOwned)"
                     />
                 {% else %}
                     <div class="empty-state" role="status" style="grid-column:1/-1;text-align:center;padding:var(--sp-8);">

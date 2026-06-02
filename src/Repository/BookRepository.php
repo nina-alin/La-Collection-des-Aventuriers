@@ -205,8 +205,12 @@ class BookRepository extends ServiceEntityRepository
 
         if ($user !== null) {
             if ($state->collectionStatus !== null) {
-                $qb->andWhere('ub.status = :collectionStatus')
-                   ->setParameter('collectionStatus', $state->collectionStatus);
+                match ($state->collectionStatus) {
+                    'dans-ma-collection' => $qb->andWhere('ub.isOwned = true'),
+                    'a-acheter'          => $qb->andWhere('ub.isToBuy = true'),
+                    'a-lire'             => $qb->andWhere('ub.isToRead = true'),
+                    default              => null,
+                };
             }
 
             if ($state->onlyFavorites) {
