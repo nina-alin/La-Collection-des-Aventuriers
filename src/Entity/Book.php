@@ -14,6 +14,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
 #[ORM\EntityListeners([BookSoftDeleteListener::class])]
+#[ORM\HasLifecycleCallbacks]
 #[ORM\Index(columns: ['slug'], name: 'idx_book_slug')]
 #[ORM\Index(columns: ['status'], name: 'idx_book_status')]
 #[ORM\Index(columns: ['collection_id'], name: 'idx_book_collection_id')]
@@ -82,6 +83,9 @@ class Book
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $deletedAt = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;
+
     #[ORM\ManyToOne(targetEntity: Editor::class, inversedBy: 'books')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Editor $editor = null;
@@ -108,6 +112,14 @@ class Book
         $this->galleryImages = new ArrayCollection();
         $this->reviews = new ArrayCollection();
         $this->userBooks = new ArrayCollection();
+        $this->updatedAt = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+    }
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function onPrePersistOrUpdate(): void
+    {
+        $this->updatedAt = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
     }
 
     public function getId(): ?int
@@ -301,6 +313,8 @@ class Book
         $this->deletedAt = $deletedAt;
         return $this;
     }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable { return $this->updatedAt; }
 
     public function getEditor(): ?Editor
     {

@@ -10,22 +10,25 @@ use App\Service\UserBookService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UserBookServiceTest extends TestCase
 {
     private UserBookRepository&MockObject $repo;
     private EntityManagerInterface&MockObject $em;
+    private EventDispatcherInterface&MockObject $dispatcher;
     private UserBookService $service;
     private User $user;
     private Book $book;
 
     protected function setUp(): void
     {
-        $this->repo    = $this->createMock(UserBookRepository::class);
-        $this->em      = $this->createMock(EntityManagerInterface::class);
-        $this->service = new UserBookService($this->repo, $this->em);
-        $this->user    = new User();
-        $this->book    = $this->createMock(Book::class);
+        $this->repo       = $this->createMock(UserBookRepository::class);
+        $this->em         = $this->createMock(EntityManagerInterface::class);
+        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->service    = new UserBookService($this->repo, $this->em, $this->dispatcher);
+        $this->user       = new User();
+        $this->book       = $this->createMock(Book::class);
     }
 
     // ─── toggleOwned ─────────────────────────────────────────────────────────

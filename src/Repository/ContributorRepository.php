@@ -36,6 +36,23 @@ class ContributorRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findForGlobalSearchWithStats(string $q, int $limit = 5): array
+    {
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('c AS contributor, COUNT(DISTINCT b.id) AS bookCount, MIN(b.frenchPublicationYear) AS minYear, MAX(b.frenchPublicationYear) AS maxYear')
+            ->from(Contributor::class, 'c')
+            ->leftJoin('c.contributions', 'contrib')
+            ->leftJoin('contrib.book', 'b', 'WITH', 'b.status = :published')
+            ->where('LOWER(c.firstName) LIKE :q OR LOWER(c.lastName) LIKE :q OR LOWER(c.pseudo) LIKE :q')
+            ->setParameter('q', '%' . mb_strtolower($q) . '%')
+            ->setParameter('published', BookStatus::PUBLISHED)
+            ->groupBy('c.id')
+            ->orderBy('bookCount', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findMostPopular(int $limit = 2): array
     {
         return $this->createQueryBuilder('c')
@@ -184,6 +201,18 @@ class ContributorRepository extends ServiceEntityRepository
             'sagaGroups'           => $sagaGroups,
             'totalCount'           => count($allContributions),
         ];
+    }
+
+    public function countWithPublishedBooks(): int
+    {
+        return (int) $this->getEntityManager()->createQueryBuilder()
+            ->select('COUNT(DISTINCT c.id)')
+            ->from(Contributor::class, 'c')
+            ->innerJoin('c.contributions', 'contrib')
+            ->innerJoin('contrib.book', 'b', 'WITH', 'b.status = :published')
+            ->setParameter('published', BookStatus::PUBLISHED)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     private function slugify(string $text): string

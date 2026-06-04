@@ -1,11 +1,11 @@
 {% set path = app.request.pathInfo %}
 
 {# Desktop header #}
-<header class="lp-header d-none d-md-block px-5">
+<header class="lp-header d-none d-md-block px-5 mx-5">
     <div class="container lp-header-inner">
         <a class="lp-brand" href="{{ path('home') }}">
             <span class="sigil">A</span>
-            <span class="lp-brand-text">
+            <span class="lp-brand-text d-none d-xl-flex">
                 <span class="lp-brand-title">La Collection des Aventuriers</span>
                 <span class="lp-brand-sub">Wiki des fictions interactives</span>
             </span>
@@ -92,7 +92,7 @@
 {# Mobile user menu — rendered OUTSIDE .lp-mobile-topbar to avoid backdrop-filter containing-block bug
    (backdrop-filter on the topbar makes position:fixed children relative to topbar, not viewport) #}
 {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
-<div class="lp-mobile-user-menu d-md-none">
+<div class="lp-mobile-user-menu d-flex gap-3 d-md-none">
     {% if is_granted('ROLE_USER') %}
         <twig:Notification:NotificationPanelComponent />
     {% endif %}

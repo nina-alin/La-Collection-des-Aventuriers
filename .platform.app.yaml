@@ -37,6 +37,11 @@ workers:
         commands:
             start: php bin/console messenger:consume async --memory-limit=128M --time-limit=3600
 
+crons:
+    purge_activity_events:
+        spec: "0 3 1 * *"
+        cmd: "php bin/console app:purge-activity-events"
+
 variables:
     env:
         APP_ENV: prod

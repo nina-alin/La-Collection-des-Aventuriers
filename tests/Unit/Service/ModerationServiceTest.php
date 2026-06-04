@@ -11,16 +11,19 @@ use App\Service\ModerationService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ModerationServiceTest extends TestCase
 {
     private EntityManagerInterface&MockObject $em;
+    private EventDispatcherInterface&MockObject $dispatcher;
     private ModerationService $service;
 
     protected function setUp(): void
     {
         $this->em = $this->createMock(EntityManagerInterface::class);
-        $this->service = new ModerationService($this->em);
+        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->service = new ModerationService($this->em, $this->dispatcher);
     }
 
     public function testApproveWorkEntryTransitionsToPublishedAndPersistsLog(): void

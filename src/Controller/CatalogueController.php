@@ -129,12 +129,21 @@ class CatalogueController extends AbstractController
             'rating'          => isset($ratings[$b->getId()]) ? round((float) $ratings[$b->getId()], 1) : null,
         ], $bookEntities);
 
-        $authorEntities = $this->contributorRepository->findForGlobalSearch($q, 5);
-        $authors = array_map(fn($c) => [
-            'id'   => (string) $c->getId(),
-            'slug' => $c->getSlug(),
-            'name' => trim($c->getFirstName() . ' ' . $c->getLastName()),
-        ], $authorEntities);
+        $authorRows = $this->contributorRepository->findForGlobalSearchWithStats($q, 5);
+        $authors = array_map(function (array $row): array {
+            $c = $row['contributor'];
+            $min = $row['minYear'] ? (int) $row['minYear'] : null;
+            $max = $row['maxYear'] ? (int) $row['maxYear'] : null;
+            $yearRange = ($min && $max) ? ($min === $max ? (string) $min : $min . '–' . $max) : null;
+
+            return [
+                'id'        => (string) $c->getId(),
+                'slug'      => $c->getSlug(),
+                'name'      => trim($c->getFirstName() . ' ' . $c->getLastName()),
+                'bookCount' => (int) $row['bookCount'],
+                'yearRange' => $yearRange,
+            ];
+        }, $authorRows);
 
         return $this->json([
             'books'   => $books,

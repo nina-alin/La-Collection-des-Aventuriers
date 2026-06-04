@@ -64,6 +64,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $timezone = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $lastLoginAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $previousLoginAt = null;
+
     /** @var Collection<int, Review> */
     #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'user')]
     private Collection $reviews;
@@ -219,6 +225,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getTimezone(): ?string { return $this->timezone; }
     public function setTimezone(?string $timezone): static { $this->timezone = $timezone; return $this; }
+
+    public function getLastLoginAt(): ?\DateTimeImmutable { return $this->lastLoginAt; }
+    public function setLastLoginAt(?\DateTimeImmutable $lastLoginAt): static { $this->lastLoginAt = $lastLoginAt; return $this; }
+
+    public function getPreviousLoginAt(): ?\DateTimeImmutable { return $this->previousLoginAt; }
+    public function setPreviousLoginAt(?\DateTimeImmutable $previousLoginAt): static { $this->previousLoginAt = $previousLoginAt; return $this; }
 
     /** @return Collection<int, Review> */
     public function getReviews(): Collection

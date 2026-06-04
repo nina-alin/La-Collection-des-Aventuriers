@@ -12,6 +12,31 @@
         <p class="lede">Filtre par éditeur, créateur ou format ; trie par note, parution ou ordre alphabétique.</p>
     </div>
 
+    {# ── In-page search ── #}
+    <div
+        class="catalog-search"
+        data-controller="catalogue-search"
+        data-catalogue-search-suggestions-url-value="{{ path('app_catalogue_search_suggestions') }}"
+    >
+        <div class="catalog-search-inner">
+            <svg class="icon-loupe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input
+                type="text"
+                placeholder="Rechercher un livre ou un auteur…"
+                autocomplete="off"
+                data-catalogue-search-target="input"
+                aria-label="Recherche dans le catalogue"
+                value="{{ activeFilterState.searchQuery ?? '' }}"
+            >
+        </div>
+        <div
+            class="catalog-search-pop"
+            data-catalogue-search-target="dropdown"
+            aria-live="polite"
+            hidden
+        ></div>
+    </div>
+
     {# ── Two-column layout ── #}
     <div class="catalogue" id="catalogue-layout" data-controller="catalogue-view">
 
@@ -25,32 +50,6 @@
 
         {# ── Results column ── #}
         <section class="results" aria-label="Résultats">
-
-            {# ── In-page search ── #}
-            <div
-                class="catalog-search"
-                data-controller="catalogue-search"
-                data-catalogue-search-suggestions-url-value="{{ path('app_catalogue_search_suggestions') }}"
-                style="margin-bottom:var(--sp-4);"
-            >
-                <div class="catalog-search-inner">
-                    <svg class="icon-loupe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-                    <input
-                        type="text"
-                        placeholder="Rechercher un livre ou un auteur…"
-                        autocomplete="off"
-                        data-catalogue-search-target="input"
-                        aria-label="Recherche dans le catalogue"
-                        value="{{ activeFilterState.searchQuery ?? '' }}"
-                    >
-                </div>
-                <div
-                    class="catalog-search-pop"
-                    data-catalogue-search-target="dropdown"
-                    aria-live="polite"
-                    hidden
-                ></div>
-            </div>
 
             {# ── Results bar: count + sort + view toggle ── #}
             <div class="results-bar">

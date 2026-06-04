@@ -56,4 +56,50 @@ class UserBookRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function countOwnedByUser(User $user): int
+    {
+        return (int) $this->createQueryBuilder('ub')
+            ->select('COUNT(ub.id)')
+            ->where('ub.user = :user')
+            ->andWhere('ub.isOwned = true')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countOwnedAddedSince(User $user, \DateTimeImmutable $since): int
+    {
+        return (int) $this->createQueryBuilder('ub')
+            ->select('COUNT(ub.id)')
+            ->where('ub.user = :user')
+            ->andWhere('ub.isOwned = true')
+            ->andWhere('ub.createdAt >= :since')
+            ->setParameter('user', $user)
+            ->setParameter('since', $since)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countToReadByUser(User $user): int
+    {
+        return (int) $this->createQueryBuilder('ub')
+            ->select('COUNT(ub.id)')
+            ->where('ub.user = :user')
+            ->andWhere('ub.isToRead = true')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countToBuyByUser(User $user): int
+    {
+        return (int) $this->createQueryBuilder('ub')
+            ->select('COUNT(ub.id)')
+            ->where('ub.user = :user')
+            ->andWhere('ub.isToBuy = true')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

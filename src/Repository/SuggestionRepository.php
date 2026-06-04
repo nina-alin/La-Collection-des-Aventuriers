@@ -55,4 +55,38 @@ class SuggestionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function countAllByUser(User $user): int
+    {
+        return (int) $this->createQueryBuilder('s')
+            ->select('COUNT(s.id)')
+            ->where('s.user = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countRecentlyValidatedByUser(User $user, \DateTimeImmutable $since): int
+    {
+        return (int) $this->createQueryBuilder('s')
+            ->select('COUNT(s.id)')
+            ->where('s.user = :user')
+            ->andWhere('s.status = :status')
+            ->andWhere('s.submittedAt >= :since')
+            ->setParameter('user', $user)
+            ->setParameter('status', SuggestionStatus::VALIDATED)
+            ->setParameter('since', $since)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countGlobalPending(): int
+    {
+        return (int) $this->createQueryBuilder('s')
+            ->select('COUNT(s.id)')
+            ->where('s.status = :status')
+            ->setParameter('status', SuggestionStatus::PENDING)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
