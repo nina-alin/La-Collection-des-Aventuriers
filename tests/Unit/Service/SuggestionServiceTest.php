@@ -10,6 +10,7 @@ use App\Repository\SuggestionRepository;
 use App\Service\SuggestionService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SuggestionServiceTest extends TestCase
 {
@@ -22,7 +23,8 @@ class SuggestionServiceTest extends TestCase
     {
         $this->repository = $this->createMock(SuggestionRepository::class);
         $this->em         = $this->createMock(EntityManagerInterface::class);
-        $this->service    = new SuggestionService($this->repository, $this->em);
+        $dispatcher       = $this->createMock(EventDispatcherInterface::class);
+        $this->service    = new SuggestionService($this->repository, $this->em, $dispatcher);
         $this->user       = $this->createMock(User::class);
     }
 

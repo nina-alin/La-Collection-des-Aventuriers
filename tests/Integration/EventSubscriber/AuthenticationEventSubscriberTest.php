@@ -5,6 +5,7 @@ namespace App\Tests\Integration\EventSubscriber;
 use App\Entity\User;
 use App\EventSubscriber\AuthenticationEventSubscriber;
 use App\Service\BruteForceProtectionService;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +20,7 @@ class AuthenticationEventSubscriberTest extends TestCase
     private LoggerInterface $logger;
     private BruteForceProtectionService $bruteForce;
     private RouterInterface $router;
+    private EntityManagerInterface $entityManager;
     private AuthenticationEventSubscriber $subscriber;
 
     protected function setUp(): void
@@ -26,10 +28,12 @@ class AuthenticationEventSubscriberTest extends TestCase
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->bruteForce = $this->createMock(BruteForceProtectionService::class);
         $this->router = $this->createMock(RouterInterface::class);
+        $this->entityManager = $this->createMock(EntityManagerInterface::class);
         $this->subscriber = new AuthenticationEventSubscriber(
             $this->logger,
             $this->bruteForce,
             $this->router,
+            $this->entityManager,
         );
     }
 

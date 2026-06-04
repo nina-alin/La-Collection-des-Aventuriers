@@ -102,10 +102,14 @@ export default class extends Controller {
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = 'catalog-suggest';
+                const sub = a.bookCount
+                    ? `${a.bookCount} ouvrage${a.bookCount > 1 ? 's' : ''}${a.yearRange ? ' · ' + a.yearRange : ''}`
+                    : '';
                 btn.innerHTML = `
                     <div class="mini-cover" style="border-radius:50%"></div>
                     <div class="s-info">
                         <div class="s-title">${this._highlight(a.name, q)}</div>
+                        ${sub ? `<div class="s-sub">${this._esc(sub)}</div>` : ''}
                     </div>
                 `;
                 btn.addEventListener('click', () => this._applySearch(a.name));

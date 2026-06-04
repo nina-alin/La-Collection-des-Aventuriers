@@ -4,10 +4,17 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Entity\Book;
 use App\Entity\CorrectionProposal;
+use App\Entity\Enum\BookStatus;
+use App\Entity\Enum\SuggestionStatus;
 use App\Entity\ModerationLog;
+use App\Entity\Suggestion;
+use App\Entity\User;
 use App\Entity\WorkEntry;
+use App\Event\BookPublishedEvent;
 use App\Event\ContributionValidatedEvent;
+use App\Event\SuggestionModeratedEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -83,5 +90,19 @@ class ModerationService
         $log = new ModerationLog($moderatorId, 'MODIFIED', 'CorrectionProposal', (string) $entity->getId());
         $this->entityManager->persist($log);
         $this->entityManager->flush();
+    }
+
+    public function publishBook(User $moderator, Book $book): void
+    {
+        $book->setStatus(BookStatus::PUBLISHED);
+        $this->entityManager->flush();
+        $this->dispatcher->dispatch(new BookPublishedEvent($moderator, $book));
+    }
+
+    public function moderateSuggestion(User $moderator, Suggestion $suggestion, SuggestionStatus $newStatus): void
+    {
+        $suggestion->setStatus($newStatus);
+        $this->entityManager->flush();
+        $this->dispatcher->dispatch(new SuggestionModeratedEvent($moderator, $suggestion, $newStatus));
     }
 }

@@ -4,6 +4,7 @@ namespace App\EventSubscriber;
 
 use App\Entity\User;
 use App\Service\BruteForceProtectionService;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -23,6 +24,7 @@ class AuthenticationEventSubscriber implements EventSubscriberInterface
         private readonly LoggerInterface $securityLogger,
         private readonly BruteForceProtectionService $bruteForce,
         private readonly RouterInterface $router,
+        private readonly EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -75,6 +77,12 @@ class AuthenticationEventSubscriber implements EventSubscriberInterface
         ]);
 
         $this->bruteForce->resetCounter($ip);
+
+        if ($user instanceof User) {
+            $user->setPreviousLoginAt($user->getLastLoginAt());
+            $user->setLastLoginAt(new \DateTimeImmutable('now', new \DateTimeZone('UTC')));
+            $this->entityManager->flush();
+        }
     }
 
     public function onLoginFailure(LoginFailureEvent $event): void

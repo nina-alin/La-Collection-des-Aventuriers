@@ -75,16 +75,16 @@
   <div class="layout" id="layout">
 
     {# Left panel: Wizard #}
-    <section class="panel" data-pane="action" id="pane-action" role="tabpanel" aria-labelledby="tab-action">
+    <section class="panel" data-pane="action" id="pane-action" role="tabpanel" aria-labelledby="tab-action"
+             {{ stimulus_controller('suggestion-autosave') }}>
       <div class="panel-head">
         <div class="panel-title">
           <span class="num" aria-hidden="true">1</span>
           Créer une fiche
         </div>
+        <span class="panel-meta" data-suggestion-autosave-target="label"></span>
       </div>
-      <div class="panel-body">
-        <twig:Suggestion:WizardComponent />
-      </div>
+      <twig:Suggestion:WizardComponent data-suggestion-autosave-target="wizard" />
     </section>
 
     {# Right panel: Suivi (US3) #}

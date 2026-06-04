@@ -229,4 +229,40 @@ class BookRepository extends ServiceEntityRepository
             default       => $qb->orderBy('SIZE(b.reviews)', 'DESC')->addOrderBy('b.title', 'ASC'),
         };
     }
+
+    public function countPublished(): int
+    {
+        return (int) $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->where('b.status = :status')
+            ->setParameter('status', BookStatus::PUBLISHED)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countPublishedSince(\DateTimeImmutable $since): int
+    {
+        return (int) $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->where('b.status = :status')
+            ->andWhere('b.updatedAt >= :since')
+            ->setParameter('status', BookStatus::PUBLISHED)
+            ->setParameter('since', $since)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function findRecentlyPublished(int $limit = 5): array
+    {
+        return $this->createQueryBuilder('b')
+            ->leftJoin('b.contributions', 'contrib')->addSelect('contrib')
+            ->leftJoin('contrib.contributor', 'contributor')->addSelect('contributor')
+            ->leftJoin('b.editor', 'e')->addSelect('e')
+            ->where('b.status = :status')
+            ->setParameter('status', BookStatus::PUBLISHED)
+            ->orderBy('b.updatedAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }

@@ -2,7 +2,7 @@
      {{ stimulus_controller('suggestion-abandon') }}>
 
   {# Step progress indicator #}
-  <ol class="form-stepper" aria-label="Étapes de création" style="list-style:none;display:flex;gap:0;padding:0;margin-bottom:1.5rem;">
+  <ol class="form-stepper" aria-label="Étapes de création">
     {% for i in 1..4 %}
       {% set stepLabels = {1: 'Type', 2: 'Détails', 3: 'Couverture', 4: 'Aperçu'} %}
       <li class="step-item {{ step > i ? 'done' : '' }} {{ step == i ? 'current' : '' }}"
@@ -11,24 +11,26 @@
         <span class="dot"><span aria-hidden="true">{{ i }}</span></span>
         <span class="label">{{ stepLabels[i] }}</span>
       </li>
-      {% if i < 4 %}<li class="step-line" aria-hidden="true" style="list-style:none;"></li>{% endif %}
+      {% if i < 4 %}<li class="step-line" aria-hidden="true"></li>{% endif %}
     {% endfor %}
   </ol>
 
-  {# Error flash #}
-  {% if errors.submit is defined %}
-    <div class="alert alert-danger" role="alert" aria-live="assertive">{{ errors.submit }}</div>
-  {% endif %}
+  <div class="panel-body">
+    {# Error flash #}
+    {% if errors.submit is defined %}
+      <div class="alert alert-danger" role="alert" aria-live="assertive">{{ errors.submit }}</div>
+    {% endif %}
 
-  {# Step content #}
-  {% if step == 1 %}
-    {{ include('components/Suggestion/StepType.html.twig') }}
-  {% elseif step == 2 %}
-    {{ include('components/Suggestion/StepForm.html.twig') }}
-  {% elseif step == 3 %}
-    {{ include('components/Suggestion/StepCover.html.twig') }}
-  {% elseif step == 4 %}
-    {{ include('components/Suggestion/StepPreview.html.twig') }}
-  {% endif %}
+    {# Step content #}
+    {% if step == 1 %}
+      {{ include('components/Suggestion/StepType.html.twig') }}
+    {% elseif step == 2 %}
+      {{ include('components/Suggestion/StepForm.html.twig') }}
+    {% elseif step == 3 %}
+      {{ include('components/Suggestion/StepCover.html.twig') }}
+    {% elseif step == 4 %}
+      {{ include('components/Suggestion/StepPreview.html.twig') }}
+    {% endif %}
+  </div>
 
 </div>

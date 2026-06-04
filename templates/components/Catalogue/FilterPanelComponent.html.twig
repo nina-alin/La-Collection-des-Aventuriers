@@ -4,7 +4,9 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
             Filtres
         </span>
-        <button type="button" class="filters-close" aria-label="Fermer les filtres" data-action="catalogue-fab#closeModal">×</button>
+        <button type="button" class="filters-close" aria-label="Fermer les filtres" data-action="catalogue-fab#closeModal">
+            <svg viewBox="0 0 24 24" aria-hidden="true" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
         <button
             type="button"
             class="filters-collapse"
@@ -23,10 +25,7 @@
             <summary>
                 <span>Créateur · Auteur &amp; Illustrateur</span>
                 <span class="grp-meta">
-                    {% if selectedContributors|length > 0 %}
-                        <span class="grp-count">{{ selectedContributors|length }}</span>
-                    {% endif %}
-                    <span class="chev" aria-hidden="true"></span>
+                    <span class="grp-count{% if selectedContributors|length == 0 %} is-hidden{% endif %}">{{ selectedContributors|length }}</span>
                 </span>
             </summary>
             <div class="grp-body">
@@ -73,10 +72,7 @@
             <summary>
                 <span>Éditeur &amp; Collection</span>
                 <span class="grp-meta">
-                    {% if selectedEditors|length > 0 %}
-                        <span class="grp-count">{{ selectedEditors|length }}</span>
-                    {% endif %}
-                    <span class="chev" aria-hidden="true"></span>
+                    <span class="grp-count{% if selectedEditors|length == 0 %} is-hidden{% endif %}">{{ selectedEditors|length }}</span>
                 </span>
             </summary>
             <div class="grp-body">
@@ -119,10 +115,7 @@
             <summary>
                 <span>Format · Paragraphes</span>
                 <span class="grp-meta">
-                    {% if paragraphMin is not null or paragraphMax is not null %}
-                        <span class="grp-count">{{ paragraphMin ?? '…' }}–{{ paragraphMax ?? '…' }} §</span>
-                    {% endif %}
-                    <span class="chev" aria-hidden="true"></span>
+                    <span class="grp-count{% if paragraphMin is null and paragraphMax is null %} is-hidden{% endif %}">{{ paragraphMin ?? '…' }}–{{ paragraphMax ?? '…' }} §</span>
                 </span>
             </summary>
             <div class="grp-body">
@@ -130,6 +123,9 @@
                 {% set bounds_max = paragraphBounds.max ?? 999 %}
                 {% set val_min = paragraphMin ?? bounds_min %}
                 {% set val_max = paragraphMax ?? bounds_max %}
+                {% set _span = max(bounds_max - bounds_min, 1) %}
+                {% set pct_min = (((val_min - bounds_min) / _span) * 100)|round(2) %}
+                {% set pct_max = (((val_max - bounds_min) / _span) * 100)|round(2) %}
                 <div
                     class="range-slider-wrap"
                     data-controller="range-slider"
@@ -138,9 +134,9 @@
                 >
                     {# Visual track #}
                     <div class="range-slider-track">
-                        <div class="range-slider-fill" data-range-slider-target="fill"></div>
-                        <div class="range-slider-handle" data-range-slider-target="handleMin"></div>
-                        <div class="range-slider-handle" data-range-slider-target="handleMax"></div>
+                        <div class="range-slider-fill" data-range-slider-target="fill" style="left: {{ pct_min }}%; right: {{ 100 - pct_max }}%"></div>
+                        <div class="range-slider-handle" data-range-slider-target="handleMin" style="left: {{ pct_min }}%"></div>
+                        <div class="range-slider-handle" data-range-slider-target="handleMax" style="left: {{ pct_max }}%"></div>
                         {# Transparent range inputs sit on top #}
                         <div class="range-slider-inputs">
                             <input
@@ -189,10 +185,7 @@
             <summary>
                 <span>Statut dans ma collection</span>
                 <span class="grp-meta">
-                    {% if collectionStatus is not null or onlyFavorites %}
-                        <span class="grp-count">actif</span>
-                    {% endif %}
-                    <span class="chev" aria-hidden="true"></span>
+                    <span class="grp-count{% if collectionStatus is null and not onlyFavorites %} is-hidden{% endif %}">actif</span>
                 </span>
             </summary>
             <div class="grp-body">
@@ -206,25 +199,27 @@
                     <option value="a-acheter" {% if collectionStatus == 'a-acheter' %}selected{% endif %}>À acheter (chasse)</option>
                     <option value="a-lire" {% if collectionStatus == 'a-lire' %}selected{% endif %}>À lire</option>
                 </select>
-                <label class="switch" style="margin-top:12px;">
-                    <input
-                        type="checkbox"
-                        data-model="onlyFavorites"
-                        {% if onlyFavorites %}checked{% endif %}
-                        aria-label="Uniquement mes favoris"
-                    >
-                    <span class="track"></span>
-                    <span>Uniquement mes favoris</span>
+                <label class="choice filter-row">
+                    <span class="d-flex flex-row align-items-center gap-3">
+                        <input
+                            type="checkbox"
+                            data-model="onlyFavorites"
+                            {% if onlyFavorites %}checked{% endif %}
+                            aria-label="Uniquement mes favoris"
+                        >
+                        <span>Uniquement mes favoris</span>
+                    </span>
                 </label>
-                <label class="switch" style="margin-top:6px;">
-                    <input
-                        type="checkbox"
-                        data-model="hideModeration"
-                        {% if hideModeration %}checked{% endif %}
-                        aria-label="Cacher les fiches en modération"
-                    >
-                    <span class="track"></span>
-                    <span>Cacher les fiches en modération</span>
+                <label class="choice filter-row">
+                    <span class="d-flex flex-row align-items-center gap-3">
+                        <input
+                            type="checkbox"
+                            data-model="hideModeration"
+                            {% if hideModeration %}checked{% endif %}
+                            aria-label="Cacher les fiches en modération"
+                        >
+                        <span>Cacher les fiches en modération</span>
+                    </span>
                 </label>
             </div>
         </details>

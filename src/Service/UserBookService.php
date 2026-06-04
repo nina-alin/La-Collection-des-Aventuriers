@@ -5,14 +5,17 @@ namespace App\Service;
 use App\Entity\Book;
 use App\Entity\User;
 use App\Entity\UserBook;
+use App\Event\BookAddedToWishlistEvent;
 use App\Repository\UserBookRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UserBookService
 {
     public function __construct(
         private readonly UserBookRepository $userBookRepository,
         private readonly EntityManagerInterface $em,
+        private readonly EventDispatcherInterface $dispatcher,
     ) {}
 
     public function toggleOwned(User $user, Book $book): array
@@ -78,6 +81,7 @@ class UserBookService
             $userBook->setIsToBuy(true);
             $this->em->persist($userBook);
             $this->em->flush();
+            $this->dispatcher->dispatch(new BookAddedToWishlistEvent($user, $book));
             return ['newValue' => true, 'affected' => []];
         }
 
@@ -95,6 +99,10 @@ class UserBookService
         }
 
         $this->em->flush();
+
+        if ($newValue) {
+            $this->dispatcher->dispatch(new BookAddedToWishlistEvent($user, $book));
+        }
 
         return ['newValue' => $newValue, 'affected' => $affected];
     }

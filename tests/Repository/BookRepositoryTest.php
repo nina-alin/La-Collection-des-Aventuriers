@@ -152,4 +152,41 @@ class BookRepositoryTest extends KernelTestCase
 
         $this->assertInstanceOf(Paginator::class, $result);
     }
+
+    public function testFindRecentlyPublishedReturnsAtMostLimit(): void
+    {
+        for ($i = 0; $i < 6; $i++) {
+            $this->createPublishedBook('RecentlyPublished_' . $i);
+        }
+
+        $result = $this->bookRepository->findRecentlyPublished(5);
+
+        $this->assertCount(5, $result);
+    }
+
+    public function testFindRecentlyPublishedExcludesNonPublished(): void
+    {
+        $editor = new Editor();
+        $editor->setName('__test_editor_np_' . uniqid());
+        $this->em->persist($editor);
+
+        $published = new Book();
+        $published->setTitle('__test_PublishedBook_' . uniqid());
+        $published->setEditor($editor);
+        $published->setStatus(BookStatus::PUBLISHED);
+        $this->em->persist($published);
+
+        $pending = new Book();
+        $pending->setTitle('__test_PendingBook_' . uniqid());
+        $pending->setEditor($editor);
+        $pending->setStatus(BookStatus::PENDING);
+        $this->em->persist($pending);
+
+        $this->em->flush();
+
+        $result = $this->bookRepository->findRecentlyPublished(10);
+        foreach ($result as $book) {
+            $this->assertSame(BookStatus::PUBLISHED, $book->getStatus());
+        }
+    }
 }

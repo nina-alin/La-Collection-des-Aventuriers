@@ -11,18 +11,21 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ReviewServiceTest extends TestCase
 {
     private ReviewRepository&MockObject $reviewRepository;
     private EntityManagerInterface&MockObject $entityManager;
+    private EventDispatcherInterface&MockObject $dispatcher;
     private ReviewService $service;
 
     protected function setUp(): void
     {
         $this->reviewRepository = $this->createMock(ReviewRepository::class);
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->service = new ReviewService($this->reviewRepository, $this->entityManager);
+        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->service = new ReviewService($this->reviewRepository, $this->entityManager, $this->dispatcher);
     }
 
     public function testSubmitCreatesNewReviewWhenNoneExists(): void

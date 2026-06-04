@@ -5,15 +5,18 @@ namespace App\Service;
 use App\Entity\Book;
 use App\Entity\Review;
 use App\Entity\User;
+use App\Event\ReviewSubmittedEvent;
 use App\Repository\ReviewRepository;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ReviewService
 {
     public function __construct(
         private readonly ReviewRepository $reviewRepository,
         private readonly EntityManagerInterface $entityManager,
+        private readonly EventDispatcherInterface $dispatcher,
     ) {
     }
 
@@ -28,6 +31,8 @@ class ReviewService
 
             $this->entityManager->persist($review);
             $this->entityManager->flush();
+
+            $this->dispatcher->dispatch(new ReviewSubmittedEvent($user, $book));
 
             return $review;
         } catch (UniqueConstraintViolationException $e) {
