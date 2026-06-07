@@ -8,18 +8,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>(function(){var t=localStorage.getItem('theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}})();</script>
     {% block stylesheets %}
         {{ encore_entry_link_tags('app') }}
     {% endblock %}
 </head>
-<body>
+<body data-controller="theme">
+    {% block skip_link %}{% endblock %}
     <twig:Layout:Navbar />
 
     <div class="toast-rail" {{ stimulus_controller('toast-container') }} role="status" aria-live="polite" aria-atomic="false">
         <twig:Layout:FlashBag />
     </div>
 
-    <main class="px-4 px-md-5 mx-md-5">{% block body %}{% endblock %}</main>
+    {% block page_wrapper %}<main class="px-4 px-md-5 mx-md-5" id="main-content">{% block body %}{% endblock %}</main>{% endblock %}
 
     <twig:Layout:Footer />
 

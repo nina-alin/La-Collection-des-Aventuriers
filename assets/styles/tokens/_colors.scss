@@ -118,4 +118,56 @@
     --text-primary:   var(--ink-default);
     --text-secondary: var(--ink-muted);
     --text-muted:     var(--ink-subtle);
+
+    --parchment-texture:
+        radial-gradient(circle at 12% 18%, rgba(139,69,19,0.04) 0, transparent 60%),
+        radial-gradient(circle at 88% 76%, rgba(184,134,11,0.05) 0, transparent 55%),
+        radial-gradient(circle at 50% 50%, rgba(45,24,16,0.015) 0, transparent 70%);
+}
+
+[data-theme="dark"] {
+    --bg-page:      var(--grimoire-300);
+    --bg-elevated:  var(--grimoire-100);
+    --bg-sunken:    var(--grimoire-400);
+    --bg-overlay:   rgba(5, 3, 1, 0.72);
+
+    --ink-strong:   #f5ecd9;
+    --ink-default:  #e6d6b3;
+    --ink-muted:    #b8a172;
+    --ink-subtle:   #8a7558;
+    --ink-onbrand:  #ffffff;
+
+    --border-subtle:  #2a1d12;
+    --border-default: #3d2c1c;
+    --border-strong:  #5a4226;
+
+    --brand-primary:         var(--cuir-400);
+    --brand-primary-hover:   var(--cuir-300);
+    --brand-primary-active:  var(--cuir-200);
+    --brand-primary-ink:     #1a0e08;
+
+    --brand-secondary:        var(--or-400);
+    --brand-secondary-hover:  var(--or-300);
+    --brand-secondary-active: var(--or-200);
+
+    --success:        var(--mousse-300);
+    --success-bg:     rgba(91, 124, 58, 0.12);
+    --success-border: rgba(143, 168, 106, 0.30);
+    --warning:        var(--ambre-300);
+    --warning-bg:     rgba(192, 138, 46, 0.12);
+    --warning-border: rgba(219, 177, 92, 0.30);
+    --danger:         var(--sang-300);
+    --danger-bg:      rgba(154, 58, 42, 0.14);
+    --danger-border:  rgba(201, 122, 104, 0.30);
+    --info:           var(--encre-300);
+    --info-bg:        rgba(58, 90, 124, 0.14);
+    --info-border:    rgba(110, 144, 173, 0.30);
+
+    --text-primary:   var(--ink-default);
+    --text-secondary: var(--ink-muted);
+    --text-muted:     var(--ink-subtle);
+
+    --parchment-texture:
+        radial-gradient(circle at 20% 30%, rgba(184,134,11,0.04) 0, transparent 55%),
+        radial-gradient(circle at 80% 70%, rgba(139,69,19,0.05) 0, transparent 60%);
 }

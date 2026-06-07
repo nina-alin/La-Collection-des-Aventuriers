@@ -32,7 +32,7 @@ security:
                 password_parameter: _password
                 csrf_parameter: _csrf_token
                 csrf_token_id: authenticate
-                default_target_path: /
+                default_target_path: /dashboard
                 always_use_default_target_path: false
                 use_referer: true
             remember_me:
@@ -54,6 +54,7 @@ security:
                 csrf_token_id: logout
 
     access_control:
+        - { path: ^/api/public/, roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/connexion, roles: PUBLIC_ACCESS }
         - { path: ^/inscription, roles: PUBLIC_ACCESS }

@@ -1,0 +1,207 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}La Collection des Aventuriers — Le wiki des livres dont vous êtes le héros{% endblock %}
+
+{% block meta %}
+    <meta name="description" content="Le catalogue collaboratif des livres dont vous êtes le héros : fiches, éditions, auteurs, illustrateurs, traducteurs. Façonné par les passionnés.">
+    <meta property="og:title" content="La Collection des Aventuriers">
+    <meta property="og:description" content="Le wiki des livres dont vous êtes le héros, façonné par celles et ceux qui les collectionnent.">
+    <meta property="og:url" content="{{ app.request.uri }}">
+    <meta property="og:type" content="website">
+{% endblock %}
+
+{% block skip_link %}
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+{% endblock %}
+
+{% block page_wrapper %}
+<main id="main-content">
+
+    {# =============== HERO =============== #}
+    <section class="hero" {{ stimulus_controller('landing') }}>
+        <div class="container">
+            <div class="hero-inner">
+
+                <span class="hero-eyebrow skeleton" {{ stimulus_target('landing', 'pilule') }}>
+                    <span class="pulse"></span>
+                    <span class="skeleton-text" style="width:260px;height:1em;display:inline-block;"></span>
+                </span>
+
+                <h1 class="hero-title">
+                    La Collection des <em>Aventuriers</em>
+                </h1>
+                <p class="hero-sub">
+                    Le wiki des livres dont vous êtes le héros, façonné par celles et ceux qui les collectionnent.
+                </p>
+
+                <form class="hero-search" role="search"
+                      {{ stimulus_target('landing', 'searchForm') }}>
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                    <input type="search"
+                           {{ stimulus_target('landing', 'searchInput') }}
+                           placeholder="Rechercher un livre, un auteur, une collection…"
+                           aria-label="Rechercher un titre"
+                           inputmode="search"
+                           autocomplete="off">
+                    <button class="btn btn-primary btn-sm" type="submit" aria-label="Explorer le catalogue">
+                        <span class="search-btn-label">Explorer</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+                    </button>
+                </form>
+
+                <div class="search-suggestions-label">— EN CE MOMENT —</div>
+                <div class="hero-marquee" {{ stimulus_target('landing', 'marqueeBlock') }} aria-label="Suggestions populaires">
+                    <div class="marquee-track" {{ stimulus_target('landing', 'marqueeTrack') }}>
+                        <div class="marquee-item skeleton" aria-hidden="true"><span class="marquee-cover skeleton-cover"></span><span class="marquee-text"><span class="skeleton-line" style="width:120px"></span><span class="skeleton-line" style="width:80px"></span></span></div>
+                        <div class="marquee-item skeleton" aria-hidden="true"><span class="marquee-cover skeleton-cover"></span><span class="marquee-text"><span class="skeleton-line" style="width:100px"></span><span class="skeleton-line" style="width:70px"></span></span></div>
+                        <div class="marquee-item skeleton" aria-hidden="true"><span class="marquee-cover skeleton-cover"></span><span class="marquee-text"><span class="skeleton-line" style="width:140px"></span><span class="skeleton-line" style="width:90px"></span></span></div>
+                        <div class="marquee-item skeleton" aria-hidden="true"><span class="marquee-cover skeleton-cover"></span><span class="marquee-text"><span class="skeleton-line" style="width:110px"></span><span class="skeleton-line" style="width:75px"></span></span></div>
+                        <div class="marquee-item skeleton" aria-hidden="true"><span class="marquee-cover skeleton-cover"></span><span class="marquee-text"><span class="skeleton-line" style="width:130px"></span><span class="skeleton-line" style="width:85px"></span></span></div>
+                        <div class="marquee-item skeleton" aria-hidden="true"><span class="marquee-cover skeleton-cover"></span><span class="marquee-text"><span class="skeleton-line" style="width:105px"></span><span class="skeleton-line" style="width:65px"></span></span></div>
+                    </div>
+                </div>
+
+                <div class="hero-cta">
+                    <a class="btn btn-primary btn-lg" href="{{ path('app_register') }}">
+                        Nous rejoindre
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+                    </a>
+                    <a class="btn btn-ghost btn-lg" href="{{ path('app_catalogue') }}">Explorer le catalogue</a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    {# =============== ÉCOSYSTÈME =============== #}
+    <section class="section ecosystem">
+        <div class="container">
+            <div class="section-eyebrow">Écosystème</div>
+            <h2 class="section-title">Deux portes vers le même univers</h2>
+            <p class="section-lede">La Collection complète La Taverne des Aventuriers sans la concurrencer.</p>
+
+            <div class="ecosystem-banner">
+                <div class="eco-site">
+                    <span class="eco-sigil lca">A</span>
+                    <div>
+                        <div class="eco-name">La Collection</div>
+                        <div class="eco-role">Wiki &amp; archive</div>
+                    </div>
+                    <p class="eco-desc">Le catalogue de référence&nbsp;: fiches, éditions, auteurs, illustrateurs, traducteurs...</p>
+                </div>
+
+                <div class="eco-bridge" aria-hidden="true">
+                    <span class="eco-bridge-line"></span>
+                    <span class="eco-bridge-label">— SANS DOUBLON —</span>
+                    <span class="eco-bridge-line"></span>
+                </div>
+
+                <div class="eco-site">
+                    <span class="eco-sigil tav">T</span>
+                    <div>
+                        <div class="eco-name">La Taverne</div>
+                        <div class="eco-role">Communauté &amp; jeu</div>
+                    </div>
+                    <p class="eco-desc">L'espace où l'on partage ses opinions et où la communauté peut échanger.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# =============== TROIS PILIERS =============== #}
+    <section class="section">
+        <div class="container">
+            <div class="section-eyebrow">Trois piliers</div>
+            <h2 class="section-title">Une plateforme, trois façons d'y vivre</h2>
+            <p class="section-lede">
+                Quelque soit votre but, il y a une place pour vous.
+            </p>
+
+            <div class="features-grid">
+                <article class="feature">
+                    <div class="feature-roman">— I —</div>
+                    <div class="feature-eyebrow">Pour le collectionneur</div>
+                    <h3 class="feature-title">Votre bibliothèque</h3>
+                    <p class="feature-desc">
+                        Suivez chaque édition, distinguez les tirages, complétez les séries.
+                        La précision documentaire d'un catalogue raisonné, sans la paperasse.
+                    </p>
+                    <ul class="feature-list">
+                        <li>Listes d'envies et d'acquisitions, croisées par éditeur</li>
+                        <li>Distinction tirage / réédition / variante de couverture</li>
+                        <li>Bibliothèque virtuelle exportable (CSV, JSON)</li>
+                        <li>Alertes ré-éditions et passages en occasion</li>
+                    </ul>
+                </article>
+
+                <article class="feature">
+                    <div class="feature-roman">— II —</div>
+                    <div class="feature-eyebrow">Pour le passionné</div>
+                    <h3 class="feature-title">Votre encyclopédie</h3>
+                    <p class="feature-desc">
+                        Auteurs, illustrateurs, traducteurs, éditeurs&nbsp;: chaque artiste de
+                        la fiction interactive a sa fiche, croisée avec ses œuvres.
+                    </p>
+                    <ul class="feature-list">
+                        <li>Graphe de relations entre œuvres et créateurs</li>
+                        <li>Variantes d'éditions documentées (FR, EN, JP, illustrations…)</li>
+                        <li>Chronologies par série, par éditeur, par univers</li>
+                        <li>Pages collaboratives versionnées</li>
+                    </ul>
+                </article>
+
+                <article class="feature">
+                    <div class="feature-roman">— III —</div>
+                    <div class="feature-eyebrow">Pour la communauté</div>
+                    <h3 class="feature-title">Vos contributions</h3>
+                    <p class="feature-desc">
+                        Suggérez des fiches, motivez vos validations, débattez les ajouts.
+                        Une modération transparente, où chaque décision est tracée.
+                    </p>
+                    <ul class="feature-list">
+                        <li>Système de suggestions avec suivi public</li>
+                        <li>Modération motivée et historisée</li>
+                        <li>Profils contributeurs avec statistiques</li>
+                        <li>Rôles progressifs&nbsp;: Aventurier → Modérateur</li>
+                    </ul>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    {# =============== STATS / COMPTEURS =============== #}
+    <section class="section stats" {{ stimulus_controller('counter') }} aria-label="Statistiques de la plateforme" aria-live="polite">
+        <div class="container stats-inner">
+            <div class="stat-eyebrow">L'archive en mouvement<span class="stat-tick"></span></div>
+            <div class="stat">
+                <span class="stat-number" {{ stimulus_target('counter', 'number') }} data-target="0">0</span>
+                <span class="stat-label">Livres répertoriés</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number" {{ stimulus_target('counter', 'number') }} data-target="0">0</span>
+                <span class="stat-label">Aventuriers inscrits</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number" {{ stimulus_target('counter', 'number') }} data-target="0">0</span>
+                <span class="stat-label">Nouvelles fiches cette semaine</span>
+            </div>
+        </div>
+    </section>
+
+    {# =============== CTA FINAL =============== #}
+    <section class="cta-final">
+        <div class="container">
+            <h2>Prêt à ouvrir le grimoire&nbsp;?</h2>
+            <p>L'inscription est gratuite et prend moins d'une minute.</p>
+            <div class="hero-cta">
+                <a class="btn btn-primary btn-lg" href="{{ path('app_register') }}">
+                    Nous rejoindre
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+                </a>
+                <a class="btn btn-secondary btn-lg" href="{{ path('app_catalogue') }}">Voir le catalogue</a>
+            </div>
+        </div>
+    </section>
+
+</main>
+{% endblock %}

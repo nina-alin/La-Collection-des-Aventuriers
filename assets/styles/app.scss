@@ -2,6 +2,7 @@
 @use "tokens/index";
 
 // 2. Bootstrap infrastructure
+@import "bootstrap-icons/font/bootstrap-icons";
 @import "bootstrap/scss/functions";
 @import "bootstrap/scss/variables";
 @import "bootstrap/scss/variables-dark";
@@ -47,3 +48,4 @@ body {
 @import "pages/suggestions";
 @import "pages/catalogue";
 @import "pages/dashboard";
+@import "pages/landing";
