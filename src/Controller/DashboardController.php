@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[IsGranted('ROLE_USER')]
 class DashboardController extends AbstractController
 {
     public function __construct(
@@ -17,7 +16,8 @@ class DashboardController extends AbstractController
         private readonly string $forumUrl,
     ) {}
 
-    #[Route('/', name: 'home')]
+    #[IsGranted('ROLE_USER')]
+    #[Route('/dashboard', name: 'app_dashboard', methods: ['GET'])]
     public function home(): Response
     {
         /** @var User $user */

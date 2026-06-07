@@ -32,7 +32,9 @@
             <div>
                 <div class="footer-col-title">Communauté</div>
                 <ul class="footer-links">
-                    <li><a href="{{ path('suggestions_index') }}">Suggérer un livre</a></li>
+                    {% if app.user %}
+                        <li><a href="{{ path('suggestions_index') }}">Suggérer un livre</a></li>
+                    {% endif %}
                     <li><a href="#">Les contributeurs</a></li>
                     <li><a href="#">Modération</a></li>
                     <li><a href="#">Devenir modérateur</a></li>

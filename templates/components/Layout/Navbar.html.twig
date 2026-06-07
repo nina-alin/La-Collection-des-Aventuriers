@@ -1,7 +1,7 @@
 {% set path = app.request.pathInfo %}
 
 {# Desktop header #}
-<header class="lp-header d-none d-md-block px-5 mx-5">
+<header class="lp-header d-none d-md-block">
     <div class="container lp-header-inner">
         <a class="lp-brand" href="{{ path('home') }}">
             <span class="sigil">A</span>
@@ -66,16 +66,22 @@
             <span class="visually-hidden" data-search-target="status" aria-live="polite" aria-atomic="true"></span>
         </form>
         {% endif %}
-        {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
         <div class="lp-header-actions">
-            {% if is_granted('ROLE_USER') %}
-                <twig:Notification:NotificationPanelComponent />
+            <button class="lp-theme-toggle"
+                    data-action="click->theme#toggle"
+                    aria-label="Basculer le thème"
+                    aria-pressed="false">
+                <i class="bi bi-moon-fill" aria-hidden="true"></i>
+            </button>
+            {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+                {% if is_granted('ROLE_USER') %}
+                    <twig:Notification:NotificationPanelComponent />
+                {% endif %}
+                <twig:Layout:ProfileMenu instanceId="desktop" />
+            {% else %}
+                <a href="{{ path('app_login') }}" class="btn btn-sm btn-secondary">Se connecter</a>
             {% endif %}
-            <twig:Layout:ProfileMenu instanceId="desktop" />
         </div>
-        {% else %}
-        <a href="{{ path('app_login') }}" class="btn btn-sm btn-secondary">Se connecter</a>
-        {% endif %}
     </div>
 </header>
 
@@ -93,13 +99,25 @@
    (backdrop-filter on the topbar makes position:fixed children relative to topbar, not viewport) #}
 {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
 <div class="lp-mobile-user-menu d-flex gap-3 d-md-none">
+    <button class="lp-theme-toggle"
+            data-action="click->theme#toggle"
+            aria-label="Basculer le thème"
+            aria-pressed="false">
+        <i class="bi bi-moon-fill" aria-hidden="true"></i>
+    </button>
     {% if is_granted('ROLE_USER') %}
         <twig:Notification:NotificationPanelComponent />
     {% endif %}
     <twig:Layout:ProfileMenu instanceId="mobile" />
 </div>
 {% else %}
-<div class="lp-mobile-user-menu d-md-none">
+<div class="lp-mobile-user-menu d-flex gap-3 d-md-none">
+    <button class="lp-theme-toggle"
+            data-action="click->theme#toggle"
+            aria-label="Basculer le thème"
+            aria-pressed="false">
+        <i class="bi bi-moon-fill" aria-hidden="true"></i>
+    </button>
     <a href="{{ path('app_login') }}" class="btn btn-sm btn-secondary">Se connecter</a>
 </div>
 {% endif %}

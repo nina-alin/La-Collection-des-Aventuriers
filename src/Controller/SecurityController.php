@@ -27,7 +27,7 @@ class SecurityController extends AbstractController
     public function login(Request $request): Response
     {
         if ($this->getUser() !== null) {
-            return $this->redirectToRoute('home');
+            return $this->redirectToRoute('app_dashboard');
         }
 
         $ip = $request->getClientIp() ?? '0.0.0.0';

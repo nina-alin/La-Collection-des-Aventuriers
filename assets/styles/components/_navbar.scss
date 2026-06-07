@@ -7,6 +7,8 @@
     -webkit-backdrop-filter: saturate(140%) blur(10px);
     background: color-mix(in oklab, var(--bg-page) 86%, transparent);
     border-bottom: 1px solid var(--border-subtle);
+    padding-left: var(--sp-7);
+    padding-right: var(--sp-7);
 }
 
 .lp-header-inner {
