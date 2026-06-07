@@ -6,6 +6,7 @@ namespace App\Tests\Twig\Components;
 
 use App\Dto\ProfileMenuDto;
 use App\Entity\User;
+use App\Repository\NotificationRepository;
 use App\Service\ProfileMenuService;
 use App\Twig\Components\Layout\ProfileMenu;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -17,6 +18,12 @@ use Symfony\UX\TwigComponent\Test\InteractsWithTwigComponents;
 class ProfileMenuTest extends KernelTestCase
 {
     use InteractsWithTwigComponents;
+
+    protected function tearDown(): void
+    {
+        static::ensureKernelShutdown();
+        parent::tearDown();
+    }
 
     private function makeComponent(array $roles, ?string $rankName = 'Aventurier'): string
     {
@@ -49,8 +56,12 @@ class ProfileMenuTest extends KernelTestCase
         $service = $this->createMock(ProfileMenuService::class);
         $service->method('getMenuData')->willReturn($dto);
 
+        $notifRepo = $this->createMock(NotificationRepository::class);
+        $notifRepo->method('countUnreadForUser')->willReturn(0);
+
         static::getContainer()->set(ProfileMenuService::class, $service);
         static::getContainer()->set(Security::class, $security);
+        static::getContainer()->set(NotificationRepository::class, $notifRepo);
 
         return $this->renderTwigComponent(ProfileMenu::class)->toString();
     }

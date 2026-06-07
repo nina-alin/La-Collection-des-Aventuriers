@@ -446,11 +446,11 @@ class ContributorControllerTest extends WebTestCase
 
     public function testVueToggleButtonHasAriaAttributes(): void
     {
-        $client = static::createClient();
-        $client->request('GET', '/authors/' . self::$multiSagaAuthorSlug);
+        $client  = static::createClient();
+        $crawler = $client->request('GET', '/authors/' . self::$multiSagaAuthorSlug);
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('#btn-view-toggle[aria-label="Basculer la vue"]');
-        $this->assertSelectorAttributeContains('#btn-view-toggle', 'aria-pressed', 'false');
+        $this->assertSame('false', $crawler->filter('#btn-view-toggle')->attr('aria-pressed'));
     }
 
     // --- T011: US3 — Exclusion assertions (FR-011, FR-012, FR-013) ---

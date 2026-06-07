@@ -15,6 +15,7 @@ export default class extends Controller {
         this._debounceTimer = null;
         this._abortCtrl     = null;
         this._selectedIndex = -1;
+        this._boundDocClick = this.onDocClick.bind(this);
 
         if (this.isbnModeValue) {
             this.inputTarget?.addEventListener('input', this.onIsbnInput.bind(this));
@@ -24,13 +25,13 @@ export default class extends Controller {
 
         this.inputTarget?.addEventListener('input', this.onInput.bind(this));
         this.inputTarget?.addEventListener('keydown', this.onKeyDown.bind(this));
-        document.addEventListener('click', this.onDocClick.bind(this));
+        document.addEventListener('click', this._boundDocClick);
     }
 
     disconnect() {
         clearTimeout(this._debounceTimer);
         this._abortCtrl?.abort();
-        document.removeEventListener('click', this.onDocClick.bind(this));
+        document.removeEventListener('click', this._boundDocClick);
     }
 
     onInput(e) {
@@ -147,8 +148,8 @@ export default class extends Controller {
         }
     }
 
-    onDocClick(e) {
-        if (!this.element.contains(e.target)) this.closeDropdown();
+    onDocClick(event) {
+        if (!this.element.contains(event.target)) this.closeDropdown();
     }
 
     fallbackToFreeText() {

@@ -17,6 +17,9 @@
                     <span class="role-pip admin">Admin</span>
                 {% elseif 'ROLE_MODERATOR' in review.user.roles %}
                     <span class="role-pip">Modérateur</span>
+                {% else %}
+                    {% set userRank = ranksByUserId[review.user.id.toRfc4122()] ?? null %}
+                    {% include 'components/_rank_badge.html.twig' with {level: userRank} %}
                 {% endif %}
             {% endif %}
         </div>

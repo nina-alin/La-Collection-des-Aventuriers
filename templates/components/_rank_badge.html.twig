@@ -1,0 +1,4 @@
+{# params: level (ContributorLevel|null), compact (bool, default false) #}
+{% if level is not null %}
+    <span class="badge badge-rank badge-rank-{{ level.rankNumber }}" aria-label="Rang {{ level.name }}">{{ level.name }}</span>
+{% endif %}

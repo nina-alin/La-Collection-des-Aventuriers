@@ -126,12 +126,10 @@ class SuggestionControllerTest extends WebTestCase
         $client = static::createClient();
         $user   = $this->createUser();
 
-        $csrfToken = static::getContainer()
-            ->get('security.csrf.token_manager')
-            ->getToken('suggestion_entity_create')
-            ->getValue();
-
         $client->loginUser($user);
+        $client->request('GET', '/test-tokens/csrf/suggestion_entity_create');
+        $csrfToken = json_decode($client->getResponse()->getContent(), true)['token'];
+
         $client->request('POST', '/api/suggestions/entities/author', [], [], [
             'CONTENT_TYPE'   => 'application/json',
             'HTTP_X-CSRF-Token' => $csrfToken,

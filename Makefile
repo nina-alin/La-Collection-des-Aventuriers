@@ -1,8 +1,14 @@
 .DEFAULT_GOAL := help
+
+# Panther E2E defaults — override on the command line, e.g.:
+#   make test-e2e PANTHER_BASE_URI=http://localhost:8080
+PANTHER_BASE_URI    ?= http://localhost:8000
+PANTHER_CHROMEDRIVER ?= ./chromedriver
+
 .PHONY: help up down restart ps logs shell db-shell \
         migrate migrate-diff migrate-status migrate-validate \
         fixtures cache cc \
-        test test-unit test-functional \
+        test test-unit test-functional test-e2e \
         assets-dev assets-watch assets-build \
         install
 
@@ -67,6 +73,12 @@ test-unit: ## Run unit tests only
 
 test-functional: ## Run functional tests only
 	docker compose exec php php bin/phpunit tests/Functional
+
+test-e2e: ## Run Panther E2E tests (host only). Override: make test-e2e PANTHER_BASE_URI=http://localhost:8080
+	PANTHER_EXTERNAL_BASE_URI=$(PANTHER_BASE_URI) \
+	PANTHER_CHROME_DRIVER_BINARY=$(PANTHER_CHROMEDRIVER) \
+	PANTHER_NO_SANDBOX=1 \
+	php bin/phpunit tests/E2E --no-coverage
 
 # ─── Assets ──────────────────────────────────────────────────────────────────
 

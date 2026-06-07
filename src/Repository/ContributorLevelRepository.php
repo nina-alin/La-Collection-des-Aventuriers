@@ -41,4 +41,12 @@ class ContributorLevelRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function findAllSortedByThreshold(): array
+    {
+        return $this->createQueryBuilder('cl')
+            ->orderBy('cl.threshold', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

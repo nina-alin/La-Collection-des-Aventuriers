@@ -4,36 +4,12 @@ namespace App\Tests\Entity;
 
 use App\Dto\ActiveFilterState;
 use App\Entity\Book;
-use App\Entity\Editor;
-use App\Entity\Enum\UserBookStatus;
 use App\Entity\User;
 use App\Entity\UserBook;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Uid\Uuid;
 
 class UserBookTest extends TestCase
 {
-    public function testUserBookStatusEnumValues(): void
-    {
-        $this->assertSame('dans-ma-collection', UserBookStatus::DANS_MA_COLLECTION->value);
-        $this->assertSame('a-acheter', UserBookStatus::A_ACHETER->value);
-        $this->assertSame('a-lire', UserBookStatus::A_LIRE->value);
-        $this->assertSame('lu', UserBookStatus::LU->value);
-        $this->assertSame('pas-dans-ma-collection', UserBookStatus::PAS_DANS_MA_COLLECTION->value);
-    }
-
-    public function testUserBookStatusEnumFromValue(): void
-    {
-        $this->assertSame(UserBookStatus::DANS_MA_COLLECTION, UserBookStatus::from('dans-ma-collection'));
-        $this->assertSame(UserBookStatus::A_ACHETER, UserBookStatus::from('a-acheter'));
-        $this->assertSame(UserBookStatus::PAS_DANS_MA_COLLECTION, UserBookStatus::from('pas-dans-ma-collection'));
-    }
-
-    public function testUserBookStatusEnumCasesCount(): void
-    {
-        $this->assertCount(5, UserBookStatus::cases());
-    }
-
     public function testUserBookConstruction(): void
     {
         [$user, $book] = $this->makeUserAndBook();
@@ -42,30 +18,11 @@ class UserBookTest extends TestCase
 
         $this->assertSame($user, $userBook->getUser());
         $this->assertSame($book, $userBook->getBook());
-        $this->assertSame(UserBookStatus::DANS_MA_COLLECTION, $userBook->getStatus());
         $this->assertFalse($userBook->isFavorite());
+        $this->assertFalse($userBook->isOwned());
         $this->assertNull($userBook->getId());
         $this->assertInstanceOf(\DateTimeImmutable::class, $userBook->getCreatedAt());
         $this->assertInstanceOf(\DateTimeImmutable::class, $userBook->getUpdatedAt());
-    }
-
-    public function testUserBookWithCustomStatus(): void
-    {
-        [$user, $book] = $this->makeUserAndBook();
-
-        $userBook = new UserBook($user, $book, UserBookStatus::A_LIRE);
-
-        $this->assertSame(UserBookStatus::A_LIRE, $userBook->getStatus());
-    }
-
-    public function testUserBookSetStatus(): void
-    {
-        [$user, $book] = $this->makeUserAndBook();
-        $userBook = new UserBook($user, $book);
-
-        $userBook->setStatus(UserBookStatus::LU);
-
-        $this->assertSame(UserBookStatus::LU, $userBook->getStatus());
     }
 
     public function testUserBookSetIsFavorite(): void
@@ -76,6 +33,53 @@ class UserBookTest extends TestCase
         $userBook->setIsFavorite(true);
 
         $this->assertTrue($userBook->isFavorite());
+    }
+
+    public function testUserBookSetIsOwned(): void
+    {
+        [$user, $book] = $this->makeUserAndBook();
+        $userBook = new UserBook($user, $book);
+
+        $userBook->setIsOwned(true);
+
+        $this->assertTrue($userBook->isOwned());
+    }
+
+    public function testUserBookSetIsToRead(): void
+    {
+        [$user, $book] = $this->makeUserAndBook();
+        $userBook = new UserBook($user, $book);
+
+        $userBook->setIsToRead(true);
+
+        $this->assertTrue($userBook->isToRead());
+    }
+
+    public function testUserBookSetIsToBuy(): void
+    {
+        [$user, $book] = $this->makeUserAndBook();
+        $userBook = new UserBook($user, $book);
+
+        $userBook->setIsToBuy(true);
+
+        $this->assertTrue($userBook->isToBuy());
+    }
+
+    public function testUserBookIsAllInactiveWhenAllFlagsAreFalse(): void
+    {
+        [$user, $book] = $this->makeUserAndBook();
+        $userBook = new UserBook($user, $book);
+
+        $this->assertTrue($userBook->isAllInactive());
+    }
+
+    public function testUserBookIsNotAllInactiveWhenOneIsSet(): void
+    {
+        [$user, $book] = $this->makeUserAndBook();
+        $userBook = new UserBook($user, $book);
+        $userBook->setIsOwned(true);
+
+        $this->assertFalse($userBook->isAllInactive());
     }
 
     public function testActiveFilterStateCountZeroFilters(): void

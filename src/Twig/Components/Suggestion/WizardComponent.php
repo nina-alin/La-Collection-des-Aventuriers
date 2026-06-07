@@ -5,6 +5,8 @@ namespace App\Twig\Components\Suggestion;
 use App\Entity\Enum\SuggestionEntityType;
 use App\Entity\Enum\SuggestionMode;
 use App\Entity\User;
+use App\Form\Suggestion\StepDetailsType;
+use App\Form\Suggestion\StepTypeType;
 use App\Service\CoverImageProcessor;
 use App\Service\SuggestionService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,6 +17,7 @@ use Symfony\UX\LiveComponent\Attribute\LiveArg;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\ComponentToolsTrait;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
+use Symfony\UX\TwigComponent\Attribute\ExposeInTemplate;
 
 #[AsLiveComponent]
 class WizardComponent extends AbstractController
@@ -49,21 +52,34 @@ class WizardComponent extends AbstractController
     #[LiveProp(writable: true)]
     public bool $isSubmitting = false;
 
-    public int $pendingCount = 0;
-
     public function __construct(
         private readonly SuggestionService $suggestionService,
         private readonly CoverImageProcessor $coverImageProcessor,
     ) {
     }
 
-    public function mount(): void
+    #[ExposeInTemplate(name: 'pendingCount')]
+    public function getPendingCount(): int
     {
         /** @var User|null $user */
         $user = $this->getUser();
-        if ($user !== null) {
-            $this->pendingCount = $this->suggestionService->getPendingCount($user);
+        if ($user === null) {
+            return 0;
         }
+
+        return $this->suggestionService->getPendingCount($user);
+    }
+
+    #[LiveAction]
+    public function selectMode(#[LiveArg] string $val): void
+    {
+        $this->mode = $val;
+    }
+
+    #[LiveAction]
+    public function selectEntityType(#[LiveArg] string $val): void
+    {
+        $this->entityType = $val;
     }
 
     #[LiveAction]
@@ -79,14 +95,52 @@ class WizardComponent extends AbstractController
     {
         $this->errors = [];
 
-        if ($this->step === 1 && ($this->mode === null || $this->entityType === null)) {
-            $this->errors['step1'] = 'Veuillez sélectionner un mode et un type d\'entité.';
-            return;
+        if ($this->step === 1) {
+            $form = $this->createForm(StepTypeType::class, [
+                'mode'       => $this->mode,
+                'entityType' => $this->entityType,
+            ]);
+            $form->submit(['mode' => $this->mode, 'entityType' => $this->entityType]);
+
+            if (!$form->isValid()) {
+                $this->errors['step1'] = 'Veuillez sélectionner un mode et un type d\'entité.';
+                return;
+            }
+
+            if (empty($this->formData)) {
+                $this->formData = $this->buildEmptyFormData();
+            }
+        } elseif ($this->step === 2) {
+            $form = $this->createForm(StepDetailsType::class, $this->formData, [
+                'entity_type' => $this->entityType,
+            ]);
+            $form->submit($this->formData);
+
+            if (!$form->isValid()) {
+                foreach ($form->getErrors(true) as $error) {
+                    $origin = $error->getOrigin();
+                    $field  = $origin !== null ? $origin->getName() : 'details';
+                    $this->errors[$field] = $error->getMessage();
+                }
+                return;
+            }
         }
 
         if ($this->step < 4) {
             $this->step++;
         }
+    }
+
+    private function buildEmptyFormData(): array
+    {
+        if ($this->entityType === SuggestionEntityType::BOOK->value) {
+            return array_fill_keys(
+                ['title', 'subtitle', 'author', 'illustrator', 'traductor', 'editor', 'collection', 'isbn', 'publicationFr', 'originalEdition', 'paragraphs'],
+                ''
+            );
+        }
+
+        return ['name' => ''];
     }
 
     #[LiveAction]
@@ -111,8 +165,13 @@ class WizardComponent extends AbstractController
             return;
         }
 
-        if (empty($this->formData)) {
-            $this->errors['form'] = 'Les données du formulaire sont incomplètes.';
+        $form = $this->createForm(StepDetailsType::class, $this->formData, [
+            'entity_type' => $this->entityType,
+        ]);
+        $form->submit($this->formData);
+
+        if (!$form->isValid()) {
+            $this->errors['submit'] = 'Les données du formulaire sont incomplètes ou invalides.';
             $this->step = 2;
             return;
         }
@@ -133,7 +192,6 @@ class WizardComponent extends AbstractController
                 $this->coverImageTempPath,
             );
 
-            $this->pendingCount  = $this->suggestionService->getPendingCount($user);
             $this->step          = 1;
             $this->mode          = null;
             $this->entityType    = null;
@@ -153,45 +211,32 @@ class WizardComponent extends AbstractController
     }
 
     #[LiveAction]
-    public function validateField(string $field, mixed $value): void
+    public function validateField(#[LiveArg] string $field, #[LiveArg] mixed $value): void
     {
         unset($this->errors[$field]);
 
-        match ($field) {
-            'paragraphs' => $this->validateParagraphs((int) $value),
-            'publicationFr', 'originalEdition' => $this->validateYear($field, (int) $value),
-            'title', 'subtitle' => $this->validateTitle($field, (string) $value),
-            default => null,
-        };
-    }
-
-    private function validateParagraphs(int $value): void
-    {
-        if ($value > 800) {
-            $this->errors['paragraphs'] = 'Le nombre de paragraphes ne peut pas dépasser 800.';
+        if ($this->entityType === null) {
+            return;
         }
-    }
 
-    private function validateYear(string $field, int $value): void
-    {
-        $currentYear = (int) date('Y');
-        if ($value < 1800 || $value > $currentYear + 2) {
-            $this->errors[$field] = sprintf(
-                'L\'année doit être comprise entre 1800 et %d.',
-                $currentYear + 2
-            );
+        $form = $this->createForm(StepDetailsType::class, null, [
+            'entity_type' => $this->entityType,
+        ]);
+
+        if (!$form->has($field)) {
+            return;
         }
-    }
 
-    private function validateTitle(string $field, string $value): void
-    {
-        if (trim($value) === '') {
-            $this->errors[$field] = 'Ce champ est obligatoire.';
+        $form->submit([$field => $value], false);
+
+        foreach ($form->get($field)->getErrors() as $error) {
+            $this->errors[$field] = $error->getMessage();
+            break;
         }
     }
 
     #[LiveAction]
-    public function selectSource(string $id, array $data): void
+    public function selectSource(#[LiveArg] string $id, #[LiveArg] array $data): void
     {
         $this->sourceEntityId = $id;
         $this->originalData   = $data;
@@ -223,8 +268,21 @@ class WizardComponent extends AbstractController
         return $this->mode !== null && $this->entityType !== null;
     }
 
+    #[ExposeInTemplate]
     public function canSubmit(): bool
     {
-        return !empty($this->formData) && empty($this->errors) && !$this->isSubmitting;
+        return !$this->isSubmitting && empty($this->errors) && $this->hasRequiredFormData();
+    }
+
+    private function hasRequiredFormData(): bool
+    {
+        if ($this->entityType === null) {
+            return false;
+        }
+        if ($this->entityType === SuggestionEntityType::BOOK->value) {
+            return trim((string) ($this->formData['title'] ?? '')) !== '';
+        }
+
+        return trim((string) ($this->formData['name'] ?? '')) !== '';
     }
 }

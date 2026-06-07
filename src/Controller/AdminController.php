@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Service\ContributorLevelService;
 use App\Service\UserManagementService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,10 +22,14 @@ class AdminController extends AbstractController
     private const VALID_ROLES = ['ROLE_USER', 'ROLE_MODERATOR', 'ROLE_ADMIN'];
 
     #[Route('/users', name: 'admin_users', methods: ['GET'])]
-    public function users(UserRepository $repo): Response
+    public function users(UserRepository $repo, ContributorLevelService $contributorLevelService): Response
     {
+        $allUsers = $repo->findAllNonDeleted();
+        $ranksByUserId = $contributorLevelService->computeRankBatch($allUsers);
+
         return $this->render('admin/users.html.twig', [
-            'users' => $repo->findAllNonDeleted(),
+            'users' => $allUsers,
+            'ranksByUserId' => $ranksByUserId,
         ]);
     }
 

@@ -29,6 +29,7 @@
 {# Field preview table #}
 <dl class="preview-fields">
   {% set fieldLabels = {
+    name: 'Nom',
     title: 'Titre',
     subtitle: 'Sous-titre',
     author: 'Auteur(s)',
@@ -80,7 +81,7 @@
   <button type="button" class="btn btn-primary"
           data-action="live#action"
           data-live-action-param="submitSuggestion"
-          {{ (pendingCount >= 20 or isSubmitting or formData is empty or errors is not empty) ? 'disabled aria-disabled="true"' : '' }}>
+          {{ (pendingCount >= 20 or not canSubmit) ? 'disabled aria-disabled="true"' : '' }}>
     {% if isSubmitting %}
       <span class="spinner me-1" role="status" aria-label="Envoi en cours…"></span>
       Envoi en cours…

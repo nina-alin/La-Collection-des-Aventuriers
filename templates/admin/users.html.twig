@@ -19,7 +19,12 @@
         <tbody>
             {% for user in users %}
             <tr style="border-bottom:1px solid var(--border-default)">
-                <td style="padding:.75rem .5rem">{{ user.pseudo }}</td>
+                <td style="padding:.75rem .5rem">
+                    {{ user.pseudo }}
+                    {% if 'ROLE_ADMIN' not in user.roles and 'ROLE_MODERATOR' not in user.roles %}
+                        {% include 'components/_rank_badge.html.twig' with {level: ranksByUserId[user.id.toRfc4122()] ?? null} %}
+                    {% endif %}
+                </td>
                 <td style="padding:.75rem .5rem">{{ user.email }}</td>
                 <td style="padding:.75rem .5rem">
                     {% if 'ROLE_ADMIN' in user.roles %}

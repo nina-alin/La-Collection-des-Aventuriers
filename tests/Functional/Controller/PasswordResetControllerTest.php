@@ -14,6 +14,17 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  */
 class PasswordResetControllerTest extends WebTestCase
 {
+    protected function tearDown(): void
+    {
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $em->createQuery('DELETE FROM App\Entity\ResetPasswordToken t')->execute();
+        $em->createQuery('DELETE FROM App\Entity\User u WHERE u.email = :email')
+            ->setParameter('email', 'reset@example.com')
+            ->execute();
+
+        parent::tearDown();
+    }
+
     private function createTestUser(EntityManagerInterface $em): User
     {
         $user = new User();
@@ -42,10 +53,6 @@ class PasswordResetControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('form');
-
-        $em->remove($token);
-        $em->remove($user);
-        $em->flush();
     }
 
     public function testPostWithValidTokenAndMatchingPasswordsReturnsSuccess(): void
@@ -59,21 +66,18 @@ class PasswordResetControllerTest extends WebTestCase
         $em->flush();
         $tokenString = $token->getToken();
 
+        $client->request('GET', '/test-tokens/csrf/reset_password');
+        $csrfToken = json_decode($client->getResponse()->getContent(), true)['token'];
+
         $client->request('POST', '/reinitialiser-mot-de-passe', [
             'token' => $tokenString,
             'plainPassword' => 'NewSecure1!',
             'passwordConfirm' => 'NewSecure1!',
-            '_csrf_token' => $client->getContainer()->get('security.csrf.token_manager')
-                ->getToken('reset_password')->getValue(),
+            '_csrf_token' => $csrfToken,
         ]);
 
         $this->assertResponseIsSuccessful();
         $this->assertStringContainsString('success', (string) $client->getResponse()->getContent());
-
-        $em->clear();
-        $refreshed = $em->getRepository(User::class)->findOneBy(['email' => 'reset@example.com']);
-        $em->remove($refreshed);
-        $em->flush();
     }
 
     public function testExpiredTokenGetShowsInvalidState(): void
@@ -95,10 +99,6 @@ class PasswordResetControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertStringContainsString('invalid', (string) $client->getResponse()->getContent());
-
-        $em->remove($token);
-        $em->remove($user);
-        $em->flush();
     }
 
     public function testSecondUseOfSameTokenReturnsInvalid(): void
@@ -117,9 +117,5 @@ class PasswordResetControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertStringContainsString('invalid', (string) $client->getResponse()->getContent());
-
-        $em->remove($token);
-        $em->remove($user);
-        $em->flush();
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Repository\ResetPasswordTokenRepository;
 use App\Service\PasswordResetService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -88,7 +89,7 @@ class PasswordResetController extends AbstractController
     }
 
     #[Route('/reinitialiser-mot-de-passe', name: 'app_password_reset_show', methods: ['GET'])]
-    public function showResetForm(Request $request): Response
+    public function showResetForm(Request $request, ResetPasswordTokenRepository $tokenRepository): Response
     {
         if ($this->getUser() !== null) {
             return $this->redirectToRoute('home');
@@ -97,7 +98,7 @@ class PasswordResetController extends AbstractController
         $tokenString = (string) $request->query->get('token', '');
         $state = 'form';
 
-        if ($tokenString === '') {
+        if ($tokenString === '' || $tokenRepository->findValidTokenByString($tokenString) === null) {
             $state = 'invalid';
         }
 

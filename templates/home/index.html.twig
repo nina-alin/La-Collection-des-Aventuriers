@@ -4,137 +4,150 @@
 
 {% block body %}
 
-{# ── 1. Welcome + KPIs ─────────────────────────────────────────────────── #}
-<section class="welcome" id="dashboard-header" aria-label="Tableau de bord">
-    <div class="container welcome-grid">
+    {# ── 1. Welcome + KPIs ─────────────────────────────────────────────────── #}
+    <section class="welcome" id="dashboard-header" aria-label="Tableau de bord">
+        <div class="container welcome-grid">
 
-        <div class="welcome-head">
-            <div class="eyebrow">{{ dashboardData.formattedDate }}</div>
-            <h1>Salutations, <em>{{ app.user.pseudo }}</em>.</h1>
-            <p>{{ dashboardData.headerSubtitle }}</p>
-        </div>
+            <div class="welcome-head">
+                <div class="eyebrow">{{ dashboardData.formattedDate }}</div>
+                <h1>Salutations, <em>{{ app.user.pseudo }}</em>.</h1>
+                <p>{{ dashboardData.headerSubtitle }}</p>
+            </div>
 
-        <div class="stats-strip" id="kpi-blocks" aria-label="Indicateurs personnels">
-            <div class="stat-w">
-                <span class="stat-w-label">Ma Collection</span>
-                <span class="stat-w-value">{{ dashboardData.collectionCount }}</span>
-                {% if dashboardData.collectionDelta > 0 %}
-                    <span class="stat-w-meta"><span class="ok">+{{ dashboardData.collectionDelta }}</span> ce mois</span>
-                {% else %}
-                    <span class="stat-w-meta">&nbsp;</span>
-                {% endif %}
-            </div>
-            <div class="stat-w">
-                <span class="stat-w-label">À lire</span>
-                <span class="stat-w-value">{{ dashboardData.toReadCount }}</span>
-                {% if dashboardData.toReadCount > 0 %}
-                    <span class="stat-w-meta">{{ dashboardData.toBuyCount }} en chasse</span>
-                {% else %}
-                    <span class="stat-w-meta">&nbsp;</span>
-                {% endif %}
-            </div>
-            <div class="stat-w">
-                <span class="stat-w-label">Mes suggestions</span>
-                <span class="stat-w-value">{{ dashboardData.suggestionsTotal }}</span>
-                {% if dashboardData.suggestionsTotal > 0 %}
-                    <span class="stat-w-meta">
+            <div class="stats-strip" id="kpi-blocks" aria-label="Indicateurs personnels">
+                <div class="stat-w">
+                    <span class="stat-w-label">Ma Collection</span>
+                    <span class="stat-w-value">{{ dashboardData.collectionCount }}</span>
+                    {% if dashboardData.collectionDelta > 0 %}
+                        <span class="stat-w-meta"><span
+                                    class="ok">+{{ dashboardData.collectionDelta }}</span> ce mois</span>
+                    {% else %}
+                        <span class="stat-w-meta">&nbsp;</span>
+                    {% endif %}
+                </div>
+                <div class="stat-w">
+                    <span class="stat-w-label">À lire</span>
+                    <span class="stat-w-value">{{ dashboardData.toReadCount }}</span>
+                    {% if dashboardData.toReadCount > 0 %}
+                        <span class="stat-w-meta">{{ dashboardData.toBuyCount }} en chasse</span>
+                    {% else %}
+                        <span class="stat-w-meta">&nbsp;</span>
+                    {% endif %}
+                </div>
+                <div class="stat-w">
+                    <span class="stat-w-label">Mes suggestions</span>
+                    <span class="stat-w-value">{{ dashboardData.suggestionsTotal }}</span>
+                    {% if dashboardData.suggestionsTotal > 0 %}
+                        <span class="stat-w-meta">
                         <span class="pending">{{ dashboardData.suggestionsPending }} en attente</span>
                         {%- if dashboardData.suggestionsValidatedRecently > 0 %} · {{ dashboardData.suggestionsValidatedRecently }} validée{% if dashboardData.suggestionsValidatedRecently > 1 %}s{% endif %} {{ dashboardData.suggestionsValidatedLabel }}{% endif %}
                     </span>
-                {% else %}
-                    <span class="stat-w-meta">&nbsp;</span>
-                {% endif %}
+                    {% else %}
+                        <span class="stat-w-meta">&nbsp;</span>
+                    {% endif %}
+                </div>
             </div>
+
         </div>
+    </section>
 
-    </div>
-</section>
+    {# ── 2. Quick actions ─────────────────────────────────────────────────────── #}
+    <div class="db-section">
+        <div class="container">
+            <div class="actions-grid" id="quick-access-grid" aria-label="Accès rapide">
 
-{# ── 2. Quick actions ─────────────────────────────────────────────────────── #}
-<div class="db-section">
-    <div class="container">
-        <div class="actions-grid" id="quick-access-grid" aria-label="Accès rapide">
-
-            <a class="action" href="{{ path('app_catalogue') }}" aria-label="Parcourir le wiki — {{ dashboardData.catalogueBookCount }} fiches, {{ dashboardData.catalogueAuthorCount }} auteurs">
+                <a class="action" href="{{ path('app_catalogue') }}"
+                   aria-label="Parcourir le wiki — {{ dashboardData.catalogueBookCount }} fiches, {{ dashboardData.catalogueAuthorCount }} auteurs">
                 <span class="action-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h11v16H6a2 2 0 0 1-2-2z"/><path d="M17 4v16M9 8h5M9 12h5"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h11v16H6a2 2 0 0 1-2-2z"/><path
+                                d="M17 4v16M9 8h5M9 12h5"/></svg>
                 </span>
-                <span class="action-title">Parcourir le Wiki</span>
-                <span class="action-sub">{{ dashboardData.catalogueBookCount }} fiches · {{ dashboardData.catalogueAuthorCount }} auteurs</span>
-            </a>
+                    <span class="action-title">Parcourir le Wiki</span>
+                    <span class="action-sub">{{ dashboardData.catalogueBookCount }} fiches · {{ dashboardData.catalogueAuthorCount }} auteurs</span>
+                </a>
 
-            <a class="action" href="/ma-bibliotheque" aria-label="Ma bibliothèque — {{ dashboardData.libraryBookCount }} livres, {{ dashboardData.libraryToReadCount }} à lire">
+                <a class="action" href="/ma-bibliotheque"
+                   aria-label="Ma bibliothèque — {{ dashboardData.libraryBookCount }} livres, {{ dashboardData.libraryToReadCount }} à lire">
                 <span class="action-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24"><path d="M4 4h6v16H4zM10 4h4v16h-4zM14 4h6v16h-6z"/></svg>
                 </span>
-                <span class="action-title">Ma Bibliothèque</span>
-                <span class="action-sub">{{ dashboardData.libraryBookCount }} livres · {{ dashboardData.libraryToReadCount }} à lire</span>
-            </a>
+                    <span class="action-title">Ma Bibliothèque</span>
+                    <span class="action-sub">{{ dashboardData.libraryBookCount }} livres · {{ dashboardData.libraryToReadCount }} à lire</span>
+                </a>
 
-            <a class="action is-primary" href="{{ path('suggestions_index') }}" aria-label="Faire une suggestion">
+                <a class="action is-primary" href="{{ path('suggestions_index') }}" aria-label="Faire une suggestion">
                 <span class="action-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
                 </span>
-                <span class="action-title">Faire une suggestion</span>
-                <span class="action-sub">Enrichir le catalogue</span>
-            </a>
+                    <span class="action-title">Faire une suggestion</span>
+                    <span class="action-sub">Enrichir le catalogue</span>
+                </a>
 
-            <a class="action" href="/liste-achats" aria-label="Liste d'achats — {{ dashboardData.wishlistCount }} livres en chasse">
+                <a class="action" href="/liste-achats"
+                   aria-label="Liste d'achats — {{ dashboardData.wishlistCount }} livres en chasse">
                 <span class="action-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24"><path d="M6 4h12l-1 14H7zM9 4V2h6v2"/><path d="M3 22h18"/></svg>
                 </span>
-                <span class="action-title">Liste d'achats</span>
-                <span class="action-sub">{{ dashboardData.wishlistCount }} livres en chasse</span>
-            </a>
+                    <span class="action-title">Liste d'achats</span>
+                    <span class="action-sub">{{ dashboardData.wishlistCount }} livres en chasse</span>
+                </a>
 
-            {% if dashboardData.isModerator %}
-            <a class="action quick-card--moderation" href="{{ path('suggestions_index') }}" aria-label="Éditer une fiche — {{ dashboardData.globalPendingSuggestions }} suggestions en attente">
+                {% if dashboardData.isModerator %}
+                    <a class="action quick-card--moderation" href="{{ path('suggestions_index') }}"
+                       aria-label="Éditer une fiche — {{ dashboardData.globalPendingSuggestions }} suggestions en attente">
                 <span class="action-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path
+                                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </span>
-                <span class="action-title">Éditer une fiche</span>
-                <span class="action-sub">Outils de modération</span>
-            </a>
-            {% endif %}
+                        <span class="action-title">Éditer une fiche</span>
+                        <span class="action-sub">Outils de modération</span>
+                    </a>
+                {% endif %}
 
+            </div>
         </div>
     </div>
-</div>
 
-{# ── 3. Feed grid (Nouveautés + Activité) ─────────────────────────────────── #}
-<div class="db-section">
-    <div class="container feed-grid">
+    {# ── 3. Feed grid (Nouveautés + Activité) ─────────────────────────────────── #}
+    <div class="db-section">
+        <div class="container feed-grid">
 
-        {# Nouveautés #}
-        <div id="nouveautes">
-            <div class="section-head">
-                <h2>Les nouveautés</h2>
-                <a class="more" href="{{ path('app_catalogue') }}">
-                    Tout voir
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-                </a>
-            </div>
+            {# Nouveautés #}
+            <div id="nouveautes">
+                <div class="section-head">
+                    <h2>Les nouveautés</h2>
+                    <a class="more" href="{{ path('app_catalogue') }}">
+                        Tout voir
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round">
+                            <path d="M5 12h14M13 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
 
-            {% if 'nouveautes' in dashboardData.errors %}
-                <p style="color: var(--danger); font-size: var(--fs-sm);">Impossible de charger les nouveautés.</p>
-            {% elseif dashboardData.recentBooks is empty %}
-                <p style="color: var(--ink-muted); font-size: var(--fs-sm);">Aucune fiche publiée pour l'instant.</p>
-            {% else %}
-                {% set coverClasses = ['bg-cuir', 'bg-mousse', 'bg-encre', 'bg-sang', 'bg-or'] %}
-                <div class="new-list">
-                    {% for book in dashboardData.recentBooks %}
-                        {% set avgScore = dashboardData.averageRatings[book.id] ?? null %}
-                        {% set stars = avgScore is not null ? avgScore|rating_stars : null %}
-                        {% set coverClass = coverClasses[loop.index0 % 5] %}
-                        <a class="new-row" href="{{ path('app_book_show', {slug: book.slug}) }}" aria-label="{{ book.title }}">
+                {% if 'nouveautes' in dashboardData.errors %}
+                    <p style="color: var(--danger); font-size: var(--fs-sm);">Impossible de charger les nouveautés.</p>
+                {% elseif dashboardData.recentBooks is empty %}
+                    <p style="color: var(--ink-muted); font-size: var(--fs-sm);">Aucune fiche publiée pour
+                        l'instant.</p>
+                {% else %}
+                    {% set coverClasses = ['bg-cuir', 'bg-mousse', 'bg-encre', 'bg-sang', 'bg-or'] %}
+                    <div class="new-list">
+                        {% for book in dashboardData.recentBooks %}
+                            {% set avgScore = dashboardData.averageRatings[book.id] ?? null %}
+                            {% set stars = avgScore is not null ? avgScore|rating_stars : null %}
+                            {% set coverClass = coverClasses[loop.index0 % 5] %}
+                            <a class="new-row" href="{{ path('app_book_show', {slug: book.slug}) }}"
+                               aria-label="{{ book.title }}">
                             <span class="new-cover {{ coverClass }}">
                                 {% if book.coverImage %}
-                                    <img src="/uploads/covers/{{ book.coverImage }}" alt="{{ book.title }} — couverture">
+                                    <img src="/uploads/covers/{{ book.coverImage }}"
+                                         alt="{{ book.title }} — couverture">
                                 {% else %}
                                     <span class="new-cover-text">{{ book.title|slice(0, 8) }}</span>
                                 {% endif %}
                             </span>
-                            <span class="new-meta">
+                                <span class="new-meta">
                                 <span class="new-title">{{ book.title }}</span>
                                 <span class="new-sub">
                                     {% set authorContrib = book.contributions|filter(c => c.role.value == 'Author')|first %}
@@ -146,104 +159,123 @@
                                     {% if book.collection %}{{ book.collection.nom }}{% endif %}
                                 </span>
                             </span>
-                            <span class="new-right">
+                                <span class="new-right">
                                 {% if stars is not null %}
                                     <span class="rating size-sm" aria-label="{{ (avgScore / 2)|round(1) }}/5 étoiles">
                                         <span class="rating-stars" aria-hidden="true">
-                                            {% for i in 1..stars.full %}<span class="star" style="--fill:100%"></span>{% endfor %}
+                                            {% for i in 1..stars.full %}<span class="star"
+                                                                              style="--fill:100%"></span>{% endfor %}
                                             {% if stars.half %}<span class="star" style="--fill:50%"></span>{% endif %}
-                                            {% for i in 1..stars.empty %}<span class="star" style="--fill:0%"></span>{% endfor %}
+                                            {% for i in 1..stars.empty %}<span class="star"
+                                                                               style="--fill:0%"></span>{% endfor %}
                                         </span>
                                         <span class="rating-score">{{ (avgScore / 2)|round(1) }}</span>
                                     </span>
                                 {% endif %}
-                                {% if book.updatedAt %}
-                                    <span class="new-time">
+                                    {% if book.updatedAt %}
+                                        <span class="new-time">
                                         <time datetime="{{ book.updatedAt|date('c') }}">{{ book.updatedAt|date('d/m/Y') }}</time>
                                     </span>
-                                {% endif %}
+                                    {% endif %}
                             </span>
-                        </a>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        </div>
-
-        {# Activité #}
-        <div id="activite">
-            <div class="section-head">
-                <h2>Activité</h2>
-                <a class="more" href="/activite">
-                    Mon fil
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-                </a>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
             </div>
 
-            {% if 'activite' in dashboardData.errors %}
-                <p style="color: var(--danger); font-size: var(--fs-sm);">Impossible de charger l'activité.</p>
-            {% elseif dashboardData.activityEvents is empty %}
-                <div class="activity">
-                    <p class="act-empty">Pas encore d'activité communautaire.</p>
+            {# Activité #}
+            <div id="activite">
+                <div class="section-head">
+                    <h2>Activité</h2>
+                    <a class="more" href="/activite">
+                        Mon fil
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round">
+                            <path d="M5 12h14M13 5l7 7-7 7"/>
+                        </svg>
+                    </a>
                 </div>
-            {% else %}
-                <div class="activity">
-                    {% for event in dashboardData.activityEvents %}
-                        {% set isSelf = app.user and event.actorUser.id == app.user.id %}
-                        <div class="act">
+
+                {% if 'activite' in dashboardData.errors %}
+                    <p style="color: var(--danger); font-size: var(--fs-sm);">Impossible de charger l'activité.</p>
+                {% elseif dashboardData.activityEvents is empty %}
+                    <div class="activity">
+                        <p class="act-empty">Pas encore d'activité communautaire.</p>
+                    </div>
+                {% else %}
+                    <div class="activity">
+                        {% for event in dashboardData.activityEvents %}
+                            {% set isSelf = app.user and event.actorUser.id == app.user.id %}
+                            <div class="act">
                             <span class="avatar size-sm" role="img" aria-label="{{ event.actorPseudo }}">
                                 {{- event.actorInitials ?? (event.actorPseudo|slice(0,2)|upper) -}}
                             </span>
-                            <div class="act-body">
+                                <div class="act-body">
                                 <span class="act-text">
                                     {% if event.type.value == 'social' %}
-                                        <a class="handle" href="#">@{{ event.actorPseudo }}</a> a noté <span class="obj">{{ event.bookTitle }}</span>
+                                        <a class="handle" href="#">@{{ event.actorPseudo }}</a> a noté <span
+                                            class="obj">{{ event.bookTitle }}</span>
                                     {% elseif event.type.value == 'contribution' %}
-                                        <a class="handle" href="#">@{{ event.actorPseudo }}</a> a publié <span class="obj">{{ event.bookTitle }}</span> au catalogue.
+                                        <a class="handle" href="#">@{{ event.actorPseudo }}</a> a publié <span
+                                                class="obj">{{ event.bookTitle }}</span> au catalogue.
                                     {% elseif event.type.value == 'moderation' %}
                                         {% if isSelf %}
-                                            Tu as {% if event.statusBadge == 'VALIDATED' %}validé{% else %}refusé{% endif %} la suggestion <span class="obj">{{ event.bookTitle }}</span>.
+                                            Tu as {% if event.statusBadge == 'VALIDATED' %}validé{% else %}refusé{% endif %} la suggestion
+                                            <span class="obj">{{ event.bookTitle }}</span>.
                                         {% else %}
-                                            <a class="handle" href="#">@{{ event.actorPseudo }}</a> a modéré une suggestion sur <span class="obj">{{ event.bookTitle }}</span>.
+                                            <a class="handle"
+                                               href="#">@{{ event.actorPseudo }}</a> a modéré une suggestion sur <span
+                                                    class="obj">{{ event.bookTitle }}</span>.
                                         {% endif %}
                                     {% elseif event.type.value == 'personal' %}
-                                        <a class="handle" href="#">@{{ event.actorPseudo }}</a> a ajouté <span class="obj">{{ event.bookTitle }}</span> à sa liste d'achats.
+                                        <a class="handle" href="#">@{{ event.actorPseudo }}</a> a ajouté <span
+                                                class="obj">{{ event.bookTitle }}</span> à sa liste d'achats.
                                     {% endif %}
                                 </span>
-                                <span class="act-meta">
+                                    <span class="act-meta">
                                     {% if event.statusBadge and event.type.value == 'moderation' %}
                                         {% if event.statusBadge == 'VALIDATED' %}
-                                            <span class="badge badge-status-validated"><span class="dot" aria-hidden="true" style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>Validée</span>
+                                            <span class="badge badge-status-validated"><span class="dot"
+                                                                                             aria-hidden="true"
+                                                                                             style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>Validée</span>
                                         {% elseif event.statusBadge == 'REFUSED' %}
-                                            <span class="badge badge-status-rejected"><span class="dot" aria-hidden="true" style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>Refusée</span>
+                                            <span class="badge badge-status-rejected"><span class="dot"
+                                                                                            aria-hidden="true"
+                                                                                            style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>Refusée</span>
                                         {% else %}
-                                            <span class="badge badge-status-pending"><span class="dot" aria-hidden="true" style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>En attente</span>
+                                            <span class="badge badge-status-pending"><span class="dot"
+                                                                                           aria-hidden="true"
+                                                                                           style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>En attente</span>
                                         {% endif %}
                                         ·
                                     {% endif %}
                                     <time datetime="{{ event.createdAt|date('c') }}">{{ event.createdAt|date('d/m/Y H:i') }}</time>
                                 </span>
+                                </div>
                             </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
         </div>
-
     </div>
-</div>
 
-{# ── 4. Forum bridge ─────────────────────────────────────────────────────── #}
-<div class="container" id="forum-banner">
-    <a class="bridge" href="{{ forumUrl }}" rel="noopener noreferrer" target="_blank" aria-label="Rejoindre La Taverne des Aventuriers">
+    {# ── 4. Forum bridge ─────────────────────────────────────────────────────── #}
+    <div class="container" id="forum-banner">
+        <a class="bridge" href="{{ forumUrl }}" rel="noopener noreferrer" target="_blank"
+           aria-label="Rejoindre La Taverne des Aventuriers">
         <span class="bridge-text">
-            <span class="bridge-title">Rejoindre La Taverne des Aventuriers</span>
-            <span class="bridge-desc">Discuter des parties, débattre des choix, retrouver la communauté autour d'un verre virtuel.</span>
+          <span class="bridge-title">Rejoindre La Taverne des Aventuriers</span>
+          <span class="bridge-desc ms-4">Venez discutez avec nous !</span>
+            <span class="btn btn-secondary btn-sm" aria-hidden="true">
+                Y aller
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </span>
         </span>
-        <span class="btn btn-secondary btn-sm" aria-hidden="true">
-            Y aller
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </span>
-    </a>
-</div>
+        </a>
+    </div>
 
 {% endblock %}

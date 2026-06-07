@@ -10,9 +10,11 @@
 <fieldset class="mb-4">
   <legend class="form-label fw-semibold mb-2">Quel type de proposition ?</legend>
   <div class="mode-toggle" role="radiogroup" aria-label="Mode de proposition">
-    <label class="type-card {{ mode == 'NEW_ENTRY' ? 'is-selected' : '' }}">
+    <label class="type-card {{ mode == 'NEW_ENTRY' ? 'is-selected' : '' }}"
+           data-action="live#action"
+           data-live-action-param="selectMode"
+           data-live-val-param="NEW_ENTRY">
       <input type="radio" name="mode" value="NEW_ENTRY"
-             data-model="mode"
              {{ mode == 'NEW_ENTRY' ? 'checked' : '' }}
              aria-label="Nouvelle fiche — Ajouter une entrée encore absente du grimoire" />
       <span class="ic" aria-hidden="true">
@@ -23,9 +25,11 @@
         <span class="d">Ajouter une entrée encore absente du site.</span>
       </span>
     </label>
-    <label class="type-card {{ mode == 'CORRECTION' ? 'is-selected' : '' }}">
+    <label class="type-card {{ mode == 'CORRECTION' ? 'is-selected' : '' }}"
+           data-action="live#action"
+           data-live-action-param="selectMode"
+           data-live-val-param="CORRECTION">
       <input type="radio" name="mode" value="CORRECTION"
-             data-model="mode"
              {{ mode == 'CORRECTION' ? 'checked' : '' }}
              aria-label="Corriger une fiche — Signaler une erreur ou compléter une fiche existante" />
       <span class="ic" aria-hidden="true">
@@ -41,19 +45,40 @@
 
 {# Entity type selection #}
 <div class="mb-4">
-  <label for="entity-type" class="form-label fw-semibold">Type d'entité</label>
-  <select id="entity-type" name="entityType" class="select"
-          data-model="entityType"
-          aria-required="true"
-          aria-label="Type d'entité à soumettre">
-    <option value="">— Sélectionnez un type —</option>
-    <option value="BOOK"        {{ entityType == 'BOOK'        ? 'selected' : '' }}>Livre</option>
-    <option value="AUTHOR"      {{ entityType == 'AUTHOR'      ? 'selected' : '' }}>Auteur</option>
-    <option value="ILLUSTRATOR" {{ entityType == 'ILLUSTRATOR' ? 'selected' : '' }}>Illustrateur</option>
-    <option value="TRADUCTOR"   {{ entityType == 'TRADUCTOR'   ? 'selected' : '' }}>Traducteur</option>
-    <option value="EDITOR"      {{ entityType == 'EDITOR'      ? 'selected' : '' }}>Éditeur</option>
-    <option value="COLLECTION"  {{ entityType == 'COLLECTION'  ? 'selected' : '' }}>Collection</option>
-  </select>
+  <div class="entity-type-header">
+    <span class="entity-type-label">
+      Type de fiche
+      <span class="entity-type-required">obligatoire</span>
+    </span>
+    <span class="entity-type-hint">Détermine les champs à remplir.</span>
+  </div>
+  <div class="entity-type-picker" role="radiogroup" aria-label="Type d'entité à soumettre" aria-required="true">
+    {% set entityTypes = [
+      {value: 'BOOK',        label: 'Livre',        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="13" y2="11"/></svg>'},
+      {value: 'AUTHOR',     label: 'Auteur',       icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M4 21v-2a7 7 0 0 1 14 0v2"/></svg>'},
+      {value: 'ILLUSTRATOR',label: 'Illustrateur', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>'},
+      {value: 'TRADUCTOR',  label: 'Traducteur',   icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>'},
+      {value: 'EDITOR',     label: 'Éditeur',      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>'},
+      {value: 'COLLECTION', label: 'Collection',   icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="5" height="18" rx="1"/><rect x="9.5" y="3" width="5" height="18" rx="1"/><rect x="17" y="3" width="5" height="18" rx="1"/></svg>'},
+    ] %}
+    {% for et in entityTypes %}
+      <label class="entity-type-card {{ entityType == et.value ? 'is-selected' : '' }}"
+             data-action="live#action"
+             data-live-action-param="selectEntityType"
+             data-live-val-param="{{ et.value }}">
+        <input type="radio" name="entityType" value="{{ et.value }}"
+               {{ entityType == et.value ? 'checked' : '' }}
+               aria-label="{{ et.label }}" />
+        {% if entityType == et.value %}
+          <span class="entity-type-check" aria-hidden="true">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"/></svg>
+          </span>
+        {% endif %}
+        <span class="entity-type-icon" aria-hidden="true">{{ et.icon|raw }}</span>
+        <span class="entity-type-name">{{ et.label }}</span>
+      </label>
+    {% endfor %}
+  </div>
 </div>
 
 <div class="d-flex justify-content-end">

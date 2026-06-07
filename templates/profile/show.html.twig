@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Profil de {{ profileUser.displayName ?? profileUser.pseudo }} — La Collection{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width:700px;margin:2rem auto;padding:0 1rem">
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:2rem">
+        <h1 style="margin:0">{{ profileUser.displayName ?? profileUser.pseudo }}</h1>
+        {% if isRankVisible %}
+            {% include 'components/_rank_badge.html.twig' with {level: rankLevel} %}
+        {% endif %}
+    </div>
+
+    {% if isRankVisible and validatedCount > 0 %}
+        <p style="color:var(--ink-muted);margin-bottom:.5rem">
+            {{ validatedCount }} contribution{{ validatedCount > 1 ? 's' : '' }} validée{{ validatedCount > 1 ? 's' : '' }}
+        </p>
+    {% endif %}
+
+    <p style="color:var(--ink-muted);font-size:.875rem">
+        Membre depuis le {{ profileUser.createdAt|date('d/m/Y') }}
+    </p>
+</div>
+{% endblock %}

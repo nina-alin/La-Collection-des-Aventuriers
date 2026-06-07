@@ -7,6 +7,7 @@ use App\Entity\Review;
 use App\Repository\BookRepository;
 use App\Repository\ReviewRepository;
 use App\Security\Voter\ReviewVoter;
+use App\Service\ContributorLevelService;
 use App\Service\ReviewService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -136,6 +137,7 @@ class ReviewController extends AbstractController
         Request $request,
         BookRepository $bookRepository,
         ReviewRepository $reviewRepository,
+        ContributorLevelService $contributorLevelService,
     ): Response {
         $book = $bookRepository->findBySlugWithRelations($slug);
         if ($book === null) {
@@ -148,12 +150,21 @@ class ReviewController extends AbstractController
         $paginator = $reviewRepository->findPaginatedByBook($book, $filter, $page);
         $totalPages = (int) ceil(count($paginator) / 10);
 
+        $reviewAuthors = [];
+        foreach ($paginator as $review) {
+            if ($review->getUser() !== null) {
+                $reviewAuthors[] = $review->getUser();
+            }
+        }
+        $ranksByUserId = $contributorLevelService->computeRankBatch($reviewAuthors);
+
         return $this->render('livre/_reviews_list.html.twig', [
             'book' => $book,
             'paginator' => $paginator,
             'filter' => $filter,
             'page' => $page,
             'totalPages' => $totalPages,
+            'ranksByUserId' => $ranksByUserId,
         ]);
     }
 }
