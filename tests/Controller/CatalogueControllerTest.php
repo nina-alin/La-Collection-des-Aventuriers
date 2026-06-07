@@ -19,7 +19,7 @@ class CatalogueControllerTest extends WebTestCase
         $client  = static::createClient();
         $crawler = $client->request('GET', '/catalogue');
 
-        $this->assertSelectorExists('.catalogue-grid');
+        $this->assertSelectorExists("#grid");
     }
 
     public function testCatalogueCollectionStatusSectionAbsentForGuest(): void
@@ -36,7 +36,7 @@ class CatalogueControllerTest extends WebTestCase
         $crawler = $client->request('GET', '/catalogue?sort=alpha&paragraphMin=100&paragraphMax=400');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('.catalogue-grid');
+        $this->assertSelectorExists("#grid");
     }
 
     public function testCatalogueWithInvalidPageRedirectsToLastPage(): void

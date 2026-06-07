@@ -8,6 +8,8 @@ use App\Entity\Enum\NotificationType;
 use App\Entity\NotificationPreference;
 use App\Entity\User;
 use App\Repository\NotificationPreferenceRepository;
+use App\Repository\UserRepository;
+use App\Service\ContributorLevelService;
 use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -85,5 +87,36 @@ class ProfileController extends AbstractController
         $this->addFlash('success', 'Préférences de notification enregistrées.');
 
         return $this->redirectToRoute('profile_settings');
+    }
+
+    #[Route('/profil/{pseudo}', name: 'profile_public', methods: ['GET'])]
+    public function publicProfile(
+        string $pseudo,
+        UserRepository $userRepository,
+        ContributorLevelService $contributorLevelService,
+    ): Response {
+        $profileUser = $userRepository->findOneByPseudo($pseudo);
+        if ($profileUser === null) {
+            throw $this->createNotFoundException('Utilisateur introuvable.');
+        }
+
+        $isRoleUser = in_array('ROLE_USER', $profileUser->getRoles(), true)
+            && !in_array('ROLE_MODERATOR', $profileUser->getRoles(), true)
+            && !in_array('ROLE_ADMIN', $profileUser->getRoles(), true);
+
+        $rankLevel = null;
+        $validatedCount = 0;
+        if ($isRoleUser) {
+            $rankLevel = $contributorLevelService->computeRank($profileUser);
+            $metrics = $contributorLevelService->getMetrics($profileUser);
+            $validatedCount = $metrics['validatedCount'];
+        }
+
+        return $this->render('profile/show.html.twig', [
+            'profileUser' => $profileUser,
+            'rankLevel' => $rankLevel,
+            'validatedCount' => $validatedCount,
+            'isRankVisible' => $isRoleUser,
+        ]);
     }
 }

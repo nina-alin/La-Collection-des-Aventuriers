@@ -89,4 +89,28 @@ class SuggestionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    public function countBatchValidated(array $users): array
+    {
+        if (empty($users)) {
+            return [];
+        }
+
+        $rows = $this->createQueryBuilder('s')
+            ->select('IDENTITY(s.user) as userId, COUNT(s.id) as cnt')
+            ->where('s.user IN (:users)')
+            ->andWhere('s.status = :status')
+            ->setParameter('users', $users)
+            ->setParameter('status', SuggestionStatus::VALIDATED)
+            ->groupBy('s.user')
+            ->getQuery()
+            ->getResult();
+
+        $result = [];
+        foreach ($rows as $row) {
+            $result[$row['userId']] = (int) $row['cnt'];
+        }
+
+        return $result;
+    }
 }

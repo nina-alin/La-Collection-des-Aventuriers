@@ -1,0 +1,48 @@
+.badge-rank {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border: 1px solid transparent;
+}
+
+.badge-rank-1 {
+    background: var(--parchemin-100);
+    color: var(--parchemin-700);
+    border-color: var(--parchemin-300);
+}
+
+.badge-rank-2 {
+    background: var(--mousse-100);
+    color: var(--mousse-700);
+    border-color: var(--mousse-300);
+}
+
+.badge-rank-3 {
+    background: var(--encre-100);
+    color: var(--encre-700);
+    border-color: var(--encre-300);
+}
+
+.badge-rank-4 {
+    background: var(--ambre-100);
+    color: var(--ambre-700);
+    border-color: var(--ambre-300);
+}
+
+.badge-rank-5 {
+    background: var(--or-100);
+    color: var(--or-700);
+    border-color: var(--or-300);
+}
+
+.badge-rank-6 {
+    background: var(--cuir-100);
+    color: var(--cuir-700);
+    border-color: var(--cuir-300);
+}

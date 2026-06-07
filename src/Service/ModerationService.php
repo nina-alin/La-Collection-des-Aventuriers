@@ -43,7 +43,10 @@ class ModerationService
         $this->entityManager->flush();
 
         if ($entity instanceof WorkEntry && $entity->getAuthor() !== null) {
-            $this->dispatcher->dispatch(new ContributionValidatedEvent($entity, $entity->getAuthor()));
+            $this->dispatcher->dispatch(new ContributionValidatedEvent($entity->getTitle(), $entity->getAuthor()));
+        } elseif ($entity instanceof CorrectionProposal && $entity->getAuthor() !== null) {
+            $title = $entity->getWorkEntry()->getTitle();
+            $this->dispatcher->dispatch(new ContributionValidatedEvent($title, $entity->getAuthor()));
         }
     }
 
@@ -104,5 +107,9 @@ class ModerationService
         $suggestion->setStatus($newStatus);
         $this->entityManager->flush();
         $this->dispatcher->dispatch(new SuggestionModeratedEvent($moderator, $suggestion, $newStatus));
+
+        if ($newStatus === SuggestionStatus::VALIDATED && $suggestion->getUser() !== null) {
+            $this->dispatcher->dispatch(new ContributionValidatedEvent('une suggestion', $suggestion->getUser()));
+        }
     }
 }

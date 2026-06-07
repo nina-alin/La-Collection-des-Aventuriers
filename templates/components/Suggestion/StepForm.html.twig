@@ -29,6 +29,26 @@
   </div>
 {% endif %}
 
+{# Non-book entity fields (AUTHOR, ILLUSTRATOR, TRADUCTOR, EDITOR, COLLECTION) #}
+{% if entityType is not null and entityType != 'BOOK' %}
+  <div class="row g-3">
+    <div class="col-12">
+      <label for="field-name" class="form-label fw-semibold">
+        Nom <span class="text-danger" aria-hidden="true">*</span>
+      </label>
+      <input type="text" id="field-name" class="input {{ errors.name is defined ? 'is-invalid' : '' }}"
+             data-model="formData.name"
+             value="{{ formData.name ?? '' }}"
+             placeholder="ex. J.R.R. Tolkien"
+             aria-required="true"
+             aria-describedby="{{ errors.name is defined ? 'field-name-error' : '' }}" />
+      {% if errors.name is defined %}
+        <div id="field-name-error" class="form-help error" aria-live="assertive">{{ errors.name }}</div>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}
+
 {# Book fields (shown when entityType = BOOK) #}
 {% if entityType == 'BOOK' or entityType is null %}
 

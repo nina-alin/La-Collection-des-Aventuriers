@@ -18,6 +18,10 @@
                         <strong>{{ entry.title }}</strong>
                         <div style="font-size:.875rem;color:var(--text-muted);margin-top:.25rem">
                             Par {{ entry.author ? entry.author.pseudo : '[supprimé]' }}
+                            {% if entry.author %}
+                                {% set userRank = ranksByUserId[entry.author.id.toRfc4122()] ?? null %}
+                                {% include 'components/_rank_badge.html.twig' with {level: userRank} %}
+                            {% endif %}
                             · {{ entry.createdAt|date('d/m/Y H:i') }}
                         </div>
                     </div>
@@ -55,6 +59,10 @@
                         <strong>Correction pour : {{ proposal.workEntry.title }}</strong>
                         <div style="font-size:.875rem;color:var(--text-muted);margin-top:.25rem">
                             Par {{ proposal.author ? proposal.author.pseudo : '[supprimé]' }}
+                            {% if proposal.author %}
+                                {% set userRank = ranksByUserId[proposal.author.id.toRfc4122()] ?? null %}
+                                {% include 'components/_rank_badge.html.twig' with {level: userRank} %}
+                            {% endif %}
                             · {{ proposal.createdAt|date('d/m/Y H:i') }}
                         </div>
                     </div>

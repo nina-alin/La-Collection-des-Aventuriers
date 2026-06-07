@@ -7,8 +7,17 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class SecurityControllerTest extends TestCase
+class SecurityControllerTest extends WebTestCase
 {
+    protected function tearDown(): void
+    {
+        $container = static::getContainer();
+        $em = $container->get(EntityManagerInterface::class);
+        $em->createQuery('DELETE FROM App\Entity\User u')->execute();
+
+        parent::tearDown();
+    }
+
     private function createTestUser(string $email = 'test@example.com', string $password = 'password123'): User
     {
         $container = static::getContainer();
@@ -19,6 +28,7 @@ class SecurityControllerTest extends TestCase
         $user->setEmail($email);
         $user->setPseudo('testuser');
         $user->setPassword($hasher->hashPassword($user, $password));
+        $user->setIsEmailVerified(true);
 
         $em->persist($user);
         $em->flush();
@@ -109,7 +119,7 @@ class SecurityControllerTest extends TestCase
         $client = static::createClient();
         $this->createTestUser();
 
-        $client->request('GET', '/catalogue');
+        $client->request('GET', '/suggestions');
         $client->followRedirect();
 
         $csrfToken = $client->getContainer()->get('security.csrf.token_manager')
@@ -121,7 +131,7 @@ class SecurityControllerTest extends TestCase
             '_csrf_token' => $csrfToken,
         ]);
 
-        $this->assertResponseRedirects('/catalogue');
+        $this->assertResponseRedirects('/suggestions');
     }
 
     public function testPostLogoutDestroySessionAndRedirects(): void
@@ -148,7 +158,7 @@ class SecurityControllerTest extends TestCase
         $this->assertResponseRedirects('/connexion');
 
         $client->followRedirect();
-        $client->request('GET', '/catalogue');
+        $client->request('GET', '/suggestions');
         $this->assertResponseRedirects('/connexion');
     }
 
@@ -194,22 +204,5 @@ class SecurityControllerTest extends TestCase
             null === $rememberMeAfterLogout || ($rememberMeAfterLogout->getExpiresTime() !== null && $rememberMeAfterLogout->getExpiresTime() <= 0),
             'REMEMBERME cookie should be absent or cleared after logout'
         );
-    }
-}
-
-class TestCase extends WebTestCase
-{
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
-
-    protected function tearDown(): void
-    {
-        $container = static::getContainer();
-        $em = $container->get(EntityManagerInterface::class);
-        $em->createQuery('DELETE FROM App\Entity\User u')->execute();
-
-        parent::tearDown();
     }
 }

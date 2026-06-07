@@ -26,22 +26,22 @@ class ContributionValidatedListener
     {
         $recipient = $event->recipient;
 
+        $oldRank = $this->contributorLevelService->computeRank($recipient);
+
         $preference = $this->preferenceRepository->findByUser($recipient);
         if ($preference === null || $preference->isEnabled(NotificationType::CONTRIBUTION_VALIDATED)) {
-            $oldRank = $this->contributorLevelService->computeRank($recipient);
-
             $this->bus->dispatch(new NotificationMessage(
                 userId: (string) $recipient->getId(),
                 type: NotificationType::CONTRIBUTION_VALIDATED->value,
-                message: 'Ta contribution "' . $event->workEntry->getTitle() . '" a été validée !',
-                sourceId: 'contribution_validated:' . $event->workEntry->getId(),
+                message: 'Ta contribution "' . $event->title . '" a été validée !',
+                sourceId: null,
                 targetUrl: null,
             ));
+        }
 
-            $newRank = $this->contributorLevelService->computeRank($recipient);
-            if ($newRank !== null && ($oldRank === null || $oldRank->getId() !== $newRank->getId())) {
-                $this->dispatcher->dispatch(new RankUpEvent($recipient, $newRank));
-            }
+        $newRank = $this->contributorLevelService->computeRank($recipient);
+        if ($newRank !== null && ($oldRank === null || $oldRank->getId() !== $newRank->getId())) {
+            $this->dispatcher->dispatch(new RankUpEvent($recipient, $newRank));
         }
     }
 }

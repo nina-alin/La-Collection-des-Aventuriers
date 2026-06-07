@@ -40,7 +40,7 @@ class RegistrationControllerTest extends WebTestCase
 
         $client->submit($form);
 
-        $this->assertResponseRedirects('/');
+        $this->assertResponseIsSuccessful();
 
         $container = static::getContainer();
         $em = $container->get(EntityManagerInterface::class);

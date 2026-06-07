@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Repository\CorrectionProposalRepository;
 use App\Repository\WorkEntryRepository;
+use App\Service\ContributorLevelService;
 use App\Service\ModerationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,11 +19,32 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class ModerationController extends AbstractController
 {
     #[Route('', name: 'moderation_dashboard', methods: ['GET'])]
-    public function index(WorkEntryRepository $workEntryRepo, CorrectionProposalRepository $correctionRepo): Response
-    {
+    public function index(
+        WorkEntryRepository $workEntryRepo,
+        CorrectionProposalRepository $correctionRepo,
+        ContributorLevelService $contributorLevelService,
+    ): Response {
+        $pendingEntries = $workEntryRepo->findPending();
+        $pendingProposals = $correctionRepo->findPending();
+
+        $authors = [];
+        foreach ($pendingEntries as $entry) {
+            if ($entry->getAuthor() !== null) {
+                $authors[] = $entry->getAuthor();
+            }
+        }
+        foreach ($pendingProposals as $proposal) {
+            if ($proposal->getAuthor() !== null) {
+                $authors[] = $proposal->getAuthor();
+            }
+        }
+
+        $ranksByUserId = $contributorLevelService->computeRankBatch($authors);
+
         return $this->render('moderation/dashboard.html.twig', [
-            'pendingEntries' => $workEntryRepo->findPending(),
-            'pendingProposals' => $correctionRepo->findPending(),
+            'pendingEntries' => $pendingEntries,
+            'pendingProposals' => $pendingProposals,
+            'ranksByUserId' => $ranksByUserId,
         ]);
     }
 

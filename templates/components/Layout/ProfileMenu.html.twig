@@ -75,10 +75,20 @@
         {% if is_granted('ROLE_MODERATOR') %}
         <div class="menu-section">
             <div class="menu-section-label">OUTILS DE MODÉRATION</div>
-            <a class="menu-link role-action" href="#" role="menuitem">
+            <a class="menu-link role-action" href="{{ path('moderation_dashboard') }}" role="menuitem">
                 <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 4 9 8 10 4-1 8-5 8-10V6l-8-4z"/><path d="m9 12 2 2 4-4"/></svg></span>
                 Salle de Modération
                 <span class="badge-new">{{ menuData.pendingModerationCount }} À RELIRE</span>
+            </a>
+        </div>
+        {% endif %}
+
+        {% if is_granted('ROLE_ADMIN') %}
+        <div class="menu-section">
+            <div class="menu-section-label">ADMINISTRATION</div>
+            <a class="menu-link role-action" href="{{ path('admin_users') }}" role="menuitem">
+                <span class="lnk-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                Panneau d'administration
             </a>
         </div>
         {% endif %}

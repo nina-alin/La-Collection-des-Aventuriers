@@ -8,7 +8,7 @@ final readonly class NotificationMessage
         public string $userId,
         public string $type,
         public string $message,
-        public string $sourceId,
+        public ?string $sourceId,
         public ?string $targetUrl = null,
     ) {}
 }

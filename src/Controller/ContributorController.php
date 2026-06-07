@@ -29,6 +29,11 @@ class ContributorController extends AbstractController
             throw $this->createNotFoundException();
         }
 
+        $validSagas = array_column($result['sagaGroups'], 'slug');
+        if ($sagaFilter !== null && !in_array($sagaFilter, $validSagas, true)) {
+            $sagaFilter = null;
+        }
+
         $contributor = $result['contributor'];
         $birthDate   = $contributor->getBirthDate();
         $deathDate   = $contributor->getDeathDate();

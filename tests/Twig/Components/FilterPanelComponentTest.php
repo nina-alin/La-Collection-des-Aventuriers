@@ -4,6 +4,7 @@ namespace App\Tests\Twig\Components;
 
 use App\Dto\ActiveFilterState;
 use App\Repository\BookRepository;
+use App\Repository\ContributorRepository;
 use App\Repository\EditorRepository;
 use App\Twig\Components\Catalogue\FilterPanelComponent;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -12,14 +13,16 @@ use PHPUnit\Framework\TestCase;
 class FilterPanelComponentTest extends TestCase
 {
     private BookRepository&MockObject $bookRepository;
+    private ContributorRepository&MockObject $contributorRepository;
     private EditorRepository&MockObject $editorRepository;
     private FilterPanelComponent $component;
 
     protected function setUp(): void
     {
-        $this->bookRepository   = $this->createMock(BookRepository::class);
-        $this->editorRepository = $this->createMock(EditorRepository::class);
-        $this->component        = new FilterPanelComponent($this->bookRepository, $this->editorRepository);
+        $this->bookRepository        = $this->createMock(BookRepository::class);
+        $this->contributorRepository = $this->createMock(ContributorRepository::class);
+        $this->editorRepository      = $this->createMock(EditorRepository::class);
+        $this->component             = new FilterPanelComponent($this->bookRepository, $this->contributorRepository, $this->editorRepository);
     }
 
     public function testExpectedCountCallsBookRepository(): void
@@ -28,8 +31,6 @@ class FilterPanelComponentTest extends TestCase
             ->expects($this->once())
             ->method('countFiltered')
             ->willReturn(42);
-
-        $this->component->sort = 'note-desc';
 
         $count = $this->component->getExpectedCount();
 
@@ -58,16 +59,12 @@ class FilterPanelComponentTest extends TestCase
         );
         $this->component->mount($appliedState);
 
-        // Mutate draft state
-        $this->component->sort            = 'note-desc';
         $this->component->selectedEditors = [1];
         $this->component->paragraphMin    = null;
         $this->component->onlyFavorites   = false;
 
-        // Clear resets to last applied
         $this->component->clearPanel();
 
-        $this->assertSame('alpha', $this->component->sort);
         $this->assertSame([3, 7], $this->component->selectedEditors);
         $this->assertSame(100, $this->component->paragraphMin);
         $this->assertSame(400, $this->component->paragraphMax);
@@ -84,7 +81,7 @@ class FilterPanelComponentTest extends TestCase
 
         $this->component->mount($state);
 
-        $this->assertSame('parution-fr', $this->component->sort);
+        $this->assertSame('parution-fr', $this->component->appliedSort);
         $this->assertSame([5], $this->component->selectedEditors);
         $this->assertSame('lu', $this->component->collectionStatus);
     }

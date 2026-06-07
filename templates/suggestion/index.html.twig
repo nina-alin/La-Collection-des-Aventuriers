@@ -28,11 +28,11 @@
           {% endif %}
         </div>
         <div class="title">
-          {% if metrics.deltaToNext is not null and metrics.deltaToNext > 0 %}
+          {% if metrics.nextLevel is not null %}
             Tu es à <em>{{ metrics.deltaToNext }} fiche{{ metrics.deltaToNext > 1 ? 's' : '' }}</em>
-            du rang suivant.
+            du rang {{ metrics.nextLevel.name }}.
           {% elseif metrics.currentLevel %}
-            Tu as atteint le rang le plus élevé. Félicitations !
+            Tu as atteint le rang suprême de {{ metrics.currentLevel.name }}. Merci pour tes contributions inestimables !
           {% endif %}
         </div>
       </div>

@@ -20,6 +20,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -165,6 +166,7 @@ class SuggestionController extends AbstractController
         EntityManagerInterface $em,
         ContributorSlugger $contributorSlugger,
         CollectionSlugger $collectionSlugger,
+        #[Autowire(service: 'limiter.suggestion_entity_creation_limiter')]
         RateLimiterFactory $suggestionEntityCreationLimiter,
     ): JsonResponse {
         /** @var User $user */

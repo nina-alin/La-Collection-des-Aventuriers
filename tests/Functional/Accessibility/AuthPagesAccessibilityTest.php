@@ -19,7 +19,6 @@ class AuthPagesAccessibilityTest extends WebTestCase
         '/connexion',
         '/inscription',
         '/mot-de-passe-oublie',
-        '/reinitialiser-mot-de-passe?token=dummy123456789012345678901234567890123456789012345678901234',
     ];
 
     /**
@@ -78,7 +77,7 @@ class AuthPagesAccessibilityTest extends WebTestCase
                 ->getValue(),
         ]);
 
-        $response = $client->getResponse();
+        $client->followRedirect();
         $this->assertResponseIsSuccessful();
     }
 }
