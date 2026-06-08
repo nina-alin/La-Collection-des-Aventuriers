@@ -1,0 +1,398 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mentions légales — La Collection{% endblock %}
+
+{% block meta %}
+<meta name="description" content="Mentions légales de La Collection des Aventuriers : éditeur, hébergeur, propriété intellectuelle, données personnelles.">
+{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .doc-container {
+        width: 100%;
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: var(--sp-4);
+        padding-right: var(--sp-4);
+    }
+    @media (min-width: 720px) {
+        .doc-container {
+            padding-left: var(--sp-6);
+            padding-right: var(--sp-6);
+        }
+    }
+
+    .doc-head {
+        position: relative;
+        padding: clamp(2.25rem, 5vw, 3.5rem) 0 clamp(1.75rem, 4vw, 2.5rem);
+        overflow: hidden;
+    }
+    .doc-head::after {
+        content: "";
+        position: absolute;
+        pointer-events: none;
+        border-radius: 50%;
+        opacity: 0.4;
+        top: -160px;
+        right: -120px;
+        width: 380px;
+        height: 380px;
+        background: radial-gradient(circle, var(--or-200) 0, transparent 65%);
+    }
+    [data-theme="dark"] .doc-head::after {
+        background: radial-gradient(circle, rgba(184,134,11,0.16) 0, transparent 65%);
+    }
+    .crumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: var(--sp-5);
+        font-family: var(--font-mono);
+        font-size: var(--fs-xs);
+        text-transform: uppercase;
+        letter-spacing: var(--tracking-caps);
+        color: var(--ink-subtle);
+    }
+    .crumb a { color: var(--ink-muted); text-decoration: none; }
+    .crumb a:hover { color: var(--brand-primary); }
+    .crumb svg { width: 12px; height: 12px; stroke: var(--ink-subtle); fill: none; stroke-width: 1.8; }
+    .doc-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--font-mono);
+        font-size: var(--fs-xs);
+        text-transform: uppercase;
+        letter-spacing: var(--tracking-caps);
+        color: var(--ink-muted);
+        padding: 6px 13px;
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-pill);
+        background: var(--bg-elevated);
+        margin-bottom: var(--sp-4);
+    }
+    .doc-eyebrow svg { width: 13px; height: 13px; stroke: var(--cuir-500); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    [data-theme="dark"] .doc-eyebrow svg { stroke: var(--or-400); }
+    .doc-title {
+        font-family: var(--font-display);
+        font-size: clamp(2rem, 5vw + 0.5rem, 3.25rem);
+        font-weight: 700;
+        line-height: 1.08;
+        letter-spacing: 0.03em;
+        color: var(--ink-strong);
+        margin: 0 0 var(--sp-3);
+    }
+    .doc-meta { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); font-size: var(--fs-sm); color: var(--ink-muted); }
+    .doc-meta .dm { display: inline-flex; align-items: center; gap: 7px; }
+    .doc-meta .dm svg { width: 14px; height: 14px; stroke: var(--ink-subtle); fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+    html { scroll-behavior: smooth; }
+
+    .doc-layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--sp-6);
+        padding-bottom: clamp(3rem, 7vw, 5rem);
+        align-items: start;
+    }
+    @media (min-width: 900px) {
+        .doc-layout { grid-template-columns: 240px 1fr; gap: var(--sp-7); }
+        .toc { position: sticky; top: 88px; align-self: start; }
+        .toc-list a.active {
+            color: var(--brand-primary);
+            border-left-color: var(--brand-primary);
+            font-weight: 600;
+        }
+    }
+
+    .toc-title {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: var(--tracking-caps);
+        color: var(--ink-subtle);
+        margin-bottom: var(--sp-3);
+        padding-left: 14px;
+    }
+    .toc-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        border-left: 1px solid var(--border-default);
+    }
+    .toc-list a {
+        display: block;
+        padding: 7px 14px;
+        margin-left: -1px;
+        border-left: 2px solid transparent;
+        font-size: var(--fs-sm);
+        color: var(--ink-muted);
+        text-decoration: none;
+        line-height: 1.4;
+        transition: color var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease);
+    }
+    .toc-list a:hover { color: var(--ink-strong); }
+
+    .doc-body { max-width: 70ch; }
+    .doc-section { padding-top: var(--sp-2); margin-bottom: var(--sp-7); scroll-margin-top: 96px; }
+    .doc-section:last-child { margin-bottom: 0; }
+    .doc-section h2 {
+        font-family: var(--font-display);
+        font-size: var(--fs-2xl);
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        color: var(--ink-strong);
+        margin: 0 0 var(--sp-3);
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+    }
+    .doc-section h2 .num { font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--or-500); font-weight: 600; }
+    [data-theme="dark"] .doc-section h2 .num { color: var(--or-400); }
+    .doc-section h3 { font-family: var(--font-display); font-size: var(--fs-lg); font-weight: 600; color: var(--ink-strong); letter-spacing: 0.02em; margin: var(--sp-5) 0 var(--sp-2); }
+    .doc-section p { font-size: var(--fs-md); color: var(--ink-default); line-height: 1.7; margin: 0 0 var(--sp-3); }
+    .doc-section p:last-child { margin-bottom: 0; }
+    .doc-section a.inline {
+        color: var(--brand-primary);
+        text-decoration: none;
+        border-bottom: 1px solid color-mix(in oklab, var(--brand-primary) 35%, transparent);
+    }
+    .doc-section a.inline:hover { border-bottom-color: var(--brand-primary); }
+    .doc-section ul { margin: 0 0 var(--sp-3); padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .doc-section ul li { position: relative; padding-left: 22px; font-size: var(--fs-md); color: var(--ink-default); line-height: 1.6; }
+    .doc-section ul li::before { content: "—"; color: var(--cuir-500); position: absolute; left: 0; top: 0; }
+    [data-theme="dark"] .doc-section ul li::before { color: var(--or-400); }
+
+    .id-card { border: 1px solid var(--border-default); border-radius: var(--radius-lg); background: var(--bg-elevated); overflow: hidden; margin: 0 0 var(--sp-4); }
+    .id-row { display: grid; grid-template-columns: 1fr; gap: 2px; padding: var(--sp-3) var(--sp-4); border-bottom: 1px solid var(--border-subtle); }
+    @media (min-width: 520px) { .id-row { grid-template-columns: 180px 1fr; gap: var(--sp-4); align-items: baseline; } }
+    .id-row:last-child { border-bottom: 0; }
+    .id-key { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--ink-subtle); padding-top: 2px; }
+    .id-val { font-size: var(--fs-md); color: var(--ink-strong); line-height: 1.5; }
+    .id-val a { color: var(--brand-primary); text-decoration: none; }
+    .id-val a:hover { text-decoration: underline; }
+
+    .callout {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: var(--sp-3);
+        padding: var(--sp-4);
+        border: 1px solid var(--cuir-300);
+        border-radius: var(--radius-lg);
+        background: color-mix(in oklab, var(--cuir-300) 12%, transparent);
+        margin: var(--sp-4) 0;
+    }
+    [data-theme="dark"] .callout { border-color: var(--cuir-700); background: color-mix(in oklab, var(--cuir-800) 35%, transparent); }
+    .callout-mark { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--cuir-400); color: var(--cuir-600); flex-shrink: 0; }
+    [data-theme="dark"] .callout-mark { color: var(--or-300); border-color: var(--or-700); }
+    .callout-mark svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .callout p { font-size: var(--fs-sm); color: var(--ink-default); line-height: 1.6; margin: 0; }
+</style>
+{% endblock %}
+
+{% block page_wrapper %}
+<main id="main-content" data-screen-label="Mentions légales">
+
+    <div class="doc-head">
+        <div class="doc-container">
+            <nav class="crumb" aria-label="Fil d'Ariane">
+                <a href="{{ path('home') }}">Accueil</a>
+                <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+                <span>Mentions légales</span>
+            </nav>
+            <span class="doc-eyebrow">
+                <svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg>
+                Informations légales
+            </span>
+            <h1 class="doc-title">Mentions légales</h1>
+            {% if lastUpdated %}
+            <div class="doc-meta">
+                <span class="dm">
+                    <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+                    Dernière mise à jour&nbsp;: {{ lastUpdated }}
+                </span>
+                <span class="dm">
+                    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    Conformément à la loi n°2004-575 (LCEN)
+                </span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="doc-container">
+        <div class="doc-layout">
+
+            <aside class="toc" aria-label="Sommaire">
+                <div class="toc-title">Sommaire</div>
+                <ol class="toc-list" id="toc-nav">
+                    <li><a href="#editeur">01. Éditeur du site</a></li>
+                    <li><a href="#publication">02. Direction de la publication</a></li>
+                    <li><a href="#hebergeur">03. Hébergement</a></li>
+                    <li><a href="#nature">04. Nature du projet</a></li>
+                    <li><a href="#propriete">05. Propriété intellectuelle</a></li>
+                    <li><a href="#contributions">06. Contributions</a></li>
+                    <li><a href="#donnees">07. Données personnelles</a></li>
+                    <li><a href="#responsabilite">08. Limitation de responsabilité</a></li>
+                    <li><a href="#contact">09. Contact</a></li>
+                </ol>
+            </aside>
+
+            <div class="doc-body">
+
+                <section class="doc-section" id="editeur">
+                    <h2><span class="num">01</span>Éditeur du site</h2>
+                    <p>
+                        Le site <strong>La Collection des Aventuriers</strong> est édité par l'association
+                        loi 1901 «&nbsp;Les Aventuriers du Livre&nbsp;», déclarée à but non lucratif.
+                    </p>
+                    {% include 'legal/_id_card.html.twig' with { rows: [
+                        { key: 'Dénomination', value: 'Les Aventuriers du Livre (association loi 1901)' },
+                        { key: 'Siège social', value: '12 rue des Conteurs, 75000 Paris, France' },
+                        { key: 'RNA', value: 'W000000000' },
+                        { key: 'Courriel', value: '<a href="#contact">contact@collection-aventuriers.fr</a>' }
+                    ] } %}
+                    <p>
+                        Les informations ci-dessus sont fournies à titre indicatif et seront complétées
+                        lors de l'immatriculation définitive de l'association.
+                    </p>
+                </section>
+
+                <section class="doc-section" id="publication">
+                    <h2><span class="num">02</span>Direction de la publication</h2>
+                    <p>
+                        Le directeur de la publication est le président en exercice de l'association,
+                        responsable du contenu éditorial mis en ligne sur le site.
+                    </p>
+                    <p>
+                        Toute demande relative à la publication peut être adressée à l'équipe via la
+                        <a class="inline" href="#contact">page de contact</a>.
+                    </p>
+                </section>
+
+                <section class="doc-section" id="hebergeur">
+                    <h2><span class="num">03</span>Hébergement</h2>
+                    <p>Le site est hébergé par&nbsp;:</p>
+                    {% include 'legal/_id_card.html.twig' with { rows: [
+                        { key: 'Hébergeur', value: 'Prestataire d\'hébergement' },
+                        { key: 'Adresse', value: 'À préciser lors de la mise en production' },
+                        { key: 'Localisation des données', value: 'Union européenne' }
+                    ] } %}
+                </section>
+
+                <section class="doc-section" id="nature">
+                    <h2><span class="num">04</span>Nature du projet</h2>
+                    <p>
+                        La Collection des Aventuriers est un <strong>wiki collaboratif et sans but lucratif</strong>
+                        dédié au recensement des livres dont vous êtes le héros, des romans graphiques à choix
+                        et plus largement des fictions interactives.
+                    </p>
+                    <p>
+                        Le site ne vend aucun ouvrage et ne diffuse aucune publicité. Il vit exclusivement de
+                        l'implication bénévole de sa communauté.
+                    </p>
+                    {% include 'legal/_callout.html.twig' with { content: 'Les titres, couvertures et noms d\'auteurs cités le sont à des fins documentaires et encyclopédiques. Ils demeurent la propriété de leurs ayants droit respectifs.' } %}
+                </section>
+
+                <section class="doc-section" id="propriete">
+                    <h2><span class="num">05</span>Propriété intellectuelle</h2>
+                    <p>
+                        La structure du site, son identité visuelle, ses textes éditoriaux et ses bases de
+                        données sont protégés par le droit de la propriété intellectuelle.
+                    </p>
+                    <h3>Œuvres référencées</h3>
+                    <p>
+                        Les couvertures, illustrations, titres et extraits d'ouvrages restent la propriété de
+                        leurs auteurs, illustrateurs et éditeurs. Leur reproduction sur le site relève de la
+                        finalité documentaire et du droit de courte citation.
+                    </p>
+                    <h3>Signalement</h3>
+                    <p>
+                        Tout ayant droit estimant qu'un contenu porte atteinte à ses droits peut en demander
+                        le retrait via la <a class="inline" href="#contact">page de contact</a>&nbsp;;
+                        la demande sera traitée dans les meilleurs délais.
+                    </p>
+                </section>
+
+                <section class="doc-section" id="contributions">
+                    <h2><span class="num">06</span>Contributions des membres</h2>
+                    <p>
+                        Les fiches, descriptions et commentaires sont rédigés par les membres de la communauté.
+                        En contribuant, chaque membre garantit disposer des droits nécessaires et accepte que
+                        sa contribution soit publiée sous licence libre.
+                    </p>
+                    <ul>
+                        <li>Les contributions documentaires sont diffusées sous licence Creative Commons BY-SA.</li>
+                        <li>Chaque modification est historisée et attribuée à son auteur.</li>
+                        <li>La modération veille au respect de la <a class="inline" href="#">charte communautaire</a>.</li>
+                    </ul>
+                </section>
+
+                <section class="doc-section" id="donnees">
+                    <h2><span class="num">07</span>Données personnelles</h2>
+                    <p>
+                        La Collection des Aventuriers ne collecte que les données strictement nécessaires au
+                        fonctionnement des comptes (identifiant, courriel, contributions).
+                    </p>
+                    <p>
+                        Conformément au RGPD, vous disposez d'un droit d'accès, de rectification et de
+                        suppression de vos données. Le détail du traitement figure dans la
+                        <a class="inline" href="#">politique de confidentialité</a>.
+                    </p>
+                </section>
+
+                <section class="doc-section" id="responsabilite">
+                    <h2><span class="num">08</span>Limitation de responsabilité</h2>
+                    <p>
+                        Les informations du catalogue sont fournies à titre indicatif. Malgré le soin apporté
+                        par la communauté et les modérateurs, des erreurs ou omissions peuvent subsister.
+                    </p>
+                    <p>
+                        L'association ne saurait être tenue responsable des conséquences d'une inexactitude
+                        documentaire ni de l'usage fait des informations publiées.
+                    </p>
+                </section>
+
+                <section class="doc-section" id="contact">
+                    <h2><span class="num">09</span>Contact</h2>
+                    <p>
+                        Pour toute question relative aux présentes mentions légales, à un signalement ou à
+                        l'exercice de vos droits&nbsp;:
+                    </p>
+                    {% include 'legal/_id_card.html.twig' with { rows: [
+                        { key: 'Courriel', value: '<a href="mailto:contact@collection-aventuriers.fr">contact@collection-aventuriers.fr</a>' },
+                        { key: 'Voie postale', value: 'Les Aventuriers du Livre — 12 rue des Conteurs, 75000 Paris' },
+                        { key: 'Délai de réponse', value: 'Sous 30 jours' }
+                    ] } %}
+                </section>
+
+            </div>
+        </div>
+    </div>
+
+</main>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+(function () {
+    var firstLink = document.querySelector('#toc-nav a');
+    if (firstLink) {
+        firstLink.setAttribute('aria-current', 'true');
+        firstLink.classList.add('active');
+    }
+    if (window.innerWidth >= 900) {
+        new bootstrap.ScrollSpy(document.body, {
+            target: '#toc-nav',
+            rootMargin: '-88px 0px -65% 0px'
+        });
+    }
+})();
+</script>
+{% endblock %}

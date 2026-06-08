@@ -1,5 +1,5 @@
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-specs/020-landing-page-dynamic/plan.md
+specs/021-mentions-legales-page/plan.md
 <!-- SPECKIT END -->

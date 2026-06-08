@@ -1,0 +1,1119 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Édition · Le Sorcier de la Montagne de Feu — La Collection des Aventuriers</title>
+  <link rel="stylesheet" href="../assets/tokens.css" />
+  <link rel="stylesheet" href="../assets/components.css" />
+  <link rel="stylesheet" href="../assets/menus.css" />
+  <link rel="stylesheet" href="../assets/search.css" />
+  <style>
+    /* ============================================================
+       CONTAINER + SESSION HEADER (cohérent avec catalogue/livre/modération)
+       ============================================================ */
+    .container {
+      width: 100%;
+      max-width: 1320px;
+      margin: 0 auto;
+      padding-left: var(--sp-4);
+      padding-right: var(--sp-4);
+    }
+    @media (min-width: 720px) { .container { padding-left: var(--sp-6); padding-right: var(--sp-6); } }
+
+    .session-header {
+      position: sticky; top: 0; z-index: 40;
+      background: color-mix(in oklab, var(--bg-page) 88%, transparent);
+      backdrop-filter: saturate(140%) blur(10px);
+      -webkit-backdrop-filter: saturate(140%) blur(10px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .sh-inner {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: var(--sp-4);
+      align-items: center;
+      padding: 12px 0;
+      min-height: 64px;
+    }
+    .sh-left { display: flex; align-items: center; gap: var(--sp-5); min-width: 0; }
+    .sh-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink-strong); }
+    .sh-brand:hover { text-decoration: none; }
+    .sh-sigil {
+      width: 36px; height: 36px;
+      display: grid; place-items: center;
+      border: 1.5px solid var(--cuir-500);
+      border-radius: 50%;
+      color: var(--cuir-500);
+      font-family: var(--font-display); font-weight: 700; font-size: 16px;
+      background: var(--bg-elevated);
+      letter-spacing: 0.04em; flex-shrink: 0; position: relative;
+    }
+    .sh-sigil::before { content: ""; position: absolute; inset: 3px; border: 1px dashed var(--cuir-300); border-radius: 50%; }
+    [data-theme="dark"] .sh-sigil { border-color: var(--or-400); color: var(--or-400); }
+    [data-theme="dark"] .sh-sigil::before { border-color: var(--or-700); }
+    .sh-brand-mark { font-family: var(--font-display); font-size: 14px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink-strong); white-space: nowrap; }
+    @media (max-width: 720px) { .sh-brand-mark { display: none; } }
+
+    .sh-nav { display: flex; gap: 2px; }
+    @media (max-width: 879px) { .sh-nav { display: none; } }
+    .sh-nav a {
+      padding: 8px 14px;
+      font-family: var(--font-body); font-size: var(--fs-sm); font-weight: 500;
+      color: var(--ink-muted); text-decoration: none;
+      border-radius: var(--radius-sm);
+      transition: all var(--motion-fast) var(--motion-ease);
+      position: relative;
+    }
+    .sh-nav a:hover { color: var(--ink-strong); background: var(--bg-sunken); text-decoration: none; }
+    .sh-nav a[aria-current="page"] { color: var(--brand-primary); font-weight: 600; }
+    .sh-nav a[aria-current="page"]::after {
+      content: ""; position: absolute; left: 14px; right: 14px; bottom: -16px;
+      height: 2px; background: var(--brand-primary); border-radius: 2px 2px 0 0;
+    }
+
+    .sh-search {
+      flex: 1; max-width: 480px; justify-self: center; width: 100%;
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 12px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill);
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .sh-search:focus-within { border-color: var(--brand-primary); box-shadow: var(--ring-focus); }
+    .sh-search svg { width: 16px; height: 16px; stroke: var(--ink-muted); fill: none; stroke-width: 1.8; stroke-linecap: round; flex-shrink: 0; }
+    .sh-search input {
+      flex: 1; border: 0; background: transparent;
+      min-height: 32px; padding: 0;
+      font-family: var(--font-body); font-size: var(--fs-sm);
+      color: var(--ink-strong); outline: none; min-width: 0;
+    }
+    .sh-search input::placeholder { color: var(--ink-muted); }
+    @media (max-width: 880px) { .sh-search { display: none; } }
+
+    .sh-right { display: flex; align-items: center; gap: var(--sp-2); justify-self: end; }
+    .sh-icon-btn {
+      position: relative; width: 40px; height: 40px;
+      display: grid; place-items: center;
+      background: transparent;
+      border: 1px solid var(--border-default);
+      border-radius: 50%;
+      color: var(--ink-default); cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .sh-icon-btn:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .sh-icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .sh-icon-btn .dot { position: absolute; top: 7px; right: 7px; width: 8px; height: 8px; border-radius: 50%; background: var(--danger); border: 2px solid var(--bg-page); }
+    .sh-user {
+      display: flex; align-items: center; gap: 10px;
+      padding: 4px 12px 4px 4px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill);
+      cursor: pointer; text-decoration: none;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .sh-user:hover { border-color: var(--brand-primary); text-decoration: none; }
+    .sh-user-text { display: flex; flex-direction: column; line-height: 1.1; }
+    @media (max-width: 600px) { .sh-user-text { display: none; } .sh-user { padding: 2px; } }
+    .sh-user-name { font-family: var(--font-body); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-strong); }
+    .sh-user-role { font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--info); }
+
+    /* ============================================================
+       BREADCRUMB + EDIT HEAD
+       ============================================================ */
+    .crumbs {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+      padding: var(--sp-4) 0 0;
+      font-family: var(--font-mono); font-size: var(--fs-xs);
+      text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+    }
+    .crumbs a { color: var(--ink-muted); text-decoration: none; }
+    .crumbs a:hover { color: var(--brand-primary); }
+    .crumbs .sep { color: var(--ink-subtle); }
+    .crumbs .here { color: var(--ink-strong); }
+
+    .edit-head {
+      display: grid; grid-template-columns: 1fr; gap: var(--sp-4);
+      align-items: end;
+      padding: var(--sp-5) 0 var(--sp-5);
+    }
+    @media (min-width: 880px) { .edit-head { grid-template-columns: 1fr auto; } }
+    .eh-eyebrow {
+      font-family: var(--font-mono); font-size: var(--fs-xs);
+      text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted); margin-bottom: var(--sp-3);
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .eh-eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--cuir-400); }
+    .role-pip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 2px 9px;
+      background: var(--info-bg); color: var(--info);
+      border: 1px solid var(--info-border);
+      border-radius: var(--radius-pill);
+      font-size: 10px; letter-spacing: 0.06em;
+    }
+    .role-pip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .edit-head h1 {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 3vw + 0.5rem, 2.5rem);
+      font-weight: 700; letter-spacing: 0.03em; color: var(--ink-strong);
+      line-height: 1.12; margin: 0; text-wrap: balance;
+    }
+    .eh-sub {
+      font-family: var(--font-mono); font-size: 11px;
+      color: var(--ink-muted); margin-top: var(--sp-3);
+      display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center;
+    }
+    .eh-sub .ref { color: var(--ink-subtle); }
+    .eh-sub .stamp { display: inline-flex; align-items: center; gap: 6px; }
+    .eh-sub .stamp svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.7; }
+    .eh-actions { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+
+    /* ============================================================
+       LAYOUT — form + sticky rail
+       ============================================================ */
+    .edit-layout {
+      display: grid; grid-template-columns: 1fr; gap: var(--sp-5);
+      padding-bottom: 140px;
+    }
+    @media (min-width: 1040px) {
+      .edit-layout { grid-template-columns: minmax(0,1fr) 332px; gap: var(--sp-6); align-items: start; }
+    }
+    .edit-form { display: flex; flex-direction: column; gap: var(--sp-5); min-width: 0; }
+
+    /* Card-section (fieldset) */
+    .fs {
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      background: var(--bg-elevated);
+      overflow: hidden;
+    }
+    .fs-head {
+      display: flex; align-items: center; gap: var(--sp-3);
+      padding: var(--sp-4) var(--sp-5);
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-sunken);
+    }
+    .fs-num {
+      font-family: var(--font-mono); font-size: 11px;
+      letter-spacing: var(--tracking-caps); color: var(--ink-subtle);
+      min-width: 26px;
+    }
+    .fs-head h2 {
+      font-family: var(--font-display); font-size: var(--fs-md);
+      font-weight: 700; letter-spacing: 0.04em; color: var(--ink-strong);
+      margin: 0; flex: 1;
+    }
+    .fs-head .hint {
+      font-family: var(--font-mono); font-size: 10px;
+      text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+    }
+    .fs-body { padding: var(--sp-5); }
+
+    /* Field rows / grids */
+    .grid-2 { display: grid; gap: var(--sp-4); grid-template-columns: 1fr; }
+    @media (min-width: 620px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+    .grid-3 { display: grid; gap: var(--sp-4); grid-template-columns: 1fr; }
+    @media (min-width: 620px) { .grid-3 { grid-template-columns: 1fr 1fr 1fr; } }
+    .form-group { margin-bottom: 0; }
+    .stack { display: grid; gap: var(--sp-4); }
+
+    /* Changed-field marker */
+    .form-label { position: relative; }
+    .chg-dot {
+      display: none;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--or-500);
+      margin-left: 2px; align-self: center;
+    }
+    [data-theme="dark"] .chg-dot { background: var(--or-400); }
+    .form-group.is-dirty .chg-dot { display: inline-block; }
+
+    /* ============================================================
+       VISUELS — cover + gallery drop zones
+       ============================================================ */
+    .visuals {
+      display: grid; grid-template-columns: 1fr; gap: var(--sp-5);
+    }
+    @media (min-width: 620px) { .visuals { grid-template-columns: 180px 1fr; } }
+
+    .drop-cover {
+      position: relative;
+      aspect-ratio: 3 / 4;
+      width: 100%;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border-default);
+      box-shadow: var(--shadow-md);
+      background:
+        repeating-linear-gradient(45deg, transparent 0, transparent 12px, rgba(45,24,16,0.07) 12px, rgba(45,24,16,0.07) 13px),
+        linear-gradient(135deg, var(--cuir-300), var(--cuir-500));
+      color: #fbf6e9;
+      cursor: pointer;
+      display: flex; align-items: flex-end; padding: var(--sp-4);
+    }
+    [data-theme="dark"] .drop-cover {
+      background:
+        repeating-linear-gradient(45deg, transparent 0, transparent 12px, rgba(0,0,0,0.18) 12px, rgba(0,0,0,0.18) 13px),
+        linear-gradient(135deg, var(--cuir-500), var(--cuir-800));
+    }
+    .drop-cover .cov-frame { position: absolute; inset: 10px; border: 1px solid rgba(245,236,217,0.4); pointer-events: none; }
+    .drop-cover .cov-ref {
+      position: absolute; top: 10px; left: 10px;
+      font-family: var(--font-mono); font-size: 9px;
+      text-transform: uppercase; letter-spacing: var(--tracking-caps); opacity: 0.85;
+    }
+    .drop-cover .cov-title { font-family: var(--font-display); font-size: 14px; font-weight: 700; line-height: 1.1; max-width: 85%; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+    .drop-cover .cov-overlay {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+      background: rgba(20,13,7,0.55);
+      backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+      opacity: 0; transition: opacity var(--motion-fast) var(--motion-ease);
+      font-family: var(--font-mono); font-size: 10px;
+      text-transform: uppercase; letter-spacing: var(--tracking-caps); color: #fbf6e9;
+    }
+    .drop-cover .cov-overlay svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .drop-cover:hover .cov-overlay, .drop-cover.is-drag .cov-overlay { opacity: 1; }
+    .drop-cover.is-drag { border-color: var(--brand-secondary); }
+
+    .gallery-edit { min-width: 0; }
+    .gallery-lbl {
+      font-family: var(--font-body); font-size: var(--fs-sm); font-weight: 500;
+      color: var(--ink-strong); margin-bottom: 6px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .gallery-help { font-size: var(--fs-xs); color: var(--ink-muted); margin-bottom: var(--sp-3); }
+    .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    @media (min-width: 480px) { .gallery-grid { grid-template-columns: repeat(5, 1fr); } }
+    .g-thumb {
+      position: relative; aspect-ratio: 3/4; border-radius: var(--radius-sm);
+      overflow: hidden; border: 1px solid var(--border-default); cursor: pointer;
+      background:
+        repeating-linear-gradient(45deg, transparent 0, transparent 6px, rgba(45,24,16,0.07) 6px, rgba(45,24,16,0.07) 7px),
+        linear-gradient(135deg, var(--cuir-300), var(--cuir-500));
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .g-thumb[data-v="back"]  { background-image: repeating-linear-gradient(45deg, transparent 0, transparent 6px, rgba(45,24,16,0.07) 6px, rgba(45,24,16,0.07) 7px), linear-gradient(135deg, var(--mousse-300), var(--mousse-700)); }
+    .g-thumb[data-v="spine"] { background-image: repeating-linear-gradient(90deg, transparent 0, transparent 6px, rgba(45,24,16,0.07) 6px, rgba(45,24,16,0.07) 7px), linear-gradient(135deg, var(--encre-300), var(--encre-700)); }
+    .g-thumb[data-v="inner"] { background-image: repeating-linear-gradient(45deg, transparent 0, transparent 6px, rgba(45,24,16,0.07) 6px, rgba(45,24,16,0.07) 7px), linear-gradient(135deg, var(--parchemin-400), var(--parchemin-700)); }
+    .g-thumb .g-glyph { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-mono); font-size: 8px; letter-spacing: var(--tracking-caps); text-transform: uppercase; color: rgba(251,246,233,0.85); }
+    .g-thumb .g-del {
+      position: absolute; top: 4px; right: 4px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: rgba(20,13,7,0.6); color: #fbf6e9;
+      border: 0; display: grid; place-items: center; cursor: pointer;
+      opacity: 0; transition: opacity var(--motion-fast) var(--motion-ease);
+    }
+    .g-thumb:hover .g-del { opacity: 1; }
+    .g-thumb .g-del svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; }
+    .g-add {
+      aspect-ratio: 3/4; border-radius: var(--radius-sm);
+      border: 1.5px dashed var(--border-strong);
+      background: var(--bg-page);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+      color: var(--ink-muted); cursor: pointer;
+      font-family: var(--font-mono); font-size: 8px; text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .g-add:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .g-add svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; }
+
+    /* ============================================================
+       TAGS chips + résumé frame
+       ============================================================ */
+    .chip-set { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip-toggle {
+      appearance: none; display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; min-height: 36px;
+      border: 1px solid var(--border-default); background: var(--bg-page);
+      border-radius: var(--radius-pill);
+      font-family: var(--font-body); font-size: var(--fs-sm); color: var(--ink-default);
+      cursor: pointer; transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .chip-toggle:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .chip-toggle[aria-pressed="true"] {
+      background: color-mix(in oklab, var(--brand-primary) 10%, var(--bg-elevated));
+      border-color: var(--brand-primary); color: var(--brand-primary); font-weight: 600;
+    }
+    .chip-toggle .ck { width: 13px; height: 13px; opacity: 0; }
+    .chip-toggle[aria-pressed="true"] .ck { opacity: 1; }
+    .chip-toggle .ck svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+
+    .tag-input {
+      display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+      padding: 7px 10px; min-height: 44px;
+      border: 1px solid var(--border-default); border-radius: var(--radius-md);
+      background: var(--bg-elevated);
+    }
+    .tag-input:focus-within { border-color: var(--brand-primary); box-shadow: var(--ring-focus); }
+    .tag-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 6px 4px 11px;
+      background: var(--bg-sunken); border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill);
+      font-family: var(--font-body); font-size: var(--fs-sm); color: var(--ink-strong);
+    }
+    .tag-pill .x { width: 18px; height: 18px; border-radius: 50%; border: 0; background: transparent; color: var(--ink-muted); cursor: pointer; display: grid; place-items: center; }
+    .tag-pill .x:hover { background: var(--bg-page); color: var(--danger); }
+    .tag-pill .x svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2.4; stroke-linecap: round; }
+    .tag-input input { flex: 1; min-width: 80px; border: 0; background: transparent; outline: none; min-height: 30px; font-family: var(--font-body); font-size: var(--fs-sm); color: var(--ink-strong); }
+
+    .summary-frame {
+      position: relative;
+      background:
+        repeating-linear-gradient(0deg, transparent 0, transparent 27px, color-mix(in oklab, var(--cuir-400) 22%, transparent) 27px, color-mix(in oklab, var(--cuir-400) 22%, transparent) 28px),
+        var(--parchemin-50);
+      border: 1px solid var(--cuir-300); border-radius: var(--radius-md); padding: 2px;
+    }
+    [data-theme="dark"] .summary-frame {
+      background:
+        repeating-linear-gradient(0deg, transparent 0, transparent 27px, color-mix(in oklab, var(--or-400) 14%, transparent) 27px, color-mix(in oklab, var(--or-400) 14%, transparent) 28px),
+        var(--grimoire-100);
+      border-color: var(--cuir-700);
+    }
+    .summary-frame:focus-within { border-color: var(--or-500); box-shadow: var(--ring-focus); }
+    .summary-frame textarea {
+      width: 100%; display: block; background: transparent; border: 0; resize: vertical;
+      min-height: 150px; padding: 13px 18px;
+      font-family: var(--font-body); font-size: var(--fs-md); line-height: 28px;
+      color: var(--parchemin-900); outline: none;
+    }
+    [data-theme="dark"] .summary-frame textarea { color: var(--ink-default); }
+    .summary-foot { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-3); margin-top: 8px; flex-wrap: wrap; }
+    .summary-tip { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--ink-subtle); }
+    .summary-count { font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+    .summary-count .num { color: var(--ink-strong); font-weight: 600; }
+
+    /* ============================================================
+       RAIL (right) — status, preview, danger
+       ============================================================ */
+    .edit-rail { display: flex; flex-direction: column; gap: var(--sp-4); }
+    @media (min-width: 1040px) { .edit-rail { position: sticky; top: 84px; } }
+    .rail-card {
+      border: 1px solid var(--border-default); border-radius: var(--radius-lg);
+      background: var(--bg-elevated); overflow: hidden;
+    }
+    .rail-head {
+      padding: 12px var(--sp-4); border-bottom: 1px solid var(--border-subtle); background: var(--bg-sunken);
+      font-family: var(--font-display); font-size: var(--fs-sm); font-weight: 700;
+      letter-spacing: 0.04em; color: var(--ink-strong);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .rail-body { padding: var(--sp-4); }
+
+    /* Status radios */
+    .status-opt {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 10px 12px; border: 1px solid var(--border-default);
+      border-radius: var(--radius-md); cursor: pointer; margin-bottom: 8px;
+      transition: all var(--motion-fast) var(--motion-ease); position: relative;
+    }
+    .status-opt:last-child { margin-bottom: 0; }
+    .status-opt:hover { border-color: var(--brand-primary); }
+    .status-opt input { position: absolute; opacity: 0; pointer-events: none; }
+    .status-opt .dot {
+      width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; margin-top: 1px;
+      border: 1.5px solid var(--border-strong); display: grid; place-items: center;
+    }
+    .status-opt:has(input:checked) { border-color: var(--brand-primary); background: color-mix(in oklab, var(--brand-primary) 7%, var(--bg-elevated)); }
+    .status-opt:has(input:checked) .dot { border-color: var(--brand-primary); }
+    .status-opt:has(input:checked) .dot::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--brand-primary); }
+    .status-opt .so-text { min-width: 0; }
+    .status-opt .so-name { font-family: var(--font-body); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-strong); display: flex; align-items: center; gap: 8px; }
+    .status-opt .so-desc { font-size: var(--fs-xs); color: var(--ink-muted); line-height: 1.4; margin-top: 2px; }
+    .so-badge {
+      font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      padding: 1px 7px; border-radius: var(--radius-pill); border: 1px solid transparent;
+    }
+    .so-badge.pub { background: var(--success-bg); color: var(--success); border-color: var(--success-border); }
+    .so-badge.draft { background: var(--warning-bg); color: var(--warning); border-color: var(--warning-border); }
+    .so-badge.off { background: var(--bg-sunken); color: var(--ink-muted); border-color: var(--border-default); }
+
+    /* Mini preview */
+    .mini-prev { display: grid; grid-template-columns: 64px 1fr; gap: 12px; align-items: start; }
+    .mini-cover {
+      aspect-ratio: 3/4; border-radius: var(--radius-sm); position: relative; overflow: hidden;
+      border: 1px solid var(--border-default);
+      background:
+        repeating-linear-gradient(45deg, transparent 0, transparent 6px, rgba(45,24,16,0.07) 6px, rgba(45,24,16,0.07) 7px),
+        linear-gradient(135deg, var(--cuir-300), var(--cuir-500));
+    }
+    .mini-cover::before { content: ""; position: absolute; inset: 5px; border: 1px solid rgba(245,236,217,0.4); }
+    .mini-meta { min-width: 0; }
+    .mini-meta .mt { font-family: var(--font-display); font-size: var(--fs-sm); font-weight: 700; color: var(--ink-strong); line-height: 1.2; letter-spacing: 0.02em; }
+    .mini-meta .ma { font-size: var(--fs-xs); color: var(--ink-muted); margin-top: 3px; }
+    .mini-meta .ms {
+      display: inline-flex; align-items: center; gap: 6px; margin-top: 8px;
+      font-family: var(--font-mono); font-size: 11px; color: var(--ink-strong); font-weight: 600;
+    }
+    .mini-meta .ms .shield { width: 16px; height: 19px; background: var(--or-500); clip-path: polygon(50% 0,100% 14%,100% 65%,50% 100%,0 65%,0 14%); position: relative; }
+    .mini-meta .ms .out { color: var(--ink-subtle); font-weight: 400; }
+    .rail-foot-note { font-family: var(--font-mono); font-size: 10px; color: var(--ink-subtle); margin-top: var(--sp-3); padding-top: var(--sp-3); border-top: 1px dashed var(--border-subtle); line-height: 1.5; }
+
+    /* Danger zone */
+    .danger-card { border-color: var(--danger-border); }
+    .danger-card .rail-head { background: var(--danger-bg); color: var(--danger); border-bottom-color: var(--danger-border); }
+    .danger-row { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); padding: 10px 0; border-bottom: 1px dashed var(--border-subtle); }
+    .danger-row:last-child { border-bottom: 0; }
+    .danger-row .dr-text { min-width: 0; }
+    .danger-row .dr-name { font-size: var(--fs-sm); font-weight: 600; color: var(--ink-strong); }
+    .danger-row .dr-desc { font-size: var(--fs-xs); color: var(--ink-muted); }
+
+    /* ============================================================
+       STICKY SAVE BAR
+       ============================================================ */
+    .save-bar {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+      background: color-mix(in oklab, var(--bg-elevated) 94%, transparent);
+      backdrop-filter: saturate(140%) blur(10px); -webkit-backdrop-filter: saturate(140%) blur(10px);
+      border-top: 1px solid var(--border-default);
+      box-shadow: 0 -4px 16px -6px rgba(45,24,16,0.18);
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+    [data-theme="dark"] .save-bar { box-shadow: 0 -4px 16px -6px rgba(0,0,0,0.5); }
+    .save-inner {
+      display: flex; align-items: center; gap: var(--sp-4);
+      padding: 12px 0; min-height: 64px; flex-wrap: wrap;
+    }
+    .save-status { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+    .save-pip { width: 9px; height: 9px; border-radius: 50%; background: var(--border-strong); flex-shrink: 0; transition: background var(--motion-fast); }
+    .save-bar.is-dirty .save-pip { background: var(--or-500); box-shadow: 0 0 0 4px color-mix(in oklab, var(--or-500) 22%, transparent); }
+    .save-text { font-family: var(--font-body); font-size: var(--fs-sm); color: var(--ink-muted); }
+    .save-text strong { color: var(--ink-strong); font-weight: 600; }
+    .save-text .saved { color: var(--success); font-weight: 600; }
+    .save-actions { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+    @media (max-width: 600px) {
+      .save-status { flex: 1 0 100%; }
+      .save-actions { flex: 1 0 100%; }
+      .save-actions .btn { flex: 1; }
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 84px; left: 50%;
+      transform: translateX(-50%) translateY(20px); z-index: 120;
+      background: var(--ink-strong); color: var(--bg-page);
+      padding: 12px 18px 12px 14px; border-radius: var(--radius-pill);
+      box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 10px;
+      font-size: var(--fs-sm); font-weight: 500; opacity: 0; pointer-events: none;
+      transition: opacity var(--motion-base) var(--motion-ease), transform var(--motion-base) var(--motion-ease-out);
+      max-width: calc(100vw - 32px);
+    }
+    .toast.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast .ic { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; }
+    .toast.ok .ic { background: var(--success); }
+    .toast.draft .ic { background: var(--warning); }
+    .toast .ic svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+
+    .req-note { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--ink-subtle); }
+    .req-note .required { color: var(--danger); }
+  </style>
+</head>
+<body>
+
+  <!-- ============================== HEADER ============================== -->
+  <header class="session-header">
+    <div class="container sh-inner">
+      <div class="sh-left">
+        <a class="sh-brand" href="../dashboard.html">
+          <span class="sh-sigil">A</span>
+          <span class="sh-brand-mark">La Collection</span>
+        </a>
+        <nav class="sh-nav" aria-label="Navigation principale">
+          <a href="../dashboard.html">Accueil</a>
+          <a href="catalogue.html">Catalogue</a>
+          <a href="suggestions.html">Suggestions</a>
+          <a href="moderation.html">Modération</a>
+        </nav>
+      </div>
+
+      <form class="sh-search" role="search" onsubmit="event.preventDefault();">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" placeholder="Rechercher une fiche à éditer…" aria-label="Recherche globale" />
+      </form>
+
+      <div class="sh-right">
+        <button class="sh-icon-btn" type="button" data-theme-toggle aria-label="Basculer le thème">
+          <span data-theme-icon style="font-size:16px;">☀</span>
+        </button>
+        <a class="sh-icon-btn" href="../dashboard.html" aria-label="Notifications">
+          <svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+          <span class="dot" aria-hidden="true"></span>
+        </a>
+        <a class="sh-user" href="profil.html">
+          <span class="avatar size-sm"><span class="avatar-role mod"></span>AM</span>
+          <span class="sh-user-text">
+            <span class="sh-user-name">Aelius M.</span>
+            <span class="sh-user-role">Modérateur</span>
+          </span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+
+      <!-- BREADCRUMB -->
+      <nav class="crumbs" aria-label="Fil d'Ariane">
+        <a href="catalogue.html">Catalogue</a>
+        <span class="sep">/</span>
+        <a href="livre.html">Le Sorcier de la Montagne de Feu</a>
+        <span class="sep">/</span>
+        <span class="here">Édition</span>
+      </nav>
+
+      <!-- EDIT HEAD -->
+      <div class="edit-head">
+        <div>
+          <div class="eh-eyebrow">
+            <span>Édition de fiche</span>
+            <span class="role-pip">Modérateur</span>
+          </div>
+          <h1>Le Sorcier de la Montagne de Feu</h1>
+          <div class="eh-sub">
+            <span class="ref">LCA-0042 · Défis Fantastiques nº1</span>
+            <span class="stamp">
+              <svg viewBox="0 0 24 24"><path d="m4 20 4-1 12-12-3-3L5 16l-1 4z"/></svg>
+              Dernière modification par <strong>@aelius_mod</strong> · il y a 3 j
+            </span>
+          </div>
+        </div>
+        <div class="eh-actions">
+          <a class="btn btn-ghost" href="livre.html">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+            Voir la fiche publique
+          </a>
+          <a class="btn btn-secondary" href="moderation.html#historique">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l3 2"/></svg>
+            Historique
+          </a>
+        </div>
+      </div>
+
+      <!-- LAYOUT -->
+      <form class="edit-layout" id="edit-form" onsubmit="event.preventDefault();">
+
+        <!-- ============ LEFT : FORM ============ -->
+        <div class="edit-form">
+
+          <!-- 01 · Visuels -->
+          <section class="fs">
+            <div class="fs-head">
+              <span class="fs-num">01</span>
+              <h2>Visuels</h2>
+              <span class="hint">JPG / PNG · 3:4 · 600×800 min.</span>
+            </div>
+            <div class="fs-body">
+              <div class="visuals">
+                <div class="drop-cover" id="cover-drop" role="button" tabindex="0" aria-label="Remplacer la couverture">
+                  <span class="cov-frame" aria-hidden="true"></span>
+                  <span class="cov-ref">LCA-0042</span>
+                  <span class="cov-title">Le Sorcier de la Montagne de Feu</span>
+                  <span class="cov-overlay">
+                    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+                    Déposer ou cliquer pour remplacer
+                  </span>
+                </div>
+                <div class="gallery-edit">
+                  <div class="gallery-lbl">Galerie <span class="req-note">5 visuels</span></div>
+                  <p class="gallery-help">Couverture, 4e de couverture, dos, illustrations intérieures, carte. Glisse pour réordonner.</p>
+                  <div class="gallery-grid">
+                    <div class="g-thumb" data-v="front"><span class="g-glyph">Recto</span><button class="g-del" type="button" aria-label="Retirer"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+                    <div class="g-thumb" data-v="back"><span class="g-glyph">Verso</span><button class="g-del" type="button" aria-label="Retirer"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+                    <div class="g-thumb" data-v="spine"><span class="g-glyph">Dos</span><button class="g-del" type="button" aria-label="Retirer"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+                    <div class="g-thumb" data-v="inner"><span class="g-glyph">Intérieur</span><button class="g-del" type="button" aria-label="Retirer"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+                    <button class="g-add" type="button">
+                      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+                      Ajouter
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 02 · Identité -->
+          <section class="fs">
+            <div class="fs-head">
+              <span class="fs-num">02</span>
+              <h2>Identité du livre</h2>
+            </div>
+            <div class="fs-body stack">
+              <div class="form-group">
+                <label class="form-label" for="f-title">Titre <span class="required">*</span> <span class="chg-dot" aria-hidden="true"></span></label>
+                <input class="input" id="f-title" name="title" type="text" value="Le Sorcier de la Montagne de Feu" data-preview="title" />
+              </div>
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="f-vo">Titre original (VO) <span class="chg-dot" aria-hidden="true"></span></label>
+                  <input class="input" id="f-vo" name="vo" type="text" value="The Warlock of Firetop Mountain" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="f-type">Type d'ouvrage <span class="chg-dot" aria-hidden="true"></span></label>
+                  <select class="select" id="f-type" name="type">
+                    <option selected>Livre dont vous êtes le héros</option>
+                    <option>Roman graphique à choix</option>
+                    <option>Visual novel papier</option>
+                    <option>Autre format interactif</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="f-subtitle">Mention d'en-tête <span class="chg-dot" aria-hidden="true"></span></label>
+                <input class="input" id="f-subtitle" name="subtitle" type="text" value="Défis Fantastiques" />
+                <span class="form-help">Affichée au-dessus du titre sur la fiche publique (collection ou série mère).</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- 03 · Crédits -->
+          <section class="fs">
+            <div class="fs-head">
+              <span class="fs-num">03</span>
+              <h2>Crédits &amp; rattachements</h2>
+            </div>
+            <div class="fs-body stack">
+              <div class="form-group">
+                <label class="form-label">Auteur·rice·s <span class="required">*</span> <span class="chg-dot" aria-hidden="true"></span></label>
+                <div class="tag-input" id="authors" data-field>
+                  <span class="tag-pill">Steve Jackson <button class="x" type="button" aria-label="Retirer"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></span>
+                  <span class="tag-pill">Ian Livingstone <button class="x" type="button" aria-label="Retirer"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></span>
+                  <input type="text" placeholder="Ajouter un·e auteur·rice…" aria-label="Ajouter un auteur" />
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="f-illu">Illustrateur·rice <span class="chg-dot" aria-hidden="true"></span></label>
+                  <input class="input" id="f-illu" name="illu" type="text" value="Russ Nicholson" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="f-editor">Éditeur <span class="chg-dot" aria-hidden="true"></span></label>
+                  <input class="input" id="f-editor" name="editor" type="text" value="Gallimard Jeunesse" />
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="f-coll">Collection <span class="chg-dot" aria-hidden="true"></span></label>
+                  <select class="select" id="f-coll" name="coll">
+                    <option selected>Folio Junior · Un Livre dont vous êtes le Héros</option>
+                    <option>Défis Fantastiques (Gallimard)</option>
+                    <option>Bibliothèque Verte</option>
+                    <option>— Aucune collection —</option>
+                  </select>
+                </div>
+                <div class="grid-2" style="gap:var(--sp-3);">
+                  <div class="form-group">
+                    <label class="form-label" for="f-serie">Série <span class="chg-dot" aria-hidden="true"></span></label>
+                    <input class="input" id="f-serie" name="serie" type="text" value="Défis Fantastiques" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="f-tome">Tome nº <span class="chg-dot" aria-hidden="true"></span></label>
+                    <input class="input" id="f-tome" name="tome" type="number" value="1" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 04 · Publication -->
+          <section class="fs">
+            <div class="fs-head">
+              <span class="fs-num">04</span>
+              <h2>Données de publication</h2>
+            </div>
+            <div class="fs-body stack">
+              <div class="grid-3">
+                <div class="form-group">
+                  <label class="form-label" for="f-year">Année <span class="required">*</span> <span class="chg-dot" aria-hidden="true"></span></label>
+                  <input class="input" id="f-year" name="year" type="number" value="1982" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="f-lang">Langue <span class="chg-dot" aria-hidden="true"></span></label>
+                  <select class="select" id="f-lang" name="lang">
+                    <option selected>Français</option>
+                    <option>Anglais (VO)</option>
+                    <option>Allemand</option>
+                    <option>Italien</option>
+                    <option>Espagnol</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="f-pages">Pages <span class="chg-dot" aria-hidden="true"></span></label>
+                  <input class="input" id="f-pages" name="pages" type="number" value="400" />
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="f-isbn">ISBN <span class="chg-dot" aria-hidden="true"></span></label>
+                  <input class="input" id="f-isbn" name="isbn" type="text" value="978-2-07-051234-5" inputmode="numeric" />
+                  <span class="form-help" id="isbn-help">Code à 13 chiffres, séparateurs optionnels.</span>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="f-format">Format <span class="chg-dot" aria-hidden="true"></span></label>
+                  <select class="select" id="f-format" name="format">
+                    <option selected>Poche</option>
+                    <option>Broché</option>
+                    <option>Relié</option>
+                    <option>Édition collector</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 05 · Classification -->
+          <section class="fs">
+            <div class="fs-head">
+              <span class="fs-num">05</span>
+              <h2>Classification</h2>
+            </div>
+            <div class="fs-body stack">
+              <div class="form-group">
+                <label class="form-label">Genres &amp; tags <span class="chg-dot" aria-hidden="true"></span></label>
+                <div class="chip-set" id="tags" data-field>
+                  <button class="chip-toggle" type="button" aria-pressed="true"><span class="ck"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>Fantasy</button>
+                  <button class="chip-toggle" type="button" aria-pressed="true"><span class="ck"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>Donjon</button>
+                  <button class="chip-toggle" type="button" aria-pressed="true"><span class="ck"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>Solo</button>
+                  <button class="chip-toggle" type="button" aria-pressed="false"><span class="ck"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>Science-fiction</button>
+                  <button class="chip-toggle" type="button" aria-pressed="false"><span class="ck"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>Horreur</button>
+                  <button class="chip-toggle" type="button" aria-pressed="false"><span class="ck"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>Médiéval</button>
+                  <button class="chip-toggle" type="button" aria-pressed="true"><span class="ck"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>Dés &amp; combat</button>
+                  <button class="chip-toggle" type="button" aria-pressed="false"><span class="ck"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>Enquête</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Disponibilité <span class="chg-dot" aria-hidden="true"></span></label>
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                  <label class="choice"><input type="radio" name="dispo" /><span>En vente neuf</span></label>
+                  <label class="choice"><input type="radio" name="dispo" checked /><span>Disponible en occasion uniquement</span></label>
+                  <label class="choice"><input type="radio" name="dispo" /><span>Épuisé / Collector</span></label>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 06 · Résumé -->
+          <section class="fs">
+            <div class="fs-head">
+              <span class="fs-num">06</span>
+              <h2>Résumé</h2>
+              <span class="hint">Affiché sur la fiche publique</span>
+            </div>
+            <div class="fs-body">
+              <div class="form-group">
+                <label class="form-label" for="f-summary">Quatrième de couverture <span class="chg-dot" aria-hidden="true"></span></label>
+                <div class="summary-frame">
+                  <textarea id="f-summary" name="summary" maxlength="1400" placeholder="Plongez dans les entrailles de la Montagne de Feu…">Loin au cœur de Firetop Mountain, dans un dédale de cavernes obscures, vit le sorcier Zagor, gardien d'un trésor fabuleux. Armé de votre seule épée, de votre Habileté et d'un peu de Chance, saurez-vous déjouer les pièges, vaincre les créatures et percer le secret de la porte verrouillée ?
+
+Chaque page vous met face à un choix. Lancez les dés, tenez votre feuille d'aventure, et que le destin vous soit favorable — un seul chemin mène au sorcier.</textarea>
+                </div>
+                <div class="summary-foot">
+                  <span class="summary-tip">Markdown léger toléré · pas de spoilers de fin</span>
+                  <span class="summary-count"><span class="num" id="sum-count">0</span> / 1400</span>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ============ RIGHT : RAIL ============ -->
+        <aside class="edit-rail">
+
+          <!-- Statut -->
+          <div class="rail-card">
+            <div class="rail-head">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m9 12 2 2 4-4"/></svg>
+              Statut de publication
+            </div>
+            <div class="rail-body">
+              <label class="status-opt">
+                <input type="radio" name="status" checked />
+                <span class="dot" aria-hidden="true"></span>
+                <span class="so-text">
+                  <span class="so-name">Publié <span class="so-badge pub">en ligne</span></span>
+                  <span class="so-desc">Visible de toute la communauté, indexé au catalogue.</span>
+                </span>
+              </label>
+              <label class="status-opt">
+                <input type="radio" name="status" />
+                <span class="dot" aria-hidden="true"></span>
+                <span class="so-text">
+                  <span class="so-name">Brouillon <span class="so-badge draft">privé</span></span>
+                  <span class="so-desc">Visible des seuls modérateurs jusqu'à publication.</span>
+                </span>
+              </label>
+              <label class="status-opt">
+                <input type="radio" name="status" />
+                <span class="dot" aria-hidden="true"></span>
+                <span class="so-text">
+                  <span class="so-name">Dépublié <span class="so-badge off">masqué</span></span>
+                  <span class="so-desc">Retiré du catalogue mais conservé en base.</span>
+                </span>
+              </label>
+              <p class="rail-foot-note">Créée le 12 mars 2026 par @romainp · 4 contributions · 1 287 notes communautaires</p>
+            </div>
+          </div>
+
+          <!-- Aperçu -->
+          <div class="rail-card">
+            <div class="rail-head">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              Aperçu fiche
+            </div>
+            <div class="rail-body">
+              <div class="mini-prev">
+                <span class="mini-cover" aria-hidden="true"></span>
+                <span class="mini-meta">
+                  <span class="mt" id="prev-title">Le Sorcier de la Montagne de Feu</span>
+                  <span class="ma" id="prev-author">Steve Jackson &amp; Ian Livingstone · 1982</span>
+                  <span class="ms"><span class="shield" aria-hidden="true"></span>8.4 <span class="out">/ 10</span></span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Zone sensible -->
+          <div class="rail-card danger-card">
+            <div class="rail-head">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+              Zone sensible
+            </div>
+            <div class="rail-body">
+              <div class="danger-row">
+                <span class="dr-text">
+                  <span class="dr-name">Dépublier la fiche</span>
+                  <span class="dr-desc">Réversible — retire du catalogue.</span>
+                </span>
+                <button class="btn btn-ghost btn-sm" type="button">Dépublier</button>
+              </div>
+              <div class="danger-row">
+                <span class="dr-text">
+                  <span class="dr-name">Supprimer définitivement</span>
+                  <span class="dr-desc">Irréversible — 1 287 notes perdues.</span>
+                </span>
+                <button class="btn btn-danger btn-sm" type="button">Supprimer</button>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </form>
+    </div>
+  </main>
+
+  <!-- ============================== STICKY SAVE BAR ============================== -->
+  <div class="save-bar" id="save-bar">
+    <div class="container save-inner">
+      <div class="save-status">
+        <span class="save-pip" aria-hidden="true"></span>
+        <span class="save-text" id="save-text">Aucune modification non enregistrée.</span>
+      </div>
+      <div class="save-actions">
+        <button class="btn btn-ghost" type="button" id="btn-reset">Annuler les modifications</button>
+        <button class="btn btn-secondary" type="button" id="btn-draft">Enregistrer le brouillon</button>
+        <button class="btn btn-primary" type="button" id="btn-publish">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          Publier les modifications
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <span class="ic"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
+    <span id="toast-msg">Modifications publiées.</span>
+  </div>
+
+  <script src="../assets/shell.js"></script>
+  <script>
+    (function () {
+      var form = document.getElementById('edit-form');
+      var saveBar = document.getElementById('save-bar');
+      var saveText = document.getElementById('save-text');
+
+      /* ---- Snapshot initial state for dirty tracking ---- */
+      function controlSig(c) {
+        if (c.type === 'radio' || c.type === 'checkbox') return c.checked ? '1' : '0';
+        return c.value;
+      }
+      var controls = Array.prototype.slice.call(form.querySelectorAll('input, select, textarea'));
+      controls.forEach(function (c) { c.dataset.init = controlSig(c); });
+
+      /* tag-input + chip groups tracked via signature string */
+      function tagsSig(el) { return Array.prototype.map.call(el.querySelectorAll('.tag-pill'), function (p) { return p.textContent.trim(); }).join('|'); }
+      function chipsSig(el) { return Array.prototype.map.call(el.querySelectorAll('.chip-toggle'), function (b) { return b.getAttribute('aria-pressed'); }).join(''); }
+      var authorsEl = document.getElementById('authors');
+      var tagsEl = document.getElementById('tags');
+      var authorsInit = tagsSig(authorsEl);
+      var tagsInit = chipsSig(tagsEl);
+
+      /* ---- Dirty recompute ---- */
+      function recompute() {
+        var count = 0;
+        // standard controls grouped by .form-group
+        var seen = new Set();
+        controls.forEach(function (c) {
+          var changed = controlSig(c) !== c.dataset.init;
+          var grp = c.closest('.form-group');
+          if (!grp) {
+            if (changed) count++;
+            return;
+          }
+          var dirty = grp.querySelectorAll('input, select, textarea');
+          // group considered dirty if ANY of its controls changed
+          var gd = false;
+          dirty.forEach(function (d) { if (controlSig(d) !== d.dataset.init) gd = true; });
+          grp.classList.toggle('is-dirty', gd);
+          if (gd && !seen.has(grp)) { seen.add(grp); count++; }
+        });
+        // tag groups
+        var aGrp = authorsEl.closest('.form-group');
+        var aDirty = tagsSig(authorsEl) !== authorsInit;
+        aGrp.classList.toggle('is-dirty', aDirty); if (aDirty) count++;
+        var tGrp = tagsEl.closest('.form-group');
+        var tDirty = chipsSig(tagsEl) !== tagsInit;
+        tGrp.classList.toggle('is-dirty', tDirty); if (tDirty) count++;
+
+        saveBar.classList.toggle('is-dirty', count > 0);
+        if (count > 0) {
+          saveText.innerHTML = '<strong>' + count + '</strong> champ' + (count > 1 ? 's' : '') + ' modifié' + (count > 1 ? 's' : '') + ' · non enregistré' + (count > 1 ? 's' : '');
+        } else {
+          saveText.textContent = 'Aucune modification non enregistrée.';
+        }
+        return count;
+      }
+
+      form.addEventListener('input', recompute);
+      form.addEventListener('change', recompute);
+
+      /* ---- Résumé counter ---- */
+      var sum = document.getElementById('f-summary');
+      var sumCount = document.getElementById('sum-count');
+      function updCount() { sumCount.textContent = sum.value.length; }
+      sum.addEventListener('input', updCount); updCount();
+
+      /* ---- Live preview ---- */
+      var titleIn = document.getElementById('f-title');
+      var prevTitle = document.getElementById('prev-title');
+      var covTitle = document.querySelector('#cover-drop .cov-title');
+      titleIn.addEventListener('input', function () {
+        prevTitle.textContent = titleIn.value || 'Sans titre';
+        covTitle.textContent = titleIn.value || '';
+      });
+      function syncAuthorPrev() {
+        var names = Array.prototype.map.call(authorsEl.querySelectorAll('.tag-pill'), function (p) { return p.firstChild.textContent.trim(); });
+        var yr = document.getElementById('f-year').value;
+        document.getElementById('prev-author').textContent = (names.join(' & ') || '—') + ' · ' + yr;
+      }
+      document.getElementById('f-year').addEventListener('input', syncAuthorPrev);
+
+      /* ---- Chip toggles ---- */
+      tagsEl.querySelectorAll('.chip-toggle').forEach(function (b) {
+        b.addEventListener('click', function () {
+          b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+          recompute();
+        });
+      });
+
+      /* ---- Tag input (authors) ---- */
+      function makePill(text) {
+        var span = document.createElement('span');
+        span.className = 'tag-pill';
+        span.appendChild(document.createTextNode(text + ' '));
+        var btn = document.createElement('button');
+        btn.className = 'x'; btn.type = 'button'; btn.setAttribute('aria-label', 'Retirer');
+        btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+        btn.addEventListener('click', function () { span.remove(); syncAuthorPrev(); recompute(); });
+        span.appendChild(btn);
+        return span;
+      }
+      var authorInput = authorsEl.querySelector('input');
+      authorInput.addEventListener('keydown', function (e) {
+        if ((e.key === 'Enter' || e.key === ',') && authorInput.value.trim()) {
+          e.preventDefault();
+          authorsEl.insertBefore(makePill(authorInput.value.trim()), authorInput);
+          authorInput.value = '';
+          syncAuthorPrev(); recompute();
+        }
+      });
+      authorsEl.querySelectorAll('.tag-pill .x').forEach(function (x) {
+        x.addEventListener('click', function () { x.closest('.tag-pill').remove(); syncAuthorPrev(); recompute(); });
+      });
+
+      /* ---- Gallery delete / add (mock) ---- */
+      document.querySelector('.gallery-grid').addEventListener('click', function (e) {
+        var del = e.target.closest('.g-del');
+        if (del) { del.closest('.g-thumb').remove(); recompute(); }
+      });
+
+      /* ---- ISBN light validation ---- */
+      var isbn = document.getElementById('f-isbn');
+      var isbnHelp = document.getElementById('isbn-help');
+      isbn.addEventListener('input', function () {
+        var digits = isbn.value.replace(/[^0-9]/g, '');
+        if (digits.length === 0 || digits.length === 13) {
+          isbn.classList.remove('is-invalid');
+          isbnHelp.classList.remove('error');
+          isbnHelp.textContent = 'Code à 13 chiffres, séparateurs optionnels.';
+        } else {
+          isbn.classList.add('is-invalid');
+          isbnHelp.classList.add('error');
+          isbnHelp.textContent = 'L\u2019ISBN doit comporter 13 chiffres (' + digits.length + '/13).';
+        }
+      });
+
+      /* ---- Cover drop (mock) ---- */
+      var cover = document.getElementById('cover-drop');
+      ['dragenter', 'dragover'].forEach(function (ev) { cover.addEventListener(ev, function (e) { e.preventDefault(); cover.classList.add('is-drag'); }); });
+      ['dragleave', 'drop'].forEach(function (ev) { cover.addEventListener(ev, function (e) { e.preventDefault(); cover.classList.remove('is-drag'); }); });
+
+      /* ---- Toast ---- */
+      var toast = document.getElementById('toast');
+      var toastMsg = document.getElementById('toast-msg');
+      var toastTimer;
+      function showToast(msg, kind) {
+        toastMsg.textContent = msg;
+        toast.className = 'toast is-visible ' + (kind || 'ok');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toast.classList.remove('is-visible'); }, 2600);
+      }
+
+      /* ---- Commit (reset baseline after save) ---- */
+      function commit() {
+        controls.forEach(function (c) { c.dataset.init = controlSig(c); });
+        authorsInit = tagsSig(authorsEl);
+        tagsInit = chipsSig(tagsEl);
+        recompute();
+      }
+
+      document.getElementById('btn-publish').addEventListener('click', function () {
+        commit(); showToast('Modifications publiées sur la fiche.', 'ok');
+      });
+      document.getElementById('btn-draft').addEventListener('click', function () {
+        commit(); showToast('Brouillon enregistré.', 'draft');
+      });
+      document.getElementById('btn-reset').addEventListener('click', function () {
+        if (recompute() === 0) { return; }
+        if (!confirm('Annuler toutes les modifications non enregistrées ?')) return;
+        controls.forEach(function (c) {
+          if (c.type === 'radio' || c.type === 'checkbox') c.checked = (c.dataset.init === '1');
+          else c.value = c.dataset.init;
+        });
+        // tags can't be perfectly restored in mock — just clear dirty visuals
+        prevTitle.textContent = titleIn.value;
+        covTitle.textContent = titleIn.value;
+        updCount(); syncAuthorPrev(); recompute();
+      });
+
+      recompute();
+    })();
+  </script>
+</body>
+</html>

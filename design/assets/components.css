@@ -202,19 +202,14 @@
   content: "";
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(45deg, transparent 38%, var(--brand-primary-ink) 38% 50%, transparent 50%) 4px 9px / 6px 2px no-repeat,
-    linear-gradient(-45deg, transparent 38%, var(--brand-primary-ink) 38% 50%, transparent 50%) 7px 6px / 8px 2px no-repeat;
+  background-color: var(--brand-primary-ink);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5 9-10' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 62% no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5 9-10' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 62% no-repeat;
+  animation: choiceTickPop var(--motion-fast) var(--motion-ease-out);
 }
-.choice input[type="checkbox"]:checked::before {
-  content: "✓";
-  position: absolute;
-  inset: 0;
-  display: grid; place-items: center;
-  color: var(--brand-primary-ink);
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1;
+@keyframes choiceTickPop {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
 }
 .choice input[type="radio"]:checked::before {
   content: "";

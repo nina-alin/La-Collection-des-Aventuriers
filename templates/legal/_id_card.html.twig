@@ -1,0 +1,8 @@
+<div class="id-card">
+    {% for row in rows %}
+    <div class="id-row">
+        <span class="id-key">{{ row.key }}</span>
+        <span class="id-val">{{ row.value|raw }}</span>
+    </div>
+    {% endfor %}
+</div>
