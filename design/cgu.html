@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Conditions Générales d'Utilisation — La Collection des Aventuriers</title>
+  <link rel="stylesheet" href="assets/tokens.css" />
+  <link rel="stylesheet" href="assets/components.css" />
+  <style>
+    /* ============================================================
+       LAYOUT GÉNÉRAL  (repris de landing.html)
+       ============================================================ */
+    .container {
+      width: 100%; max-width: 1200px; margin: 0 auto;
+      padding-left: var(--sp-4); padding-right: var(--sp-4);
+    }
+    @media (min-width: 720px) { .container { padding-left: var(--sp-6); padding-right: var(--sp-6); } }
+
+    /* ============================================================
+       HEADER
+       ============================================================ */
+    .lp-header {
+      position: sticky; top: 0; z-index: 30;
+      backdrop-filter: saturate(140%) blur(10px);
+      -webkit-backdrop-filter: saturate(140%) blur(10px);
+      background: color-mix(in oklab, var(--bg-page) 86%, transparent);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .lp-header-inner { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; gap: var(--sp-3); }
+    .lp-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink-strong); min-height: 44px; }
+    .lp-brand:hover { text-decoration: none; }
+    .lp-brand .sigil {
+      width: 40px; height: 40px; display: grid; place-items: center;
+      border: 1.5px solid var(--cuir-500); border-radius: 50%; color: var(--cuir-500);
+      font-family: var(--font-display); font-weight: 700; font-size: 18px;
+      background: var(--bg-elevated); letter-spacing: 0.04em; position: relative; flex-shrink: 0;
+    }
+    .lp-brand .sigil::before { content: ""; position: absolute; inset: 3px; border: 1px dashed var(--cuir-300); border-radius: 50%; }
+    [data-theme="dark"] .lp-brand .sigil { border-color: var(--or-400); color: var(--or-400); }
+    [data-theme="dark"] .lp-brand .sigil::before { border-color: var(--or-700); }
+    .lp-brand-text { display: flex; flex-direction: column; line-height: 1.1; }
+    .lp-brand-title { font-family: var(--font-display); font-size: 14px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink-strong); }
+    .lp-brand-sub { font-family: var(--font-mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-muted); margin-top: 2px; }
+    @media (max-width: 480px) { .lp-brand-sub { display: none; } }
+    .lp-header-actions { display: flex; align-items: center; gap: var(--sp-2); }
+    .lp-theme-toggle {
+      width: 40px; height: 40px; display: grid; place-items: center;
+      background: transparent; border: 1px solid var(--border-default); border-radius: 50%;
+      color: var(--ink-muted); cursor: pointer; transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .lp-theme-toggle:hover { color: var(--brand-primary); border-color: var(--brand-primary); }
+
+    /* ============================================================
+       PAGE HEADER (doc)
+       ============================================================ */
+    .doc-head { position: relative; padding: clamp(2.25rem, 5vw, 3.5rem) 0 clamp(1.75rem, 4vw, 2.5rem); overflow: hidden; }
+    .doc-head::after {
+      content: ""; position: absolute; pointer-events: none; border-radius: 50%; opacity: 0.4;
+      top: -160px; right: -120px; width: 380px; height: 380px;
+      background: radial-gradient(circle, var(--or-200) 0, transparent 65%);
+    }
+    [data-theme="dark"] .doc-head::after { background: radial-gradient(circle, rgba(184,134,11,0.16) 0, transparent 65%); }
+    .crumb {
+      display: flex; align-items: center; gap: 8px; margin-bottom: var(--sp-5);
+      font-family: var(--font-mono); font-size: var(--fs-xs);
+      text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--ink-subtle);
+    }
+    .crumb a { color: var(--ink-muted); text-decoration: none; }
+    .crumb a:hover { color: var(--brand-primary); }
+    .crumb svg { width: 12px; height: 12px; stroke: var(--ink-subtle); fill: none; stroke-width: 1.8; }
+    .doc-eyebrow {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-family: var(--font-mono); font-size: var(--fs-xs);
+      text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--ink-muted);
+      padding: 6px 13px; border: 1px solid var(--border-default); border-radius: var(--radius-pill);
+      background: var(--bg-elevated); margin-bottom: var(--sp-4);
+    }
+    .doc-eyebrow svg { width: 13px; height: 13px; stroke: var(--cuir-500); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    [data-theme="dark"] .doc-eyebrow svg { stroke: var(--or-400); }
+    .doc-title {
+      font-family: var(--font-display); font-size: clamp(2rem, 5vw + 0.5rem, 3.25rem);
+      font-weight: 700; line-height: 1.08; letter-spacing: 0.03em; color: var(--ink-strong);
+      margin: 0 0 var(--sp-3); position: relative;
+    }
+    .doc-meta { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); font-size: var(--fs-sm); color: var(--ink-muted); }
+    .doc-meta .dm { display: inline-flex; align-items: center; gap: 7px; }
+    .doc-meta .dm svg { width: 14px; height: 14px; stroke: var(--ink-subtle); fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ============================================================
+       DOC LAYOUT — TOC + corps
+       ============================================================ */
+    .doc-layout { display: grid; grid-template-columns: 1fr; gap: var(--sp-6); padding-bottom: clamp(3rem, 7vw, 5rem); align-items: start; }
+    @media (min-width: 900px) { .doc-layout { grid-template-columns: 240px 1fr; gap: var(--sp-7); } }
+
+    .toc { position: relative; }
+    @media (min-width: 900px) { .toc { position: sticky; top: 88px; } }
+    .toc-title { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--ink-subtle); margin-bottom: var(--sp-3); padding-left: 14px; }
+    .toc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid var(--border-default); }
+    .toc-list a {
+      display: block; padding: 7px 14px; margin-left: -1px;
+      border-left: 2px solid transparent;
+      font-size: var(--fs-sm); color: var(--ink-muted); text-decoration: none; line-height: 1.4;
+      transition: color var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease);
+    }
+    .toc-list a:hover { color: var(--ink-strong); }
+    .toc-list a.is-active { color: var(--brand-primary); border-left-color: var(--brand-primary); font-weight: 600; }
+
+    .doc-body { max-width: 70ch; }
+    .doc-section { padding-top: var(--sp-2); margin-bottom: var(--sp-7); scroll-margin-top: 96px; }
+    .doc-section:last-child { margin-bottom: 0; }
+    .doc-section h2 {
+      font-family: var(--font-display); font-size: var(--fs-2xl); font-weight: 700;
+      letter-spacing: 0.03em; color: var(--ink-strong); margin: 0 0 var(--sp-3);
+      display: flex; align-items: baseline; gap: 12px;
+    }
+    .doc-section h2 .num { font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--or-500); font-weight: 600; }
+    [data-theme="dark"] .doc-section h2 .num { color: var(--or-400); }
+    .doc-section h3 { font-family: var(--font-display); font-size: var(--fs-lg); font-weight: 600; color: var(--ink-strong); letter-spacing: 0.02em; margin: var(--sp-5) 0 var(--sp-2); }
+    .doc-section p { font-size: var(--fs-md); color: var(--ink-default); line-height: 1.7; margin: 0 0 var(--sp-3); }
+    .doc-section p:last-child { margin-bottom: 0; }
+    .doc-section a.inline { color: var(--brand-primary); text-decoration: none; border-bottom: 1px solid color-mix(in oklab, var(--brand-primary) 35%, transparent); }
+    .doc-section a.inline:hover { border-bottom-color: var(--brand-primary); }
+    .doc-section ul { margin: 0 0 var(--sp-3); padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .doc-section ul li { display: flex; align-items: flex-start; gap: 10px; font-size: var(--fs-md); color: var(--ink-default); line-height: 1.6; }
+    .doc-section ul li::before { content: "—"; color: var(--cuir-500); flex-shrink: 0; }
+    [data-theme="dark"] .doc-section ul li::before { color: var(--or-400); }
+
+    /* fiche d'identité — paires clé/valeur */
+    .id-card { border: 1px solid var(--border-default); border-radius: var(--radius-lg); background: var(--bg-elevated); overflow: hidden; margin: 0 0 var(--sp-4); }
+    .id-row { display: grid; grid-template-columns: 1fr; gap: 2px; padding: var(--sp-3) var(--sp-4); border-bottom: 1px solid var(--border-subtle); }
+    @media (min-width: 520px) { .id-row { grid-template-columns: 180px 1fr; gap: var(--sp-4); align-items: baseline; } }
+    .id-row:last-child { border-bottom: 0; }
+    .id-key { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--ink-subtle); padding-top: 2px; }
+    .id-val { font-size: var(--fs-md); color: var(--ink-strong); line-height: 1.5; }
+    .id-val a { color: var(--brand-primary); text-decoration: none; }
+    .id-val a:hover { text-decoration: underline; }
+
+    /* encart d'avertissement / note */
+    .callout {
+      display: grid; grid-template-columns: auto 1fr; gap: var(--sp-3);
+      padding: var(--sp-4); border: 1px solid var(--cuir-300); border-radius: var(--radius-lg);
+      background: color-mix(in oklab, var(--cuir-300) 12%, transparent); margin: var(--sp-4) 0;
+    }
+    [data-theme="dark"] .callout { border-color: var(--cuir-700); background: color-mix(in oklab, var(--cuir-800) 35%, transparent); }
+    .callout-mark { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--cuir-400); color: var(--cuir-600); flex-shrink: 0; }
+    [data-theme="dark"] .callout-mark { color: var(--or-300); border-color: var(--or-700); }
+    .callout-mark svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .callout p { font-size: var(--fs-sm); color: var(--ink-default); line-height: 1.6; margin: 0; }
+
+    /* ============================================================
+       FOOTER  (repris de landing.html)
+       ============================================================ */
+    .footer { background: var(--bg-elevated); border-top: 1px solid var(--border-default); padding: var(--sp-7) 0 var(--sp-5); }
+    .footer-grid { display: grid; gap: var(--sp-5); grid-template-columns: 1fr; padding-bottom: var(--sp-6); border-bottom: 1px solid var(--border-subtle); }
+    @media (min-width: 640px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr; } }
+    .footer-brand-col { display: flex; flex-direction: column; gap: var(--sp-3); }
+    .footer-mini-desc { font-size: var(--fs-sm); color: var(--ink-muted); line-height: 1.5; max-width: 32ch; }
+    .footer-col-title { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--ink-subtle); margin-bottom: var(--sp-3); }
+    .footer-links { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a { font-size: var(--fs-sm); color: var(--ink-default); text-decoration: none; transition: color var(--motion-fast) var(--motion-ease); }
+    .footer-links a:hover { color: var(--brand-primary); text-decoration: none; }
+    .footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--sp-3); padding-top: var(--sp-5); font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-subtle); text-transform: uppercase; letter-spacing: var(--tracking-caps); }
+    .footer-bottom a { color: var(--ink-subtle); text-decoration: none; }
+    .footer-bottom a:hover { color: var(--ink-default); text-decoration: none; }
+    .footer-bottom a.is-current { color: var(--brand-primary); }
+    .footer-bottom-links { display: flex; gap: var(--sp-4); flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+
+  <!-- =============== HEADER =============== -->
+  <header class="lp-header">
+    <div class="container lp-header-inner">
+      <a class="lp-brand" href="landing.html">
+        <span class="sigil">A</span>
+        <span class="lp-brand-text">
+          <span class="lp-brand-title">La Collection des Aventuriers</span>
+          <span class="lp-brand-sub">Le wiki des fictions interactives</span>
+        </span>
+      </a>
+      <div class="lp-header-actions">
+        <button class="lp-theme-toggle" data-theme-toggle aria-label="Basculer le thème">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        </button>
+        <a class="btn btn-secondary btn-sm" href="pages/connexion.html">Se connecter</a>
+      </div>
+    </div>
+  </header>
+
+  <main data-screen-label="CGU">
+
+    <!-- =============== DOC HEAD =============== -->
+    <div class="doc-head">
+      <div class="container">
+        <nav class="crumb" aria-label="Fil d'Ariane">
+          <a href="landing.html">Accueil</a>
+          <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+          <span>Conditions générales d'utilisation</span>
+        </nav>
+        <span class="doc-eyebrow">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>
+          Le contrat d'usage
+        </span>
+        <h1 class="doc-title">Conditions générales d'utilisation</h1>
+        <div class="doc-meta">
+          <span class="dm"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>Dernière mise à jour&nbsp;: 3 juin 2026</span>
+          <span class="dm"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>En vigueur dès l'inscription</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- =============== DOC LAYOUT =============== -->
+    <div class="container">
+      <div class="doc-layout">
+
+        <!-- TOC -->
+        <aside class="toc" aria-label="Sommaire">
+          <div class="toc-title">Sommaire</div>
+          <ul class="toc-list">
+            <li><a href="#objet">1. Objet</a></li>
+            <li><a href="#acceptation">2. Acceptation</a></li>
+            <li><a href="#acces">3. Accès &amp; inscription</a></li>
+            <li><a href="#compte">4. Compte &amp; sécurité</a></li>
+            <li><a href="#contributions">5. Règles de contribution</a></li>
+            <li><a href="#moderation">6. Modération &amp; sanctions</a></li>
+            <li><a href="#licence">7. Licence des contributions</a></li>
+            <li><a href="#responsabilite">8. Responsabilité</a></li>
+            <li><a href="#modification">9. Évolution des CGU</a></li>
+            <li><a href="#droit">10. Droit applicable</a></li>
+          </ul>
+        </aside>
+
+        <!-- CORPS -->
+        <div class="doc-body">
+
+          <section class="doc-section" id="objet">
+            <h2><span class="num">01</span>Objet</h2>
+            <p>
+              Les présentes conditions générales d'utilisation (les «&nbsp;CGU&nbsp;») régissent
+              l'accès et l'usage du site <strong>La Collection des Aventuriers</strong>, wiki
+              collaboratif consacré aux livres dont vous êtes le héros et aux fictions interactives.
+            </p>
+            <p>
+              Elles définissent les droits et obligations de l'association éditrice et de toute
+              personne consultant ou contribuant au site (l'«&nbsp;Utilisateur&nbsp;»).
+            </p>
+          </section>
+
+          <section class="doc-section" id="acceptation">
+            <h2><span class="num">02</span>Acceptation des conditions</h2>
+            <p>
+              La simple consultation du site vaut acceptation des présentes CGU. La création d'un
+              compte requiert une acceptation expresse, recueillie lors de l'inscription.
+            </p>
+            <div class="callout">
+              <span class="callout-mark"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></span>
+              <p>
+                Si vous n'acceptez pas tout ou partie des présentes conditions, il vous appartient
+                de ne pas utiliser le site.
+              </p>
+            </div>
+          </section>
+
+          <section class="doc-section" id="acces">
+            <h2><span class="num">03</span>Accès au service et inscription</h2>
+            <p>
+              La consultation du catalogue est libre et gratuite. Certaines fonctionnalités —
+              contribution, listes personnelles, suggestions — nécessitent la création d'un compte.
+            </p>
+            <h3>Conditions d'inscription</h3>
+            <ul>
+              <li>Fournir une adresse de courriel valide et un identifiant non trompeur.</li>
+              <li>Être âgé d'au moins 15 ans, ou disposer de l'accord d'un représentant légal.</li>
+              <li>Ne pas créer de comptes multiples dans le but de contourner une sanction.</li>
+            </ul>
+            <p>
+              Le service est fourni «&nbsp;en l'état&nbsp;». L'association s'efforce d'assurer sa
+              disponibilité mais ne garantit pas un fonctionnement ininterrompu.
+            </p>
+          </section>
+
+          <section class="doc-section" id="compte">
+            <h2><span class="num">04</span>Compte et sécurité</h2>
+            <p>
+              L'Utilisateur est responsable de la confidentialité de ses identifiants et de toute
+              activité réalisée depuis son compte.
+            </p>
+            <p>
+              Toute utilisation suspecte doit être signalée sans délai à l'équipe. L'Utilisateur
+              peut à tout moment demander la suppression de son compte&nbsp;; ses contributions
+              documentaires restent toutefois publiées sous licence libre (voir §7).
+            </p>
+          </section>
+
+          <section class="doc-section" id="contributions">
+            <h2><span class="num">05</span>Règles de contribution</h2>
+            <p>
+              Le site repose sur la qualité documentaire. En contribuant, l'Utilisateur s'engage à
+              respecter les règles suivantes.
+            </p>
+            <h3>Ce qui est attendu</h3>
+            <ul>
+              <li>Des informations exactes, vérifiables et autant que possible sourcées.</li>
+              <li>Un ton neutre et factuel dans les fiches documentaires.</li>
+              <li>Le respect des conventions de nommage et de structuration du catalogue.</li>
+            </ul>
+            <h3>Ce qui est interdit</h3>
+            <ul>
+              <li>Tout contenu illégal, diffamatoire, haineux ou portant atteinte à autrui.</li>
+              <li>La publication d'œuvres protégées au-delà du droit de courte citation.</li>
+              <li>Le vandalisme, le spam, la promotion commerciale ou les liens malveillants.</li>
+            </ul>
+          </section>
+
+          <section class="doc-section" id="moderation">
+            <h2><span class="num">06</span>Modération et sanctions</h2>
+            <p>
+              Les contributions peuvent être relues, modifiées ou retirées par l'équipe de
+              modération. Chaque décision est <strong>motivée et historisée</strong>, conformément à
+              la charte de modération.
+            </p>
+            <p>
+              En cas de manquement aux présentes CGU, l'association peut, selon la gravité&nbsp;:
+            </p>
+            <ul>
+              <li>adresser un avertissement&nbsp;;</li>
+              <li>retirer ou corriger le contenu litigieux&nbsp;;</li>
+              <li>suspendre temporairement le compte&nbsp;;</li>
+              <li>résilier le compte en cas de manquement grave ou répété.</li>
+            </ul>
+            <p>
+              L'Utilisateur peut contester une décision via la <a class="inline" href="pages/moderation.html">salle de modération</a>,
+              où les échanges restent publics.
+            </p>
+          </section>
+
+          <section class="doc-section" id="licence">
+            <h2><span class="num">07</span>Licence des contributions</h2>
+            <p>
+              En publiant une contribution documentaire (fiche, description, métadonnée),
+              l'Utilisateur la place sous licence <strong>Creative Commons BY-SA</strong>&nbsp;:
+              elle peut être réutilisée et modifiée, à condition d'en créditer les auteurs et de
+              conserver la même licence.
+            </p>
+            <p>
+              L'Utilisateur garantit détenir les droits nécessaires sur ce qu'il publie. Les
+              couvertures et illustrations citées restent la propriété de leurs ayants droit
+              (voir les <a class="inline" href="mentions-legales.html">mentions légales</a>).
+            </p>
+          </section>
+
+          <section class="doc-section" id="responsabilite">
+            <h2><span class="num">08</span>Limitation de responsabilité</h2>
+            <p>
+              Les informations du catalogue sont fournies à titre indicatif. Malgré le soin de la
+              communauté, des erreurs ou omissions peuvent subsister&nbsp;; l'association ne saurait
+              en être tenue responsable.
+            </p>
+            <p>
+              L'association n'est pas responsable des contenus publiés par les Utilisateurs ni des
+              liens externes accessibles depuis le site.
+            </p>
+          </section>
+
+          <section class="doc-section" id="modification">
+            <h2><span class="num">09</span>Évolution des CGU</h2>
+            <p>
+              Les présentes CGU peuvent être modifiées pour suivre l'évolution du service ou de la
+              réglementation. La date de dernière mise à jour figure en tête de page.
+            </p>
+            <p>
+              En cas de modification substantielle, les Utilisateurs inscrits sont informés et
+              invités à prendre connaissance des nouvelles conditions.
+            </p>
+          </section>
+
+          <section class="doc-section" id="droit">
+            <h2><span class="num">10</span>Droit applicable et litiges</h2>
+            <p>
+              Les présentes CGU sont soumises au droit français. En cas de litige, une solution
+              amiable sera recherchée en priorité.
+            </p>
+            <p>
+              À défaut d'accord, le différend sera porté devant les juridictions françaises
+              compétentes. Pour toute question, contactez l'équipe via la
+              <a class="inline" href="mentions-legales.html#contact">page de contact</a>.
+            </p>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- =============== FOOTER =============== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand-col">
+          <a class="lp-brand" href="landing.html" style="min-height: 0;">
+            <span class="sigil">A</span>
+            <span class="lp-brand-text">
+              <span class="lp-brand-title">La Collection des Aventuriers</span>
+              <span class="lp-brand-sub">Le wiki des fictions interactives</span>
+            </span>
+          </a>
+          <p class="footer-mini-desc">
+            Catalogue collaboratif des livres dont vous êtes le héros, romans graphiques
+            à choix et fictions interactives.
+          </p>
+        </div>
+
+        <div>
+          <div class="footer-col-title">La Collection</div>
+          <ul class="footer-links">
+            <li><a href="pages/catalogue.html">Le catalogue</a></li>
+            <li><a href="pages/auteur.html">Les auteurs</a></li>
+            <li><a href="pages/edition-fiche.html">Les éditions</a></li>
+            <li><a href="pages/catalogue.html">Les collections</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="footer-col-title">Communauté</div>
+          <ul class="footer-links">
+            <li><a href="pages/suggestions.html">Suggérer un livre</a></li>
+            <li><a href="pages/profil-public.html">Les contributeurs</a></li>
+            <li><a href="pages/moderation.html">Modération</a></li>
+            <li><a href="devenir-moderateur.html">Devenir modérateur</a></li>
+            <li><a href="#">La Taverne (forum)</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© 2026 · La Collection des Aventuriers</span>
+        <div class="footer-bottom-links">
+          <a href="mentions-legales.html">Mentions légales</a>
+          <a href="cgu.html" class="is-current">CGU</a>
+          <a href="confidentialite.html">Confidentialité</a>
+          <a href="#">Cookies</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/shell.js"></script>
+  <script>
+    // Surligne l'entrée du sommaire correspondant à la section visible
+    (function () {
+      var links = Array.prototype.slice.call(document.querySelectorAll('.toc-list a'));
+      var map = {};
+      links.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
+      var sections = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) {
+            links.forEach(function (l) { l.classList.remove('is-active'); });
+            var active = map[e.target.id];
+            if (active) active.classList.add('is-active');
+          }
+        });
+      }, { rootMargin: '-88px 0px -65% 0px', threshold: 0 });
+      sections.forEach(function (s) { io.observe(s); });
+    })();
+  </script>
+</body>
+</html>

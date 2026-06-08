@@ -871,6 +871,76 @@
       background: var(--danger-bg);
     }
 
+    /* ============================================================
+       VUE LISTE — quand .book-grid reçoit .is-list
+       ============================================================ */
+    .book-grid.is-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .book-grid.is-list .book-card {
+      flex-direction: row;
+      align-items: stretch;
+      gap: 14px;
+      padding: 8px 12px 8px 8px;
+    }
+    .book-grid.is-list .book-card:hover { transform: translateX(2px); }
+    /* couverture en vignette */
+    .book-grid.is-list .book-card .cover {
+      aspect-ratio: auto;
+      width: 46px;
+      min-width: 46px;
+      height: 62px;
+      border-radius: var(--radius-sm);
+      flex-shrink: 0;
+    }
+    .book-grid.is-list .book-card .cover .frame { inset: 3px; }
+    .book-grid.is-list .book-card .cover .ttl,
+    .book-grid.is-list .book-card .cover .ref,
+    .book-grid.is-list .book-card .cover .bookmark { display: none; }
+    .book-grid.is-list .book-card .cover .marks { top: 4px; right: 4px; gap: 3px; }
+    .book-grid.is-list .book-card .cover .mark { width: 16px; height: 16px; }
+    .book-grid.is-list .book-card .cover .mark svg { width: 8px; height: 8px; }
+    /* méta sur une ligne */
+    .book-grid.is-list .book-card .meta {
+      flex: 1;
+      flex-direction: row;
+      align-items: center;
+      gap: var(--sp-4);
+      padding: 0;
+      border-top: none;
+      min-width: 0;
+    }
+    .book-grid.is-list .book-card .meta .t {
+      flex: 1 1 auto;
+      font-size: var(--fs-md);
+      min-width: 0;
+      -webkit-line-clamp: 1;
+    }
+    .book-grid.is-list .book-card .meta .a {
+      flex: 0 1 26%;
+      min-width: 0;
+      -webkit-line-clamp: 1;
+      display: none;
+    }
+    @media (min-width: 640px) { .book-grid.is-list .book-card .meta .a { display: -webkit-box; } }
+    .book-grid.is-list .book-card .meta .foot {
+      margin-top: 0;
+      flex: 0 0 auto;
+      gap: var(--sp-3);
+    }
+    /* quick-actions inline à droite (au survol) */
+    .book-grid.is-list .book-card .quick {
+      position: static;
+      inset: auto;
+      opacity: 0;
+      flex: 0 0 auto;
+      align-self: center;
+      margin-left: auto;
+    }
+    @media (hover: none) { .book-grid.is-list .book-card .quick { opacity: 1; } }
+
     /* Pagination "see more" — partial reveal */
     .grid-more {
       display: flex; justify-content: center;
@@ -1134,6 +1204,16 @@
     .param-row .value .verified::before {
       content: "✓"; font-size: 10px;
     }
+    .param-row .value a.value-link {
+      color: var(--brand-primary);
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-flex; align-items: center; gap: 5px;
+      border-bottom: 1px solid color-mix(in oklab, var(--brand-primary) 35%, transparent);
+      transition: border-color var(--motion-fast) var(--motion-ease);
+    }
+    .param-row .value a.value-link:hover { border-bottom-color: var(--brand-primary); }
+    .param-row .value a.value-link svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
     .param-row .action {
       align-self: center;
     }
@@ -2161,16 +2241,6 @@
             </div>
           </div>
 
-          <div class="hero-actions">
-            <button class="btn btn-primary" type="button">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
-              Éditer mon profil
-            </button>
-            <button class="btn btn-ghost btn-sm" type="button">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M4 12h16M4 6h16M4 18h16"/></svg>
-              Mon journal d'activité
-            </button>
-          </div>
         </div>
 
         <!-- ============================== 2. STATS ============================== -->
@@ -2980,7 +3050,7 @@
               <div class="param-row">
                 <div>
                   <div class="label">Profil Taverne lié</div>
-                  <div class="value">@marius_aubry <span class="verified">jeton OAuth actif</span></div>
+                  <div class="value"><a class="value-link" href="https://taverne.aventuriers.fr/u/marius-aubry" target="_blank" rel="noopener">@marius_aubry<svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg></a></div>
                 </div>
                 <div class="action"><button class="btn-tiny" type="button">Délier</button></div>
               </div>
@@ -3021,28 +3091,6 @@
                   </div>
                   <button class="btn-tiny" type="button">Changer</button>
                 </div>
-
-                <div class="provider-row" style="opacity:0.82;">
-                  <span class="icn" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--ink-muted)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="5" y="11" width="14" height="10" rx="2"/>
-                      <path d="M8 11V8a4 4 0 0 1 8 0v3"/>
-                    </svg>
-                  </span>
-                  <div class="info">
-                    <div class="name">Double authentification <span class="badge-conn off">Désactivée</span></div>
-                    <div class="sub">Recommandée pour les modérateurs</div>
-                  </div>
-                  <button class="btn-tiny" type="button" style="color: var(--brand-primary);">Activer</button>
-                </div>
-              </div>
-
-              <div class="param-row" style="margin-top: var(--sp-3);">
-                <div>
-                  <div class="label">Sessions actives</div>
-                  <div class="value">3 appareils · Firefox (Lyon) · iOS · Tablette</div>
-                </div>
-                <div class="action"><button class="btn-tiny" type="button">Gérer</button></div>
               </div>
             </div>
           </article>
@@ -3169,12 +3217,29 @@
       }));
     })();
 
-    // ============= View switch (grille / liste) — visuel uniquement =============
+    // ============= View switch (grille / liste) =============
     (function () {
       const btns = document.querySelectorAll('.view-switch button');
+      const KEY = 'lca.profil.view';
+
+      function apply(mode) {
+        const list = mode === 'list';
+        document.querySelectorAll('.book-grid').forEach(g => g.classList.toggle('is-list', list));
+        btns.forEach(b => {
+          const isThis = (b.getAttribute('aria-label') === 'Liste') === list;
+          b.setAttribute('aria-pressed', isThis ? 'true' : 'false');
+        });
+      }
+
       btns.forEach(b => b.addEventListener('click', () => {
-        btns.forEach(o => o.setAttribute('aria-pressed', o === b ? 'true' : 'false'));
+        const mode = b.getAttribute('aria-label') === 'Liste' ? 'list' : 'grid';
+        apply(mode);
+        try { localStorage.setItem(KEY, mode); } catch (e) {}
       }));
+
+      let saved = 'grid';
+      try { saved = localStorage.getItem(KEY) || 'grid'; } catch (e) {}
+      apply(saved);
     })();
 
     // ============= DROPDOWNS : Notifications + User =============

@@ -151,6 +151,25 @@
     .crumbs .sep { color: var(--ink-subtle); }
     .crumbs .here { color: var(--ink-strong); }
 
+    /* Barre d'action modérateur (accès édition) */
+    .mod-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--sp-3); flex-wrap: wrap;
+      margin-top: var(--sp-4);
+      padding: 10px 14px;
+      background: var(--info-bg);
+      border: 1px solid var(--info-border);
+      border-radius: var(--radius-md);
+    }
+    .mod-bar-role {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--font-mono); font-size: 10px;
+      text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--info);
+    }
+    .mod-bar-role svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .mod-bar .acts { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+
     /* ============================================================
        BOOK HERO — 2-col layout (cover + gallery | content)
        ============================================================ */
@@ -1419,6 +1438,20 @@
         <span class="sep">/</span>
         <span class="here">Le Sorcier de la Montagne de Feu</span>
       </nav>
+
+      <!-- ===================== BARRE MODÉRATEUR ===================== -->
+      <div class="mod-bar">
+        <span class="mod-bar-role">
+          <svg viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 4 9 8 10 4-1 8-5 8-10V6l-8-4z"/><path d="m9 12 2 2 4-4"/></svg>
+          Vous éditez cette fiche en tant que modérateur
+        </span>
+        <span class="acts">
+          <a class="btn btn-primary btn-sm" href="edition-fiche.html">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m4 20 4-1 12-12-3-3L5 16l-1 4z"/></svg>
+            Éditer la fiche
+          </a>
+        </span>
+      </div>
 
       <!-- ============================== BOOK HERO ============================== -->
       <section class="book">

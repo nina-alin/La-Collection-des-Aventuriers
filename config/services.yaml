@@ -6,6 +6,7 @@
 parameters:
     covers_upload_dir: '%kernel.project_dir%/public/uploads/covers'
     app.forum_url: ''
+    app.legal.last_updated: "3 juin 2026"
 
 services:
     # default configuration for services in *this* file
@@ -32,3 +33,7 @@ services:
     App\Controller\DashboardController:
         arguments:
             $forumUrl: '%app.forum_url%'
+
+    App\Controller\LegalController:
+        arguments:
+            $legalLastUpdated: '%app.legal.last_updated%'

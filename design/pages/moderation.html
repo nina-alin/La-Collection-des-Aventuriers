@@ -2282,8 +2282,20 @@
       if (e.key === 'v' || e.key === 'V') { e.preventDefault(); validateSuggestion(); }
       else if (e.key === 'r' || e.key === 'R') { e.preventDefault(); openRefuseModal(); }
       else if (e.key === 's' || e.key === 'S') { e.preventDefault(); skipSuggestion(); }
-      else if (e.key === 'm' || e.key === 'M') { e.preventDefault(); alert('Éditeur complet — ouvrir le formulaire'); }
+      else if (e.key === 'm' || e.key === 'M') { e.preventDefault(); location.href = 'edition-fiche.html'; }
     });
+
+    /* ---------- Accès édition de fiche ---------- */
+    (function () {
+      document.querySelectorAll('.icon-btn[title="Modifier"]').forEach(function (b) {
+        b.addEventListener('click', function () { location.href = 'edition-fiche.html'; });
+      });
+      document.querySelectorAll('button, .btn').forEach(function (b) {
+        if (/Nouvelle fiche/i.test(b.textContent || '')) {
+          b.addEventListener('click', function () { location.href = 'edition-fiche.html'; });
+        }
+      });
+    })();
   </script>
 
   <div class="menu-backdrop" id="menu-backdrop" aria-hidden="true"></div>

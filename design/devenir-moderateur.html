@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Devenir modérateur — La Collection des Aventuriers</title>
+  <link rel="stylesheet" href="assets/tokens.css" />
+  <link rel="stylesheet" href="assets/components.css" />
+  <style>
+    /* ============================================================
+       LAYOUT GÉNÉRAL  (repris de landing.html)
+       ============================================================ */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-left: var(--sp-4);
+      padding-right: var(--sp-4);
+    }
+    @media (min-width: 720px) {
+      .container { padding-left: var(--sp-6); padding-right: var(--sp-6); }
+    }
+    .container-narrow { max-width: 920px; }
+
+    /* ============================================================
+       HEADER
+       ============================================================ */
+    .lp-header {
+      position: sticky; top: 0; z-index: 30;
+      backdrop-filter: saturate(140%) blur(10px);
+      -webkit-backdrop-filter: saturate(140%) blur(10px);
+      background: color-mix(in oklab, var(--bg-page) 86%, transparent);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .lp-header-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0; gap: var(--sp-3);
+    }
+    .lp-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink-strong); min-height: 44px; }
+    .lp-brand:hover { text-decoration: none; }
+    .lp-brand .sigil {
+      width: 40px; height: 40px;
+      display: grid; place-items: center;
+      border: 1.5px solid var(--cuir-500);
+      border-radius: 50%;
+      color: var(--cuir-500);
+      font-family: var(--font-display); font-weight: 700; font-size: 18px;
+      background: var(--bg-elevated); letter-spacing: 0.04em;
+      position: relative; flex-shrink: 0;
+    }
+    .lp-brand .sigil::before { content: ""; position: absolute; inset: 3px; border: 1px dashed var(--cuir-300); border-radius: 50%; }
+    [data-theme="dark"] .lp-brand .sigil { border-color: var(--or-400); color: var(--or-400); }
+    [data-theme="dark"] .lp-brand .sigil::before { border-color: var(--or-700); }
+    .lp-brand-text { display: flex; flex-direction: column; line-height: 1.1; }
+    .lp-brand-title { font-family: var(--font-display); font-size: 14px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink-strong); }
+    .lp-brand-sub { font-family: var(--font-mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-muted); margin-top: 2px; }
+    @media (max-width: 480px) { .lp-brand-sub { display: none; } }
+    .lp-header-actions { display: flex; align-items: center; gap: var(--sp-2); }
+    .lp-theme-toggle {
+      width: 40px; height: 40px; display: grid; place-items: center;
+      background: transparent; border: 1px solid var(--border-default);
+      border-radius: 50%; color: var(--ink-muted); cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .lp-theme-toggle:hover { color: var(--brand-primary); border-color: var(--brand-primary); }
+
+    /* ============================================================
+       BREADCRUMB
+       ============================================================ */
+    .crumb {
+      display: flex; align-items: center; gap: 8px;
+      padding: var(--sp-4) 0 0;
+      font-family: var(--font-mono); font-size: var(--fs-xs);
+      text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--ink-subtle);
+    }
+    .crumb a { color: var(--ink-muted); text-decoration: none; }
+    .crumb a:hover { color: var(--brand-primary); }
+    .crumb svg { width: 12px; height: 12px; stroke: var(--ink-subtle); fill: none; stroke-width: 1.8; }
+
+    /* ============================================================
+       HERO
+       ============================================================ */
+    .hero {
+      position: relative;
+      padding: clamp(2.5rem, 6vw, 4.5rem) 0 clamp(2.5rem, 6vw, 4rem);
+      overflow: hidden; text-align: center;
+    }
+    .hero::before, .hero::after { content: ""; position: absolute; pointer-events: none; border-radius: 50%; opacity: 0.4; }
+    .hero::before { top: -120px; left: -120px; width: 360px; height: 360px; background: radial-gradient(circle, var(--or-200) 0, transparent 65%); }
+    .hero::after { bottom: -160px; right: -100px; width: 420px; height: 420px; background: radial-gradient(circle, var(--cuir-200) 0, transparent 65%); }
+    [data-theme="dark"] .hero::before { background: radial-gradient(circle, rgba(184,134,11,0.16) 0, transparent 65%); }
+    [data-theme="dark"] .hero::after { background: radial-gradient(circle, rgba(139,69,19,0.20) 0, transparent 65%); }
+
+    .hero-inner { position: relative; max-width: 760px; margin: 0 auto; }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-family: var(--font-mono); font-size: var(--fs-xs);
+      text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted); padding: 7px 14px;
+      border: 1px solid var(--border-default); border-radius: var(--radius-pill);
+      background: var(--bg-elevated); margin-bottom: var(--sp-5);
+    }
+    .hero-eyebrow .pulse {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--mousse-500);
+      box-shadow: 0 0 0 0 rgba(91, 124, 58, 0.5); animation: pulse 2s var(--motion-ease) infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(91, 124, 58, 0.5); }
+      70% { box-shadow: 0 0 0 8px rgba(91, 124, 58, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(91, 124, 58, 0); }
+    }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.25rem, 6vw + 0.5rem, 4.25rem);
+      font-weight: 700; line-height: 1.05; letter-spacing: 0.03em;
+      color: var(--ink-strong); margin: 0 0 var(--sp-4);
+    }
+    .hero-title em { font-style: normal; color: var(--brand-primary); position: relative; display: inline-block; }
+    .hero-title em::after { content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 6px; background: var(--or-300); opacity: 0.45; z-index: -1; border-radius: 999px; }
+    [data-theme="dark"] .hero-title em::after { background: var(--or-700); opacity: 0.7; }
+    .hero-sub {
+      font-family: var(--font-display);
+      font-size: clamp(1.05rem, 1.6vw + 0.4rem, 1.45rem);
+      font-weight: 400; line-height: 1.4; letter-spacing: 0.02em;
+      color: var(--ink-muted); max-width: 46ch; margin: 0 auto var(--sp-6);
+    }
+    .hero-cta { display: flex; gap: var(--sp-3); justify-content: center; flex-wrap: wrap; }
+
+    /* mini-stats sous le hero */
+    .hero-meta {
+      display: flex; justify-content: center; flex-wrap: wrap;
+      gap: var(--sp-5); margin-top: var(--sp-7);
+      padding-top: var(--sp-5); border-top: 1px dashed var(--border-default);
+    }
+    .hero-meta .hm {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+    }
+    .hero-meta .hm-num {
+      font-family: var(--font-display); font-size: var(--fs-2xl);
+      font-weight: 700; color: var(--ink-strong); line-height: 1; font-variant-numeric: tabular-nums;
+    }
+    .hero-meta .hm-label {
+      font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
+      letter-spacing: var(--tracking-caps); color: var(--ink-muted);
+    }
+
+    /* ============================================================
+       SECTION HEADING (commun)
+       ============================================================ */
+    .section { padding: clamp(3rem, 7vw, 5rem) 0; }
+    .section-eyebrow {
+      display: flex; align-items: center; gap: var(--sp-3);
+      font-family: var(--font-mono); font-size: var(--fs-xs);
+      text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      color: var(--ink-muted); margin-bottom: var(--sp-3); justify-content: center;
+    }
+    .section-eyebrow::before, .section-eyebrow::after { content: ""; width: 32px; height: 1px; background: var(--cuir-400); }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.75rem, 4vw + 0.5rem, 2.5rem);
+      font-weight: 700; letter-spacing: 0.03em; color: var(--ink-strong);
+      text-align: center; margin: 0 auto var(--sp-3); max-width: 24ch; line-height: 1.15;
+    }
+    .section-lede { text-align: center; color: var(--ink-muted); font-size: var(--fs-lg); max-width: 60ch; margin: 0 auto var(--sp-7); line-height: 1.55; }
+
+    /* ============================================================
+       LE RÔLE — 3 cartes (repris .feature de landing)
+       ============================================================ */
+    .features-grid { display: grid; gap: var(--sp-4); grid-template-columns: 1fr; }
+    @media (min-width: 760px) { .features-grid { grid-template-columns: 1fr 1fr 1fr; } }
+    .feature {
+      position: relative; padding: var(--sp-6) var(--sp-5);
+      background: var(--bg-elevated); border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      display: flex; flex-direction: column; gap: var(--sp-3);
+      transition: all var(--motion-base) var(--motion-ease-out); overflow: hidden;
+    }
+    .feature::before { content: ""; position: absolute; inset: 8px; border: 1px solid var(--cuir-200); border-radius: calc(var(--radius-lg) - 6px); pointer-events: none; }
+    [data-theme="dark"] .feature::before { border-color: var(--cuir-800); }
+    .feature:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: var(--border-strong); }
+    .feature-icon {
+      width: 52px; height: 52px; margin: 0 auto;
+      display: grid; place-items: center; border-radius: 50%;
+      background: color-mix(in oklab, var(--cuir-300) 22%, transparent);
+      border: 1px solid var(--cuir-300); color: var(--cuir-600);
+      position: relative; z-index: 1;
+    }
+    [data-theme="dark"] .feature-icon { color: var(--or-300); border-color: var(--or-700); background: color-mix(in oklab, var(--or-700) 24%, transparent); }
+    .feature-icon svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .feature-eyebrow { font-family: var(--font-mono); font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--brand-primary); text-align: center; margin-bottom: 2px; }
+    .feature-title { font-family: var(--font-display); font-size: var(--fs-xl); color: var(--ink-strong); font-weight: 700; letter-spacing: 0.04em; text-align: center; margin: 0; line-height: 1.2; }
+    .feature-desc { font-size: var(--fs-sm); color: var(--ink-muted); line-height: 1.6; text-align: center; margin: 0; }
+
+    /* ============================================================
+       PARCOURS D'ACCÈS — Aventurier → Modérateur
+       ============================================================ */
+    .ranks { background: var(--bg-elevated); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); }
+    .ranks-track {
+      display: grid; gap: var(--sp-4); grid-template-columns: 1fr;
+      max-width: 980px; margin: 0 auto;
+    }
+    @media (min-width: 820px) { .ranks-track { grid-template-columns: 1fr auto 1fr auto 1fr; align-items: stretch; } }
+    .rank {
+      background: var(--bg-page); border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg); padding: var(--sp-5);
+      display: flex; flex-direction: column; gap: var(--sp-2); text-align: center;
+    }
+    .rank.is-goal { border-color: var(--or-400); box-shadow: 0 0 0 1px var(--or-400), var(--shadow-md); }
+    .rank-badge { align-self: center; margin-bottom: var(--sp-2); }
+    .rank-title { font-family: var(--font-display); font-size: var(--fs-lg); font-weight: 700; color: var(--ink-strong); letter-spacing: 0.03em; }
+    .rank-desc { font-size: var(--fs-sm); color: var(--ink-muted); line-height: 1.5; }
+    .rank-crit { list-style: none; margin: var(--sp-2) 0 0; padding: var(--sp-3) 0 0; border-top: 1px dashed var(--border-default); display: flex; flex-direction: column; gap: 8px; text-align: left; }
+    .rank-crit li { display: flex; align-items: flex-start; gap: 8px; font-size: var(--fs-sm); color: var(--ink-default); line-height: 1.4; }
+    .rank-crit li svg { width: 14px; height: 14px; stroke: var(--mousse-500); fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; margin-top: 3px; }
+    .rank-arrow { display: grid; place-items: center; color: var(--cuir-400); }
+    .rank-arrow svg { width: 26px; height: 26px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    @media (max-width: 819px) { .rank-arrow { transform: rotate(90deg); margin: 0 auto; } }
+
+    /* ============================================================
+       PARCOURS DE CANDIDATURE — étapes numérotées
+       ============================================================ */
+    .steps { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 0; position: relative; }
+    .step { display: grid; grid-template-columns: 56px 1fr; gap: var(--sp-4); padding-bottom: var(--sp-6); position: relative; }
+    .step:last-child { padding-bottom: 0; }
+    .step::before {
+      content: ""; position: absolute; left: 27px; top: 52px; bottom: 0; width: 2px;
+      background: repeating-linear-gradient(var(--border-default) 0 6px, transparent 6px 12px);
+    }
+    .step:last-child::before { display: none; }
+    .step-num {
+      width: 54px; height: 54px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: var(--bg-elevated); border: 1.5px solid var(--cuir-400);
+      font-family: var(--font-display); font-weight: 700; font-size: var(--fs-xl);
+      color: var(--cuir-600); position: relative; z-index: 1;
+    }
+    [data-theme="dark"] .step-num { color: var(--or-300); border-color: var(--or-700); }
+    .step-body { padding-top: 4px; }
+    .step-title { font-family: var(--font-display); font-size: var(--fs-lg); font-weight: 700; color: var(--ink-strong); letter-spacing: 0.03em; margin: 0 0 6px; }
+    .step-desc { font-size: var(--fs-md); color: var(--ink-muted); line-height: 1.6; margin: 0; }
+    .step-meta { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--ink-subtle); margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; }
+    .step-meta::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--mousse-500); }
+
+    /* ============================================================
+       LA CHARTE — bandeau sombre (repris .stats de landing)
+       ============================================================ */
+    .charter { background: var(--grimoire-300); color: #f5ecd9; position: relative; overflow: hidden; }
+    [data-theme="dark"] .charter { background: var(--grimoire-100); border-top: 1px solid var(--border-default); border-bottom: 1px solid var(--border-default); }
+    .charter::before {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(circle at 20% 30%, rgba(184,134,11,0.10) 0, transparent 50%), radial-gradient(circle at 80% 70%, rgba(139,69,19,0.12) 0, transparent 50%);
+    }
+    .charter-inner { position: relative; }
+    .charter .section-eyebrow { color: var(--or-300); }
+    .charter .section-eyebrow::before, .charter .section-eyebrow::after { background: var(--or-700); }
+    .charter .section-title { color: #f5ecd9; }
+    .charter .section-lede { color: rgba(245,236,217,0.78); }
+    .charter-grid { display: grid; gap: var(--sp-4); grid-template-columns: 1fr; max-width: 900px; margin: 0 auto; }
+    @media (min-width: 720px) { .charter-grid { grid-template-columns: 1fr 1fr; } }
+    .vow {
+      display: grid; grid-template-columns: auto 1fr; gap: var(--sp-3);
+      padding: var(--sp-4); border: 1px solid rgba(245,236,217,0.16);
+      border-radius: var(--radius-lg); background: rgba(20,13,7,0.22);
+    }
+    .vow-mark {
+      width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+      border: 1px solid var(--or-700); color: var(--or-300); flex-shrink: 0;
+    }
+    .vow-mark svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .vow-title { font-family: var(--font-display); font-size: var(--fs-lg); font-weight: 700; letter-spacing: 0.03em; color: #f5ecd9; margin: 0 0 4px; }
+    .vow-desc { font-size: var(--fs-sm); color: rgba(245,236,217,0.72); line-height: 1.55; margin: 0; }
+
+    /* ============================================================
+       FAQ — details/summary
+       ============================================================ */
+    .faq { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--sp-3); }
+    .faq-item { border: 1px solid var(--border-default); border-radius: var(--radius-lg); background: var(--bg-elevated); overflow: hidden; transition: border-color var(--motion-fast) var(--motion-ease); }
+    .faq-item[open] { border-color: var(--border-strong); }
+    .faq-item summary {
+      list-style: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3);
+      padding: var(--sp-4) var(--sp-5);
+      font-family: var(--font-display); font-size: var(--fs-md); font-weight: 600;
+      color: var(--ink-strong); letter-spacing: 0.02em;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary .chev { width: 18px; height: 18px; stroke: var(--ink-muted); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; transition: transform var(--motion-base) var(--motion-ease); }
+    .faq-item[open] summary .chev { transform: rotate(180deg); }
+    .faq-answer { padding: 0 var(--sp-5) var(--sp-5); color: var(--ink-muted); font-size: var(--fs-sm); line-height: 1.65; }
+    .faq-answer p { margin: 0; }
+
+    /* ============================================================
+       CTA FINAL
+       ============================================================ */
+    .cta-final { text-align: center; padding: clamp(3rem, 6vw, 5rem) 0; }
+    .cta-final h2 { font-family: var(--font-display); font-size: clamp(1.75rem, 4vw + 0.5rem, 2.5rem); font-weight: 700; letter-spacing: 0.03em; color: var(--ink-strong); max-width: 24ch; margin: 0 auto var(--sp-4); line-height: 1.2; }
+    .cta-final p { color: var(--ink-muted); max-width: 52ch; margin: 0 auto var(--sp-5); font-size: var(--fs-md); }
+    .cta-note { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--ink-subtle); margin-top: var(--sp-4); }
+
+    /* ============================================================
+       FOOTER  (repris de landing.html)
+       ============================================================ */
+    .footer { background: var(--bg-elevated); border-top: 1px solid var(--border-default); padding: var(--sp-7) 0 var(--sp-5); }
+    .footer-tagline { text-align: center; font-family: var(--font-display); font-size: clamp(1.125rem, 2vw + 0.4rem, 1.5rem); color: var(--ink-default); max-width: 36ch; margin: 0 auto var(--sp-7); line-height: 1.4; font-style: italic; font-weight: 400; }
+    .footer-tagline::before, .footer-tagline::after { content: "❦"; display: block; color: var(--cuir-400); font-size: 18px; margin: 0 auto var(--sp-3); font-style: normal; }
+    .footer-tagline::after { margin: var(--sp-3) auto 0; }
+    .footer-grid { display: grid; gap: var(--sp-5); grid-template-columns: 1fr; padding-bottom: var(--sp-6); border-bottom: 1px solid var(--border-subtle); }
+    @media (min-width: 640px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr; } }
+    .footer-brand-col { display: flex; flex-direction: column; gap: var(--sp-3); }
+    .footer-mini-desc { font-size: var(--fs-sm); color: var(--ink-muted); line-height: 1.5; max-width: 32ch; }
+    .footer-col-title { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--ink-subtle); margin-bottom: var(--sp-3); }
+    .footer-links { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a { font-size: var(--fs-sm); color: var(--ink-default); text-decoration: none; transition: color var(--motion-fast) var(--motion-ease); }
+    .footer-links a:hover { color: var(--brand-primary); text-decoration: none; }
+    .footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--sp-3); padding-top: var(--sp-5); font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-subtle); text-transform: uppercase; letter-spacing: var(--tracking-caps); }
+    .footer-bottom a { color: var(--ink-subtle); text-decoration: none; }
+    .footer-bottom a:hover { color: var(--ink-default); text-decoration: none; }
+    .footer-bottom-links { display: flex; gap: var(--sp-4); flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+
+  <!-- =============== HEADER =============== -->
+  <header class="lp-header">
+    <div class="container lp-header-inner">
+      <a class="lp-brand" href="landing.html">
+        <span class="sigil">A</span>
+        <span class="lp-brand-text">
+          <span class="lp-brand-title">La Collection des Aventuriers</span>
+          <span class="lp-brand-sub">Le wiki des fictions interactives</span>
+        </span>
+      </a>
+      <div class="lp-header-actions">
+        <button class="lp-theme-toggle" data-theme-toggle aria-label="Basculer le thème">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        </button>
+        <a class="btn btn-secondary btn-sm" href="pages/connexion.html">Se connecter</a>
+      </div>
+    </div>
+  </header>
+
+  <main data-screen-label="Devenir modérateur">
+
+    <!-- =============== BREADCRUMB =============== -->
+    <div class="container">
+      <nav class="crumb" aria-label="Fil d'Ariane">
+        <a href="landing.html">Accueil</a>
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+        <a href="pages/moderation.html">Communauté</a>
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+        <span>Devenir modérateur</span>
+      </nav>
+    </div>
+
+    <!-- =============== HERO =============== -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-inner">
+          <span class="hero-eyebrow">
+            <span class="pulse"></span>
+            Candidatures ouvertes · Bénévolat
+          </span>
+          <h1 class="hero-title">
+            Devenir <em>Modérateur</em>
+          </h1>
+          <p class="hero-sub">
+            Veiller à ce que l'archive reste juste, précise et vivante. Un rôle de confiance,
+            ouvert aux Aventuriers les plus impliqués dans la Collection.
+          </p>
+          <div class="hero-cta">
+            <a class="btn btn-primary btn-lg" href="#candidater">
+              Déposer ma candidature
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </a>
+            <a class="btn btn-secondary btn-lg" href="#charte">Lire la charte</a>
+          </div>
+
+          <div class="hero-meta">
+            <div class="hm">
+              <span class="hm-num">18</span>
+              <span class="hm-label">Modérateurs actifs</span>
+            </div>
+            <div class="hm">
+              <span class="hm-num">100&nbsp;%</span>
+              <span class="hm-label">Décisions motivées</span>
+            </div>
+            <div class="hm">
+              <span class="hm-num">~2&nbsp;h</span>
+              <span class="hm-label">Par semaine suffisent</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== LE RÔLE =============== -->
+    <section class="section">
+      <div class="container">
+        <div class="section-eyebrow">Le rôle</div>
+        <h2 class="section-title">Gardien de l'archive, pas chef de tribu</h2>
+        <p class="section-lede">
+          Un modérateur ne décide pas seul&nbsp;: il instruit, motive et tranche les ajouts
+          au catalogue, toujours au service de la communauté et de la précision documentaire.
+        </p>
+
+        <div class="features-grid">
+          <article class="feature">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <div class="feature-eyebrow">Instruire</div>
+            <h3 class="feature-title">Valider les suggestions</h3>
+            <p class="feature-desc">
+              Vérifier les sources, croiser les éditions, détecter les doublons.
+              Chaque fiche acceptée enrichit durablement le catalogue de référence.
+            </p>
+          </article>
+
+          <article class="feature">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            </div>
+            <div class="feature-eyebrow">Veiller</div>
+            <h3 class="feature-title">Garantir la qualité</h3>
+            <p class="feature-desc">
+              Harmoniser les fiches, corriger les erreurs, faire respecter les conventions
+              documentaires. La rigueur d'un catalogue raisonné, à plusieurs mains.
+            </p>
+          </article>
+
+          <article class="feature">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="feature-eyebrow">Accompagner</div>
+            <h3 class="feature-title">Guider la communauté</h3>
+            <p class="feature-desc">
+              Répondre aux contributeurs, expliquer les refus avec bienveillance,
+              encourager les nouvelles plumes. Modérer, c'est d'abord transmettre.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== PARCOURS D'ACCÈS =============== -->
+    <section class="section ranks">
+      <div class="container">
+        <div class="section-eyebrow">Le parcours</div>
+        <h2 class="section-title">D'Aventurier à Modérateur</h2>
+        <p class="section-lede">
+          Le rôle se mérite par l'implication, pas par cooptation. Voici les trois paliers,
+          et ce qu'il faut réunir pour passer le suivant.
+        </p>
+
+        <div class="ranks-track">
+          <div class="rank">
+            <span class="badge badge-role-user rank-badge"><span class="dot"></span>Aventurier</span>
+            <div class="rank-title">L'inscrit</div>
+            <p class="rank-desc">Tout membre de la Collection. Peut suggérer des fiches et commenter.</p>
+            <ul class="rank-crit">
+              <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Compte vérifié</li>
+              <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Charte communautaire acceptée</li>
+            </ul>
+          </div>
+
+          <div class="rank-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </div>
+
+          <div class="rank">
+            <span class="badge badge-role-mod rank-badge"><span class="dot"></span>Contributeur actif</span>
+            <div class="rank-title">L'impliqué</div>
+            <p class="rank-desc">Un Aventurier qui a fait ses preuves par des contributions régulières et fiables.</p>
+            <ul class="rank-crit">
+              <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>30+ suggestions validées</li>
+              <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Taux d'acceptation ≥ 80&nbsp;%</li>
+              <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>3 mois d'ancienneté</li>
+            </ul>
+          </div>
+
+          <div class="rank-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </div>
+
+          <div class="rank is-goal">
+            <span class="badge badge-role-admin rank-badge"><span class="dot"></span>Modérateur</span>
+            <div class="rank-title">Le gardien</div>
+            <p class="rank-desc">Candidature examinée par l'équipe, suivie d'une période de mentorat.</p>
+            <ul class="rank-crit">
+              <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Candidature motivée</li>
+              <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Échange avec l'équipe</li>
+              <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Période d'essai validée</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== CANDIDATER — ÉTAPES =============== -->
+    <section class="section" id="candidater">
+      <div class="container">
+        <div class="section-eyebrow">La candidature</div>
+        <h2 class="section-title">Quatre étapes, sans mauvaise surprise</h2>
+        <p class="section-lede">
+          Tout le processus est transparent et historisé. Vous savez à chaque instant où en est
+          votre dossier.
+        </p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h3 class="step-title">Vous déposez votre candidature</h3>
+              <p class="step-desc">
+                Un formulaire court&nbsp;: vos motivations, vos domaines de prédilection
+                (un éditeur, une collection, un univers) et le temps que vous pouvez offrir.
+              </p>
+              <span class="step-meta">10 minutes</span>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h3 class="step-title">L'équipe échange avec vous</h3>
+              <p class="step-desc">
+                Une conversation, pas un examen. On parle de votre vision de la modération,
+                on répond à vos questions et on vous présente les outils.
+              </p>
+              <span class="step-meta">Sous 2 semaines</span>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h3 class="step-title">Période d'essai en binôme</h3>
+              <p class="step-desc">
+                Vous modérez accompagné d'un mentor qui relit vos décisions. C'est le moment
+                d'apprendre les conventions sans pression&nbsp;: rien n'est définitif.
+              </p>
+              <span class="step-meta">1 mois · réversible</span>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <h3 class="step-title">Titularisation</h3>
+              <p class="step-desc">
+                Le badge Modérateur rejoint votre profil. Vous gagnez l'accès complet à la
+                Salle de Modération — et vous pouvez vous retirer quand vous le souhaitez.
+              </p>
+              <span class="step-meta">Bienvenue parmi les gardiens</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== LA CHARTE =============== -->
+    <section class="section charter" id="charte">
+      <div class="container charter-inner">
+        <div class="section-eyebrow">L'engagement</div>
+        <h2 class="section-title">La charte du modérateur</h2>
+        <p class="section-lede">
+          Quatre principes que chaque modérateur s'engage à honorer. Ils ne sont pas négociables —
+          c'est ce qui rend l'archive digne de confiance.
+        </p>
+
+        <div class="charter-grid">
+          <div class="vow">
+            <span class="vow-mark"><svg viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+            <div>
+              <h3 class="vow-title">Transparence</h3>
+              <p class="vow-desc">Chaque décision est motivée publiquement et conservée dans l'historique. Aucune action secrète.</p>
+            </div>
+          </div>
+
+          <div class="vow">
+            <span class="vow-mark"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+            <div>
+              <h3 class="vow-title">Bienveillance</h3>
+              <p class="vow-desc">On refuse une fiche, jamais une personne. Tout retour est argumenté et tourné vers l'amélioration.</p>
+            </div>
+          </div>
+
+          <div class="vow">
+            <span class="vow-mark"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 7l9-4 9 4M5 21h14M6 10v7M18 10v7"/></svg></span>
+            <div>
+              <h3 class="vow-title">Neutralité</h3>
+              <p class="vow-desc">Les goûts personnels ne dictent pas la documentation. On consigne les faits, pas les préférences.</p>
+            </div>
+          </div>
+
+          <div class="vow">
+            <span class="vow-mark"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+            <div>
+              <h3 class="vow-title">Rigueur documentaire</h3>
+              <p class="vow-desc">Une affirmation sans source ne vaut rien. On vérifie, on croise, on cite — toujours.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== FAQ =============== -->
+    <section class="section">
+      <div class="container">
+        <div class="section-eyebrow">Questions fréquentes</div>
+        <h2 class="section-title">Ce qu'on nous demande le plus</h2>
+
+        <div class="faq">
+          <details class="faq-item">
+            <summary>
+              Est-ce rémunéré&nbsp;?
+              <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+            </summary>
+            <div class="faq-answer">
+              <p>Non. La modération est entièrement bénévole — comme l'ensemble du projet, qui vit de la passion de ses contributeurs et reste sans publicité.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              Combien de temps faut-il y consacrer&nbsp;?
+              <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+            </summary>
+            <div class="faq-answer">
+              <p>Environ deux heures par semaine suffisent. La charge est répartie entre tous les modérateurs, et vous choisissez vos créneaux. Aucune obligation de présence quotidienne.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              Puis-je me retirer si je n'ai plus le temps&nbsp;?
+              <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+            </summary>
+            <div class="faq-answer">
+              <p>À tout moment, sans justification. Vous pouvez aussi vous mettre en pause&nbsp;: votre rôle vous attend à votre retour.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              Je débute&nbsp;: ai-je une chance&nbsp;?
+              <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+            </summary>
+            <div class="faq-answer">
+              <p>Ce qui compte, c'est la régularité et le soin de vos contributions, pas l'ancienneté seule. Continuez à proposer de bonnes fiches&nbsp;: les critères du palier «&nbsp;Contributeur actif&nbsp;» sont à votre portée.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              Qui décide en cas de désaccord entre modérateurs&nbsp;?
+              <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+            </summary>
+            <div class="faq-answer">
+              <p>Les cas litigieux sont discutés collégialement dans la Salle de Modération. Si aucun consensus n'émerge, l'équipe d'administration tranche — et motive sa décision publiquement.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== CTA FINAL =============== -->
+    <section class="cta-final">
+      <div class="container">
+        <h2>Prêt à veiller sur la Collection&nbsp;?</h2>
+        <p>Si la rigueur, la transparence et le partage vous parlent, votre place est peut-être ici.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary btn-lg" href="pages/suggestions.html">
+            Déposer ma candidature
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+          <a class="btn btn-secondary btn-lg" href="pages/moderation.html">Visiter la Salle de Modération</a>
+        </div>
+        <p class="cta-note">— Réponse sous 2 semaines · Sans engagement —</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- =============== FOOTER =============== -->
+  <footer class="footer">
+    <div class="container">
+      <p class="footer-tagline">
+        Façonné par et pour les passionnés des Livres Dont Vous Êtes le Héro.
+      </p>
+
+      <div class="footer-grid">
+        <div class="footer-brand-col">
+          <a class="lp-brand" href="landing.html" style="min-height: 0;">
+            <span class="sigil">A</span>
+            <span class="lp-brand-text">
+              <span class="lp-brand-title">La Collection des Aventuriers</span>
+              <span class="lp-brand-sub">Le wiki des fictions interactives</span>
+            </span>
+          </a>
+          <p class="footer-mini-desc">
+            Catalogue collaboratif des livres dont vous êtes le héros, romans graphiques
+            à choix et fictions interactives.
+          </p>
+        </div>
+
+        <div>
+          <div class="footer-col-title">La Collection</div>
+          <ul class="footer-links">
+            <li><a href="pages/catalogue.html">Le catalogue</a></li>
+            <li><a href="pages/auteur.html">Les auteurs</a></li>
+            <li><a href="pages/edition-fiche.html">Les éditions</a></li>
+            <li><a href="pages/catalogue.html">Les collections</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="footer-col-title">Communauté</div>
+          <ul class="footer-links">
+            <li><a href="pages/suggestions.html">Suggérer un livre</a></li>
+            <li><a href="pages/profil-public.html">Les contributeurs</a></li>
+            <li><a href="pages/moderation.html">Modération</a></li>
+            <li><a href="devenir-moderateur.html">Devenir modérateur</a></li>
+            <li><a href="#">La Taverne (forum)</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© 2026 · La Collection des Aventuriers</span>
+        <div class="footer-bottom-links">
+          <a href="#">Mentions légales</a>
+          <a href="#">CGU</a>
+          <a href="#">Confidentialité</a>
+          <a href="#">Cookies</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/shell.js"></script>
+</body>
+</html>
