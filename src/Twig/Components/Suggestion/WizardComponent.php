@@ -131,11 +131,24 @@ class WizardComponent extends AbstractController
         }
     }
 
+    private const CONTRIBUTOR_TYPES = [
+        SuggestionEntityType::AUTHOR->value,
+        SuggestionEntityType::ILLUSTRATOR->value,
+        SuggestionEntityType::TRADUCTOR->value,
+    ];
+
     private function buildEmptyFormData(): array
     {
         if ($this->entityType === SuggestionEntityType::BOOK->value) {
             return array_fill_keys(
-                ['title', 'subtitle', 'author', 'illustrator', 'traductor', 'editor', 'collection', 'isbn', 'publicationFr', 'originalEdition', 'paragraphs'],
+                ['title', 'subtitle', 'author', 'illustrator', 'traductor', 'editor', 'collection', 'isbn', 'publicationFr', 'originalEdition', 'paragraphs', 'backCoverText'],
+                ''
+            );
+        }
+
+        if (in_array($this->entityType, self::CONTRIBUTOR_TYPES, true)) {
+            return array_fill_keys(
+                ['firstName', 'lastName', 'pseudo', 'biography', 'nationality', 'birthDate', 'deathDate'],
                 ''
             );
         }
@@ -281,6 +294,11 @@ class WizardComponent extends AbstractController
         }
         if ($this->entityType === SuggestionEntityType::BOOK->value) {
             return trim((string) ($this->formData['title'] ?? '')) !== '';
+        }
+
+        if (in_array($this->entityType, self::CONTRIBUTOR_TYPES, true)) {
+            return trim((string) ($this->formData['firstName'] ?? '')) !== ''
+                && trim((string) ($this->formData['lastName'] ?? '')) !== '';
         }
 
         return trim((string) ($this->formData['name'] ?? '')) !== '';

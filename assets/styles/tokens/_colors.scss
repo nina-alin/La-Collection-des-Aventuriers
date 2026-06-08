@@ -135,6 +135,7 @@
     --ink-default:  #e6d6b3;
     --ink-muted:    #b8a172;
     --ink-subtle:   #8a7558;
+
     --ink-onbrand:  #ffffff;
 
     --border-subtle:  #2a1d12;
@@ -170,4 +171,16 @@
     --parchment-texture:
         radial-gradient(circle at 20% 30%, rgba(184,134,11,0.04) 0, transparent 55%),
         radial-gradient(circle at 80% 70%, rgba(139,69,19,0.05) 0, transparent 60%);
+}
+
+// Higher specificity (0,1,1) beats Bootstrap's :root (0,1,0), regardless of CSS order.
+// Bridges Bootstrap utility classes (.text-muted, headings) to dark design tokens.
+html[data-theme="dark"] {
+    --bs-body-color:          #e6d6b3;
+    --bs-body-color-rgb:      230, 214, 179;
+    --bs-body-bg:             #1a120b;
+    --bs-body-bg-rgb:         26, 18, 11;
+    --bs-secondary-color:     rgba(184, 161, 114, 0.75);
+    --bs-secondary-color-rgb: 184, 161, 114;
+    --bs-heading-color:       #f5ecd9;
 }

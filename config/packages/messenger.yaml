@@ -4,11 +4,11 @@ framework:
 
         transports:
             async:
-                dsn: '%env(DATABASE_URL)%'
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 options:
                     use_notify: false
             failed:
-                dsn: '%env(DATABASE_URL)%'
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 options:
                     queue_name: failed
 

@@ -80,6 +80,19 @@ class SuggestionRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
+    /** @return Suggestion[] */
+    public function findPending(): array
+    {
+        return $this->createQueryBuilder('s')
+            ->leftJoin('s.user', 'u')
+            ->addSelect('u')
+            ->where('s.status = :status')
+            ->setParameter('status', SuggestionStatus::PENDING)
+            ->orderBy('s.submittedAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function countGlobalPending(): int
     {
         return (int) $this->createQueryBuilder('s')

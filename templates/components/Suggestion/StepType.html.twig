@@ -11,7 +11,7 @@
   <legend class="form-label fw-semibold mb-2">Quel type de proposition ?</legend>
   <div class="mode-toggle" role="radiogroup" aria-label="Mode de proposition">
     <label class="type-card {{ mode == 'NEW_ENTRY' ? 'is-selected' : '' }}"
-           data-action="live#action"
+           data-action="click->live#action"
            data-live-action-param="selectMode"
            data-live-val-param="NEW_ENTRY">
       <input type="radio" name="mode" value="NEW_ENTRY"
@@ -26,7 +26,7 @@
       </span>
     </label>
     <label class="type-card {{ mode == 'CORRECTION' ? 'is-selected' : '' }}"
-           data-action="live#action"
+           data-action="click->live#action"
            data-live-action-param="selectMode"
            data-live-val-param="CORRECTION">
       <input type="radio" name="mode" value="CORRECTION"
@@ -63,7 +63,7 @@
     ] %}
     {% for et in entityTypes %}
       <label class="entity-type-card {{ entityType == et.value ? 'is-selected' : '' }}"
-             data-action="live#action"
+             data-action="click->live#action"
              data-live-action-param="selectEntityType"
              data-live-val-param="{{ et.value }}">
         <input type="radio" name="entityType" value="{{ et.value }}"
