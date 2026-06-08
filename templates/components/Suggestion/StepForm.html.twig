@@ -29,8 +29,80 @@
   </div>
 {% endif %}
 
-{# Non-book entity fields (AUTHOR, ILLUSTRATOR, TRADUCTOR, EDITOR, COLLECTION) #}
-{% if entityType is not null and entityType != 'BOOK' %}
+{# Contributor fields (AUTHOR, ILLUSTRATOR, TRADUCTOR) #}
+{% if entityType in ['AUTHOR', 'ILLUSTRATOR', 'TRADUCTOR'] %}
+  <div class="row g-3">
+
+    <div class="col-md-6">
+      <label for="field-firstName" class="form-label fw-semibold">
+        Prénom <span class="text-danger" aria-hidden="true">*</span>
+      </label>
+      <input type="text" id="field-firstName" class="input {{ errors.firstName is defined ? 'is-invalid' : '' }}"
+             data-model="formData.firstName"
+             value="{{ formData.firstName ?? '' }}"
+             aria-required="true"
+             aria-describedby="{{ errors.firstName is defined ? 'field-firstName-error' : '' }}" />
+      {% if errors.firstName is defined %}
+        <div id="field-firstName-error" class="form-help error" aria-live="assertive">{{ errors.firstName }}</div>
+      {% endif %}
+    </div>
+
+    <div class="col-md-6">
+      <label for="field-lastName" class="form-label fw-semibold">
+        Nom <span class="text-danger" aria-hidden="true">*</span>
+      </label>
+      <input type="text" id="field-lastName" class="input {{ errors.lastName is defined ? 'is-invalid' : '' }}"
+             data-model="formData.lastName"
+             value="{{ formData.lastName ?? '' }}"
+             aria-required="true"
+             aria-describedby="{{ errors.lastName is defined ? 'field-lastName-error' : '' }}" />
+      {% if errors.lastName is defined %}
+        <div id="field-lastName-error" class="form-help error" aria-live="assertive">{{ errors.lastName }}</div>
+      {% endif %}
+    </div>
+
+    <div class="col-md-6">
+      <label for="field-pseudo" class="form-label">Pseudonyme</label>
+      <input type="text" id="field-pseudo" class="input"
+             data-model="formData.pseudo"
+             value="{{ formData.pseudo ?? '' }}" />
+    </div>
+
+    <div class="col-md-6">
+      <label for="field-nationality" class="form-label">Nationalité</label>
+      <input type="text" id="field-nationality" class="input"
+             data-model="formData.nationality"
+             value="{{ formData.nationality ?? '' }}"
+             placeholder="ex. Française" />
+    </div>
+
+    <div class="col-md-6">
+      <label for="field-birthDate" class="form-label">Date de naissance</label>
+      <input type="date" id="field-birthDate" class="input"
+             data-model="formData.birthDate"
+             value="{{ formData.birthDate ?? '' }}" />
+    </div>
+
+    <div class="col-md-6">
+      <label for="field-deathDate" class="form-label">Date de décès</label>
+      <input type="date" id="field-deathDate" class="input"
+             data-model="formData.deathDate"
+             value="{{ formData.deathDate ?? '' }}" />
+    </div>
+
+    <div class="col-12">
+      <label for="field-biography" class="form-label">Biographie</label>
+      <textarea id="field-biography" class="input"
+                data-model="formData.biography"
+                rows="4"
+                placeholder="Courte biographie…">{{ formData.biography ?? '' }}</textarea>
+    </div>
+
+  </div>
+{% endif %}
+
+{# Simple name field (EDITOR, COLLECTION) #}
+{% if entityType in ['EDITOR', 'COLLECTION'] %}
   <div class="row g-3">
     <div class="col-12">
       <label for="field-name" class="form-label fw-semibold">
@@ -39,7 +111,6 @@
       <input type="text" id="field-name" class="input {{ errors.name is defined ? 'is-invalid' : '' }}"
              data-model="formData.name"
              value="{{ formData.name ?? '' }}"
-             placeholder="ex. J.R.R. Tolkien"
              aria-required="true"
              aria-describedby="{{ errors.name is defined ? 'field-name-error' : '' }}" />
       {% if errors.name is defined %}
@@ -215,6 +286,23 @@
       <div id="field-paragraphs-help" class="form-help">Maximum 800 paragraphes.</div>
       {% if errors.paragraphs is defined %}
         <div id="field-paragraphs-error" class="form-help error" aria-live="assertive">{{ errors.paragraphs }}</div>
+      {% endif %}
+    </div>
+
+    <div class="col-12" {{ stimulus_controller('char-counter', {max: 800}) }}>
+      <label for="field-back-cover" class="form-label">Quatrième de couverture</label>
+      <textarea id="field-back-cover"
+                class="input {{ errors.backCoverText is defined ? 'is-invalid' : '' }}"
+                data-model="formData.backCoverText"
+                rows="4"
+                data-char-counter-target="input"
+                data-action="input->char-counter#update"
+                aria-describedby="field-back-cover-count {{ errors.backCoverText is defined ? 'field-back-cover-error' : '' }}">{{ formData.backCoverText ?? '' }}</textarea>
+      <div class="form-help d-flex justify-content-end">
+        <span id="field-back-cover-count" data-char-counter-target="counter" aria-live="polite">0 / 800</span>
+      </div>
+      {% if errors.backCoverText is defined %}
+        <div id="field-back-cover-error" class="form-help error" aria-live="assertive">{{ errors.backCoverText }}</div>
       {% endif %}
     </div>
 

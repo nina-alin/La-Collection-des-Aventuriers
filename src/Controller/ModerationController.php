@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Enum\SuggestionStatus;
 use App\Repository\CorrectionProposalRepository;
+use App\Repository\SuggestionRepository;
 use App\Repository\WorkEntryRepository;
 use App\Service\ContributorLevelService;
 use App\Service\ModerationService;
@@ -22,10 +24,12 @@ class ModerationController extends AbstractController
     public function index(
         WorkEntryRepository $workEntryRepo,
         CorrectionProposalRepository $correctionRepo,
+        SuggestionRepository $suggestionRepo,
         ContributorLevelService $contributorLevelService,
     ): Response {
         $pendingEntries = $workEntryRepo->findPending();
         $pendingProposals = $correctionRepo->findPending();
+        $pendingSuggestions = $suggestionRepo->findPending();
 
         $authors = [];
         foreach ($pendingEntries as $entry) {
@@ -38,12 +42,16 @@ class ModerationController extends AbstractController
                 $authors[] = $proposal->getAuthor();
             }
         }
+        foreach ($pendingSuggestions as $suggestion) {
+            $authors[] = $suggestion->getUser();
+        }
 
         $ranksByUserId = $contributorLevelService->computeRankBatch($authors);
 
         return $this->render('moderation/dashboard.html.twig', [
             'pendingEntries' => $pendingEntries,
             'pendingProposals' => $pendingProposals,
+            'pendingSuggestions' => $pendingSuggestions,
             'ranksByUserId' => $ranksByUserId,
         ]);
     }
@@ -159,6 +167,48 @@ class ModerationController extends AbstractController
         } catch (\InvalidArgumentException $e) {
             $this->addFlash('error', 'Cette correction ne peut pas être rejetée dans son état actuel.');
         }
+
+        return $this->redirectToRoute('moderation_dashboard');
+    }
+
+    #[Route('/suggestion/{id}/approve', name: 'moderation_approve_suggestion', methods: ['POST'])]
+    public function approveSuggestion(string $id, Request $request, SuggestionRepository $repo, ModerationService $service): Response
+    {
+        $suggestion = $repo->find($id);
+        if ($suggestion === null) {
+            $this->addFlash('error', 'Suggestion introuvable.');
+            return $this->redirectToRoute('moderation_dashboard');
+        }
+
+        if (!$this->isCsrfTokenValid('moderate_'.$id, $request->request->get('_csrf_token'))) {
+            return new Response('Invalid CSRF token.', Response::HTTP_FORBIDDEN);
+        }
+
+        /** @var \App\Entity\User $moderator */
+        $moderator = $this->getUser();
+        $service->moderateSuggestion($moderator, $suggestion, SuggestionStatus::VALIDATED);
+        $this->addFlash('success', 'Suggestion validée.');
+
+        return $this->redirectToRoute('moderation_dashboard');
+    }
+
+    #[Route('/suggestion/{id}/refuse', name: 'moderation_refuse_suggestion', methods: ['POST'])]
+    public function refuseSuggestion(string $id, Request $request, SuggestionRepository $repo, ModerationService $service): Response
+    {
+        $suggestion = $repo->find($id);
+        if ($suggestion === null) {
+            $this->addFlash('error', 'Suggestion introuvable.');
+            return $this->redirectToRoute('moderation_dashboard');
+        }
+
+        if (!$this->isCsrfTokenValid('moderate_'.$id, $request->request->get('_csrf_token'))) {
+            return new Response('Invalid CSRF token.', Response::HTTP_FORBIDDEN);
+        }
+
+        /** @var \App\Entity\User $moderator */
+        $moderator = $this->getUser();
+        $service->moderateSuggestion($moderator, $suggestion, SuggestionStatus::REFUSED);
+        $this->addFlash('success', 'Suggestion refusée.');
 
         return $this->redirectToRoute('moderation_dashboard');
     }

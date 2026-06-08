@@ -5,6 +5,7 @@ namespace App\Form\Suggestion;
 use App\Entity\Enum\SuggestionEntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -14,16 +15,50 @@ use Symfony\Component\Validator\Constraints\Range;
 
 class StepDetailsType extends AbstractType
 {
+    private const CONTRIBUTOR_TYPES = [
+        SuggestionEntityType::AUTHOR->value,
+        SuggestionEntityType::ILLUSTRATOR->value,
+        SuggestionEntityType::TRADUCTOR->value,
+    ];
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        if ($options['entity_type'] === SuggestionEntityType::BOOK->value) {
+        $entityType = $options['entity_type'];
+
+        if ($entityType === SuggestionEntityType::BOOK->value) {
             $this->addBookFields($builder);
+        } elseif (in_array($entityType, self::CONTRIBUTOR_TYPES, true)) {
+            $this->addContributorFields($builder);
         } else {
             $builder->add('name', TextType::class, [
                 'required'    => true,
                 'constraints' => [new NotBlank(message: 'Ce champ est obligatoire.')],
             ]);
         }
+    }
+
+    private function addContributorFields(FormBuilderInterface $builder): void
+    {
+        $builder
+            ->add('firstName', TextType::class, [
+                'required'    => true,
+                'constraints' => [
+                    new NotBlank(message: 'Ce champ est obligatoire.'),
+                    new Length(max: 100),
+                ],
+            ])
+            ->add('lastName', TextType::class, [
+                'required'    => true,
+                'constraints' => [
+                    new NotBlank(message: 'Ce champ est obligatoire.'),
+                    new Length(max: 100),
+                ],
+            ])
+            ->add('pseudo', TextType::class, ['required' => false])
+            ->add('biography', TextareaType::class, ['required' => false])
+            ->add('nationality', TextType::class, ['required' => false])
+            ->add('birthDate', TextType::class, ['required' => false])
+            ->add('deathDate', TextType::class, ['required' => false]);
     }
 
     private function addBookFields(FormBuilderInterface $builder): void
@@ -72,6 +107,12 @@ class StepDetailsType extends AbstractType
                         max: 800,
                         maxMessage: 'Le nombre de paragraphes ne peut pas dépasser {{ limit }}.',
                     ),
+                ],
+            ])
+            ->add('backCoverText', TextareaType::class, [
+                'required'    => false,
+                'constraints' => [
+                    new Length(max: 800, maxMessage: 'La quatrième de couverture ne peut pas dépasser {{ limit }} caractères.'),
                 ],
             ]);
     }

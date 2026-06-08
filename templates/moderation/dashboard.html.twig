@@ -47,6 +47,42 @@
         {% endif %}
     </section>
 
+    <section style="margin-bottom:2rem">
+        <h2>Suggestions en attente</h2>
+        {% if pendingSuggestions is empty %}
+            <p style="color:var(--text-muted)">Aucune suggestion en attente.</p>
+        {% else %}
+            {% for suggestion in pendingSuggestions %}
+            {% set formData = suggestion.formData %}
+            {% set entityName = formData.title ?? formData.name ?? suggestion.entityType.value %}
+            <div style="border:1px solid var(--border-default);border-radius:var(--radius-md);padding:1rem;margin-bottom:1rem">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem">
+                    <div>
+                        <strong>{{ entityName }}</strong>
+                        <div style="font-size:.875rem;color:var(--text-muted);margin-top:.25rem">
+                            {{ suggestion.entityType.value }} · {{ suggestion.mode.value }}
+                            · Par {{ suggestion.user.pseudo }}
+                            {% set userRank = ranksByUserId[suggestion.user.id.toRfc4122()] ?? null %}
+                            {% include 'components/_rank_badge.html.twig' with {level: userRank} %}
+                            · {{ suggestion.submittedAt|date('d/m/Y H:i') }}
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+                        <form method="POST" action="{{ path('moderation_approve_suggestion', {id: suggestion.id}) }}" style="margin:0">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('moderate_' ~ suggestion.id) }}">
+                            <button type="submit" class="btn btn-sm btn-primary">Approuver</button>
+                        </form>
+                        <form method="POST" action="{{ path('moderation_refuse_suggestion', {id: suggestion.id}) }}" style="margin:0">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('moderate_' ~ suggestion.id) }}">
+                            <button type="submit" class="btn btn-sm btn-secondary">Refuser</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </section>
+
     <section>
         <h2>Corrections en attente</h2>
         {% if pendingProposals is empty %}

@@ -37,3 +37,8 @@ services:
     App\Controller\LegalController:
         arguments:
             $legalLastUpdated: '%app.legal.last_updated%'
+
+    App\Service\ContactMailerService:
+        arguments:
+            $contactEmailFrom: '%env(CONTACT_EMAIL_FROM)%'
+            $contactEmailTo: '%env(CONTACT_EMAIL_TO)%'

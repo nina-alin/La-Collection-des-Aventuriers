@@ -1,0 +1,435 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nous contacter — La Collection{% endblock %}
+
+{% block meta %}
+<meta name="description" content="Contactez l'équipe de La Collection des Aventuriers pour toute question, signalement ou suggestion.">
+{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    /* ============================================================
+       PAGE HEADER (doc)
+       ============================================================ */
+    .doc-head { position: relative; padding: clamp(2.25rem, 5vw, 3.5rem) 0 clamp(1.25rem, 3vw, 2rem); overflow: hidden; }
+    .doc-head::after {
+      content: ""; position: absolute; pointer-events: none; border-radius: 50%; opacity: 0.4;
+      top: -160px; right: -120px; width: 380px; height: 380px;
+      background: radial-gradient(circle, var(--or-200) 0, transparent 65%);
+    }
+    [data-theme="dark"] .doc-head::after { background: radial-gradient(circle, rgba(184,134,11,0.16) 0, transparent 65%); }
+    .crumb {
+      display: flex; align-items: center; gap: 8px; margin-bottom: var(--sp-5);
+      font-family: var(--font-mono); font-size: var(--fs-xs);
+      text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--ink-subtle);
+    }
+    .crumb a { color: var(--ink-muted); text-decoration: none; }
+    .crumb a:hover { color: var(--brand-primary); }
+    .crumb svg { width: 12px; height: 12px; stroke: var(--ink-subtle); fill: none; stroke-width: 1.8; }
+    .doc-eyebrow {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-family: var(--font-mono); font-size: var(--fs-xs);
+      text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--ink-muted);
+      padding: 6px 13px; border: 1px solid var(--border-default); border-radius: var(--radius-pill);
+      background: var(--bg-elevated); margin-bottom: var(--sp-4);
+    }
+    .doc-eyebrow svg { width: 13px; height: 13px; stroke: var(--cuir-500); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    [data-theme="dark"] .doc-eyebrow svg { stroke: var(--or-400); }
+    .doc-title {
+      font-family: var(--font-display); font-size: clamp(2rem, 5vw + 0.5rem, 3.25rem);
+      font-weight: 700; line-height: 1.08; letter-spacing: 0.03em; color: var(--ink-strong);
+      margin: 0 0 var(--sp-3); position: relative;
+    }
+    .doc-lede { font-size: var(--fs-lg); color: var(--ink-muted); line-height: 1.6; max-width: 56ch; margin: 0; }
+
+    /* ============================================================
+       CONTACT LAYOUT — formulaire + aside
+       ============================================================ */
+    .contact-layout {
+      display: grid; grid-template-columns: 1fr; gap: var(--sp-6);
+      padding-bottom: clamp(3rem, 7vw, 5rem); align-items: start;
+    }
+    @media (min-width: 920px) { .contact-layout { grid-template-columns: 1fr 300px; gap: var(--sp-7); } }
+
+    /* ---- carte formulaire ---- */
+    .form-card {
+      border: 1px solid var(--border-default); border-radius: var(--radius-lg);
+      background: var(--bg-elevated); box-shadow: var(--shadow-sm);
+      padding: clamp(var(--sp-5), 4vw, var(--sp-7));
+    }
+    .form-row {
+      display: grid; grid-template-columns: 1fr; gap: 0 var(--sp-5);
+    }
+    @media (min-width: 560px) { .form-row { grid-template-columns: 1fr 1fr; } }
+
+    /* séparateur "ou" entre identité et pseudo */
+    .form-divider {
+      display: flex; align-items: center; gap: var(--sp-4);
+      margin: var(--sp-2) 0 var(--sp-5);
+      font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
+      letter-spacing: var(--tracking-caps); color: var(--ink-subtle);
+    }
+    .form-divider::before, .form-divider::after { content: ""; flex: 1; height: 1px; background: var(--border-subtle); }
+
+    /* astérisque qui se met en sourdine quand le champ n'est plus requis */
+    .form-label .required { color: var(--danger); transition: opacity var(--motion-base) var(--motion-ease); }
+    .form-label .required.is-dimmed { opacity: 0; }
+
+    .req-note {
+      font-family: var(--font-mono); font-size: var(--fs-xs);
+      letter-spacing: 0.04em; color: var(--ink-subtle);
+      margin: var(--sp-4) 0 var(--sp-5); display: flex; align-items: center; gap: 8px;
+    }
+    .req-note .req-star { color: var(--danger); }
+
+    .form-legal {
+      display: grid; grid-template-columns: auto 1fr; gap: var(--sp-3);
+      padding: var(--sp-4); border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md); background: var(--bg-sunken);
+      margin-bottom: var(--sp-5);
+    }
+    .form-legal-mark { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--cuir-300); color: var(--cuir-600); flex-shrink: 0; }
+    [data-theme="dark"] .form-legal-mark { color: var(--or-300); border-color: var(--or-700); }
+    .form-legal-mark svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .form-legal p { font-size: var(--fs-sm); color: var(--ink-muted); line-height: 1.6; margin: 0; }
+    .form-legal a { color: var(--brand-primary); border-bottom: 1px solid color-mix(in oklab, var(--brand-primary) 35%, transparent); text-decoration: none; }
+    .form-legal a:hover { border-bottom-color: var(--brand-primary); text-decoration: none; }
+
+    .form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4); }
+
+    /* succès */
+    .form-success {
+      display: none; align-items: flex-start; gap: var(--sp-3);
+      padding: var(--sp-4); border: 1px solid var(--success-border);
+      border-radius: var(--radius-md); background: var(--success-bg); margin-top: var(--sp-4);
+    }
+    .form-success.is-visible { display: flex; }
+    .form-success svg { width: 20px; height: 20px; stroke: var(--success); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; margin-top: 2px; }
+    .form-success p { font-size: var(--fs-sm); color: var(--ink-default); line-height: 1.6; margin: 0; }
+    .form-success strong { color: var(--ink-strong); }
+
+    /* ---- aside ---- */
+    .contact-aside { display: flex; flex-direction: column; gap: var(--sp-4); }
+    @media (min-width: 920px) { .contact-aside { position: sticky; top: 88px; } }
+    .aside-card {
+      border: 1px solid var(--border-default); border-radius: var(--radius-lg);
+      background: var(--bg-elevated); padding: var(--sp-5);
+    }
+    .aside-card h2 {
+      font-family: var(--font-display); font-size: var(--fs-lg); font-weight: 600;
+      letter-spacing: 0.02em; color: var(--ink-strong); margin: 0 0 var(--sp-2);
+    }
+    .aside-card p { font-size: var(--fs-sm); color: var(--ink-muted); line-height: 1.6; margin: 0; }
+    .aside-links { list-style: none; margin: var(--sp-3) 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+    .aside-links li { margin: 0; }
+    .aside-link {
+      display: flex; align-items: center; gap: 12px; padding: 11px 0;
+      border-top: 1px solid var(--border-subtle); text-decoration: none; color: var(--ink-default);
+      transition: color var(--motion-fast) var(--motion-ease);
+    }
+    .aside-link:first-child { border-top: 0; }
+    .aside-link:hover { color: var(--brand-primary); text-decoration: none; }
+    .aside-link:hover .aside-ico { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .aside-ico {
+      width: 34px; height: 34px; flex-shrink: 0; border-radius: var(--radius-md);
+      border: 1px solid var(--border-default); display: grid; place-items: center;
+      color: var(--ink-muted); transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .aside-ico svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .aside-link-text { display: flex; flex-direction: column; line-height: 1.3; }
+    .aside-link-title { font-size: var(--fs-sm); font-weight: 600; color: inherit; }
+    .aside-link-sub { font-size: var(--fs-xs); color: var(--ink-subtle); font-family: var(--font-mono); letter-spacing: 0.02em; }
+
+    .aside-delay {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--font-mono); font-size: var(--fs-xs); letter-spacing: 0.04em; color: var(--ink-muted);
+    }
+    .aside-delay svg { width: 15px; height: 15px; stroke: var(--cuir-500); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    [data-theme="dark"] .aside-delay svg { stroke: var(--or-400); }
+</style>
+{% endblock %}
+
+{% block page_wrapper %}
+<main data-screen-label="Contact">
+
+    <!-- DOC HEAD -->
+    <div class="doc-head">
+      <div class="px-4 px-md-5 mx-md-5">
+        <nav class="crumb" aria-label="Fil d'Ariane">
+          <a href="{{ path('home') }}">Accueil</a>
+          <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+          <span>Nous contacter</span>
+        </nav>
+        <span class="doc-eyebrow">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17z"/><path d="M8 9h8M8 12h5"/></svg>
+          Écrire à l'équipe
+        </span>
+        <h1 class="doc-title">Nous contacter</h1>
+        <p class="doc-lede">
+          Une question, un problème, l'envie de rejoindre l'équipe&nbsp;? Remplissez le
+          formulaire ci-dessous et nous vous répondrons au plus vite.
+        </p>
+      </div>
+    </div>
+
+    <!-- CONTACT LAYOUT -->
+    <div class="px-4 px-md-5 mx-md-5">
+      <div class="contact-layout">
+
+        <!-- FORMULAIRE -->
+        <form class="form-card" id="contact-form" novalidate
+              data-default-pseudo="{{ userPseudo ?? '' }}"
+              data-default-email="{{ userEmail }}">
+
+          <input type="hidden" name="_token" value="{{ csrf_token('contact') }}">
+
+          <noscript>
+            <p class="alert alert-warning">JavaScript est requis pour envoyer ce formulaire.</p>
+          </noscript>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="prenom">Prénom <span class="required" data-identity-req>*</span></label>
+              <input class="input" type="text" id="prenom" name="prenom" autocomplete="given-name" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="nom">Nom <span class="required" data-identity-req>*</span></label>
+              <input class="input" type="text" id="nom" name="nom" autocomplete="family-name" />
+            </div>
+          </div>
+
+          <div class="form-divider">ou</div>
+
+          <div class="form-group">
+            <label class="form-label" for="pseudo">Pseudonyme</label>
+            <input class="input" type="text" id="pseudo" name="pseudo" autocomplete="nickname"
+                   placeholder="Votre nom de plume sur le wiki"
+                   value="{{ userPseudo ?? '' }}" />
+            <span class="form-help">Renseignez un pseudonyme si vous préférez ne pas indiquer vos prénom et nom.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="email">Email <span class="required">*</span></label>
+            <input class="input" type="email" id="email" name="email" autocomplete="email"
+                   placeholder="vous@exemple.fr"
+                   value="{{ userEmail }}" />
+            <span class="form-help error" id="email-error" hidden>Merci d'indiquer une adresse de courriel valide.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="raison">Quelle est la raison de votre demande&nbsp;? <span class="required">*</span></label>
+            <select class="select" id="raison" name="raison">
+              <option value="" selected disabled>Choisissez une raison…</option>
+              <option value="question-site">J'ai une question sur le site</option>
+              <option value="signaler-probleme">Je souhaite remonter un problème</option>
+              <option value="erreur-fiche">Je souhaite signaler une erreur dans une fiche</option>
+              <option value="suggerer-oeuvre">Je souhaite suggérer un livre ou une œuvre</option>
+              <option value="devenir-moderateur">Je souhaite devenir modérateur</option>
+              <option value="contester-moderation">Je souhaite contester une décision de modération</option>
+              <option value="donnees-personnelles">Question sur mes données personnelles</option>
+              <option value="partenariat">Partenariat, presse ou association</option>
+              <option value="autre">Autre</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="message">Détail de votre demande <span class="required">*</span></label>
+            <textarea class="textarea" id="message" name="message" rows="6" placeholder="Décrivez votre demande le plus précisément possible…"></textarea>
+          </div>
+
+          <p class="req-note"><span class="req-star">*</span> Champs obligatoires</p>
+
+          <div class="form-legal">
+            <span class="form-legal-mark">
+              <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </span>
+            <p>
+              La Collection des Aventuriers collecte ces informations dans le seul but de
+              répondre à votre demande. Pour en savoir plus sur la gestion de vos données et
+              vos droits, consultez notre <a href="#">politique de confidentialité</a>.
+            </p>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-primary btn-lg" type="submit" id="contact-submit">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+              Envoyer
+            </button>
+            <button class="btn btn-ghost" type="reset">Réinitialiser</button>
+          </div>
+
+          <div class="form-success" id="form-success" role="status">
+            <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+            <p><strong>Message envoyé&nbsp;!</strong> Merci de nous avoir écrit. L'équipe vous répondra par courriel dans les meilleurs délais.</p>
+          </div>
+
+        </form>
+
+        <!-- ASIDE -->
+        <aside class="contact-aside">
+          <div class="aside-card">
+            <h2>Avant d'écrire</h2>
+            <p>Certaines demandes trouvent leur réponse plus vite par les canaux dédiés.</p>
+            <ul class="aside-links">
+              <li>
+                <a class="aside-link" href="{{ path('suggestions_index') }}">
+                  <span class="aside-ico"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+                  <span class="aside-link-text">
+                    <span class="aside-link-title">Suggérer un livre</span>
+                    <span class="aside-link-sub">Ajouter une œuvre au catalogue</span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a class="aside-link" href="#">
+                  <span class="aside-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg></span>
+                  <span class="aside-link-text">
+                    <span class="aside-link-title">Conditions d'utilisation</span>
+                    <span class="aside-link-sub">CGU &amp; règles de contribution</span>
+                  </span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="aside-card">
+            <div class="aside-delay">
+              <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+              Réponse sous 2 à 3 jours ouvrés
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+  (function () {
+    var form = document.getElementById('contact-form');
+    if (!form) return;
+
+    var prenom = document.getElementById('prenom');
+    var nom    = document.getElementById('nom');
+    var pseudo = document.getElementById('pseudo');
+    var email  = document.getElementById('email');
+    var raison = document.getElementById('raison');
+    var message = document.getElementById('message');
+    var emailError = document.getElementById('email-error');
+    var success = document.getElementById('form-success');
+    var submitBtn = document.getElementById('contact-submit');
+    var identityReqs = Array.prototype.slice.call(document.querySelectorAll('[data-identity-req]'));
+
+    var defaultPseudo = form.dataset.defaultPseudo || '';
+    var defaultEmail  = form.dataset.defaultEmail  || '';
+
+    // Prénom + Nom deviennent optionnels dès qu'un pseudo est renseigné.
+    function syncIdentityRequirement() {
+      var pseudoFilled = pseudo.value.trim().length > 0;
+      identityReqs.forEach(function (star) {
+        star.classList.toggle('is-dimmed', pseudoFilled);
+      });
+    }
+    pseudo.addEventListener('input', syncIdentityRequirement);
+    syncIdentityRequirement();
+
+    function setInvalid(el, msg, helpEl) {
+      el.classList.add('is-invalid');
+      el.setAttribute('aria-invalid', 'true');
+      if (helpEl && msg) { helpEl.textContent = msg; helpEl.hidden = false; }
+    }
+    function clearInvalid(el, helpEl) {
+      el.classList.remove('is-invalid');
+      el.removeAttribute('aria-invalid');
+      if (helpEl) helpEl.hidden = true;
+    }
+
+    [prenom, nom, email, raison, message].forEach(function (el) {
+      el.addEventListener('input', function () { clearInvalid(el, el === email ? emailError : null); });
+      el.addEventListener('change', function () { clearInvalid(el, el === email ? emailError : null); });
+    });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var firstInvalid = null;
+      var pseudoFilled = pseudo.value.trim().length > 0;
+
+      // Identité : requise uniquement si aucun pseudo.
+      if (!pseudoFilled) {
+        if (!prenom.value.trim()) { setInvalid(prenom); if (!firstInvalid) firstInvalid = prenom; }
+        if (!nom.value.trim())    { setInvalid(nom);    if (!firstInvalid) firstInvalid = nom; }
+      }
+
+      // Email
+      var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
+      if (!emailOk) { setInvalid(email, 'Merci d’indiquer une adresse de courriel valide.', emailError); if (!firstInvalid) firstInvalid = email; }
+
+      // Raison
+      if (!raison.value) { setInvalid(raison); if (!firstInvalid) firstInvalid = raison; }
+
+      // Message
+      if (!message.value.trim()) { setInvalid(message); if (!firstInvalid) firstInvalid = message; }
+
+      if (firstInvalid) {
+        success.classList.remove('is-visible');
+        firstInvalid.focus();
+        return;
+      }
+
+      // Disable submit during request
+      submitBtn.disabled = true;
+
+      var token = form.querySelector('input[name="_token"]').value;
+
+      fetch('/contact/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          _token:  token,
+          prenom:  prenom.value.trim() || null,
+          nom:     nom.value.trim()    || null,
+          pseudo:  pseudo.value.trim() || null,
+          email:   email.value.trim(),
+          raison:  raison.value,
+          message: message.value.trim(),
+        }),
+      })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        submitBtn.disabled = false;
+        if (data.success) {
+          success.classList.add('is-visible');
+          form.querySelectorAll('input:not([name="_token"]), textarea, select').forEach(function (el) {
+            if (el.type !== 'submit' && el.type !== 'reset') el.value = '';
+          });
+          pseudo.value = defaultPseudo;
+          email.value  = defaultEmail;
+          raison.selectedIndex = 0;
+          syncIdentityRequirement();
+        } else {
+          if (data.errors && data.errors.length) {
+            data.errors.forEach(function (msg) { console.warn('[contact]', msg); });
+          }
+        }
+      })
+      .catch(function () {
+        submitBtn.disabled = false;
+      });
+    });
+
+    form.addEventListener('reset', function () {
+      [prenom, nom, email, raison, message].forEach(function (el) { clearInvalid(el, el === email ? emailError : null); });
+      success.classList.remove('is-visible');
+      setTimeout(function () {
+        pseudo.value = defaultPseudo;
+        email.value  = defaultEmail;
+        syncIdentityRequirement();
+      }, 0);
+    });
+  })();
+</script>
+{% endblock %}
