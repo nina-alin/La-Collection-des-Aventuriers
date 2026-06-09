@@ -145,6 +145,12 @@
 
                 {% if app.user %}
                     <twig:Book:LibraryActionsComponent :book="book" />
+                    <div class="mt-2">
+                        <a href="{{ path('suggestions_index', {entityType: 'BOOK', entityId: book.id}) }}"
+                           class="btn btn-ghost btn-sm">
+                            Suggérer une correction
+                        </a>
+                    </div>
                     {% include 'livre/_review_form.html.twig' %}
                 {% endif %}
 

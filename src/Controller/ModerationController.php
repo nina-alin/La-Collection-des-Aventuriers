@@ -4,13 +4,20 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Enum\SuggestionEntityType;
 use App\Entity\Enum\SuggestionStatus;
+use App\Repository\BookRepository;
+use App\Repository\CollectionRepository;
+use App\Repository\ContributorRepository;
 use App\Repository\CorrectionProposalRepository;
+use App\Repository\EditorRepository;
 use App\Repository\SuggestionRepository;
 use App\Repository\WorkEntryRepository;
 use App\Service\ContributorLevelService;
+use App\Service\DiffService;
 use App\Service\ModerationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -26,6 +33,11 @@ class ModerationController extends AbstractController
         CorrectionProposalRepository $correctionRepo,
         SuggestionRepository $suggestionRepo,
         ContributorLevelService $contributorLevelService,
+        DiffService $diffService,
+        BookRepository $bookRepo,
+        ContributorRepository $contributorRepo,
+        EditorRepository $editorRepo,
+        CollectionRepository $collectionRepo,
     ): Response {
         $pendingEntries = $workEntryRepo->findPending();
         $pendingProposals = $correctionRepo->findPending();
@@ -48,11 +60,49 @@ class ModerationController extends AbstractController
 
         $ranksByUserId = $contributorLevelService->computeRankBatch($authors);
 
+        $firstSuggestion = $suggestionRepo->findFirstPending();
+        $diffResult = null;
+
+        if ($firstSuggestion !== null) {
+            $sourceEntity = $this->loadSourceEntity($firstSuggestion->getEntityType(), $firstSuggestion->getSourceEntityId()?->toRfc4122(), $bookRepo, $contributorRepo, $editorRepo, $collectionRepo);
+            $diffResult = $diffService->computeForSuggestion($firstSuggestion, $sourceEntity);
+        }
+
+        $pendingCount = $suggestionRepo->countGlobalPending();
+
         return $this->render('moderation/dashboard.html.twig', [
             'pendingEntries' => $pendingEntries,
             'pendingProposals' => $pendingProposals,
             'pendingSuggestions' => $pendingSuggestions,
             'ranksByUserId' => $ranksByUserId,
+            'suggestion' => $firstSuggestion,
+            'diffResult' => $diffResult,
+            'pendingCount' => $pendingCount,
+            'currentDate' => new \DateTimeImmutable(),
+        ]);
+    }
+
+    #[Route('/suggestion/{id}/diff-partial', name: 'moderation_diff_partial', methods: ['GET'])]
+    public function diffPartial(
+        string $id,
+        SuggestionRepository $suggestionRepo,
+        DiffService $diffService,
+        BookRepository $bookRepo,
+        ContributorRepository $contributorRepo,
+        EditorRepository $editorRepo,
+        CollectionRepository $collectionRepo,
+    ): Response {
+        $suggestion = $suggestionRepo->find($id);
+        if ($suggestion === null) {
+            throw $this->createNotFoundException();
+        }
+
+        $sourceEntity = $this->loadSourceEntity($suggestion->getEntityType(), $suggestion->getSourceEntityId()?->toRfc4122(), $bookRepo, $contributorRepo, $editorRepo, $collectionRepo);
+        $diffResult = $diffService->computeForSuggestion($suggestion, $sourceEntity);
+
+        return $this->render('moderation/_diff_panel.html.twig', [
+            'suggestion' => $suggestion,
+            'diffResult' => $diffResult,
         ]);
     }
 
@@ -176,6 +226,9 @@ class ModerationController extends AbstractController
     {
         $suggestion = $repo->find($id);
         if ($suggestion === null) {
+            if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+                return $this->json(['success' => false, 'message' => 'Suggestion introuvable.'], 404);
+            }
             $this->addFlash('error', 'Suggestion introuvable.');
             return $this->redirectToRoute('moderation_dashboard');
         }
@@ -187,8 +240,13 @@ class ModerationController extends AbstractController
         /** @var \App\Entity\User $moderator */
         $moderator = $this->getUser();
         $service->moderateSuggestion($moderator, $suggestion, SuggestionStatus::VALIDATED);
-        $this->addFlash('success', 'Suggestion validée.');
 
+        if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+            $next = $repo->findNextPending($suggestion);
+            return $this->json(['success' => true, 'nextSuggestionId' => $next?->getId()->toRfc4122()]);
+        }
+
+        $this->addFlash('success', 'Suggestion validée.');
         return $this->redirectToRoute('moderation_dashboard');
     }
 
@@ -197,12 +255,29 @@ class ModerationController extends AbstractController
     {
         $suggestion = $repo->find($id);
         if ($suggestion === null) {
+            if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+                return $this->json(['success' => false, 'message' => 'Suggestion introuvable.'], 404);
+            }
             $this->addFlash('error', 'Suggestion introuvable.');
             return $this->redirectToRoute('moderation_dashboard');
         }
 
         if (!$this->isCsrfTokenValid('moderate_'.$id, $request->request->get('_csrf_token'))) {
             return new Response('Invalid CSRF token.', Response::HTTP_FORBIDDEN);
+        }
+
+        if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+            $reason = trim((string) $request->request->get('reason', ''));
+            if ($reason === '') {
+                return $this->json(['success' => false, 'message' => 'Le motif de refus est requis.'], 422);
+            }
+
+            /** @var \App\Entity\User $moderator */
+            $moderator = $this->getUser();
+            $service->moderateSuggestion($moderator, $suggestion, SuggestionStatus::REFUSED, $reason);
+
+            $next = $repo->findNextPending($suggestion);
+            return $this->json(['success' => true, 'nextSuggestionId' => $next?->getId()->toRfc4122()]);
         }
 
         /** @var \App\Entity\User $moderator */
@@ -234,5 +309,180 @@ class ModerationController extends AbstractController
         }
 
         return $this->redirectToRoute('moderation_dashboard');
+    }
+
+    #[Route('/entities', name: 'moderation_entities_list', methods: ['GET'])]
+    public function entitiesList(
+        Request $request,
+        BookRepository $bookRepo,
+        ContributorRepository $contributorRepo,
+        EditorRepository $editorRepo,
+        CollectionRepository $collectionRepo,
+    ): Response {
+        $search = (string) $request->query->get('search', '');
+        $type = (string) $request->query->get('type', '');
+
+        $entities = [];
+
+        if ($type === '' || $type === 'BOOK') {
+            $books = $search !== ''
+                ? $bookRepo->findByTitleLike($search, 30)
+                : $bookRepo->createQueryBuilder('b')->setMaxResults(30)->getQuery()->getResult();
+            foreach ($books as $book) {
+                $entities[] = [
+                    'id' => (string) $book->getId(),
+                    'name' => $book->getTitle(),
+                    'type' => 'BOOK',
+                    'status' => $book->getStatus()->value,
+                    'updatedAt' => $book->getUpdatedAt() ?? new \DateTimeImmutable(),
+                    'refusalReason' => null,
+                ];
+            }
+        }
+
+        if ($type === '' || in_array($type, ['AUTHOR', 'ILLUSTRATOR', 'TRADUCTOR'], true)) {
+            $contributors = $contributorRepo->createQueryBuilder('c')
+                ->setMaxResults(30)
+                ->getQuery()->getResult();
+            if ($search !== '') {
+                $contributors = $contributorRepo->createQueryBuilder('c')
+                    ->where("LOWER(CONCAT(c.firstName, ' ', c.lastName)) LIKE LOWER(:q)")
+                    ->setParameter('q', '%' . $search . '%')
+                    ->setMaxResults(30)
+                    ->getQuery()->getResult();
+            }
+            foreach ($contributors as $contributor) {
+                $entities[] = [
+                    'id' => $contributor->getId()->toRfc4122(),
+                    'name' => $contributor->getFirstName() . ' ' . $contributor->getLastName(),
+                    'type' => 'AUTHOR',
+                    'status' => 'published',
+                    'updatedAt' => new \DateTimeImmutable(),
+                    'refusalReason' => null,
+                ];
+            }
+        }
+
+        if ($type === '' || $type === 'EDITOR') {
+            $editors = $search !== ''
+                ? $editorRepo->findByNameSearch($search, 30)
+                : $editorRepo->createQueryBuilder('e')->setMaxResults(30)->getQuery()->getResult();
+            foreach ($editors as $editor) {
+                $entities[] = [
+                    'id' => (string) $editor->getId(),
+                    'name' => $editor->getName(),
+                    'type' => 'EDITOR',
+                    'status' => 'published',
+                    'updatedAt' => new \DateTimeImmutable(),
+                    'refusalReason' => null,
+                ];
+            }
+        }
+
+        if ($type === '' || $type === 'COLLECTION') {
+            $collections = $collectionRepo->createQueryBuilder('c')
+                ->setMaxResults(30);
+            if ($search !== '') {
+                $collections->where('LOWER(c.nom) LIKE LOWER(:q)')->setParameter('q', '%' . $search . '%');
+            }
+            $collections = $collections->getQuery()->getResult();
+            foreach ($collections as $collection) {
+                $entities[] = [
+                    'id' => $collection->getId()->toRfc4122(),
+                    'name' => $collection->getNom(),
+                    'type' => 'COLLECTION',
+                    'status' => $collection->getStatut()->value,
+                    'updatedAt' => new \DateTimeImmutable(),
+                    'refusalReason' => null,
+                ];
+            }
+        }
+
+        usort($entities, fn ($a, $b) => $b['updatedAt'] <=> $a['updatedAt']);
+        $entities = array_slice($entities, 0, 100);
+
+        return $this->render('moderation/_entities_table.html.twig', ['entities' => $entities]);
+    }
+
+    #[Route('/entities/{type}/{id}', name: 'moderation_entity_delete', methods: ['DELETE'])]
+    public function deleteEntity(
+        string $type,
+        string $id,
+        Request $request,
+        BookRepository $bookRepo,
+        ContributorRepository $contributorRepo,
+        EditorRepository $editorRepo,
+        CollectionRepository $collectionRepo,
+        \Doctrine\ORM\EntityManagerInterface $em,
+    ): JsonResponse {
+        if (!$this->isCsrfTokenValid('delete_entity_' . $id, $request->headers->get('X-CSRF-Token') ?? $request->request->get('_csrf_token'))) {
+            return $this->json(['success' => false, 'message' => 'Invalid CSRF token.'], 403);
+        }
+
+        $entity = $this->resolveEntity($type, $id, $bookRepo, $contributorRepo, $editorRepo, $collectionRepo);
+        if ($entity === null) {
+            return $this->json(['success' => false, 'message' => 'Entité introuvable.'], 404);
+        }
+
+        $em->remove($entity);
+        $em->flush();
+
+        return $this->json(['success' => true]);
+    }
+
+    #[Route('/entities/{type}/{id}/depublish', name: 'moderation_entity_depublish', methods: ['PATCH'])]
+    public function depublishEntity(
+        string $type,
+        string $id,
+        Request $request,
+        BookRepository $bookRepo,
+        ContributorRepository $contributorRepo,
+        EditorRepository $editorRepo,
+        CollectionRepository $collectionRepo,
+    ): JsonResponse {
+        if (!$this->isCsrfTokenValid('delete_entity_' . $id, $request->headers->get('X-CSRF-Token') ?? $request->request->get('_csrf_token'))) {
+            return $this->json(['success' => false, 'message' => 'Invalid CSRF token.'], 403);
+        }
+
+        return $this->json(['success' => false, 'message' => 'Type non dépubliable.'], 422);
+    }
+
+    private function resolveEntity(
+        string $type,
+        string $id,
+        BookRepository $bookRepo,
+        ContributorRepository $contributorRepo,
+        EditorRepository $editorRepo,
+        CollectionRepository $collectionRepo,
+    ): ?object {
+        return match ($type) {
+            'BOOK' => $bookRepo->find($id),
+            'AUTHOR', 'ILLUSTRATOR', 'TRADUCTOR' => $contributorRepo->find($id),
+            'EDITOR' => $editorRepo->find($id),
+            'COLLECTION' => $collectionRepo->find($id),
+            default => null,
+        };
+    }
+
+    private function loadSourceEntity(
+        SuggestionEntityType $type,
+        ?string $sourceEntityId,
+        BookRepository $bookRepo,
+        ContributorRepository $contributorRepo,
+        EditorRepository $editorRepo,
+        CollectionRepository $collectionRepo,
+    ): ?object {
+        if ($sourceEntityId === null) {
+            return null;
+        }
+
+        return match ($type) {
+            SuggestionEntityType::BOOK => $bookRepo->find($sourceEntityId),
+            SuggestionEntityType::AUTHOR,
+            SuggestionEntityType::ILLUSTRATOR,
+            SuggestionEntityType::TRADUCTOR => $contributorRepo->find($sourceEntityId),
+            SuggestionEntityType::EDITOR => $editorRepo->find($sourceEntityId),
+            SuggestionEntityType::COLLECTION => $collectionRepo->find($sourceEntityId),
+        };
     }
 }

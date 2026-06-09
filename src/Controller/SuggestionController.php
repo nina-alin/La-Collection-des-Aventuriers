@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Collection;
 use App\Entity\Contributor;
 use App\Entity\Editor;
+use App\Entity\Enum\ContributionRole;
 use App\Entity\Enum\SuggestionEntityType;
 use App\Entity\User;
 use App\Repository\BookRepository;
@@ -30,17 +31,138 @@ class SuggestionController extends AbstractController
 {
     #[Route('/suggestions', name: 'suggestions_index', methods: ['GET'])]
     public function index(
+        Request $request,
         SuggestionService $suggestionService,
         ContributorLevelService $contributorLevelService,
+        BookRepository $bookRepository,
+        ContributorRepository $contributorRepository,
+        CollectionRepository $collectionRepository,
+        EntityManagerInterface $em,
     ): Response {
         /** @var User $user */
         $user = $this->getUser();
 
         $metrics = $contributorLevelService->getMetrics($user);
 
+        $prefill = null;
+        $entityTypeParam = $request->query->get('entityType');
+        $entityIdParam   = $request->query->get('entityId');
+
+        if ($entityTypeParam !== null && $entityIdParam !== null) {
+            $prefill = $this->buildPrefill($entityTypeParam, $entityIdParam, $bookRepository, $contributorRepository, $collectionRepository, $em);
+        }
+
         return $this->render('suggestion/index.html.twig', [
             'metrics' => $metrics,
+            'prefill' => $prefill,
         ]);
+    }
+
+    private function buildPrefill(
+        string $entityType,
+        string $entityId,
+        BookRepository $bookRepository,
+        ContributorRepository $contributorRepository,
+        CollectionRepository $collectionRepository,
+        EntityManagerInterface $em,
+    ): ?array {
+        return match ($entityType) {
+            'BOOK'                          => $this->buildBookPrefill($entityId, $bookRepository),
+            'AUTHOR', 'ILLUSTRATOR', 'TRADUCTOR' => $this->buildContributorPrefill($entityType, $entityId, $contributorRepository),
+            'EDITOR'                        => $this->buildEditorPrefill($entityId, $em),
+            'COLLECTION'                    => $this->buildCollectionPrefill($entityId, $collectionRepository),
+            default                         => null,
+        };
+    }
+
+    private function buildBookPrefill(string $entityId, BookRepository $bookRepository): ?array
+    {
+        $book = $bookRepository->find((int) $entityId);
+        if ($book === null) {
+            return null;
+        }
+
+        $contributions = $book->getContributions()->toArray();
+        $authors       = array_values(array_filter($contributions, fn ($c) => $c->getRole() === ContributionRole::Author));
+        $illustrators  = array_values(array_filter($contributions, fn ($c) => $c->getRole() === ContributionRole::Illustrator));
+        $traductors    = array_values(array_filter($contributions, fn ($c) => $c->getRole() === ContributionRole::Traductor));
+
+        $name = static fn (?object $c): string => $c !== null
+            ? trim($c->getContributor()->getFirstName() . ' ' . $c->getContributor()->getLastName())
+            : '';
+
+        return [
+            'entityType' => 'BOOK',
+            'entityId'   => null,
+            'formData'   => [
+                'title'           => $book->getTitle() ?? '',
+                'subtitle'        => '',
+                'author'          => $name($authors[0] ?? null),
+                'illustrator'     => $name($illustrators[0] ?? null),
+                'traductor'       => $name($traductors[0] ?? null),
+                'editor'          => $book->getEditor()?->getName() ?? '',
+                'collection'      => $book->getCollection()?->getNom() ?? '',
+                'isbn'            => $book->getIsbn() ?? '',
+                'publicationFr'   => (string) ($book->getFrenchPublicationYear() ?? ''),
+                'originalEdition' => (string) ($book->getOriginalPublicationYear() ?? ''),
+                'paragraphs'      => (string) ($book->getParagraphs() ?? ''),
+                'backCoverText'   => $book->getSummary() ?? '',
+            ],
+        ];
+    }
+
+    private function buildContributorPrefill(string $entityType, string $entityId, ContributorRepository $contributorRepository): ?array
+    {
+        $contributor = $contributorRepository->find($entityId);
+        if ($contributor === null) {
+            return null;
+        }
+
+        return [
+            'entityType' => $entityType,
+            'entityId'   => (string) $contributor->getId(),
+            'formData'   => [
+                'firstName'   => $contributor->getFirstName() ?? '',
+                'lastName'    => $contributor->getLastName() ?? '',
+                'pseudo'      => $contributor->getPseudo() ?? '',
+                'biography'   => $contributor->getBiography() ?? '',
+                'nationality' => $contributor->getNationality() ?? '',
+                'birthDate'   => $contributor->getBirthDate()?->format('Y-m-d') ?? '',
+                'deathDate'   => $contributor->getDeathDate()?->format('Y-m-d') ?? '',
+            ],
+        ];
+    }
+
+    private function buildEditorPrefill(string $entityId, EntityManagerInterface $em): ?array
+    {
+        $editor = $em->getRepository(Editor::class)->find((int) $entityId);
+        if ($editor === null) {
+            return null;
+        }
+
+        return [
+            'entityType' => 'EDITOR',
+            'entityId'   => null,
+            'formData'   => [
+                'name' => $editor->getName() ?? '',
+            ],
+        ];
+    }
+
+    private function buildCollectionPrefill(string $entityId, CollectionRepository $collectionRepository): ?array
+    {
+        $collection = $collectionRepository->find($entityId);
+        if ($collection === null) {
+            return null;
+        }
+
+        return [
+            'entityType' => 'COLLECTION',
+            'entityId'   => (string) $collection->getId(),
+            'formData'   => [
+                'name' => $collection->getNom() ?? '',
+            ],
+        ];
     }
 
     #[Route('/api/suggestions/feed', name: 'app_suggestions_feed', methods: ['GET'])]

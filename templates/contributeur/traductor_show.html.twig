@@ -33,6 +33,15 @@
         </div>
     </header>
 
+    {% if app.user %}
+        <div class="mb-4">
+            <a href="{{ path('suggestions_index', {entityType: 'TRADUCTOR', entityId: contributor.id}) }}"
+               class="btn btn-ghost btn-sm">
+                Suggérer une correction
+            </a>
+        </div>
+    {% endif %}
+
     {% if contributor.biography %}
         <section class="mb-5" aria-label="Biographie">
             <h2 class="h4">Biographie</h2>

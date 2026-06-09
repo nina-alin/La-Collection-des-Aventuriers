@@ -1,127 +1,91 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Tableau de modération — La Collection{% endblock %}
+{% block title %}La Salle de Modération — La Collection{% endblock %}
 
 {% block body %}
-<div class="container" style="max-width:900px;margin:2rem auto;padding:0 1rem">
-    <h1 style="margin-bottom:1.5rem">Tableau de modération</h1>
+<div
+    class="container"
+    style="max-width:1280px;margin:2rem auto;padding:0 1.5rem"
+    data-controller="moderation-room"
+    data-moderation-room-pending-count-value="{{ pendingCount }}"
+>
+    <header style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2rem;flex-wrap:wrap;gap:.5rem">
+        <div>
+            <p class="mod-eyebrow">
+                {{ currentDate|date('d/m/Y') }}
+                {% if pendingCount > 0 %} · {{ pendingCount }} suggestion{{ pendingCount > 1 ? 's' : '' }} en attente{% endif %}
+            </p>
+            <h1 class="mod-title">La Salle de Modération</h1>
+        </div>
+        <button
+            class="btn btn-sm btn-ghost"
+            style="margin-top:.25rem"
+            data-action="click->moderation-room#toggleView"
+            data-moderation-room-target="viewToggle"
+            {% if pendingCount == 0 %}disabled{% endif %}
+        >Vue Tableau</button>
+    </header>
 
-    <section style="margin-bottom:2rem">
-        <h2>Entrées en attente</h2>
-        {% if pendingEntries is empty %}
-            <p style="color:var(--text-muted)">Aucune entrée en attente.</p>
-        {% else %}
-            {% for entry in pendingEntries %}
-            <div style="border:1px solid var(--border-default);border-radius:var(--radius-md);padding:1rem;margin-bottom:1rem">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem">
-                    <div>
-                        <strong>{{ entry.title }}</strong>
-                        <div style="font-size:.875rem;color:var(--text-muted);margin-top:.25rem">
-                            Par {{ entry.author ? entry.author.pseudo : '[supprimé]' }}
-                            {% if entry.author %}
-                                {% set userRank = ranksByUserId[entry.author.id.toRfc4122()] ?? null %}
-                                {% include 'components/_rank_badge.html.twig' with {level: userRank} %}
-                            {% endif %}
-                            · {{ entry.createdAt|date('d/m/Y H:i') }}
-                        </div>
-                    </div>
-                    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-                        <form method="POST" action="{{ path('moderation_approve_work_entry', {id: entry.id}) }}" style="margin:0">
-                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('moderate_' ~ entry.id) }}">
-                            <button type="submit" class="btn btn-sm btn-primary">Approuver</button>
-                        </form>
-                        <form method="POST" action="{{ path('moderation_reject_work_entry', {id: entry.id}) }}" style="margin:0;display:flex;gap:.25rem">
-                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('moderate_' ~ entry.id) }}">
-                            <input type="text" name="reason" placeholder="Raison (optionnel)" style="font-size:.875rem;padding:.25rem .5rem;border:1px solid var(--border-default);border-radius:var(--radius-sm)">
-                            <button type="submit" class="btn btn-sm btn-secondary">Rejeter</button>
-                        </form>
-                        <form method="POST" action="{{ path('moderation_edit_work_entry', {id: entry.id}) }}" style="margin:0;display:flex;gap:.25rem">
-                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('moderate_' ~ entry.id) }}">
-                            <input type="text" name="title" value="{{ entry.title }}" style="font-size:.875rem;padding:.25rem .5rem;border:1px solid var(--border-default);border-radius:var(--radius-sm)">
-                            <button type="submit" class="btn btn-sm btn-ghost">Modifier</button>
-                        </form>
-                    </div>
+    {# ── Section II — Flux de traitement ──────────────────────────────────── #}
+    <section style="margin-bottom:3rem">
+        <div class="mod-section-head">
+            <h2>↓ Flux de traitement</h2>
+            <span style="font-family:var(--font-mono);font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:var(--tracking-caps);color:var(--ink-muted)">
+                1&nbsp;/&nbsp;{{ pendingCount }}
+            </span>
+        </div>
+        <p class="mod-section-sub">Le cœur du travail. Une suggestion à la fois, focus maximal — la file est à droite.</p>
+
+        <div data-moderation-room-target="fluxView">
+            <div class="flux">
+                <div class="diff-area" data-moderation-room-target="diffPanel">
+                    {% include 'moderation/_diff_panel.html.twig' %}
                 </div>
+                {% include 'moderation/_queue_panel.html.twig' %}
             </div>
-            {% endfor %}
-        {% endif %}
+        </div>
+
+        <div data-moderation-room-target="tableView" style="display:none">
+            {% include 'moderation/_table_view.html.twig' %}
+        </div>
     </section>
 
+    {# ── Section III — Gestion globale des fiches ─────────────────────────── #}
     <section style="margin-bottom:2rem">
-        <h2>Suggestions en attente</h2>
-        {% if pendingSuggestions is empty %}
-            <p style="color:var(--text-muted)">Aucune suggestion en attente.</p>
-        {% else %}
-            {% for suggestion in pendingSuggestions %}
-            {% set formData = suggestion.formData %}
-            {% set entityName = formData.title ?? formData.name ?? suggestion.entityType.value %}
-            <div style="border:1px solid var(--border-default);border-radius:var(--radius-md);padding:1rem;margin-bottom:1rem">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem">
-                    <div>
-                        <strong>{{ entityName }}</strong>
-                        <div style="font-size:.875rem;color:var(--text-muted);margin-top:.25rem">
-                            {{ suggestion.entityType.value }} · {{ suggestion.mode.value }}
-                            · Par {{ suggestion.user.pseudo }}
-                            {% set userRank = ranksByUserId[suggestion.user.id.toRfc4122()] ?? null %}
-                            {% include 'components/_rank_badge.html.twig' with {level: userRank} %}
-                            · {{ suggestion.submittedAt|date('d/m/Y H:i') }}
-                        </div>
-                    </div>
-                    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-                        <form method="POST" action="{{ path('moderation_approve_suggestion', {id: suggestion.id}) }}" style="margin:0">
-                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('moderate_' ~ suggestion.id) }}">
-                            <button type="submit" class="btn btn-sm btn-primary">Approuver</button>
-                        </form>
-                        <form method="POST" action="{{ path('moderation_refuse_suggestion', {id: suggestion.id}) }}" style="margin:0">
-                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('moderate_' ~ suggestion.id) }}">
-                            <button type="submit" class="btn btn-sm btn-secondary">Refuser</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+        <div class="mod-section-head">
+            <h2>Gestion globale des fiches</h2>
+        </div>
+        <div class="entities-filter-bar">
+            <input
+                type="text"
+                placeholder="Rechercher…"
+                class="filter-search"
+                data-moderation-room-target="searchInput"
+                data-action="input->moderation-room#onSearchInput"
+            >
+            {% for label, typeValue in {'Tous': '', 'Livres': 'BOOK', 'Auteurs': 'AUTHOR', 'Illustrateurs': 'ILLUSTRATOR', 'Traducteurs': 'TRADUCTOR', 'Éditeurs': 'EDITOR', 'Collections': 'COLLECTION'} %}
+                <button
+                    class="btn btn-sm btn-ghost filter-btn"
+                    data-action="click->moderation-room#filterByType"
+                    data-type="{{ typeValue }}"
+                >{{ label }}</button>
             {% endfor %}
-        {% endif %}
-    </section>
-
-    <section>
-        <h2>Corrections en attente</h2>
-        {% if pendingProposals is empty %}
-            <p style="color:var(--text-muted)">Aucune correction en attente.</p>
-        {% else %}
-            {% for proposal in pendingProposals %}
-            <div style="border:1px solid var(--border-default);border-radius:var(--radius-md);padding:1rem;margin-bottom:1rem">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem">
-                    <div>
-                        <strong>Correction pour : {{ proposal.workEntry.title }}</strong>
-                        <div style="font-size:.875rem;color:var(--text-muted);margin-top:.25rem">
-                            Par {{ proposal.author ? proposal.author.pseudo : '[supprimé]' }}
-                            {% if proposal.author %}
-                                {% set userRank = ranksByUserId[proposal.author.id.toRfc4122()] ?? null %}
-                                {% include 'components/_rank_badge.html.twig' with {level: userRank} %}
-                            {% endif %}
-                            · {{ proposal.createdAt|date('d/m/Y H:i') }}
-                        </div>
-                    </div>
-                    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-                        <form method="POST" action="{{ path('moderation_approve_correction', {id: proposal.id}) }}" style="margin:0">
-                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('moderate_' ~ proposal.id) }}">
-                            <button type="submit" class="btn btn-sm btn-primary">Approuver</button>
-                        </form>
-                        <form method="POST" action="{{ path('moderation_reject_correction', {id: proposal.id}) }}" style="margin:0;display:flex;gap:.25rem">
-                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('moderate_' ~ proposal.id) }}">
-                            <input type="text" name="reason" placeholder="Raison (optionnel)" style="font-size:.875rem;padding:.25rem .5rem;border:1px solid var(--border-default);border-radius:var(--radius-sm)">
-                            <button type="submit" class="btn btn-sm btn-secondary">Rejeter</button>
-                        </form>
-                        <form method="POST" action="{{ path('moderation_edit_correction', {id: proposal.id}) }}" style="margin:0;display:flex;gap:.25rem">
-                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('moderate_' ~ proposal.id) }}">
-                            <input type="text" name="proposedContent" placeholder="Nouveau contenu" style="font-size:.875rem;padding:.25rem .5rem;border:1px solid var(--border-default);border-radius:var(--radius-sm)">
-                            <button type="submit" class="btn btn-sm btn-ghost">Modifier</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        {% endif %}
+        </div>
+        <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:.875rem">
+                <thead>
+                    <tr>
+                        <th style="text-align:left;padding:.5rem .75rem;border-bottom:1px solid var(--border-default);font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:var(--tracking-caps);color:var(--ink-muted);font-weight:500">Nom</th>
+                        <th style="text-align:left;padding:.5rem .75rem;border-bottom:1px solid var(--border-default);font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:var(--tracking-caps);color:var(--ink-muted);font-weight:500">Type</th>
+                        <th style="text-align:left;padding:.5rem .75rem;border-bottom:1px solid var(--border-default);font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:var(--tracking-caps);color:var(--ink-muted);font-weight:500">Statut</th>
+                        <th style="text-align:left;padding:.5rem .75rem;border-bottom:1px solid var(--border-default);font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:var(--tracking-caps);color:var(--ink-muted);font-weight:500">Dernière maj</th>
+                        <th style="padding:.5rem .75rem;border-bottom:1px solid var(--border-default);font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:var(--tracking-caps);color:var(--ink-muted);font-weight:500">Actions</th>
+                    </tr>
+                </thead>
+                <tbody data-moderation-room-target="entitiesTableBody">
+                </tbody>
+            </table>
+        </div>
     </section>
 </div>
 {% endblock %}

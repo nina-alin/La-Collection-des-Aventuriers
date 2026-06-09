@@ -84,7 +84,19 @@
         </div>
         <span class="panel-meta" data-suggestion-autosave-target="label"></span>
       </div>
-      <twig:Suggestion:WizardComponent data-suggestion-autosave-target="wizard" />
+      {% if prefill %}
+        {{ component('Suggestion:WizardComponent', {
+          'step': 2,
+          'mode': 'CORRECTION',
+          'entityType': prefill.entityType,
+          'sourceEntityId': prefill.entityId,
+          'formData': prefill.formData,
+          'originalData': prefill.formData,
+          'data-suggestion-autosave-target': 'wizard'
+        }) }}
+      {% else %}
+        <twig:Suggestion:WizardComponent data-suggestion-autosave-target="wizard" />
+      {% endif %}
     </section>
 
     {# Right panel: Suivi (US3) #}

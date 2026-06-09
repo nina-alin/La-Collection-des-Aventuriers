@@ -1,0 +1,115 @@
+{% if suggestion is not null %}
+<div class="diff-panel-header">
+    <span class="diff-meta-user">@{{ suggestion.user.pseudo }}</span>
+    <span class="diff-meta-info">
+        <span>·</span>
+        <span>{{ suggestion.entityType.value }}</span>
+        <span>·</span>
+        <span>{{ suggestion.mode.value == 'NEW_ENTRY' ? 'Nouvelle fiche' : 'Fiche existante' }}</span>
+        <span>·</span>
+        <span>{{ suggestion.submittedAt|date('d/m/Y H:i') }}</span>
+    </span>
+</div>
+<div class="split">
+    <div class="split-col now">
+        <div class="split-col-header">Actuelles</div>
+    </div>
+    <div class="split-col next">
+        <div class="split-col-header">Proposées</div>
+    </div>
+</div>
+<div class="diff-fields">
+    {% for field in diffResult.fields %}
+        {% if field.status.value != 'UNCHANGED' %}
+        <div class="diff-field diff-field--{{ field.status.value|lower }}">
+            <div class="diff-field-label">{{ field.label }}</div>
+            <div class="split">
+                <div class="split-col now">
+                    {% if field.status.value == 'ADDED' %}
+                        <span class="diff-empty">—</span>
+                    {% elseif field.annotatedHtml is not null %}
+                        {{ field.annotatedHtml|raw }}
+                    {% else %}
+                        <span class="del">{{ field.currentValue }}</span>
+                    {% endif %}
+                </div>
+                <div class="split-col next">
+                    {% if field.status.value == 'REMOVED' %}
+                        <span class="diff-empty">—</span>
+                    {% elseif field.status.value == 'ADDED' %}
+                        <span class="ins">{{ field.proposedValue }}</span>
+                    {% elseif field.annotatedHtml is not null %}
+                        {# annotatedHtml already shown in left column for replaced text fields #}
+                        <span class="ins">{{ field.proposedValue }}</span>
+                    {% else %}
+                        <span class="ins">{{ field.proposedValue }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="diff-field-badge">
+                {% if field.status.value == 'ADDED' %}
+                    <span class="badge badge--added">AJOUTÉ</span>
+                {% elseif field.status.value == 'REMOVED' %}
+                    <span class="badge badge--removed">SUPPRIMÉ</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    {% else %}
+        <p class="diff-empty-state">Aucun champ modifié.</p>
+    {% endfor %}
+</div>
+<div class="diff-action-bar">
+    <div class="diff-counter">
+        {% if diffResult.addedCount > 0 %}+{{ diffResult.addedCount }} ajout{{ diffResult.addedCount > 1 ? 's' : '' }}{% endif %}
+        {% if diffResult.replacedCount > 0 %} · {{ diffResult.replacedCount }} remplacement{{ diffResult.replacedCount > 1 ? 's' : '' }}{% endif %}
+        {% if diffResult.removedCount > 0 %} · {{ diffResult.removedCount }} suppression{{ diffResult.removedCount > 1 ? 's' : '' }}{% endif %}
+    </div>
+    <div class="diff-actions">
+        <button
+            class="btn btn-primary"
+            data-csrf-token="{{ csrf_token('moderate_' ~ suggestion.id) }}"
+            data-suggestion-id="{{ suggestion.id }}"
+            data-action="click->moderation-room#approveSuggestion"
+        >Valider</button>
+        <button
+            class="btn btn-secondary"
+            data-suggestion-id="{{ suggestion.id }}"
+            data-csrf-token="{{ csrf_token('moderate_' ~ suggestion.id) }}"
+            data-action="click->moderation-room#openRefusalModal"
+        >Refuser</button>
+        <a href="#" class="btn btn-ghost">Modifier</a>
+    </div>
+</div>
+
+{# Refusal modal — US2 #}
+<dialog id="refusal-modal" data-moderation-room-target="refusalModal">
+    <div class="modal-inner">
+        <p>Êtes-vous sûr de vouloir refuser cette suggestion ?</p>
+        <select name="refusal-reason-select" data-moderation-room-target="refusalSelect" data-action="change->moderation-room#toggleRefusalTextarea">
+            <option value="Données incorrectes">Données incorrectes</option>
+            <option value="Source non citée">Source non citée</option>
+            <option value="Doublon">Doublon</option>
+            <option value="Hors périmètre">Hors périmètre</option>
+            <option value="Autre">Autre</option>
+        </select>
+        <textarea
+            name="refusal-reason-text"
+            data-moderation-room-target="refusalTextarea"
+            placeholder="Précisez le motif…"
+            style="display:none"
+            rows="3"
+        ></textarea>
+        <div class="diff-inline-error" data-moderation-room-target="refusalError" style="display:none;color:var(--color-error,red)"></div>
+        <div class="modal-actions">
+            <button type="button" data-action="click->moderation-room#closeRefusalModal" class="btn btn-ghost">Annuler</button>
+            <button type="button" data-action="click->moderation-room#submitRefusal" class="btn btn-secondary">Confirmer</button>
+        </div>
+    </div>
+</dialog>
+
+{% else %}
+<div class="diff-skeleton">
+    <p class="diff-empty-state">Aucune suggestion en attente.</p>
+</div>
+{% endif %}

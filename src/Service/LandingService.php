@@ -30,6 +30,7 @@ class LandingService
             newThisWeek: $this->bookRepository->countPublishedSince(
                 new \DateTimeImmutable('-7 days', new \DateTimeZone('UTC'))
             ),
+            totalContributors: $this->contributorRepository->countWithPublishedBooks(),
         );
     }
 

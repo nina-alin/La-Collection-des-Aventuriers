@@ -9,7 +9,6 @@ readonly class ActiveFilterState
     public function __construct(
         public string  $sort             = 'note-desc',
         public array   $editors          = [],
-        public array   $contributors     = [],
         public ?int    $paragraphMin     = null,
         public ?int    $paragraphMax     = null,
         public ?string $collectionStatus = null,
@@ -31,11 +30,6 @@ readonly class ActiveFilterState
             array_map('intval', (array) $request->query->all('editors')),
             fn(int $id) => $id > 0
         );
-
-        $contributors = array_values(array_filter(
-            array_map('strval', (array) $request->query->all('contributors')),
-            fn(string $id) => $id !== ''
-        ));
 
         $paragraphMin = $request->query->get('paragraphMin');
         $paragraphMin = ($paragraphMin !== null && ctype_digit((string) $paragraphMin)) ? (int) $paragraphMin : null;
@@ -67,7 +61,6 @@ readonly class ActiveFilterState
         return new self(
             sort: $sort,
             editors: array_values($editors),
-            contributors: $contributors,
             paragraphMin: $paragraphMin,
             paragraphMax: $paragraphMax,
             collectionStatus: $collectionStatus,
@@ -88,10 +81,6 @@ readonly class ActiveFilterState
 
         if (!empty($this->editors)) {
             $params['editors'] = $this->editors;
-        }
-
-        if (!empty($this->contributors)) {
-            $params['contributors'] = $this->contributors;
         }
 
         if ($this->paragraphMin !== null) {
@@ -130,7 +119,6 @@ readonly class ActiveFilterState
         $count = 0;
 
         $count += count($this->editors);
-        $count += count($this->contributors);
 
         if ($this->paragraphMin !== null || $this->paragraphMax !== null) {
             $count++;

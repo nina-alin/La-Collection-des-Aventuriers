@@ -20,53 +20,6 @@
 
     <div class="filters-body">
 
-        {# ── CRÉATEUR · AUTEUR & ILLUSTRATEUR ── #}
-        <details class="filter-group" open>
-            <summary>
-                <span>Créateur · Auteur &amp; Illustrateur</span>
-                <span class="grp-meta">
-                    <span class="grp-count{% if selectedContributors|length == 0 %} is-hidden{% endif %}">{{ selectedContributors|length }}</span>
-                </span>
-            </summary>
-            <div class="grp-body">
-                <input
-                    class="filter-search"
-                    type="search"
-                    placeholder="Rechercher un créateur…"
-                    data-model="debounce(300)|contributorSearch"
-                    aria-label="Rechercher un créateur"
-                    value="{{ contributorSearch }}"
-                >
-                {% for item in this.visibleContributors %}
-                {% set contribId = "#{item.contributor.id}" %}
-                {% set roleLabel = item.role == 'Author' ? 'auteur' : 'illustrateur' %}
-                <label class="choice filter-row">
-                    <span class="d-flex flex-row align-items-center gap-3">
-                        <input
-                            type="checkbox"
-                            name="selectedContributors[]"
-                            value="{{ contribId }}"
-                            data-model="selectedContributors"
-                            aria-label="{{ item.contributor.firstName }} {{ item.contributor.lastName }}"
-                            {% if contribId in selectedContributors %}checked{% endif %}
-                        >
-                        <strong>{{ item.contributor.firstName }} {{ item.contributor.lastName }}</strong>
-                        <span style="color:var(--ink-muted);font-size:var(--fs-xs);margin-left:4px;">· {{ roleLabel }}</span>
-                    </span>
-                    <span class="count">{{ item.bookCount }}</span>
-                </label>
-                {% endfor %}
-                {% if not showAllContributors and contributorSearch == '' and this.contributorsMore > 0 %}
-                <button
-                    type="button"
-                    class="filter-show-more"
-                    data-action="live#action"
-                    data-live-action-param="showMoreContributors"
-                >+ {{ this.contributorsMore }} autres créateurs</button>
-                {% endif %}
-            </div>
-        </details>
-
         {# ── ÉDITEUR & COLLECTION ── #}
         <details class="filter-group" open>
             <summary>

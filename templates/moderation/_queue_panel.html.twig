@@ -1,0 +1,24 @@
+<aside class="queue-panel" data-moderation-room-target="queuePanel">
+    <h3 class="queue-panel-title">La Suite</h3>
+    {% if pendingSuggestions is empty %}
+        <p class="queue-empty">Aucune suggestion en attente.</p>
+    {% else %}
+        <ul class="queue-list">
+            {% for item in pendingSuggestions %}
+                {% if suggestion is null or item.id.toRfc4122() != suggestion.id.toRfc4122() %}
+                <li class="queue-item"
+                    data-suggestion-id="{{ item.id }}"
+                    data-action="click->moderation-room#loadSuggestion"
+                >
+                    <span class="queue-item-name">
+                        {{ item.formData.title ?? item.formData.name ?? item.formData.nom ?? item.entityType.value }}
+                    </span>
+                    <span class="queue-item-meta">
+                        {{ item.entityType.value }} · {{ item.submittedAt|date('d/m/Y') }}
+                    </span>
+                </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+</aside>

@@ -4,7 +4,6 @@ namespace App\Twig\Components\Catalogue;
 
 use App\Dto\ActiveFilterState;
 use App\Repository\BookRepository;
-use App\Repository\ContributorRepository;
 use App\Repository\EditorRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -18,12 +17,6 @@ use Symfony\UX\LiveComponent\DefaultActionTrait;
 class FilterPanelComponent extends AbstractController
 {
     use DefaultActionTrait;
-
-    #[LiveProp(writable: true)]
-    public array $selectedContributors = [];
-
-    #[LiveProp(writable: true)]
-    public string $contributorSearch = '';
 
     #[LiveProp(writable: true)]
     public array $selectedEditors = [];
@@ -47,9 +40,6 @@ class FilterPanelComponent extends AbstractController
     public string $editorSearch = '';
 
     #[LiveProp(writable: true)]
-    public bool $showAllContributors = false;
-
-    #[LiveProp(writable: true)]
     public bool $showAllEditors = false;
 
     /** @var array{min: int, max: int} */
@@ -57,18 +47,12 @@ class FilterPanelComponent extends AbstractController
 
     private const LIST_LIMIT = 5;
 
-    /** @var array<array{contributor: \App\Entity\Contributor, role: string, bookCount: int}>|null */
-    private ?array $cachedContributors = null;
-
     /** @var array<\App\Entity\Editor>|null */
     private ?array $cachedEditors = null;
 
     /** Applied state (set on mount, restored by clearPanel) */
     #[LiveProp]
     public string $appliedSort = 'note-desc';
-
-    #[LiveProp]
-    public array $appliedContributors = [];
 
     #[LiveProp]
     public array $appliedEditors = [];
@@ -92,25 +76,22 @@ class FilterPanelComponent extends AbstractController
     public ?string $appliedSearchQuery = null;
 
     public function __construct(
-        private readonly BookRepository        $bookRepository,
-        private readonly ContributorRepository $contributorRepository,
-        private readonly EditorRepository      $editorRepository,
+        private readonly BookRepository   $bookRepository,
+        private readonly EditorRepository $editorRepository,
     ) {}
 
     public function mount(ActiveFilterState $activeFilterState, array $paragraphBounds = ['min' => 0, 'max' => 999]): void
     {
         $this->paragraphBounds  = $paragraphBounds;
-        $this->selectedContributors = $activeFilterState->contributors;
-        $this->selectedEditors      = $activeFilterState->editors;
+        $this->selectedEditors  = $activeFilterState->editors;
         $this->paragraphMin         = $activeFilterState->paragraphMin;
         $this->paragraphMax     = $activeFilterState->paragraphMax;
         $this->collectionStatus = $activeFilterState->collectionStatus;
         $this->onlyFavorites    = $activeFilterState->onlyFavorites;
         $this->hideModeration   = $activeFilterState->hideModeration;
 
-        $this->appliedSort             = $activeFilterState->sort;
-        $this->appliedContributors     = $activeFilterState->contributors;
-        $this->appliedEditors          = $activeFilterState->editors;
+        $this->appliedSort    = $activeFilterState->sort;
+        $this->appliedEditors = $activeFilterState->editors;
         $this->appliedParagraphMin     = $activeFilterState->paragraphMin;
         $this->appliedParagraphMax     = $activeFilterState->paragraphMax;
         $this->appliedCollectionStatus = $activeFilterState->collectionStatus;
@@ -129,21 +110,6 @@ class FilterPanelComponent extends AbstractController
         }
     }
 
-    public function getVisibleContributors(): array
-    {
-        $all = $this->cachedContributors ??= $this->contributorRepository->findByNameSearchWithRoleAndCount($this->contributorSearch, 20);
-        if (!$this->showAllContributors && $this->contributorSearch === '') {
-            return array_slice($all, 0, self::LIST_LIMIT);
-        }
-        return $all;
-    }
-
-    public function getContributorsMore(): int
-    {
-        $all = $this->cachedContributors ??= $this->contributorRepository->findByNameSearchWithRoleAndCount($this->contributorSearch, 20);
-        return max(0, count($all) - self::LIST_LIMIT);
-    }
-
     public function getVisibleEditors(): array
     {
         $all = $this->cachedEditors ??= $this->editorRepository->findByNameSearch($this->editorSearch, 20);
@@ -157,12 +123,6 @@ class FilterPanelComponent extends AbstractController
     {
         $all = $this->cachedEditors ??= $this->editorRepository->findByNameSearch($this->editorSearch, 20);
         return max(0, count($all) - self::LIST_LIMIT);
-    }
-
-    #[LiveAction]
-    public function showMoreContributors(): void
-    {
-        $this->showAllContributors = true;
     }
 
     #[LiveAction]
@@ -194,17 +154,14 @@ class FilterPanelComponent extends AbstractController
     #[LiveAction]
     public function clearPanel(): void
     {
-        $this->selectedContributors = $this->appliedContributors;
-        $this->selectedEditors      = $this->appliedEditors;
-        $this->contributorSearch    = '';
-        $this->paragraphMin         = $this->appliedParagraphMin;
+        $this->selectedEditors = $this->appliedEditors;
+        $this->paragraphMin    = $this->appliedParagraphMin;
         $this->paragraphMax         = $this->appliedParagraphMax;
         $this->collectionStatus     = $this->appliedCollectionStatus;
         $this->onlyFavorites        = $this->appliedOnlyFavorites;
         $this->hideModeration       = $this->appliedHideModeration;
         $this->editorSearch         = '';
-        $this->showAllContributors  = false;
-        $this->showAllEditors       = false;
+        $this->showAllEditors = false;
     }
 
     private function buildDraftState(): ActiveFilterState
@@ -212,7 +169,6 @@ class FilterPanelComponent extends AbstractController
         return new ActiveFilterState(
             sort: $this->appliedSort,
             editors: array_values(array_filter(array_map('intval', $this->selectedEditors), fn($id) => $id > 0)),
-            contributors: array_values(array_filter(array_map('strval', $this->selectedContributors), fn($id) => $id !== '')),
             paragraphMin: $this->paragraphMin,
             paragraphMax: $this->paragraphMax,
             collectionStatus: $this->collectionStatus,

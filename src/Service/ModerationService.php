@@ -13,6 +13,7 @@ use App\Entity\Suggestion;
 use App\Entity\User;
 use App\Entity\WorkEntry;
 use App\Event\BookPublishedEvent;
+use App\Event\ContributionRefusedEvent;
 use App\Event\ContributionValidatedEvent;
 use App\Event\SuggestionModeratedEvent;
 use Doctrine\ORM\EntityManagerInterface;
@@ -102,14 +103,25 @@ class ModerationService
         $this->dispatcher->dispatch(new BookPublishedEvent($moderator, $book));
     }
 
-    public function moderateSuggestion(User $moderator, Suggestion $suggestion, SuggestionStatus $newStatus): void
+    public function moderateSuggestion(User $moderator, Suggestion $suggestion, SuggestionStatus $newStatus, ?string $refusalReason = null): void
     {
         $suggestion->setStatus($newStatus);
+
+        if ($newStatus === SuggestionStatus::REFUSED && $refusalReason !== null) {
+            $refusal = new \App\Entity\SuggestionRefusal();
+            $refusal->setSuggestion($suggestion);
+            $refusal->setModerator($moderator);
+            $refusal->setReason($refusalReason);
+            $this->entityManager->persist($refusal);
+        }
+
         $this->entityManager->flush();
         $this->dispatcher->dispatch(new SuggestionModeratedEvent($moderator, $suggestion, $newStatus));
 
         if ($newStatus === SuggestionStatus::VALIDATED && $suggestion->getUser() !== null) {
             $this->dispatcher->dispatch(new ContributionValidatedEvent('une suggestion', $suggestion->getUser()));
+        } elseif ($newStatus === SuggestionStatus::REFUSED && $suggestion->getUser() !== null) {
+            $this->dispatcher->dispatch(new ContributionRefusedEvent('une suggestion', $suggestion->getUser(), $refusalReason));
         }
     }
 }

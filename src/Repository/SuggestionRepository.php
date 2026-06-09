@@ -103,6 +103,33 @@ class SuggestionRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
+    public function findFirstPending(): ?Suggestion
+    {
+        return $this->createQueryBuilder('s')
+            ->where('s.status = :status')
+            ->setParameter('status', SuggestionStatus::PENDING)
+            ->orderBy('s.submittedAt', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function findNextPending(Suggestion $current): ?Suggestion
+    {
+        return $this->createQueryBuilder('s')
+            ->where('s.status = :status')
+            ->andWhere('s.id != :currentId')
+            ->andWhere('s.submittedAt >= :submittedAt')
+            ->setParameter('status', SuggestionStatus::PENDING)
+            ->setParameter('currentId', $current->getId())
+            ->setParameter('submittedAt', $current->getSubmittedAt())
+            ->orderBy('s.submittedAt', 'ASC')
+            ->addOrderBy('s.id', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function countBatchValidated(array $users): array
     {
         if (empty($users)) {
