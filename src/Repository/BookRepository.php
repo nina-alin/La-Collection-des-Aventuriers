@@ -5,7 +5,6 @@ namespace App\Repository;
 use App\Dto\ActiveFilterState;
 use App\Entity\Book;
 use App\Entity\Enum\BookStatus;
-use Symfony\Component\Uid\Uuid;
 use App\Entity\Review;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -175,17 +174,6 @@ class BookRepository extends ServiceEntityRepository
         if (!empty($state->editors)) {
             $qb->andWhere('e.id IN (:editors)')
                ->setParameter('editors', $state->editors);
-        }
-
-        if (!empty($state->contributors)) {
-            $uuids = [];
-            foreach ($state->contributors as $id) {
-                try { $uuids[] = Uuid::fromString($id); } catch (\Throwable) {}
-            }
-            if (!empty($uuids)) {
-                $qb->andWhere('contributor.id IN (:contributors)')
-                   ->setParameter('contributors', $uuids);
-            }
         }
 
         if ($state->paragraphMin !== null) {

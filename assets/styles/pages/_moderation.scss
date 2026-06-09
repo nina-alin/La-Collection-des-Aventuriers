@@ -1,0 +1,476 @@
+// ── La Salle de Modération ───────────────────────────────────────────────────
+
+.mod-eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-caps);
+    color: var(--ink-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: var(--sp-2);
+
+    &::before {
+        content: "";
+        display: inline-block;
+        width: 20px;
+        height: 1px;
+        background: var(--cuir-400);
+        flex-shrink: 0;
+    }
+}
+
+.mod-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 4vw + 0.5rem, 2.75rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-strong);
+    margin: 0;
+    line-height: 1.1;
+}
+
+.mod-section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--sp-4);
+    margin-bottom: var(--sp-4);
+    flex-wrap: wrap;
+
+    h2 {
+        font-family: var(--font-display);
+        font-size: var(--fs-xl);
+        font-weight: 600;
+        letter-spacing: var(--tracking-display);
+        color: var(--ink-strong);
+        margin: 0;
+    }
+}
+
+.mod-section-sub {
+    font-size: var(--fs-sm);
+    color: var(--ink-muted);
+    margin: 0 0 var(--sp-4);
+}
+
+// ── Flux 2-column layout ─────────────────────────────────────────────────────
+
+.flux {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 290px;
+    gap: var(--sp-5);
+    align-items: start;
+
+    @media (max-width: 880px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+// ── Diff area card ───────────────────────────────────────────────────────────
+
+.diff-area {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    min-height: 200px;
+}
+
+// ── Split (old | new) columns ────────────────────────────────────────────────
+
+.split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.split-col {
+    min-width: 0;
+    overflow-wrap: break-word;
+
+    &.now {
+        border-right: 1px solid var(--border-subtle);
+    }
+}
+
+.split-col-header {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-caps);
+    color: var(--ink-muted);
+    padding: var(--sp-3) var(--sp-4);
+    background: var(--bg-sunken);
+    border-bottom: 1px solid var(--border-default);
+}
+
+// ── Diff panel submitter meta ────────────────────────────────────────────────
+
+.diff-panel-header {
+    padding: var(--sp-3) var(--sp-4);
+    background: var(--bg-sunken);
+    border-bottom: 1px solid var(--border-default);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    flex-wrap: wrap;
+}
+
+.diff-meta-user {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    color: var(--brand-primary);
+    text-transform: lowercase;
+    letter-spacing: 0;
+}
+
+.diff-meta-info {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-caps);
+    color: var(--ink-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+// ── Diff fields ──────────────────────────────────────────────────────────────
+
+.diff-fields {
+    display: flex;
+    flex-direction: column;
+}
+
+.diff-field {
+    border-bottom: 1px solid var(--border-subtle);
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &.diff-field--added    { background: color-mix(in oklab, var(--mousse-500, #22c55e) 4%, transparent); }
+    &.diff-field--removed  { background: color-mix(in oklab, var(--sang-500, #ef4444) 4%, transparent); }
+    &.diff-field--replaced { background: color-mix(in oklab, var(--or-500, #eab308) 4%, transparent); }
+
+    .diff-field-label {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: var(--tracking-caps);
+        color: var(--ink-muted);
+        padding: var(--sp-3) var(--sp-4) var(--sp-1);
+    }
+
+    .split .split-col {
+        padding: var(--sp-2) var(--sp-4) var(--sp-3);
+        font-size: var(--fs-sm);
+        color: var(--ink-default);
+        line-height: 1.5;
+    }
+
+    .diff-field-badge {
+        padding: 0 var(--sp-4) var(--sp-3);
+        display: flex;
+        gap: var(--sp-2);
+    }
+}
+
+.diff-empty {
+    color: var(--ink-subtle);
+    font-size: var(--fs-sm);
+    font-style: italic;
+}
+
+.diff-empty-state {
+    padding: var(--sp-8) var(--sp-4);
+    text-align: center;
+    color: var(--ink-muted);
+    font-size: var(--fs-sm);
+    font-style: italic;
+}
+
+.diff-skeleton {
+    padding: var(--sp-8) var(--sp-4);
+    text-align: center;
+    color: var(--ink-muted);
+    font-size: var(--fs-sm);
+}
+
+// ── Action bar ───────────────────────────────────────────────────────────────
+
+.diff-action-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    padding: var(--sp-3) var(--sp-4);
+    background: var(--bg-sunken);
+    border-top: 1px solid var(--border-default);
+    flex-wrap: wrap;
+}
+
+.diff-counter {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-caps);
+    color: var(--ink-muted);
+}
+
+.diff-actions {
+    display: flex;
+    gap: var(--sp-2);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.diff-inline-error {
+    width: 100%;
+    font-size: var(--fs-sm);
+    color: var(--color-error, #dc2626);
+}
+
+// ── Diff state badges ────────────────────────────────────────────────────────
+
+.badge--added {
+    display: inline-flex;
+    align-items: center;
+    background: color-mix(in oklab, var(--mousse-500, #22c55e) 12%, transparent);
+    color: var(--mousse-700, #15803d);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-caps);
+    padding: 2px 8px;
+    border-radius: 99px;
+    border: 1px solid color-mix(in oklab, var(--mousse-500, #22c55e) 25%, transparent);
+}
+
+.badge--removed {
+    display: inline-flex;
+    align-items: center;
+    background: color-mix(in oklab, var(--sang-500, #ef4444) 10%, transparent);
+    color: var(--sang-700, #b91c1c);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-caps);
+    padding: 2px 8px;
+    border-radius: 99px;
+    border: 1px solid color-mix(in oklab, var(--sang-500, #ef4444) 20%, transparent);
+}
+
+.badge--replaced {
+    display: inline-flex;
+    align-items: center;
+    background: color-mix(in oklab, var(--or-500, #eab308) 10%, transparent);
+    color: var(--or-700, #a16207);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-caps);
+    padding: 2px 8px;
+    border-radius: 99px;
+    border: 1px solid color-mix(in oklab, var(--or-500, #eab308) 20%, transparent);
+}
+
+// ── Inline diff text ─────────────────────────────────────────────────────────
+
+.del {
+    background: color-mix(in oklab, var(--sang-500, #ef4444) 15%, transparent);
+    color: var(--sang-700, #b91c1c);
+    text-decoration: line-through;
+    border-radius: 2px;
+    padding: 0 2px;
+}
+
+.ins {
+    background: color-mix(in oklab, var(--mousse-500, #22c55e) 15%, transparent);
+    color: var(--mousse-700, #15803d);
+    border-radius: 2px;
+    padding: 0 2px;
+}
+
+// ── Queue panel ──────────────────────────────────────────────────────────────
+
+.queue-panel {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    position: sticky;
+    top: calc(var(--navbar-height, 64px) + 1rem);
+    max-height: calc(100vh - var(--navbar-height, 64px) - 2rem);
+    display: flex;
+    flex-direction: column;
+}
+
+.queue-panel-title {
+    font-family: var(--font-display);
+    font-size: var(--fs-md);
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--ink-strong);
+    padding: var(--sp-3) var(--sp-4);
+    border-bottom: 1px solid var(--border-default);
+    margin: 0;
+    background: var(--bg-sunken);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.queue-empty {
+    padding: var(--sp-4);
+    font-size: var(--fs-sm);
+    color: var(--ink-muted);
+    font-style: italic;
+}
+
+.queue-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+
+.queue-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--sp-3) var(--sp-4);
+    border-bottom: 1px solid var(--border-subtle);
+    cursor: pointer;
+    transition: background 100ms ease;
+    user-select: none;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &:hover {
+        background: var(--bg-sunken);
+    }
+}
+
+.queue-item-name {
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    color: var(--ink-strong);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+}
+
+.queue-item-meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-caps);
+    color: var(--ink-muted);
+}
+
+// ── Entities filter bar ──────────────────────────────────────────────────────
+
+.entities-filter-bar {
+    display: flex;
+    gap: var(--sp-2);
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: var(--sp-4);
+
+    .filter-search {
+        padding: var(--sp-2) var(--sp-3);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-sm);
+        font-size: var(--fs-sm);
+        background: var(--bg-elevated);
+        color: var(--ink-default);
+        font-family: var(--font-body);
+        min-width: 180px;
+
+        &:focus {
+            outline: none;
+            border-color: var(--brand-primary);
+        }
+    }
+
+    .filter-btn {
+        &.is-active {
+            background: color-mix(in oklab, var(--brand-primary) 10%, var(--bg-elevated));
+            border-color: color-mix(in oklab, var(--brand-primary) 40%, transparent);
+            color: var(--brand-primary);
+        }
+    }
+}
+
+// ── Refusal modal ────────────────────────────────────────────────────────────
+
+#refusal-modal {
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: 0;
+    max-width: 440px;
+    width: 100%;
+    background: var(--bg-elevated);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+
+    &::backdrop {
+        background: rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(2px);
+    }
+}
+
+.modal-inner {
+    padding: var(--sp-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+
+    > p {
+        margin: 0;
+        font-family: var(--font-display);
+        font-weight: 600;
+        color: var(--ink-strong);
+        font-size: var(--fs-md);
+    }
+
+    select,
+    textarea {
+        width: 100%;
+        padding: var(--sp-2) var(--sp-3);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-sm);
+        font-size: var(--fs-sm);
+        background: var(--bg-page);
+        color: var(--ink-default);
+        font-family: var(--font-body);
+
+        &:focus {
+            outline: none;
+            border-color: var(--brand-primary);
+        }
+    }
+
+    textarea {
+        resize: vertical;
+    }
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--sp-2);
+    padding-top: var(--sp-1);
+}

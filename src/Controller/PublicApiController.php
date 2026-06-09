@@ -25,6 +25,7 @@ class PublicApiController extends AbstractController
                 'total_books' => $dto->totalBooks,
                 'total_users' => $dto->totalUsers,
                 'new_this_week' => $dto->newThisWeek,
+                'total_contributors' => $dto->totalContributors,
             ]);
         } catch (\Throwable) {
             return new JsonResponse(['error' => 'unavailable'], 503);

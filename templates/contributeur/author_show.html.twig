@@ -152,6 +152,15 @@
                         <p>Biographie non disponible.</p>
                     {% endif %}
                 </article>
+                {% if app.user %}
+                    <div class="mt-3">
+                        <a href="{{ path('suggestions_index', {entityType: 'AUTHOR', entityId: contributor.id}) }}"
+                           class="btn btn-ghost btn-sm">
+                            Suggérer une correction
+                        </a>
+                    </div>
+                {% endif %}
+
             </div>{# end left column #}
 
             {# ============================== RIGHT COLUMN — BIBLIOGRAPHY ============================== #}

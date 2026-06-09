@@ -23,6 +23,9 @@ class NotificationPreference
     private bool $contributionValidated = true;
 
     #[ORM\Column(options: ['default' => true])]
+    private bool $contributionRefused = true;
+
+    #[ORM\Column(options: ['default' => true])]
     private bool $bookActivity = true;
 
     #[ORM\Column(options: ['default' => true])]
@@ -43,6 +46,7 @@ class NotificationPreference
     {
         return match ($type) {
             NotificationType::CONTRIBUTION_VALIDATED => $this->contributionValidated,
+            NotificationType::CONTRIBUTION_REFUSED   => $this->contributionRefused,
             NotificationType::BOOK_ACTIVITY          => $this->bookActivity,
             NotificationType::MODERATION_PENDING     => $this->moderationPending,
             NotificationType::RANK_UP                => $this->rankUp,
@@ -51,6 +55,9 @@ class NotificationPreference
 
     public function isContributionValidated(): bool { return $this->contributionValidated; }
     public function setContributionValidated(bool $v): static { $this->contributionValidated = $v; return $this; }
+
+    public function isContributionRefused(): bool { return $this->contributionRefused; }
+    public function setContributionRefused(bool $v): static { $this->contributionRefused = $v; return $this; }
 
     public function isBookActivity(): bool { return $this->bookActivity; }
     public function setBookActivity(bool $v): static { $this->bookActivity = $v; return $this; }

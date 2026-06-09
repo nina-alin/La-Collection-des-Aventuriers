@@ -3,9 +3,9 @@
 {% block title %}La Collection des Aventuriers — Le wiki des livres dont vous êtes le héros{% endblock %}
 
 {% block meta %}
-    <meta name="description" content="Le catalogue collaboratif des livres dont vous êtes le héros : fiches, éditions, auteurs, illustrateurs, traducteurs. Façonné par les passionnés.">
+    <meta name="description" content="Le catalogue collaboratif des livres dont vous êtes le héros : fiches, éditions, auteurs, illustrateurs, traducteurs.">
     <meta property="og:title" content="La Collection des Aventuriers">
-    <meta property="og:description" content="Le wiki des livres dont vous êtes le héros, façonné par celles et ceux qui les collectionnent.">
+    <meta property="og:description" content="Fiches, éditions, auteurs, illustrateurs, traducteurs. Un catalogue collaboratif des livres dont vous êtes le héros.">
     <meta property="og:url" content="{{ app.request.uri }}">
     <meta property="og:type" content="website">
 {% endblock %}
@@ -31,7 +31,7 @@
                     La Collection des <em>Aventuriers</em>
                 </h1>
                 <p class="hero-sub">
-                    Le wiki des livres dont vous êtes le héros, façonné par celles et ceux qui les collectionnent.
+                    Fiches, éditions, auteurs, illustrateurs, traducteurs. Un catalogue collaboratif.
                 </p>
 
                 <form class="hero-search" role="search"
@@ -73,49 +73,10 @@
         </div>
     </section>
 
-    {# =============== ÉCOSYSTÈME =============== #}
-    <section class="section ecosystem">
-        <div class="container">
-            <div class="section-eyebrow">Écosystème</div>
-            <h2 class="section-title">Deux portes vers le même univers</h2>
-            <p class="section-lede">La Collection complète La Taverne des Aventuriers sans la concurrencer.</p>
-
-            <div class="ecosystem-banner">
-                <div class="eco-site">
-                    <span class="eco-sigil lca">A</span>
-                    <div>
-                        <div class="eco-name">La Collection</div>
-                        <div class="eco-role">Wiki &amp; archive</div>
-                    </div>
-                    <p class="eco-desc">Le catalogue de référence&nbsp;: fiches, éditions, auteurs, illustrateurs, traducteurs...</p>
-                </div>
-
-                <div class="eco-bridge" aria-hidden="true">
-                    <span class="eco-bridge-line"></span>
-                    <span class="eco-bridge-label">— SANS DOUBLON —</span>
-                    <span class="eco-bridge-line"></span>
-                </div>
-
-                <div class="eco-site">
-                    <span class="eco-sigil tav">T</span>
-                    <div>
-                        <div class="eco-name">La Taverne</div>
-                        <div class="eco-role">Communauté &amp; jeu</div>
-                    </div>
-                    <p class="eco-desc">L'espace où l'on partage ses opinions et où la communauté peut échanger.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
     {# =============== TROIS PILIERS =============== #}
     <section class="section">
         <div class="container">
-            <div class="section-eyebrow">Trois piliers</div>
-            <h2 class="section-title">Une plateforme, trois façons d'y vivre</h2>
-            <p class="section-lede">
-                Quelque soit votre but, il y a une place pour vous.
-            </p>
+            <h2 class="section-title">Collectionner, explorer, contribuer</h2>
 
             <div class="features-grid">
                 <article class="feature">
@@ -123,13 +84,12 @@
                     <div class="feature-eyebrow">Pour le collectionneur</div>
                     <h3 class="feature-title">Votre bibliothèque</h3>
                     <p class="feature-desc">
-                        Suivez chaque édition, distinguez les tirages, complétez les séries.
-                        La précision documentaire d'un catalogue raisonné, sans la paperasse.
+                        Notez ce que vous avez, ce qu'il vous manque, et distinguez les tirages des variantes de couverture. Pour les collectionneurs sérieux, ça fait la différence.
                     </p>
                     <ul class="feature-list">
                         <li>Listes d'envies et d'acquisitions, croisées par éditeur</li>
                         <li>Distinction tirage / réédition / variante de couverture</li>
-                        <li>Bibliothèque virtuelle exportable (CSV, JSON)</li>
+                        <li>Export de votre bibliothèque (CSV, JSON)</li>
                         <li>Alertes ré-éditions et passages en occasion</li>
                     </ul>
                 </article>
@@ -139,14 +99,13 @@
                     <div class="feature-eyebrow">Pour le passionné</div>
                     <h3 class="feature-title">Votre encyclopédie</h3>
                     <p class="feature-desc">
-                        Auteurs, illustrateurs, traducteurs, éditeurs&nbsp;: chaque artiste de
-                        la fiction interactive a sa fiche, croisée avec ses œuvres.
+                        Auteurs, illustrateurs, traducteurs&nbsp;: chaque intervenant a sa page, avec les livres auxquels il a participé. Pratique pour remonter d'un livre à toute une œuvre.
                     </p>
                     <ul class="feature-list">
-                        <li>Graphe de relations entre œuvres et créateurs</li>
+                        <li>Relations entre œuvres et créateurs</li>
                         <li>Variantes d'éditions documentées (FR, EN, JP, illustrations…)</li>
                         <li>Chronologies par série, par éditeur, par univers</li>
-                        <li>Pages collaboratives versionnées</li>
+                        <li>Historique des modifications</li>
                     </ul>
                 </article>
 
@@ -155,16 +114,49 @@
                     <div class="feature-eyebrow">Pour la communauté</div>
                     <h3 class="feature-title">Vos contributions</h3>
                     <p class="feature-desc">
-                        Suggérez des fiches, motivez vos validations, débattez les ajouts.
-                        Une modération transparente, où chaque décision est tracée.
+                        Vous avez trouvé une erreur, une édition manquante ? Proposez une correction. Toutes les décisions de modération sont publiques et argumentées.
                     </p>
                     <ul class="feature-list">
                         <li>Système de suggestions avec suivi public</li>
                         <li>Modération motivée et historisée</li>
                         <li>Profils contributeurs avec statistiques</li>
-                        <li>Rôles progressifs&nbsp;: Aventurier → Modérateur</li>
+                        <li>Accès au rôle de modérateur</li>
                     </ul>
                 </article>
+            </div>
+        </div>
+    </section>
+
+    {# =============== ÉCOSYSTÈME =============== #}
+    <section class="section ecosystem">
+        <div class="container">
+            <div class="section-eyebrow">Écosystème</div>
+            <h2 class="section-title">Deux sites qui se complètent</h2>
+
+            <div class="ecosystem-banner">
+                <div class="eco-site">
+                    <span class="eco-sigil lca">A</span>
+                    <div>
+                        <div class="eco-name">La Collection</div>
+                        <div class="eco-role">Catalogue</div>
+                    </div>
+                    <p class="eco-desc">Le catalogue de référence&nbsp;: fiches, éditions, auteurs, illustrateurs, traducteurs...</p>
+                </div>
+
+                <div class="eco-bridge" aria-hidden="true">
+                    <span class="eco-bridge-line"></span>
+                    <span class="eco-bridge-label">— ET —</span>
+                    <span class="eco-bridge-line"></span>
+                </div>
+
+                <div class="eco-site">
+                    <span class="eco-sigil tav">T</span>
+                    <div>
+                        <div class="eco-name">La Taverne</div>
+                        <div class="eco-role">Communauté</div>
+                    </div>
+                    <p class="eco-desc">L'endroit pour donner son avis, discuter d'une série, trouver d'autres passionnés.</p>
+                </div>
             </div>
         </div>
     </section>
@@ -183,7 +175,7 @@
             </div>
             <div class="stat">
                 <span class="stat-number" {{ stimulus_target('counter', 'number') }} data-target="0">0</span>
-                <span class="stat-label">Nouvelles fiches cette semaine</span>
+                <span class="stat-label">Créateurs référencés</span>
             </div>
         </div>
     </section>
@@ -191,8 +183,8 @@
     {# =============== CTA FINAL =============== #}
     <section class="cta-final">
         <div class="container">
-            <h2>Prêt à ouvrir le grimoire&nbsp;?</h2>
-            <p>L'inscription est gratuite et prend moins d'une minute.</p>
+            <h2>Vous voulez un compte&nbsp;?</h2>
+            <p>Gratuit, sans engagement. Vous contribuez si vous en avez envie.</p>
             <div class="hero-cta">
                 <a class="btn btn-primary btn-lg" href="{{ path('app_register') }}">
                     Nous rejoindre

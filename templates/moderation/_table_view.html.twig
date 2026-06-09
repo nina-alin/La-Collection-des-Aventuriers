@@ -1,0 +1,51 @@
+{% if pendingSuggestions is empty %}
+<p class="diff-empty-state">Aucune suggestion en attente.</p>
+{% else %}
+<div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:.875rem">
+        <thead>
+            <tr>
+                <th style="text-align:left;padding:.5rem;border-bottom:1px solid var(--border-default)">Nom</th>
+                <th style="text-align:left;padding:.5rem;border-bottom:1px solid var(--border-default)">Type</th>
+                <th style="text-align:left;padding:.5rem;border-bottom:1px solid var(--border-default)">Priorité</th>
+                <th style="text-align:left;padding:.5rem;border-bottom:1px solid var(--border-default)">Délai</th>
+                <th style="padding:.5rem;border-bottom:1px solid var(--border-default)">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in pendingSuggestions %}
+            <tr>
+                <td style="padding:.5rem;border-bottom:1px solid var(--border-default)">
+                    {{ item.formData.title ?? item.formData.name ?? item.formData.nom ?? item.entityType.value }}
+                </td>
+                <td style="padding:.5rem;border-bottom:1px solid var(--border-default)">{{ item.entityType.value }}</td>
+                <td style="padding:.5rem;border-bottom:1px solid var(--border-default);color:var(--text-muted)">—</td>
+                <td style="padding:.5rem;border-bottom:1px solid var(--border-default);color:var(--text-muted)">—</td>
+                <td style="padding:.5rem;border-bottom:1px solid var(--border-default);display:flex;gap:.375rem;justify-content:flex-end">
+                    <button
+                        class="btn btn-sm btn-primary"
+                        title="Valider"
+                        data-csrf-token="{{ csrf_token('moderate_' ~ item.id) }}"
+                        data-suggestion-id="{{ item.id }}"
+                        data-action="click->moderation-room#approveFromTable"
+                    >✓</button>
+                    <button
+                        class="btn btn-sm btn-secondary"
+                        title="Refuser"
+                        data-csrf-token="{{ csrf_token('moderate_' ~ item.id) }}"
+                        data-suggestion-id="{{ item.id }}"
+                        data-action="click->moderation-room#openRefusalModalFromTable"
+                    >✕</button>
+                    <button
+                        class="btn btn-sm btn-ghost"
+                        title="Voir dans Vue Flux"
+                        data-suggestion-id="{{ item.id }}"
+                        data-action="click->moderation-room#switchToFluxView"
+                    >👁</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}

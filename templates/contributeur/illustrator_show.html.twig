@@ -33,6 +33,15 @@
         </div>
     </header>
 
+    {% if app.user %}
+        <div class="mb-4">
+            <a href="{{ path('suggestions_index', {entityType: 'ILLUSTRATOR', entityId: contributor.id}) }}"
+               class="btn btn-ghost btn-sm">
+                Suggérer une correction
+            </a>
+        </div>
+    {% endif %}
+
     <section aria-label="Illustrations">
         <h2 class="h4 mb-3">Couvertures illustrées</h2>
         <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">

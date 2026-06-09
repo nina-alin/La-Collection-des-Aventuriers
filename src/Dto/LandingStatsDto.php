@@ -10,5 +10,6 @@ readonly class LandingStatsDto
         public int $totalBooks,
         public int $totalUsers,
         public int $newThisWeek,
+        public int $totalContributors,
     ) {}
 }

@@ -35,14 +35,13 @@ export default class extends Controller {
         el.classList.remove('skeleton');
         el.innerHTML =
             '<span class="pulse"></span>' +
-            `${data.total_books.toLocaleString('fr-FR')} fiches · ` +
-            `${data.total_users.toLocaleString('fr-FR')} aventuriers · ` +
-            `${data.new_this_week} nouvelles cette semaine`;
+            `${data.total_books.toLocaleString('fr-FR')} fiches · ` +
+            `${data.total_users.toLocaleString('fr-FR')} aventuriers`;
     }
 
     _setCounterTargets(data) {
         const counters = document.querySelectorAll('[data-counter-target="number"]');
-        const values = [data.total_books, data.total_users, data.new_this_week];
+        const values = [data.total_books, data.total_users, data.total_contributors];
         counters.forEach((el, i) => {
             if (values[i] !== undefined) {
                 el.dataset.target = String(values[i]);

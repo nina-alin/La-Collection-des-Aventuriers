@@ -42,3 +42,25 @@ services:
         arguments:
             $contactEmailFrom: '%env(CONTACT_EMAIL_FROM)%'
             $contactEmailTo: '%env(CONTACT_EMAIL_TO)%'
+
+    App\Service\Normalizer\BookNormalizer:
+        tags:
+            - { name: app.entity_normalizer, key: BOOK }
+
+    App\Service\Normalizer\ContributorNormalizer:
+        tags:
+            - { name: app.entity_normalizer, key: AUTHOR }
+            - { name: app.entity_normalizer, key: ILLUSTRATOR }
+            - { name: app.entity_normalizer, key: TRADUCTOR }
+
+    App\Service\Normalizer\EditorNormalizer:
+        tags:
+            - { name: app.entity_normalizer, key: EDITOR }
+
+    App\Service\Normalizer\CollectionNormalizer:
+        tags:
+            - { name: app.entity_normalizer, key: COLLECTION }
+
+    App\Service\DiffService:
+        arguments:
+            $normalizers: !tagged_locator { tag: app.entity_normalizer, index_by: key }
