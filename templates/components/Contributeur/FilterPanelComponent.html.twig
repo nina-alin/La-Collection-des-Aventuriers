@@ -1,0 +1,183 @@
+<aside class="filters" id="filtersRail" aria-label="Filtres du catalogue" {{ attributes }}>
+  <div class="filters-head">
+    <span class="filters-head-title">
+      <svg viewBox="0 0 24 24"><path d="M3 4h18M6 12h12M10 20h4"/></svg>
+      Filtrer &amp; Trier
+    </span>
+    <button class="filters-close" aria-label="Fermer les filtres" id="filtersCloseBtn" type="button">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+    </button>
+    <button class="filters-collapse" aria-label="Replier le panneau" title="Replier" type="button">
+      <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
+    </button>
+  </div>
+
+  <div class="filters-body">
+
+    {# Collections #}
+    <details class="filter-group" open>
+      <summary>
+        <span>Collections</span>
+        <span class="grp-meta">
+          {% if selectedCollectionIds is not empty %}<span class="grp-count">{{ selectedCollectionIds|length }}</span>{% endif %}
+          <span class="chev" aria-hidden="true"></span>
+        </span>
+      </summary>
+      <div class="grp-body">
+        <input class="filter-search"
+               type="search"
+               placeholder="Filtrer les collections…"
+               data-model="collectionSearch"
+               value="{{ collectionSearch }}">
+        {% for coll in this.getVisibleCollections() %}
+        <label class="choice filter-row">
+          <span>
+            <input type="checkbox"
+                   data-model="selectedCollectionIds[]"
+                   value="{{ coll.id }}"
+                   {{ (coll.id ~ '') in selectedCollectionIds ? 'checked' }}>
+            {{ coll.nom }}
+          </span>
+        </label>
+        {% endfor %}
+        {% if not showAllCollections and this.getCollectionsMore() > 0 %}
+        <button type="button"
+                class="filter-show-more"
+                data-model="showAllCollections"
+                data-value="1"
+                data-action="live#update">
+          + {{ this.getCollectionsMore() }} autres
+        </button>
+        {% endif %}
+      </div>
+    </details>
+
+    {# Période d'activité #}
+    <details class="filter-group">
+      <summary>
+        <span>Période d'activité</span>
+        <span class="grp-meta">
+          {% if periodMin is not null or periodMax is not null %}
+            <span class="grp-count">{{ periodMin ?? '…' }}–{{ periodMax ?? '…' }}</span>
+          {% endif %}
+          <span class="chev" aria-hidden="true"></span>
+        </span>
+      </summary>
+      <div class="grp-body">
+        <div class="range-presets" role="group" aria-label="Décennies usuelles">
+          <button class="range-preset{{ (periodMin == 1900 and periodMax == 1979) ? ' is-active' : '' }}"
+                  type="button"
+                  data-action="live#action"
+                  data-live-action-param="setDecade"
+                  data-live-min-param="1900"
+                  data-live-max-param="1979">Avant 1980</button>
+          <button class="range-preset{{ (periodMin == 1980 and periodMax == 1989) ? ' is-active' : '' }}"
+                  type="button"
+                  data-action="live#action"
+                  data-live-action-param="setDecade"
+                  data-live-min-param="1980"
+                  data-live-max-param="1989">Années 80</button>
+          <button class="range-preset{{ (periodMin == 1990 and periodMax == 1999) ? ' is-active' : '' }}"
+                  type="button"
+                  data-action="live#action"
+                  data-live-action-param="setDecade"
+                  data-live-min-param="1990"
+                  data-live-max-param="1999">Années 90</button>
+          <button class="range-preset{{ (periodMin == 2000) ? ' is-active' : '' }}"
+                  type="button"
+                  data-action="live#action"
+                  data-live-action-param="setDecade"
+                  data-live-min-param="2000"
+                  data-live-max-param="">2000 +</button>
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 10px;">
+          <input type="number"
+                 class="filter-search"
+                 placeholder="De"
+                 data-model="periodMin"
+                 value="{{ periodMin ?? '' }}"
+                 style="flex: 1; margin-bottom: 0;">
+          <input type="number"
+                 class="filter-search"
+                 placeholder="À"
+                 data-model="periodMax"
+                 value="{{ periodMax ?? '' }}"
+                 style="flex: 1; margin-bottom: 0;">
+        </div>
+      </div>
+    </details>
+
+    {# Nationalité #}
+    <details class="filter-group">
+      <summary>
+        <span>Nationalité</span>
+        <span class="grp-meta">
+          {% if nationalitySearch != '' %}<span class="grp-count">{{ nationalitySearch }}</span>{% endif %}
+          <span class="chev" aria-hidden="true"></span>
+        </span>
+      </summary>
+      <div class="grp-body">
+        <input class="filter-search"
+               type="search"
+               placeholder="Rechercher un pays…"
+               data-model="nationalitySearch"
+               value="{{ nationalitySearch }}">
+      </div>
+    </details>
+
+    {# Nombre d'ouvrages #}
+    <details class="filter-group">
+      <summary>
+        <span>Nombre d'ouvrages</span>
+        <span class="grp-meta">
+          {% if bookCountRange %}<span class="grp-count">{{ bookCountRange }}</span>{% endif %}
+          <span class="chev" aria-hidden="true"></span>
+        </span>
+      </summary>
+      <div class="grp-body">
+        <div class="range-presets" role="group" aria-label="Tranches d'ouvrages" style="margin-top: 2px;">
+          {% for range in ['1-5', '6-15', '16-30', '30+'] %}
+          <button class="range-preset{{ bookCountRange == range ? ' is-active' : '' }}"
+                  type="button"
+                  data-model="bookCountRange"
+                  data-value="{{ range }}"
+                  data-action="live#update">{{ range }}</button>
+          {% endfor %}
+        </div>
+      </div>
+    </details>
+
+    {# Statut personnel (only for authenticated users) #}
+    {% if is_granted('ROLE_USER') %}
+    <details class="filter-group">
+      <summary>
+        <span>Statut</span>
+        <span class="grp-meta"><span class="chev" aria-hidden="true"></span></span>
+      </summary>
+      <div class="grp-body">
+        <label class="switch">
+          <input type="checkbox" data-model="onlyFollowed" {{ onlyFollowed ? 'checked' }}>
+          <span class="track"></span>
+          <span>Uniquement ceux que je suis</span>
+        </label>
+      </div>
+    </details>
+    {% endif %}
+
+  </div>
+
+  <div class="filters-footer">
+    <button class="btn btn-ghost btn-sm"
+            type="button"
+            data-action="live#action"
+            data-live-action-param="clearPanel"
+            style="flex: 0 0 auto;">Réinitialiser</button>
+    <button class="btn btn-primary btn-sm"
+            type="button"
+            data-action="live#action"
+            data-live-action-param="applyFilters"
+            style="flex: 1; min-width: 0;">
+      Appliquer <span style="font-family: var(--font-mono); opacity: 0.75; margin-left: 4px;">· {{ this.getExpectedCount() }}</span>
+    </button>
+  </div>
+</aside>

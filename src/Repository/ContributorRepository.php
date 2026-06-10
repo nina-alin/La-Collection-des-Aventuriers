@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Dto\ContributorFilterState;
+use App\Entity\Contribution;
 use App\Entity\Contributor;
 use App\Entity\Enum\BookStatus;
 use App\Entity\Enum\ContributionRole;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
@@ -201,6 +204,341 @@ class ContributorRepository extends ServiceEntityRepository
             'sagaGroups'           => $sagaGroups,
             'totalCount'           => count($allContributions),
         ];
+    }
+
+    public function findPaginatedFiltered(ContributorFilterState $state): Paginator
+    {
+        $perPage = 12;
+        $offset  = ($state->page - 1) * $perPage;
+
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->select('c')
+            ->from(Contributor::class, 'c')
+            ->leftJoin('c.contributions', 'contrib')
+            ->leftJoin('contrib.book', 'b', 'WITH', 'b.status = :published')
+            ->leftJoin('b.collection', 'col')
+            ->groupBy('c.id')
+            ->setParameter('published', BookStatus::PUBLISHED);
+
+        $this->applyFilters($qb, $state);
+        $this->applyOrder($qb, $state->sort);
+
+        $qb->setFirstResult($offset)->setMaxResults($perPage);
+
+        return new Paginator($qb->getQuery(), fetchJoinCollection: false);
+    }
+
+    /** @return string[] */
+    public function findAvailableLetters(ContributorFilterState $state): array
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->select('DISTINCT UPPER(SUBSTRING(c.lastName, 1, 1)) AS letter')
+            ->from(Contributor::class, 'c')
+            ->leftJoin('c.contributions', 'contrib')
+            ->leftJoin('contrib.book', 'b', 'WITH', 'b.status = :published')
+            ->leftJoin('b.collection', 'col')
+            ->setParameter('published', BookStatus::PUBLISHED)
+            ->orderBy('letter', 'ASC');
+
+        $letterState = new ContributorFilterState(
+            role: $state->role,
+            collectionIds: $state->collectionIds,
+            periodMin: $state->periodMin,
+            periodMax: $state->periodMax,
+            nationality: $state->nationality,
+            bookCountRange: $state->bookCountRange,
+            onlyFollowed: $state->onlyFollowed,
+            sort: $state->sort,
+        );
+
+        $this->applyFilters($qb, $letterState);
+
+        $rows = $qb->getQuery()->getScalarResult();
+
+        return array_values(array_filter(array_column($rows, 'letter')));
+    }
+
+    public function findCardDataBatch(array $ids): array
+    {
+        if (empty($ids)) {
+            return [];
+        }
+
+        $rows = $this->getEntityManager()->createQueryBuilder()
+            ->select(
+                'c.id AS cid',
+                'COUNT(DISTINCT b.id) AS bookCount',
+                'AVG(r.score) AS avgScore',
+                'contrib.role AS role'
+            )
+            ->from(Contributor::class, 'c')
+            ->leftJoin('c.contributions', 'contrib')
+            ->leftJoin('contrib.book', 'b', 'WITH', 'b.status = :published')
+            ->leftJoin('b.reviews', 'r')
+            ->where('c.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->setParameter('published', BookStatus::PUBLISHED)
+            ->groupBy('c.id, contrib.role')
+            ->getQuery()
+            ->getScalarResult();
+
+        $map = [];
+        foreach ($rows as $row) {
+            $cid = (string) $row['cid'];
+            if (!isset($map[$cid])) {
+                $map[$cid] = ['bookCount' => 0, 'avgScore' => null, 'roles' => []];
+            }
+            $map[$cid]['bookCount'] = max($map[$cid]['bookCount'], (int) $row['bookCount']);
+            if ($row['avgScore'] !== null && $map[$cid]['avgScore'] === null) {
+                $map[$cid]['avgScore'] = round((float) $row['avgScore'], 1);
+            } elseif ($row['avgScore'] !== null) {
+                $map[$cid]['avgScore'] = round(
+                    ((float) $map[$cid]['avgScore'] + (float) $row['avgScore']) / 2,
+                    1
+                );
+            }
+            if ($row['role'] !== null && !in_array($row['role'], $map[$cid]['roles'], true)) {
+                $map[$cid]['roles'][] = $row['role'];
+            }
+        }
+
+        return $map;
+    }
+
+    public function findTopCollectionsBatch(array $ids): array
+    {
+        if (empty($ids)) {
+            return [];
+        }
+
+        $rows = $this->getEntityManager()->createQueryBuilder()
+            ->select(
+                'IDENTITY(contrib.contributor) AS cid',
+                'col.id AS colId',
+                'col.nom AS colNom',
+                'COUNT(DISTINCT b.id) AS cnt'
+            )
+            ->from(Contributor::class, 'c')
+            ->innerJoin('c.contributions', 'contrib')
+            ->innerJoin('contrib.book', 'b', 'WITH', 'b.status = :published')
+            ->innerJoin('b.collection', 'col')
+            ->where('c.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->setParameter('published', BookStatus::PUBLISHED)
+            ->groupBy('contrib.contributor, col.id, col.nom')
+            ->orderBy('cnt', 'DESC')
+            ->addOrderBy('col.id', 'DESC')
+            ->getQuery()
+            ->getScalarResult();
+
+        $grouped = [];
+        foreach ($rows as $row) {
+            $cid = (string) $row['cid'];
+            if (!isset($grouped[$cid])) {
+                $grouped[$cid] = [];
+            }
+            if (count($grouped[$cid]) < 2) {
+                $grouped[$cid][] = ['id' => $row['colId'], 'nom' => $row['colNom']];
+            }
+        }
+
+        return $grouped;
+    }
+
+    /** @return array{auteur: int, traducteur: int, illustrateur: int, tous: int} */
+    public function findRoleCounts(): array
+    {
+        $rows = $this->getEntityManager()->createQueryBuilder()
+            ->select('contrib.role AS role', 'COUNT(DISTINCT c.id) AS cnt')
+            ->from(Contributor::class, 'c')
+            ->leftJoin('c.contributions', 'contrib')
+            ->leftJoin('contrib.book', 'b', 'WITH', 'b.status = :published')
+            ->setParameter('published', BookStatus::PUBLISHED)
+            ->groupBy('contrib.role')
+            ->getQuery()
+            ->getScalarResult();
+
+        $roleMap = [
+            ContributionRole::Author->value      => 'auteur',
+            ContributionRole::Illustrator->value => 'illustrateur',
+            ContributionRole::Traductor->value   => 'traducteur',
+        ];
+
+        $counts = ['auteur' => 0, 'traducteur' => 0, 'illustrateur' => 0];
+        foreach ($rows as $row) {
+            $key = $roleMap[$row['role']] ?? null;
+            if ($key !== null) {
+                $counts[$key] = (int) $row['cnt'];
+            }
+        }
+
+        $tous = (int) $this->getEntityManager()->createQueryBuilder()
+            ->select('COUNT(DISTINCT c.id)')
+            ->from(Contributor::class, 'c')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $counts['tous'] = $tous;
+
+        return $counts;
+    }
+
+    public function findForAutocomplete(string $q, int $maxPerRole = 5): array
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->select(
+                'c.slug AS slug',
+                'c.firstName AS firstName',
+                'c.lastName AS lastName',
+                'c.portraitImage AS portraitImage',
+                'contrib.role AS role',
+                'COUNT(DISTINCT b.id) AS bookCount',
+                'col.nom AS mainCollection',
+                'AVG(r.score) AS averageScore'
+            )
+            ->from(Contributor::class, 'c')
+            ->leftJoin('c.contributions', 'contrib')
+            ->leftJoin('contrib.book', 'b', 'WITH', 'b.status = :published')
+            ->leftJoin('b.collection', 'col')
+            ->leftJoin('b.reviews', 'r')
+            ->where(
+                'LOWER(c.firstName) LIKE :q OR LOWER(c.lastName) LIKE :q'
+            )
+            ->setParameter('q', '%' . mb_strtolower($q) . '%')
+            ->setParameter('published', BookStatus::PUBLISHED)
+            ->groupBy('c.id, contrib.role, col.id')
+            ->orderBy('bookCount', 'DESC')
+            ->setMaxResults($maxPerRole * 3 * 6)
+            ->getQuery()
+            ->getScalarResult();
+
+        $roleMap = [
+            ContributionRole::Author->value      => 'auteur',
+            ContributionRole::Illustrator->value => 'illustrateur',
+            ContributionRole::Traductor->value   => 'traducteur',
+        ];
+
+        $groups = ['auteur' => [], 'traducteur' => [], 'illustrateur' => []];
+        $seen   = [];
+
+        foreach ($qb as $row) {
+            $slug    = $row['slug'];
+            $roleKey = $roleMap[$row['role']] ?? null;
+            if ($roleKey === null) {
+                continue;
+            }
+            $seenKey = $slug . '.' . $roleKey;
+            if (isset($seen[$seenKey])) {
+                continue;
+            }
+            if (count($groups[$roleKey]) >= $maxPerRole) {
+                continue;
+            }
+            $seen[$seenKey] = true;
+            $groups[$roleKey][] = [
+                'slug'          => $slug,
+                'firstName'     => $row['firstName'],
+                'lastName'      => $row['lastName'],
+                'portraitImage' => $row['portraitImage'],
+                'role'          => $roleKey,
+                'bookCount'     => (int) $row['bookCount'],
+                'mainCollection' => $row['mainCollection'],
+                'averageScore'  => $row['averageScore'] !== null ? round((float) $row['averageScore'], 1) : null,
+            ];
+        }
+
+        return $groups;
+    }
+
+    private function applyFilters(\Doctrine\ORM\QueryBuilder $qb, ContributorFilterState $state): void
+    {
+        $roleMap = [
+            'auteur'       => ContributionRole::Author->value,
+            'traducteur'   => ContributionRole::Traductor->value,
+            'illustrateur' => ContributionRole::Illustrator->value,
+        ];
+
+        if ($state->role !== 'tous' && isset($roleMap[$state->role])) {
+            $qb->andWhere('contrib.role = :role')
+               ->setParameter('role', $roleMap[$state->role]);
+        }
+
+        if ($state->letter !== null) {
+            $qb->andWhere('UPPER(SUBSTRING(c.lastName, 1, 1)) = :letter')
+               ->setParameter('letter', $state->letter);
+        }
+
+        if (!empty($state->collectionIds)) {
+            $qb->andWhere('col.id IN (:collectionIds)')
+               ->setParameter('collectionIds', $state->collectionIds);
+        }
+
+        if ($state->periodMin !== null) {
+            $qb->andWhere('YEAR(c.birthDate) >= :periodMin OR YEAR(c.deathDate) >= :periodMin')
+               ->setParameter('periodMin', $state->periodMin);
+        }
+
+        if ($state->periodMax !== null) {
+            $qb->andWhere('YEAR(c.birthDate) <= :periodMax')
+               ->setParameter('periodMax', $state->periodMax);
+        }
+
+        if ($state->nationality !== null) {
+            $qb->andWhere('LOWER(c.nationality) = :nationality')
+               ->setParameter('nationality', mb_strtolower($state->nationality));
+        }
+
+        if ($state->bookCountRange !== null) {
+            [$min, $max] = match ($state->bookCountRange) {
+                '1-5'  => [1, 5],
+                '6-15' => [6, 15],
+                '16-30' => [16, 30],
+                '30+'  => [30, PHP_INT_MAX],
+                default => [0, PHP_INT_MAX],
+            };
+            $subQb = $this->getEntityManager()->createQueryBuilder()
+                ->select('IDENTITY(sc.contributor)')
+                ->from(Contribution::class, 'sc')
+                ->innerJoin('sc.book', 'sb', 'WITH', 'sb.status = :published2')
+                ->groupBy('sc.contributor')
+                ->having('COUNT(DISTINCT sb.id) >= :bcMin');
+            $qb->setParameter('published2', BookStatus::PUBLISHED)
+               ->setParameter('bcMin', $min);
+            if ($max < PHP_INT_MAX) {
+                $subQb->andHaving('COUNT(DISTINCT sb.id) <= :bcMax');
+                $qb->setParameter('bcMax', $max);
+            }
+            $qb->andWhere('c.id IN (' . $subQb->getDQL() . ')');
+        }
+    }
+
+    private function applyOrder(\Doctrine\ORM\QueryBuilder $qb, string $sort): void
+    {
+        match ($sort) {
+            'ouvrages' => $qb->addSelect('COUNT(DISTINCT b.id) AS HIDDEN bookCount')
+                             ->orderBy('bookCount', 'DESC')
+                             ->addOrderBy('c.lastName', 'ASC'),
+            'note'     => $qb->addSelect('AVG(r.score) AS HIDDEN avgScore')
+                             ->leftJoin('b.reviews', 'r')
+                             ->orderBy('avgScore', 'DESC')
+                             ->addOrderBy('c.lastName', 'ASC'),
+            default    => $qb->orderBy('c.lastName', 'ASC'),
+        };
+    }
+
+    public function countFiltered(ContributorFilterState $state): int
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->select('COUNT(DISTINCT c.id)')
+            ->from(Contributor::class, 'c')
+            ->leftJoin('c.contributions', 'contrib')
+            ->leftJoin('contrib.book', 'b', 'WITH', 'b.status = :published')
+            ->leftJoin('b.collection', 'col')
+            ->setParameter('published', BookStatus::PUBLISHED);
+
+        $this->applyFilters($qb, $state);
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
     }
 
     public function countWithPublishedBooks(): int
