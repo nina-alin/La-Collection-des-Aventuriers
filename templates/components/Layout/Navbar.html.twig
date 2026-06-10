@@ -15,8 +15,8 @@
                 <ul class="lp-nav-links">
                     <li>
                         <a href="{{ path('home') }}"
-                           class="lp-nav-link{% if path == '/' %} active{% endif %}"
-                           {% if path == '/' %}aria-current="page"{% endif %}>
+                           class="lp-nav-link{% if path == '/' or path starts with '/dashboard' %} active{% endif %}"
+                           {% if path == '/' or path starts with '/dashboard' %}aria-current="page"{% endif %}>
                             Accueil
                         </a>
                     </li>
@@ -25,6 +25,13 @@
                            class="lp-nav-link{% if path starts with '/catalogue' %} active{% endif %}"
                            {% if path starts with '/catalogue' %}aria-current="page"{% endif %}>
                             Catalogue
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('app_createurs') }}"
+                           class="lp-nav-link{% if path starts with '/createurs' %} active{% endif %}"
+                           {% if path starts with '/createurs' %}aria-current="page"{% endif %}>
+                            Créateurs
                         </a>
                     </li>
                     <li>
@@ -125,7 +132,7 @@
 {# Mobile bottom nav #}
 <nav class="bottom-nav d-flex d-md-none" aria-label="Navigation mobile">
     <a href="{{ path('home') }}"
-       class="bottom-nav-item{% if path == '/' %} active{% endif %}"
+       class="bottom-nav-item{% if path == '/' or path starts with '/dashboard' %} active{% endif %}"
        {% if path == '/' %}aria-current="page"{% endif %}>
         <svg viewBox="0 0 24 24"><path d="M3 12L12 4l9 8"/><path d="M5 10v10a1 1 0 0 0 1 1h4v-7h4v7h4a1 1 0 0 0 1-1V10"/></svg>
         Accueil

@@ -177,6 +177,7 @@
     }
     @media (min-width: 880px) {
       .overview { grid-template-columns: 1.4fr 1fr; gap: var(--sp-5); }
+      .overview > .pending-card:only-child { grid-column: 1 / -1; }
     }
 
     /* Carte principale : compteur */
@@ -1278,6 +1279,121 @@
     .toast.ok .ic  { background: var(--success); }
     .toast.no .ic  { background: var(--danger); }
     .toast .ic svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ============================================================
+       VUE TABLEAU DE LA FILE (bascule depuis la carte)
+       ============================================================ */
+    #viewToggle[aria-pressed="true"] {
+      background: var(--ink-strong);
+      color: var(--bg-page);
+      border-color: var(--ink-strong);
+    }
+    #tableView[hidden], #fluxView[hidden] { display: none; }
+    .qtable-wrap-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .qtable-toolbar {
+      display: grid; grid-template-columns: 1fr; gap: var(--sp-3);
+      padding: var(--sp-3) var(--sp-4);
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-sunken);
+    }
+    @media (min-width: 760px) { .qtable-toolbar { grid-template-columns: 1fr auto; align-items: center; } }
+    .qtable-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+    .qtable-filters .qchip .vp {
+      width: 7px; height: 7px; border-radius: 50%; display: inline-block;
+    }
+    .qtable-filters .qchip .vp.exp { background: var(--success); }
+    .qtable-filters .qchip .vp.reg { background: var(--info); }
+    .qtable-filters .qchip .vp.del { background: var(--danger); }
+    .qtable-filters .qchip[aria-pressed="true"] .vp { background: currentColor; }
+    .qtable-sort { display: flex; align-items: center; gap: 8px; justify-self: end; }
+    .qtable-sort .lbl {
+      font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
+      letter-spacing: var(--tracking-caps); color: var(--ink-muted);
+    }
+    .select-sm {
+      padding: 6px 30px 6px 12px; min-height: 34px;
+      font-size: var(--fs-sm);
+      background-position: right 10px center;
+    }
+
+    /* Barre d'actions groupées */
+    .qbulk {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--sp-3); flex-wrap: wrap;
+      padding: 10px var(--sp-4);
+      background: color-mix(in oklab, var(--brand-primary) 10%, var(--bg-elevated));
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .qbulk[hidden] { display: none; }
+    .qbulk-count { font-size: var(--fs-sm); color: var(--ink-default); }
+    .qbulk-count strong { font-family: var(--font-display); color: var(--ink-strong); }
+    .qbulk-actions { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+
+    /* Cases à cocher */
+    .qcheck { display: inline-grid; place-items: center; cursor: pointer; }
+    .qcheck input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .qcheck .box {
+      width: 18px; height: 18px; border-radius: 5px;
+      border: 1.5px solid var(--border-strong);
+      display: grid; place-items: center;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .qcheck .box::after {
+      content: ""; width: 10px; height: 10px;
+      background: var(--brand-primary-ink);
+      clip-path: polygon(41% 84%, 12% 53%, 22% 43%, 41% 62%, 78% 22%, 88% 32%);
+      opacity: 0; transition: opacity var(--motion-fast) var(--motion-ease);
+    }
+    .qcheck input:checked + .box { background: var(--brand-primary); border-color: var(--brand-primary); }
+    .qcheck input:checked + .box::after { opacity: 1; }
+    .qcheck input:focus-visible + .box { box-shadow: var(--ring-focus); }
+
+    .qtable .col-check { width: 44px; }
+    .qtable .col-voie { width: 120px; }
+    .qtable .col-mod  { width: 200px; }
+    .qtable .col-age  { width: 90px; }
+    .qtable tbody tr.is-selected td { background: color-mix(in oklab, var(--brand-primary) 7%, var(--bg-elevated)); }
+    .qtable tbody tr.is-leaving td {
+      background: var(--success-bg);
+      transition: opacity var(--motion-base) var(--motion-ease);
+    }
+
+    .voie-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 3px 10px; border-radius: var(--radius-pill);
+      font-family: var(--font-mono); font-size: 10px;
+      text-transform: uppercase; letter-spacing: var(--tracking-caps);
+      white-space: nowrap;
+    }
+    .voie-pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .voie-pill.express  { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+    .voie-pill.normale  { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .voie-pill.delicate { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+
+    .mod-cell { display: flex; flex-direction: column; gap: 3px; }
+    .mod-cell .mod-what { font-size: var(--fs-sm); color: var(--ink-default); }
+    .mod-cell .mod-who { font-family: var(--font-mono); font-size: 10px; color: var(--brand-primary); letter-spacing: 0.02em; }
+    .mod-batch {
+      display: inline-flex; align-items: center; margin-right: 5px;
+      padding: 0 6px; border-radius: 3px; font-weight: 600;
+      background: color-mix(in oklab, var(--cuir-200) 35%, transparent); color: var(--cuir-700);
+    }
+    [data-theme="dark"] .mod-batch { background: color-mix(in oklab, var(--or-700) 50%, transparent); color: var(--or-200); }
+    .mod-new {
+      display: inline-flex; align-items: center; margin-right: 5px;
+      padding: 0 6px; border-radius: 3px; font-weight: 600;
+      background: var(--danger-bg); color: var(--danger);
+    }
+    .age-cell { font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted); }
+    .age-cell.warn { color: var(--warning); }
+    .age-cell.hot  { color: var(--danger); font-weight: 600; }
+    .icon-btn.ok:hover { border-color: var(--success); color: var(--success); }
+    .qtable-hint { color: var(--ink-subtle); }
   </style>
 </head>
 <body>
@@ -1443,158 +1559,16 @@
       <div class="container head-grid">
         <div>
           <div class="ph-eyebrow">
-            Tour de garde — Mardi 19 mai
+            Mardi 19 mai - 23 suggestions en attente
             <span class="role-pip">Vue Modérateur</span>
           </div>
           <h1>La <em>Salle de Modération</em></h1>
-          <p class="lede">23 suggestions sont en attente.</p>
         </div>
         <div class="head-cta">
-          <button class="btn btn-ghost btn-sm" type="button">
+          <button class="btn btn-ghost btn-sm" type="button" id="viewToggle" data-view="flux" aria-pressed="false">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
-            Vue Tableau
+            <span data-view-label>Vue Tableau</span>
           </button>
-          <a class="btn btn-primary" href="#flux">
-            Ouvrir le Flux
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- =============== 1. VUE D'ENSEMBLE =============== -->
-    <section class="container mod-section" id="overview">
-      <div class="mod-section-head">
-        <div>
-          <div class="ttl"><span class="num">I.</span> Vue d'ensemble</div>
-          <div class="sub">L'état de la file en un coup d'œil, et le dernier coup d'épée donné.</div>
-        </div>
-        <div class="right">
-          <span class="badge badge-role-mod"><span class="dot"></span>Mes vacations</span>
-        </div>
-      </div>
-
-      <div class="overview">
-        <!-- Carte principale : Suggestions en attente -->
-        <div class="pending-card">
-          <div class="pending-top">
-            <div class="pending-counter" aria-label="23 suggestions en attente"><span>23</span></div>
-            <div class="pending-text">
-              <div class="label">Suggestions en attente</div>
-              <div class="title">23 missives à dépouiller</div>
-              <div class="sub">Délai moyen actuel : <strong style="color:var(--ink-strong);font-weight:600">2 h 14</strong> · objectif <strong style="color:var(--success);font-weight:600">&lt; 6 h</strong></div>
-            </div>
-            <a class="btn btn-primary" href="#flux">
-              Ouvrir le Flux
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-            </a>
-          </div>
-
-          <div class="voies" role="group" aria-label="Répartition par voie de traitement">
-            <a class="voie exp" href="#flux">
-              <div class="v-head">
-                <span class="v-name">Express</span>
-                <span class="v-pip" aria-hidden="true"></span>
-              </div>
-              <div class="v-count">12</div>
-              <div class="v-desc">Typos, dates, ISBN — traitable en série</div>
-            </a>
-            <a class="voie reg" href="#flux">
-              <div class="v-head">
-                <span class="v-name">Régulière</span>
-                <span class="v-pip" aria-hidden="true"></span>
-              </div>
-              <div class="v-count">8</div>
-              <div class="v-desc">Modifications structurelles, split-view</div>
-            </a>
-            <a class="voie del" href="#flux">
-              <div class="v-head">
-                <span class="v-name">Délicate</span>
-                <span class="v-pip" aria-hidden="true"></span>
-              </div>
-              <div class="v-count">3</div>
-              <div class="v-desc">Nouvelles fiches, refontes complètes</div>
-            </a>
-          </div>
-        </div>
-
-        <!-- KPIs -->
-        <div class="kpi-card">
-          <div class="kpi-head">
-            <span class="ttl">Performances</span>
-            <span class="scope">7 derniers jours</span>
-          </div>
-          <div class="kpi-body">
-            <div class="kpi">
-              <span class="v">47</span>
-              <span class="l">Traitées</span>
-              <span class="d">cette semaine</span>
-            </div>
-            <div class="kpi">
-              <span class="v ok">87 %</span>
-              <span class="l">Taux validation</span>
-              <span class="d">+4 pts</span>
-            </div>
-            <div class="kpi">
-              <span class="v">2 h 14</span>
-              <span class="l">Délai moyen</span>
-              <span class="d">objectif &lt; 6 h</span>
-            </div>
-            <div class="kpi">
-              <span class="v">3</span>
-              <span class="l">Refus motivés</span>
-              <span class="d">tous notifiés</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Historique récent -->
-      <div class="recent" style="margin-top: var(--sp-4)">
-        <div class="recent-head">
-          <span class="ttl">Dernières actions de modération</span>
-          <a href="#">Tout voir
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-          </a>
-        </div>
-        <div class="recent-list">
-          <div class="recent-row">
-            <span class="ic ok" aria-label="Validée">
-              <svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-11"/></svg>
-            </span>
-            <div class="body">
-              Tu as <strong style="color:var(--success);font-weight:600">validé</strong> la correction d'<span class="obj">Iain McCaig</span> proposée par <span class="handle">@juliette_d</span>.
-            </div>
-            <span class="time">il y a 12 min</span>
-          </div>
-          <div class="recent-row">
-            <span class="ic ok"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-11"/></svg></span>
-            <div class="body">
-              Tu as <strong style="color:var(--success);font-weight:600">validé</strong> en lot 4 corrections d'ISBN soumises par <span class="handle">@thibault</span>.
-            </div>
-            <span class="time">il y a 38 min</span>
-          </div>
-          <div class="recent-row">
-            <span class="ic no"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18 18 6"/></svg></span>
-            <div class="body">
-              Tu as <strong style="color:var(--danger);font-weight:600">refusé</strong> la suggestion sur <span class="obj">Le Vampire de Mortvania</span> — motif : <em>information non sourcée</em>.
-            </div>
-            <span class="time">il y a 1 h</span>
-          </div>
-          <div class="recent-row">
-            <span class="ic edit"><svg viewBox="0 0 24 24"><path d="m4 20 4-1 12-12-3-3L5 16l-1 4z"/></svg></span>
-            <div class="body">
-              Tu as <strong style="color:var(--info);font-weight:600">corrigé puis validé</strong> la fiche de <span class="obj">Loup Solitaire — Tome 4</span> (faute de frappe sur le résumé).
-            </div>
-            <span class="time">il y a 2 h</span>
-          </div>
-          <div class="recent-row">
-            <span class="ic ok"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-11"/></svg></span>
-            <div class="body">
-              Tu as <strong style="color:var(--success);font-weight:600">publié</strong> la nouvelle fiche <span class="obj">L'Or Sombre des Mages</span>, soumise par <span class="handle">@romainp</span>.
-            </div>
-            <span class="time">hier</span>
-          </div>
         </div>
       </div>
     </section>
@@ -1603,21 +1577,20 @@
     <section class="container mod-section" id="flux">
       <div class="mod-section-head">
         <div>
-          <div class="ttl"><span class="num">II.</span> Flux de traitement</div>
-          <div class="sub">Le cœur du travail. Une suggestion à la fois, focus maximal — la file vit à droite.</div>
+          <div class="ttl"><span class="num">I.</span> Flux de traitement</div>
         </div>
         <div class="right">
           <span class="badge badge-status-pending"><span class="dot"></span>3 sur 23</span>
         </div>
       </div>
 
+      <div id="fluxView">
       <div class="flux">
         <!-- Suggestion en cours -->
         <article class="sugg-card" id="suggCard">
           <div class="sugg-bar">
             <div class="sugg-bar-left">
               <span class="sugg-position"><strong>3</strong> sur <strong>23</strong> · Voie Régulière</span>
-              <span class="sugg-prio normale">Priorité normale</span>
             </div>
             <div class="sugg-bar-right" role="group" aria-label="Actions secondaires">
               <button class="btn-icon-sm" title="Précédente (←)" aria-label="Précédente">
@@ -1862,14 +1835,71 @@
           </div>
         </aside>
       </div>
+      </div><!-- /#fluxView -->
+
+      <!-- ===== VUE TABLEAU (bascule depuis l'en-tête) ===== -->
+      <div id="tableView" hidden>
+        <div class="qtable-wrap-card">
+          <div class="qtable-toolbar">
+            <div class="qtable-filters" role="group" aria-label="Filtrer la file par voie">
+              <button class="qchip" aria-pressed="true" data-voie="all">Toutes · 23</button>
+              <button class="qchip" aria-pressed="false" data-voie="express"><span class="vp exp"></span>Express · 12</button>
+              <button class="qchip" aria-pressed="false" data-voie="normale"><span class="vp reg"></span>Régulière · 8</button>
+              <button class="qchip" aria-pressed="false" data-voie="delicate"><span class="vp del"></span>Délicate · 3</button>
+            </div>
+            <div class="qtable-sort">
+              <span class="lbl">Trier</span>
+              <select class="select select-sm" aria-label="Trier la file">
+                <option>Plus anciennes d'abord</option>
+                <option>Plus récentes d'abord</option>
+                <option>Priorité délicate d'abord</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Barre d'actions groupées (visible quand sélection) -->
+          <div class="qbulk" id="qbulk" hidden>
+            <span class="qbulk-count"><strong id="qbulkN">0</strong> sélectionnée(s)</span>
+            <div class="qbulk-actions">
+              <button class="btn btn-secondary btn-sm" type="button" data-bulk="approve">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg>
+                Valider la sélection
+              </button>
+              <button class="btn btn-ghost btn-sm" type="button" data-bulk="clear">Tout désélectionner</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="gestion-table qtable">
+              <thead>
+                <tr>
+                  <th class="col-check"><label class="qcheck"><input type="checkbox" id="qcheckAll" aria-label="Tout sélectionner" /><span class="box"></span></label></th>
+                  <th class="col-name">Suggestion</th>
+                  <th class="col-type">Type</th>
+                  <th class="col-voie">Voie</th>
+                  <th class="col-mod">Modification</th>
+                  <th class="col-age">Âge</th>
+                  <th class="col-act">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="qtableBody">
+              </tbody>
+            </table>
+          </div>
+
+          <div class="gestion-foot">
+            <span>23 suggestions en attente · affichage de <strong style="color:var(--ink-strong)">9</strong> représentatives</span>
+            <span class="qtable-hint">Astuce : cochez plusieurs lignes pour valider en lot.</span>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- =============== 3. GESTION GLOBALE =============== -->
     <section class="container mod-section" id="gestion">
       <div class="mod-section-head">
         <div>
-          <div class="ttl"><span class="num">III.</span> Gestion globale des fiches</div>
-          <div class="sub">Rechercher, modifier, dépublier — quand il faut intervenir hors du flux de suggestions.</div>
+          <div class="ttl"><span class="num">II.</span> Gestion globale des fiches</div>
         </div>
         <div class="right">
           <button class="btn btn-secondary btn-sm" type="button">
@@ -2296,8 +2326,125 @@
         }
       });
     })();
-  </script>
+    /* ---------- VUE TABLEAU DE LA FILE ---------- */
+    (function () {
+      const toggle   = document.getElementById('viewToggle');
+      const fluxView = document.getElementById('fluxView');
+      const tableView= document.getElementById('tableView');
+      const body     = document.getElementById('qtableBody');
+      if (!toggle || !body) return;
 
+      const VOIE = { express: 'Express', normale: 'Régulière', delicate: 'Délicate' };
+      const TYPE = { livre: 'Livre', auteur: 'Auteur', collec: 'Collection' };
+      const data = [
+        { obj:"Le Manoir de l'Enfer", ref:'LCA-0214', type:'livre',  voie:'normale',  who:'@clem',       what:'7 champs modifiés',        age:'47 min', agec:'' },
+        { obj:'Forêt de la Malédiction', ref:'LCA-0108', type:'livre', voie:'express', who:'@thibault', what:'<span class="mod-batch">×4 lot</span>Correction ISBN', age:'1 h', agec:'' },
+        { obj:'Cité des Voleurs', ref:'LCA-0151', type:'livre',  voie:'express',  who:'@elise_p',    what:'Typo dans le résumé',         age:'2 h', agec:'' },
+        { obj:'Iain McCaig',       ref:'nouvelle',  type:'auteur', voie:'delicate', who:'@juliette_d', what:'<span class="mod-new">nouv.</span>Nouvelle fiche', age:'5 h', agec:'warn' },
+        { obj:'Loup Solitaire — Tome 7', ref:'LCA-0307', type:'livre', voie:'normale', who:'@romainp', what:'Couverture remplacée', age:'7 h', agec:'' },
+        { obj:'Joe Dever',         ref:'LCA-A019',  type:'auteur', voie:'express',  who:'@erwan',      what:'Date de naissance',          age:'11 h', agec:'warn' },
+        { obj:'Défis Fantastiques', ref:'nouvelle', type:'collec', voie:'normale', who:'@clem',      what:'Ordre des tomes',             age:'1 j', agec:'warn' },
+        { obj:'Le Vampire de Mortvania', ref:'nouvelle', type:'livre', voie:'delicate', who:'@anon_42', what:'<span class="mod-new">nouv.</span>Nouvelle fiche', age:'4 j', agec:'hot' },
+        { obj:'Le Sorcier de la Montagne de Feu', ref:'LCA-0042', type:'livre', voie:'express', who:'@thibault', what:'Numéro de série', age:'8 j', agec:'hot' }
+      ];
+
+      function rowHTML(d, i) {
+        return '<tr data-voie="' + d.voie + '">' +
+          '<td class="col-check"><label class="qcheck"><input type="checkbox" data-row="' + i + '" aria-label="Sélectionner ' + d.obj + '" /><span class="box"></span></label></td>' +
+          '<td class="col-name"><div class="cell-name"><div class="name-text">' +
+            '<div class="name-title">' + d.obj + '</div>' +
+            '<div class="name-sub">' + (d.ref === 'nouvelle' ? 'nouvelle fiche' : d.ref) + ' · ' + d.who + '</div>' +
+          '</div></div></td>' +
+          '<td><span class="type-pill ' + d.type + '"><span class="pip"></span>' + (TYPE[d.type] || d.type) + '</span></td>' +
+          '<td><span class="voie-pill ' + d.voie + '">' + VOIE[d.voie] + '</span></td>' +
+          '<td class="col-mod"><div class="mod-cell"><span class="mod-what">' + d.what + '</span></div></td>' +
+          '<td><span class="age-cell ' + d.agec + '">' + d.age + '</span></td>' +
+          '<td class="col-act"><div class="cell-act">' +
+            '<button class="icon-btn ok" title="Valider" data-act="approve"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-11"/></svg></button>' +
+            '<button class="icon-btn danger" title="Refuser" data-act="refuse"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18 18 6"/></svg></button>' +
+            '<button class="icon-btn" title="Ouvrir dans le flux" data-act="open"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>' +
+          '</div></td>' +
+        '</tr>';
+      }
+      body.innerHTML = data.map(rowHTML).join('');
+
+      /* ---- bascule de vue ---- */
+      function setView(view) {
+        const table = view === 'table';
+        toggle.dataset.view = view;
+        toggle.setAttribute('aria-pressed', table ? 'true' : 'false');
+        toggle.querySelector('[data-view-label]').textContent = table ? 'Vue Flux' : 'Vue Tableau';
+        fluxView.hidden = table;
+        tableView.hidden = !table;
+      }
+      toggle.addEventListener('click', function () {
+        setView(toggle.dataset.view === 'table' ? 'flux' : 'table');
+      });
+
+      /* ---- sélection / barre groupée ---- */
+      const bulk   = document.getElementById('qbulk');
+      const bulkN  = document.getElementById('qbulkN');
+      const checkAll = document.getElementById('qcheckAll');
+      function rowChecks() { return Array.prototype.slice.call(body.querySelectorAll('input[data-row]')); }
+      function syncBulk() {
+        const checks = rowChecks().filter(c => !c.closest('tr').hidden);
+        const sel = checks.filter(c => c.checked);
+        sel.forEach(c => c.closest('tr').classList.add('is-selected'));
+        checks.filter(c => !c.checked).forEach(c => c.closest('tr').classList.remove('is-selected'));
+        bulkN.textContent = sel.length;
+        bulk.hidden = sel.length === 0;
+        checkAll.checked = checks.length > 0 && sel.length === checks.length;
+        checkAll.indeterminate = sel.length > 0 && sel.length < checks.length;
+      }
+      body.addEventListener('change', function (e) { if (e.target.matches('input[data-row]')) syncBulk(); });
+      checkAll.addEventListener('change', function () {
+        rowChecks().forEach(c => { if (!c.closest('tr').hidden) c.checked = checkAll.checked; });
+        syncBulk();
+      });
+
+      function removeRow(tr, kind) {
+        tr.classList.add('is-leaving');
+        tr.style.opacity = '0';
+        setTimeout(() => { tr.remove(); syncBulk(); }, 260);
+      }
+
+      /* ---- actions par ligne ---- */
+      body.addEventListener('click', function (e) {
+        const btn = e.target.closest('[data-act]');
+        if (!btn) return;
+        const tr = btn.closest('tr');
+        const name = tr.querySelector('.name-title').textContent;
+        const act = btn.dataset.act;
+        if (act === 'approve') { showToast('« ' + name + ' » validée.', 'ok'); removeRow(tr, 'ok'); }
+        else if (act === 'refuse') { showToast('« ' + name + ' » refusée. Contributeur notifié.', 'no'); removeRow(tr, 'no'); }
+        else if (act === 'open') { setView('flux'); document.getElementById('flux').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      });
+
+      /* ---- bouton de la barre groupée ---- */
+      bulk.addEventListener('click', function (e) {
+        const b = e.target.closest('[data-bulk]'); if (!b) return;
+        if (b.dataset.bulk === 'clear') { rowChecks().forEach(c => c.checked = false); syncBulk(); return; }
+        if (b.dataset.bulk === 'approve') {
+          const sel = rowChecks().filter(c => c.checked);
+          showToast(sel.length + ' suggestion(s) validée(s) en lot.', 'ok');
+          sel.forEach(c => removeRow(c.closest('tr'), 'ok'));
+        }
+      });
+
+      /* ---- filtres par voie ---- */
+      const filters = tableView.querySelectorAll('.qtable-filters .qchip');
+      filters.forEach(chip => chip.addEventListener('click', function () {
+        filters.forEach(c => c.setAttribute('aria-pressed', 'false'));
+        chip.setAttribute('aria-pressed', 'true');
+        const v = chip.dataset.voie;
+        body.querySelectorAll('tr').forEach(tr => {
+          tr.hidden = !(v === 'all' || tr.dataset.voie === v);
+          if (tr.hidden) { const cb = tr.querySelector('input[data-row]'); if (cb) cb.checked = false; }
+        });
+        syncBulk();
+      }));
+    })();
+  </script>
   <div class="menu-backdrop" id="menu-backdrop" aria-hidden="true"></div>
   <script src="../assets/menus.js"></script>
 </body>

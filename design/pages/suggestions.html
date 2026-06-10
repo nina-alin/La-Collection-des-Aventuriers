@@ -1657,7 +1657,7 @@
             </div>
 
             <!-- Champs Livre -->
-            <div class="field-block">
+            <div class="field-block" data-type-block="livre">
               <div class="field-block-head">
                 <div class="ttl">Identification du livre <span class="step">étape 2 / 4</span></div>
                 <div class="hint">Les champs marqués <span style="color:var(--danger)">*</span> sont nécessaires à la modération.</div>
@@ -1813,7 +1813,7 @@
             </div>
 
             <!-- Upload -->
-            <div class="field-block">
+            <div class="field-block" data-type-block="livre">
               <div class="field-block-head">
                 <div class="ttl">Couverture <span class="step">étape 3 / 4</span></div>
                 <div class="hint">Recadrage automatique au format 3 × 4.</div>
@@ -1831,7 +1831,7 @@
             </div>
 
             <!-- Preview -->
-            <div class="field-block" style="margin-bottom: 0;">
+            <div class="field-block" data-type-block="livre" style="margin-bottom: 0;">
               <div class="field-block-head">
                 <div class="ttl">Aperçu avant envoi <span class="step">étape 4 / 4</span></div>
                 <div class="hint">À quoi ressemblera la fiche une fois validée.</div>
@@ -1873,6 +1873,656 @@
                     <span class="swatch add">2 champs modifiés</span>
                     <span class="swatch rm">0 champ supprimé</span>
                     <span style="margin-left:auto;">Comparé à la fiche actuelle</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ═════════ Champs Auteur (affichés quand type = auteur) ═════════ -->
+            <div class="field-block" data-type-block="auteur" style="display:none;">
+              <div class="field-block-head">
+                <div class="ttl">Identification de l'auteur <span class="step">étape 2 / 4</span></div>
+                <div class="hint">Les champs marqués <span style="color:var(--danger)">*</span> sont nécessaires à la modération.</div>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group full">
+                  <label class="form-label" for="a-penname">Nom de plume <span class="required">*</span></label>
+                  <div class="input-wrap is-valid">
+                    <input class="input" id="a-penname" type="text" placeholder="ex. : Steve Jackson" />
+                    <span class="validation-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+                    </span>
+                  </div>
+                  <span class="form-help live ok">Nom inédit — aucun homonyme détecté dans la base.</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="a-firstname">Prénom <span class="form-help" style="font-weight:400;color:var(--ink-subtle);font-size:var(--fs-xs);">(état civil)</span></label>
+                  <div class="input-wrap">
+                    <input class="input" id="a-firstname" type="text" placeholder="ex. : Stephen" />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="a-lastname">Nom <span class="form-help" style="font-weight:400;color:var(--ink-subtle);font-size:var(--fs-xs);">(état civil)</span></label>
+                  <div class="input-wrap">
+                    <input class="input" id="a-lastname" type="text" placeholder="ex. : Jackson" />
+                  </div>
+                </div>
+
+                <div class="form-group full">
+                  <label class="form-label" for="a-alias">Pseudonyme(s) / alias</label>
+                  <div class="input-wrap">
+                    <input class="input" id="a-alias" type="text" placeholder="Séparez les alias par une virgule" />
+                  </div>
+                  <span class="form-help">Autres noms sous lesquels l'auteur a publié.</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="a-nationality">Nationalité <span class="required">*</span></label>
+                  <div class="input-wrap is-valid">
+                    <select class="select" id="a-nationality">
+                      <option value="" disabled>Choisir un pays…</option>
+                      <option selected>Royaume-Uni</option>
+                      <option>France</option>
+                      <option>États-Unis</option>
+                      <option>Canada</option>
+                      <option>Allemagne</option>
+                      <option>Italie</option>
+                      <option>Belgique</option>
+                      <option>Autre / inconnue</option>
+                    </select>
+                    <span class="validation-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="a-language">Langue d'écriture</label>
+                  <div class="input-wrap">
+                    <select class="select" id="a-language">
+                      <option selected>Anglais</option>
+                      <option>Français</option>
+                      <option>Allemand</option>
+                      <option>Italien</option>
+                      <option>Espagnol</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="a-born">Année de naissance <span class="required">*</span></label>
+                  <div class="input-wrap is-valid">
+                    <input class="input" id="a-born" type="number" inputmode="numeric" min="1800" max="2026" placeholder="ex. : 1951" />
+                    <span class="validation-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="a-died">Année de décès</label>
+                  <div class="input-wrap">
+                    <input class="input" id="a-died" type="number" inputmode="numeric" min="1800" max="2026" placeholder="—" />
+                  </div>
+                  <span class="form-help">Laissez vide si l'auteur est toujours en vie.</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="a-role">Rôle principal <span class="required">*</span></label>
+                  <div class="input-wrap is-valid">
+                    <select class="select" id="a-role">
+                      <option selected>Auteur</option>
+                      <option>Co-auteur</option>
+                      <option>Auteur &amp; illustrateur</option>
+                      <option>Game designer</option>
+                      <option>Scénariste</option>
+                    </select>
+                    <span class="validation-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="a-website">Site officiel / référence</label>
+                  <div class="input-wrap">
+                    <input class="input" id="a-website" type="url" placeholder="https://" style="font-family: var(--font-mono); font-size: var(--fs-sm);" />
+                  </div>
+                  <span class="form-help">Site officiel, fiche BNF ou page éditeur.</span>
+                </div>
+
+                <div class="form-group full">
+                  <label class="form-label">Genres de prédilection</label>
+                  <div class="input-helper-row">
+                    <button type="button" class="helper-chip">Fantasy</button>
+                    <button type="button" class="helper-chip">Science-fiction</button>
+                    <button type="button" class="helper-chip">Heroic fantasy</button>
+                    <button type="button" class="helper-chip add">Ajouter un genre</button>
+                  </div>
+                </div>
+
+                <div class="form-group full">
+                  <label class="form-label" for="a-bio">Biographie <span class="required">*</span></label>
+                  <div class="textarea-wrap">
+                    <textarea class="textarea" id="a-bio" rows="4" maxlength="1200" placeholder="Parcours, œuvres marquantes, rôle dans l'histoire du livre-jeu…"></textarea>
+                    <span class="counter">0 / 1200</span>
+                  </div>
+                  <span class="form-help">Présentation factuelle et sourcée — visible sur la fiche publique.</span>
+                </div>
+
+                <div class="form-group full">
+                  <label class="form-label">Œuvres associées</label>
+                  <div class="input-helper-row">
+                    <button type="button" class="helper-chip add">Lier un livre existant</button>
+                    <button type="button" class="helper-chip add">Lier une collection</button>
+                  </div>
+                  <span class="form-help">Rattachez les fiches déjà présentes au catalogue à cet auteur.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Portrait (auteur) -->
+            <div class="field-block" data-type-block="auteur" style="display:none;">
+              <div class="field-block-head">
+                <div class="ttl">Portrait <span class="step">étape 3 / 4</span></div>
+                <div class="hint">Recadrage automatique au format carré.</div>
+              </div>
+              <label class="upload-zone" for="a-portrait">
+                <input type="file" id="a-portrait" accept="image/*" hidden />
+                <span class="upl-thumb" aria-hidden="true" style="height:84px;border-radius:50%;">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>
+                </span>
+                <span class="upl-text">
+                  Déposer un portrait, ou <strong>parcourir</strong>
+                  <span class="hint">JPG · PNG · WEBP · max 4 Mo · 600×600 px recommandé · libre de droits</span>
+                </span>
+              </label>
+            </div>
+
+            <!-- Aperçu (auteur) -->
+            <div class="field-block" data-type-block="auteur" style="display:none; margin-bottom: 0;">
+              <div class="field-block-head">
+                <div class="ttl">Aperçu avant envoi <span class="step">étape 4 / 4</span></div>
+                <div class="hint">À quoi ressemblera la fiche une fois validée.</div>
+              </div>
+
+              <div class="preview" aria-label="Prévisualisation de la fiche auteur">
+                <div class="preview-head">
+                  <span class="lhs">Prévisualisation en direct</span>
+                  <div class="device-toggle" role="group" aria-label="Format d'aperçu">
+                    <button type="button" aria-pressed="true" aria-label="Aperçu desktop">
+                      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="1"/><path d="M8 21h8M12 17v4"/></svg>
+                    </button>
+                    <button type="button" aria-pressed="false" aria-label="Aperçu mobile">
+                      <svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="1.5"/><path d="M11 18h2"/></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="preview-canvas">
+                  <article class="prev-fiche">
+                    <div class="pf-cover" aria-hidden="true" style="display:grid;place-items:center;">
+                      <div class="corner"></div>
+                      <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="rgba(245,236,217,0.92)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="position:relative;z-index:1;"><circle cx="12" cy="9" r="4"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>
+                    </div>
+                    <div class="pf-body">
+                      <div class="pf-eyebrow">Auteur · Game designer</div>
+                      <h3 class="pf-title">Steve Jackson</h3>
+                      <div class="pf-author">né <strong>Stephen Jackson</strong><br/>co-fondateur de Games Workshop</div>
+                      <div class="pf-grid">
+                        <div class="pf-kv"><div class="k">Nationalité</div><div class="v">Royaume-Uni</div></div>
+                        <div class="pf-kv"><div class="k">Langue</div><div class="v">Anglais</div></div>
+                        <div class="pf-kv"><div class="k">Naissance</div><div class="v"><span class="diff">1951</span></div></div>
+                        <div class="pf-kv"><div class="k">Œuvres liées</div><div class="v">7 livres</div></div>
+                      </div>
+                    </div>
+                  </article>
+
+                  <div class="prev-diff-legend">
+                    <span class="swatch add">1 champ ajouté</span>
+                    <span class="swatch rm">0 champ supprimé</span>
+                    <span style="margin-left:auto;">Nouvelle fiche auteur</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ═════════ Champs Illustrateur (affichés quand type = illustrateur) ═════════ -->
+            <div class="field-block" data-type-block="illustrateur" style="display:none;">
+              <div class="field-block-head">
+                <div class="ttl">Identification de l'illustrateur <span class="step">étape 2 / 4</span></div>
+                <div class="hint">Les champs marqués <span style="color:var(--danger)">*</span> sont nécessaires à la modération.</div>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group full">
+                  <label class="form-label" for="i-name">Nom d'artiste <span class="required">*</span></label>
+                  <div class="input-wrap is-valid">
+                    <input class="input" id="i-name" type="text" placeholder="ex. : Russ Nicholson" />
+                    <span class="validation-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+                    </span>
+                  </div>
+                  <span class="form-help live ok">Nom inédit — aucun homonyme détecté dans la base.</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="i-firstname">Prénom <span class="form-help" style="font-weight:400;color:var(--ink-subtle);font-size:var(--fs-xs);">(état civil)</span></label>
+                  <div class="input-wrap">
+                    <input class="input" id="i-firstname" type="text" placeholder="ex. : Russell" />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="i-lastname">Nom <span class="form-help" style="font-weight:400;color:var(--ink-subtle);font-size:var(--fs-xs);">(état civil)</span></label>
+                  <div class="input-wrap">
+                    <input class="input" id="i-lastname" type="text" placeholder="ex. : Nicholson" />
+                  </div>
+                </div>
+
+                <div class="form-group full">
+                  <label class="form-label" for="i-signature">Signature / monogramme</label>
+                  <div class="input-wrap">
+                    <input class="input" id="i-signature" type="text" placeholder="Initiales ou signature apposée sur les planches" />
+                  </div>
+                  <span class="form-help">Telle qu'elle apparaît sur les illustrations.</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="i-nationality">Nationalité <span class="required">*</span></label>
+                  <div class="input-wrap is-valid">
+                    <select class="select" id="i-nationality">
+                      <option value="" disabled>Choisir un pays…</option>
+                      <option selected>Royaume-Uni</option>
+                      <option>France</option>
+                      <option>États-Unis</option>
+                      <option>Canada</option>
+                      <option>Allemagne</option>
+                      <option>Italie</option>
+                      <option>Belgique</option>
+                      <option>Autre / inconnue</option>
+                    </select>
+                    <span class="validation-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="i-technique">Technique principale</label>
+                  <div class="input-wrap">
+                    <select class="select" id="i-technique">
+                      <option selected>Encre &amp; plume</option>
+                      <option>Aquarelle</option>
+                      <option>Peinture (acrylique / huile)</option>
+                      <option>Crayon &amp; graphite</option>
+                      <option>Illustration numérique</option>
+                      <option>Technique mixte</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="i-born">Année de naissance <span class="required">*</span></label>
+                  <div class="input-wrap is-valid">
+                    <input class="input" id="i-born" type="number" inputmode="numeric" min="1800" max="2026" placeholder="ex. : 1948" />
+                    <span class="validation-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="i-died">Année de décès</label>
+                  <div class="input-wrap">
+                    <input class="input" id="i-died" type="number" inputmode="numeric" min="1800" max="2026" placeholder="—" />
+                  </div>
+                  <span class="form-help">Laissez vide si l'illustrateur est toujours en vie.</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="i-role">Rôle principal <span class="required">*</span></label>
+                  <div class="input-wrap is-valid">
+                    <select class="select" id="i-role">
+                      <option selected>Illustrateur</option>
+                      <option>Illustrateur de couverture</option>
+                      <option>Illustrateur intérieur</option>
+                      <option>Cartographe</option>
+                      <option>Auteur &amp; illustrateur</option>
+                    </select>
+                    <span class="validation-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="i-website">Portfolio / référence</label>
+                  <div class="input-wrap">
+                    <input class="input" id="i-website" type="url" placeholder="https://" style="font-family: var(--font-mono); font-size: var(--fs-sm);" />
+                  </div>
+                  <span class="form-help">Site officiel, portfolio ou fiche éditeur.</span>
+                </div>
+
+                <div class="form-group full">
+                  <label class="form-label">Univers graphiques</label>
+                  <div class="input-helper-row">
+                    <button type="button" class="helper-chip">Heroic fantasy</button>
+                    <button type="button" class="helper-chip">Médiéval</button>
+                    <button type="button" class="helper-chip">Bestiaire</button>
+                    <button type="button" class="helper-chip add">Ajouter un univers</button>
+                  </div>
+                </div>
+
+                <div class="form-group full">
+                  <label class="form-label" for="i-bio">Biographie <span class="required">*</span></label>
+                  <div class="textarea-wrap">
+                    <textarea class="textarea" id="i-bio" rows="4" maxlength="1200" placeholder="Parcours, style, œuvres marquantes, collaborations…"></textarea>
+                    <span class="counter">0 / 1200</span>
+                  </div>
+                  <span class="form-help">Présentation factuelle et sourcée — visible sur la fiche publique.</span>
+                </div>
+
+                <div class="form-group full">
+                  <label class="form-label">Œuvres illustrées</label>
+                  <div class="input-helper-row">
+                    <button type="button" class="helper-chip add">Lier un livre existant</button>
+                    <button type="button" class="helper-chip add">Lier une collection</button>
+                  </div>
+                  <span class="form-help">Rattachez les fiches déjà présentes au catalogue à cet illustrateur.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Portrait (illustrateur) -->
+            <div class="field-block" data-type-block="illustrateur" style="display:none;">
+              <div class="field-block-head">
+                <div class="ttl">Portrait <span class="step">étape 3 / 4</span></div>
+                <div class="hint">Recadrage automatique au format carré.</div>
+              </div>
+              <label class="upload-zone" for="i-portrait">
+                <input type="file" id="i-portrait" accept="image/*" hidden />
+                <span class="upl-thumb" aria-hidden="true" style="height:84px;border-radius:50%;">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>
+                </span>
+                <span class="upl-text">
+                  Déposer un portrait, ou <strong>parcourir</strong>
+                  <span class="hint">JPG · PNG · WEBP · max 4 Mo · 600×600 px recommandé · libre de droits</span>
+                </span>
+              </label>
+            </div>
+
+            <!-- Aperçu (illustrateur) -->
+            <div class="field-block" data-type-block="illustrateur" style="display:none; margin-bottom: 0;">
+              <div class="field-block-head">
+                <div class="ttl">Aperçu avant envoi <span class="step">étape 4 / 4</span></div>
+                <div class="hint">À quoi ressemblera la fiche une fois validée.</div>
+              </div>
+
+              <div class="preview" aria-label="Prévisualisation de la fiche illustrateur">
+                <div class="preview-head">
+                  <span class="lhs">Prévisualisation en direct</span>
+                  <div class="device-toggle" role="group" aria-label="Format d'aperçu">
+                    <button type="button" aria-pressed="true" aria-label="Aperçu desktop">
+                      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="1"/><path d="M8 21h8M12 17v4"/></svg>
+                    </button>
+                    <button type="button" aria-pressed="false" aria-label="Aperçu mobile">
+                      <svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="1.5"/><path d="M11 18h2"/></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="preview-canvas">
+                  <article class="prev-fiche">
+                    <div class="pf-cover" aria-hidden="true" style="display:grid;place-items:center;">
+                      <div class="corner"></div>
+                      <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="rgba(245,236,217,0.92)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="position:relative;z-index:1;"><path d="M3 21v-3l11-11 3 3-11 11H3z"/><path d="M14 7l3 3"/></svg>
+                    </div>
+                    <div class="pf-body">
+                      <div class="pf-eyebrow">Illustrateur · Couverture &amp; intérieur</div>
+                      <h3 class="pf-title">Russ Nicholson</h3>
+                      <div class="pf-author">né <strong>Russell Nicholson</strong><br/>encre &amp; plume</div>
+                      <div class="pf-grid">
+                        <div class="pf-kv"><div class="k">Nationalité</div><div class="v">Royaume-Uni</div></div>
+                        <div class="pf-kv"><div class="k">Technique</div><div class="v">Encre &amp; plume</div></div>
+                        <div class="pf-kv"><div class="k">Naissance</div><div class="v"><span class="diff">1948</span></div></div>
+                        <div class="pf-kv"><div class="k">Œuvres liées</div><div class="v">12 livres</div></div>
+                      </div>
+                    </div>
+                  </article>
+
+                  <div class="prev-diff-legend">
+                    <span class="swatch add">1 champ ajouté</span>
+                    <span class="swatch rm">0 champ supprimé</span>
+                    <span style="margin-left:auto;">Nouvelle fiche illustrateur</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ═════════ Champs Traducteur (affichés quand type = traducteur) ═════════ -->
+            <div class="field-block" data-type-block="traducteur" style="display:none;">
+              <div class="field-block-head">
+                <div class="ttl">Identification du traducteur <span class="step">étape 2 / 4</span></div>
+                <div class="hint">Les champs marqués <span style="color:var(--danger)">*</span> sont nécessaires à la modération.</div>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group full">
+                  <label class="form-label" for="t-name">Nom du traducteur <span class="required">*</span></label>
+                  <div class="input-wrap is-valid">
+                    <input class="input" id="t-name" type="text" placeholder="ex. : Camille Fabien" />
+                    <span class="validation-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+                    </span>
+                  </div>
+                  <span class="form-help live ok">Nom inédit — aucun homonyme détecté dans la base.</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="t-firstname">Prénom <span class="form-help" style="font-weight:400;color:var(--ink-subtle);font-size:var(--fs-xs);">(état civil)</span></label>
+                  <div class="input-wrap">
+                    <input class="input" id="t-firstname" type="text" placeholder="ex. : Camille" />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="t-lastname">Nom <span class="form-help" style="font-weight:400;color:var(--ink-subtle);font-size:var(--fs-xs);">(état civil)</span></label>
+                  <div class="input-wrap">
+                    <input class="input" id="t-lastname" type="text" placeholder="ex. : Fabien" />
+                  </div>
+                </div>
+
+                <div class="form-group full">
+                  <label class="form-label" for="t-alias">Pseudonyme(s) / alias</label>
+                  <div class="input-wrap">
+                    <input class="input" id="t-alias" type="text" placeholder="Séparez les alias par une virgule" />
+                  </div>
+                  <span class="form-help">Autres noms sous lesquels le traducteur a signé.</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="t-source">Langue source <span class="required">*</span></label>
+                  <div class="input-wrap is-valid">
+                    <select class="select" id="t-source">
+                      <option selected>Anglais</option>
+                      <option>Allemand</option>
+                      <option>Italien</option>
+                      <option>Espagnol</option>
+                      <option>Japonais</option>
+                    </select>
+                    <span class="validation-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="t-target">Langue cible <span class="required">*</span></label>
+                  <div class="input-wrap is-valid">
+                    <select class="select" id="t-target">
+                      <option selected>Français</option>
+                      <option>Anglais</option>
+                      <option>Allemand</option>
+                      <option>Italien</option>
+                      <option>Espagnol</option>
+                    </select>
+                    <span class="validation-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="t-nationality">Nationalité <span class="required">*</span></label>
+                  <div class="input-wrap is-valid">
+                    <select class="select" id="t-nationality">
+                      <option value="" disabled>Choisir un pays…</option>
+                      <option selected>France</option>
+                      <option>Belgique</option>
+                      <option>Suisse</option>
+                      <option>Canada</option>
+                      <option>Royaume-Uni</option>
+                      <option>Autre / inconnue</option>
+                    </select>
+                    <span class="validation-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="t-role">Rôle principal <span class="required">*</span></label>
+                  <div class="input-wrap is-valid">
+                    <select class="select" id="t-role">
+                      <option selected>Traducteur</option>
+                      <option>Adaptateur</option>
+                      <option>Traducteur &amp; adaptateur</option>
+                      <option>Relecteur</option>
+                    </select>
+                    <span class="validation-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="t-born">Année de naissance <span class="required">*</span></label>
+                  <div class="input-wrap is-valid">
+                    <input class="input" id="t-born" type="number" inputmode="numeric" min="1800" max="2026" placeholder="ex. : 1947" />
+                    <span class="validation-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="t-died">Année de décès</label>
+                  <div class="input-wrap">
+                    <input class="input" id="t-died" type="number" inputmode="numeric" min="1800" max="2026" placeholder="—" />
+                  </div>
+                  <span class="form-help">Laissez vide si le traducteur est toujours en vie.</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="t-website">Site officiel / référence</label>
+                  <div class="input-wrap">
+                    <input class="input" id="t-website" type="url" placeholder="https://" style="font-family: var(--font-mono); font-size: var(--fs-sm);" />
+                  </div>
+                  <span class="form-help">Fiche ATLF, page éditeur ou site personnel.</span>
+                </div>
+
+                <div class="form-group full">
+                  <label class="form-label">Domaines de traduction</label>
+                  <div class="input-helper-row">
+                    <button type="button" class="helper-chip">Littérature jeunesse</button>
+                    <button type="button" class="helper-chip">Fantasy</button>
+                    <button type="button" class="helper-chip">Livre-jeu</button>
+                    <button type="button" class="helper-chip add">Ajouter un domaine</button>
+                  </div>
+                </div>
+
+                <div class="form-group full">
+                  <label class="form-label" for="t-bio">Biographie <span class="required">*</span></label>
+                  <div class="textarea-wrap">
+                    <textarea class="textarea" id="t-bio" rows="4" maxlength="1200" placeholder="Parcours, langues de travail, œuvres marquantes, collaborations…"></textarea>
+                    <span class="counter">0 / 1200</span>
+                  </div>
+                  <span class="form-help">Présentation factuelle et sourcée — visible sur la fiche publique.</span>
+                </div>
+
+                <div class="form-group full">
+                  <label class="form-label">Œuvres traduites</label>
+                  <div class="input-helper-row">
+                    <button type="button" class="helper-chip add">Lier un livre existant</button>
+                    <button type="button" class="helper-chip add">Lier une collection</button>
+                  </div>
+                  <span class="form-help">Rattachez les fiches déjà présentes au catalogue à ce traducteur.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Portrait (traducteur) -->
+            <div class="field-block" data-type-block="traducteur" style="display:none;">
+              <div class="field-block-head">
+                <div class="ttl">Portrait <span class="step">étape 3 / 4</span></div>
+                <div class="hint">Recadrage automatique au format carré.</div>
+              </div>
+              <label class="upload-zone" for="t-portrait">
+                <input type="file" id="t-portrait" accept="image/*" hidden />
+                <span class="upl-thumb" aria-hidden="true" style="height:84px;border-radius:50%;">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>
+                </span>
+                <span class="upl-text">
+                  Déposer un portrait, ou <strong>parcourir</strong>
+                  <span class="hint">JPG · PNG · WEBP · max 4 Mo · 600×600 px recommandé · libre de droits</span>
+                </span>
+              </label>
+            </div>
+
+            <!-- Aperçu (traducteur) -->
+            <div class="field-block" data-type-block="traducteur" style="display:none; margin-bottom: 0;">
+              <div class="field-block-head">
+                <div class="ttl">Aperçu avant envoi <span class="step">étape 4 / 4</span></div>
+                <div class="hint">À quoi ressemblera la fiche une fois validée.</div>
+              </div>
+
+              <div class="preview" aria-label="Prévisualisation de la fiche traducteur">
+                <div class="preview-head">
+                  <span class="lhs">Prévisualisation en direct</span>
+                  <div class="device-toggle" role="group" aria-label="Format d'aperçu">
+                    <button type="button" aria-pressed="true" aria-label="Aperçu desktop">
+                      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="1"/><path d="M8 21h8M12 17v4"/></svg>
+                    </button>
+                    <button type="button" aria-pressed="false" aria-label="Aperçu mobile">
+                      <svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="1.5"/><path d="M11 18h2"/></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="preview-canvas">
+                  <article class="prev-fiche">
+                    <div class="pf-cover" aria-hidden="true" style="display:grid;place-items:center;">
+                      <div class="corner"></div>
+                      <svg viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="rgba(245,236,217,0.92)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="position:relative;z-index:1;"><path d="M3 6h12M9 4v2M9 6c0 4-2 8-6 8M5 10c0 2 3 5 7 5"/><path d="M13 21l4-9 4 9M14.5 18h5"/></svg>
+                    </div>
+                    <div class="pf-body">
+                      <div class="pf-eyebrow">Traducteur · Anglais → Français</div>
+                      <h3 class="pf-title">Camille Fabien</h3>
+                      <div class="pf-author">traduit de <strong>l'anglais</strong><br/>vers le <strong>français</strong></div>
+                      <div class="pf-grid">
+                        <div class="pf-kv"><div class="k">Nationalité</div><div class="v">France</div></div>
+                        <div class="pf-kv"><div class="k">Langues</div><div class="v"><span class="diff">EN → FR</span></div></div>
+                        <div class="pf-kv"><div class="k">Naissance</div><div class="v">1947</div></div>
+                        <div class="pf-kv"><div class="k">Œuvres liées</div><div class="v">23 livres</div></div>
+                      </div>
+                    </div>
+                  </article>
+
+                  <div class="prev-diff-legend">
+                    <span class="swatch add">1 champ ajouté</span>
+                    <span class="swatch rm">0 champ supprimé</span>
+                    <span style="margin-left:auto;">Nouvelle fiche traducteur</span>
                   </div>
                 </div>
               </div>
@@ -2193,6 +2843,33 @@
       });
 
       // Type cards keyboard activation (radio cards already work via input click)
+
+      // ── Bascule des champs selon le TYPE de fiche sélectionné ──
+      var typeRadios = document.querySelectorAll('.type-grid input[name="type"]');
+      function syncTypeFields(type) {
+        // Type avec un formulaire dédié ? sinon on retombe sur le formulaire « livre ».
+        var effective = document.querySelector('[data-type-block="' + type + '"]') ? type : 'livre';
+        document.querySelectorAll('[data-type-block]').forEach(function (el) {
+          el.style.display = (el.getAttribute('data-type-block') === effective) ? '' : 'none';
+        });
+      }
+      typeRadios.forEach(function (r) {
+        r.addEventListener('change', function () { if (r.checked) syncTypeFields(r.value); });
+      });
+      var checkedType = document.querySelector('.type-grid input[name="type"]:checked');
+      if (checkedType) syncTypeFields(checkedType.value);
+
+      // Compteur des biographies (auteur + illustrateur)
+      document.querySelectorAll('#a-bio, #i-bio, #t-bio').forEach(function (bio) {
+        var bc = bio.parentElement.querySelector('.counter');
+        if (!bc) return;
+        bio.addEventListener('input', function () {
+          var n = bio.value.length, max = parseInt(bio.getAttribute('maxlength') || 1200, 10);
+          bc.textContent = n + ' / ' + max;
+          bc.classList.toggle('warn', n > max - 100);
+          bc.classList.toggle('ok', n > 80 && n <= max - 100);
+        });
+      });
 
       // Lightweight live ISBN-ish validation on the ISBN field
       var isbn = document.getElementById('f-isbn');

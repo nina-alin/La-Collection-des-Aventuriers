@@ -1,0 +1,362 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créateurs — La Collection des Aventuriers{% endblock %}
+
+{% block body %}
+<meta name="createurs-count" content="{{ contributors|length }}">
+
+<div data-controller="createurs"
+     data-createurs-search-url-value="{{ path('app_createurs_search') }}">
+
+  {# ======================== PAGE HEAD ======================== #}
+  <section class="page-head">
+    <p class="eyebrow">Galerie des Bâtisseurs</p>
+    <h1>Les <em>Créateurs</em></h1>
+    <p class="lede">Auteurs, illustrateurs et traducteurs qui ont forgé l'univers des livres-jeux.</p>
+
+    {# Predictive search bar #}
+    <div class="creator-search" id="creatorSearch">
+      <div class="creator-search-inner">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search"
+               data-createurs-target="searchInput"
+               data-action="input->createurs#search"
+               placeholder="Rechercher un créateur…"
+               aria-label="Rechercher un créateur"
+               autocomplete="off">
+      </div>
+      <div class="creator-search-dropdown d-none" data-createurs-target="searchDropdown" role="listbox" aria-label="Résultats de recherche"></div>
+    </div>
+
+    {# Role segmented control (entity tabs) #}
+    <div class="entity-tabs" role="tablist" aria-label="Type de créateur" style="margin-top: var(--sp-5);">
+      <a class="entity-tab"
+         role="tab"
+         href="{{ path('app_createurs', filterState.toUrlParams()|merge({role: 'tous', page: 1})) }}"
+         aria-selected="{{ filterState.role == 'tous' ? 'true' : 'false' }}"
+         data-turbo-action="replace">
+        <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 5a3 3 0 0 1 0 6M18 14a6 6 0 0 1 3 6"/></svg>
+        Tous <span class="et-count">{{ roleCounts.tous }}</span>
+      </a>
+      <a class="entity-tab"
+         role="tab"
+         href="{{ path('app_createurs', filterState.toUrlParams()|merge({role: 'auteur', page: 1})) }}"
+         aria-selected="{{ filterState.role == 'auteur' ? 'true' : 'false' }}"
+         data-turbo-action="replace">
+        <svg viewBox="0 0 24 24"><path d="m4 20 4-1 12-12-3-3L5 16l-1 4z"/><path d="m14 6 3 3"/></svg>
+        Auteurs <span class="et-count">{{ roleCounts.auteur }}</span>
+      </a>
+      <a class="entity-tab"
+         role="tab"
+         href="{{ path('app_createurs', filterState.toUrlParams()|merge({role: 'traducteur', page: 1})) }}"
+         aria-selected="{{ filterState.role == 'traducteur' ? 'true' : 'false' }}"
+         data-turbo-action="replace">
+        <svg viewBox="0 0 24 24"><path d="M4 5h7M9 3v2c0 4-2 7-5 9M5 9c0 3 3 5 6 6"/><path d="m13 21 4-9 4 9M14.5 18h5"/></svg>
+        Traducteurs <span class="et-count">{{ roleCounts.traducteur }}</span>
+      </a>
+      <a class="entity-tab"
+         role="tab"
+         href="{{ path('app_createurs', filterState.toUrlParams()|merge({role: 'illustrateur', page: 1})) }}"
+         aria-selected="{{ filterState.role == 'illustrateur' ? 'true' : 'false' }}"
+         data-turbo-action="replace">
+        <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.5 0 2-1 2-2 0-1.5-1.5-2-1.5-3.5 0-1 1-1.5 2-1.5h2a3 3 0 0 0 3-3c0-4-3.5-7-7.5-7z"/><circle cx="7.5" cy="11" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="16" cy="11" r="1"/></svg>
+        Illustrateurs <span class="et-count">{{ roleCounts.illustrateur }}</span>
+      </a>
+    </div>
+  </section>
+
+  {# ======================== CATALOGUE GRID LAYOUT ======================== #}
+  <div class="catalogue" id="catalogue">
+
+    {# ============ FILTER PANEL (LiveComponent) ============ #}
+    <twig:Contributeur:FilterPanelComponent :state="filterState" />
+
+    {# ============ RESULTS COLUMN ============ #}
+    <section class="results" aria-label="Résultats">
+
+      {# Top bar: count + sort + view toggle #}
+      <div class="results-bar">
+        <div class="results-count">
+          {% set from = (filterState.page - 1) * 12 + 1 %}
+          {% set to   = min(filterState.page * 12, totalItems) %}
+          <strong>{{ totalItems }}</strong>
+          <span>créateur{{ totalItems > 1 ? 's' : '' }} ·
+            {% if filterState.role == 'auteur' %}auteurs
+            {% elseif filterState.role == 'traducteur' %}traducteurs
+            {% elseif filterState.role == 'illustrateur' %}illustrateurs
+            {% else %}tous métiers{% endif %}
+          </span>
+          {% if totalItems > 0 %}
+            · <span>{{ from }}–{{ to }}</span>
+          {% endif %}
+        </div>
+        <div class="results-actions">
+          <label class="visually-hidden" for="topSort">Trier par</label>
+          <select id="topSort"
+                  class="select"
+                  aria-label="Trier par"
+                  onchange="window.location.href = this.value"
+                  data-turbo-action="replace">
+            <option value="{{ path('app_createurs', filterState.toUrlParams()|merge({sort: 'az', page: 1})) }}"
+                    {{ filterState.sort == 'az' ? 'selected' }}>Trier · A → Z</option>
+            <option value="{{ path('app_createurs', filterState.toUrlParams()|merge({sort: 'ouvrages', page: 1})) }}"
+                    {{ filterState.sort == 'ouvrages' ? 'selected' }}>Trier · Nombre d'ouvrages</option>
+            <option value="{{ path('app_createurs', filterState.toUrlParams()|merge({sort: 'note', page: 1})) }}"
+                    {{ filterState.sort == 'note' ? 'selected' }}>Trier · Note moyenne</option>
+          </select>
+          <div class="view-toggle" role="group" aria-label="Mode d'affichage">
+            <button type="button"
+                    aria-pressed="true"
+                    aria-label="Grille"
+                    data-createurs-target="viewToggle"
+                    data-action="click->createurs#toggleView"
+                    data-view="grid">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            </button>
+            <button type="button"
+                    aria-pressed="false"
+                    aria-label="Liste"
+                    data-createurs-target="viewToggle"
+                    data-action="click->createurs#toggleView"
+                    data-view="list">
+              <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {# Active filter chips #}
+      {% set hasChips = filterState.role != 'tous'
+        or filterState.letter != null
+        or filterState.collectionIds is not empty
+        or filterState.periodMin != null
+        or filterState.periodMax != null
+        or filterState.nationality != null
+        or filterState.bookCountRange != null
+        or filterState.onlyFollowed %}
+      {% if hasChips %}
+      <div class="filter-chips" aria-label="Filtres actifs">
+        {% if filterState.role != 'tous' %}
+        <span class="chip">
+          <span class="chip-label">Métier</span>
+          <strong>{{ filterState.role|capitalize }}</strong>
+          <a href="{{ path('app_createurs', filterState.toUrlParams()|merge({role: 'tous', page: 1})) }}"
+             class="chip-close"
+             aria-label="Retirer le filtre Métier"
+             data-turbo-action="replace">×</a>
+        </span>
+        {% endif %}
+        {% if filterState.letter != null %}
+        <span class="chip">
+          <span class="chip-label">Lettre</span>
+          <strong>{{ filterState.letter }}</strong>
+          <a href="{{ path('app_createurs', filterState.toUrlParams()|merge({letter: null, page: 1})) }}"
+             class="chip-close"
+             aria-label="Retirer le filtre Lettre"
+             data-turbo-action="replace">×</a>
+        </span>
+        {% endif %}
+        {% if filterState.nationality != null %}
+        <span class="chip">
+          <span class="chip-label">Nationalité</span>
+          <strong>{{ filterState.nationality }}</strong>
+          <a href="{{ path('app_createurs', filterState.toUrlParams()|merge({nationality: null, page: 1})) }}"
+             class="chip-close"
+             aria-label="Retirer le filtre Nationalité"
+             data-turbo-action="replace">×</a>
+        </span>
+        {% endif %}
+        {% if filterState.periodMin != null or filterState.periodMax != null %}
+        <span class="chip">
+          <span class="chip-label">Période</span>
+          <strong>{{ filterState.periodMin ?? '…' }}–{{ filterState.periodMax ?? '…' }}</strong>
+          <a href="{{ path('app_createurs', filterState.toUrlParams()|merge({periodMin: null, periodMax: null, page: 1})) }}"
+             class="chip-close"
+             aria-label="Retirer le filtre Période"
+             data-turbo-action="replace">×</a>
+        </span>
+        {% endif %}
+        {% if filterState.bookCountRange != null %}
+        <span class="chip">
+          <span class="chip-label">Ouvrages</span>
+          <strong>{{ filterState.bookCountRange }}</strong>
+          <a href="{{ path('app_createurs', filterState.toUrlParams()|merge({bookCountRange: null, page: 1})) }}"
+             class="chip-close"
+             aria-label="Retirer le filtre Ouvrages"
+             data-turbo-action="replace">×</a>
+        </span>
+        {% endif %}
+        {% if filterState.onlyFollowed %}
+        <span class="chip">
+          <span class="chip-label">Statut</span>
+          <strong>Suivis</strong>
+          <a href="{{ path('app_createurs', filterState.toUrlParams()|merge({onlyFollowed: null, page: 1})) }}"
+             class="chip-close"
+             aria-label="Retirer le filtre Suivis"
+             data-turbo-action="replace">×</a>
+        </span>
+        {% endif %}
+        <a href="{{ path('app_createurs') }}" class="chip-clear" data-turbo-action="replace">Tout effacer</a>
+      </div>
+      {% endif %}
+
+      {# A–Z index #}
+      <nav class="az-index" aria-label="Index alphabétique">
+        {% for letter in ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'] %}
+          {% if letter in availableLetters %}
+            <a class="az-letter"
+               href="{{ path('app_createurs', filterState.toUrlParams()|merge({letter: filterState.letter == letter ? null : letter, page: 1})) }}"
+               {% if filterState.letter == letter %}aria-current="true"{% endif %}
+               data-turbo-action="replace">{{ letter }}</a>
+          {% else %}
+            <span class="az-letter" aria-disabled="true">{{ letter }}</span>
+          {% endif %}
+        {% endfor %}
+      </nav>
+
+      {# ============ CREATOR GRID ============ #}
+      <div class="grid is-creators" id="grid" data-createurs-target="grid">
+
+        {% for c in contributors %}
+          {% set cid = c.id ~ '' %}
+          {% set data = cardData[cid] ?? {bookCount: 0, avgScore: null, roles: [], topCollections: []} %}
+          {% set primaryRole = (data.roles ?? [])|first|default(null) %}
+          {% set roleClass = primaryRole == 'Author' ? 'is-auteur' : (primaryRole == 'Illustrator' ? 'is-illustrateur' : 'is-traducteur') %}
+          {% set detailPath = primaryRole == 'Author' ? path('app_author_show', {slug: c.slug})
+                            : (primaryRole == 'Illustrator' ? path('app_illustrator_show', {slug: c.slug})
+                            : path('app_traductor_show', {slug: c.slug})) %}
+
+          <a class="card card-creator" href="{{ detailPath }}">
+            <div class="cc-top">
+              <span class="cc-portrait" aria-hidden="true">
+                {% if c.firstName %}{{ c.firstName|slice(0,1)|upper }}{% endif %}{% if c.lastName %}{{ c.lastName|slice(0,1)|upper }}{% endif %}
+                {% if primaryRole %}
+                <span class="cc-pip {{ roleClass }}" title="{{ primaryRole|lower }}">
+                  {% if primaryRole == 'Author' %}
+                    <svg viewBox="0 0 24 24"><path d="m4 20 4-1 12-12-3-3L5 16l-1 4z"/><path d="m14 6 3 3"/></svg>
+                  {% elseif primaryRole == 'Illustrator' %}
+                    <svg viewBox="0 0 24 24"><path d="M3 21c3.5 0 5-1.5 5-4.5M8.5 16.5 19 6l-3-3L5.5 13.5z"/></svg>
+                  {% else %}
+                    <svg viewBox="0 0 24 24"><path d="M4 5h7M8.5 3v2c0 4-2 6-4.5 8M5 9c0 2 2.5 4 5 4"/><path d="m13 20 3.2-8 3.2 8M14.3 17h3.8"/></svg>
+                  {% endif %}
+                </span>
+                {% endif %}
+              </span>
+              <span class="cc-headings">
+                <span class="cc-name">{{ c.firstName }} {{ c.lastName }}</span>
+                {% set hasNat = c.nationality is not null %}
+                {% set hasBirth = c.birthDate is not null %}
+                {% set hasDeath = c.deathDate is not null %}
+                {% if hasNat or hasBirth or hasDeath %}
+                <span class="cc-life">
+                  {{- hasNat ? c.nationality -}}
+                  {{- (hasNat and (hasBirth or hasDeath)) ? ' · ' -}}
+                  {{- hasBirth ? c.birthDate|date('Y') -}}
+                  {{- (hasBirth and hasDeath) ? '–' -}}
+                  {{- hasDeath ? c.deathDate|date('Y') -}}
+                </span>
+                {% endif %}
+              </span>
+            </div>
+            <div class="cc-roles">
+              {% for role in data.roles %}
+                {% set rc = role == 'Author' ? 'is-auteur' : (role == 'Illustrator' ? 'is-illustrateur' : 'is-traducteur') %}
+                {% set rl = role == 'Author' ? 'Auteur' : (role == 'Illustrator' ? 'Illustrateur' : 'Traducteur') %}
+                <span class="role-tag {{ rc }}">{{ rl }}</span>
+              {% endfor %}
+            </div>
+            {% if c.biography is not null and c.biography != '' %}
+            <p class="cc-blurb">{{ c.biography }}</p>
+            {% endif %}
+            {% if data.topCollections is not empty %}
+            <div class="cc-collections">
+              {% for coll in data.topCollections %}
+                <span class="cc-coll-chip">{{ coll.nom }}</span>
+              {% endfor %}
+            </div>
+            {% endif %}
+            <div class="footer">
+              <div class="cc-stats">
+                <span class="cc-stat">
+                  <strong>{{ data.bookCount }}</strong>
+                  <span class="lbl">{{ data.bookCount <= 1 ? 'OUVRAGE' : 'OUVRAGES' }}</span>
+                </span>
+                <span class="cc-stat">
+                  <strong class="cc-stat-score">
+                    <span class="shield" aria-hidden="true"></span>
+                    {{ data.avgScore is not null ? data.avgScore|number_format(1) : '–' }}
+                  </strong>
+                  <span class="lbl">NOTE MOY.</span>
+                </span>
+              </div>
+              <button class="cc-follow"
+                      type="button"
+                      aria-pressed="false"
+                      aria-label="Suivre {{ c.firstName }} {{ c.lastName }}">
+                <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9C1 8.5 3 5 6.5 5c2 0 3.5 1 5.5 3 2-2 3.5-3 5.5-3C21 5 23 8.5 21.5 12 19 16.5 12 21 12 21z"/></svg>
+                Suivre
+              </button>
+            </div>
+          </a>
+        {% else %}
+          <div class="createurs-empty" style="grid-column: 1 / -1;">
+            <p>Aucun créateur ne correspond à vos filtres.</p>
+            <a href="{{ path('app_createurs') }}" class="btn btn-secondary btn-sm">Effacer les filtres</a>
+          </div>
+        {% endfor %}
+
+      </div>
+
+      {# ============ PAGINATION ============ #}
+      {% if totalPages > 1 %}
+      <nav class="pagination" aria-label="Pagination">
+        <div class="pagination-arrows">
+          {% if filterState.page > 1 %}
+            <a class="page-arrow prev"
+               href="{{ path('app_createurs', filterState.toUrlParams()|merge({page: filterState.page - 1})) }}"
+               aria-label="Page précédente"
+               data-turbo-action="replace">Précédent</a>
+          {% else %}
+            <span class="page-arrow prev" aria-disabled="true">Précédent</span>
+          {% endif %}
+
+          <div class="page-numbers" role="navigation">
+            {% set maxVisible = 4 %}
+            {% for p in 1..totalPages %}
+              {% if p <= maxVisible %}
+                <a class="page-num"
+                   href="{{ path('app_createurs', filterState.toUrlParams()|merge({page: p})) }}"
+                   {% if p == filterState.page %}aria-current="page"{% endif %}
+                   data-turbo-action="replace">{{ p }}</a>
+              {% elseif p == maxVisible + 1 and totalPages > maxVisible + 1 %}
+                <span class="page-ellipsis" aria-hidden="true">…</span>
+              {% elseif p == totalPages %}
+                <a class="page-num"
+                   href="{{ path('app_createurs', filterState.toUrlParams()|merge({page: p})) }}"
+                   {% if p == filterState.page %}aria-current="page"{% endif %}
+                   data-turbo-action="replace">{{ p }}</a>
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          {% if filterState.page < totalPages %}
+            <a class="page-arrow next"
+               href="{{ path('app_createurs', filterState.toUrlParams()|merge({page: filterState.page + 1})) }}"
+               aria-label="Page suivante"
+               data-turbo-action="replace">Suivant</a>
+          {% else %}
+            <span class="page-arrow next" aria-disabled="true">Suivant</span>
+          {% endif %}
+        </div>
+        <div class="pagination-meta">
+          Folio <strong>{{ filterState.page }}</strong> sur <strong>{{ totalPages }}</strong>
+          · créateurs <strong>{{ (filterState.page - 1) * 12 + 1 }} à {{ min(filterState.page * 12, totalItems) }}</strong>
+          sur <strong>{{ totalItems }}</strong>
+        </div>
+      </nav>
+      {% endif %}
+
+    </section>
+  </div>{# /.catalogue #}
+</div>{# /data-controller #}
+{% endblock %}
