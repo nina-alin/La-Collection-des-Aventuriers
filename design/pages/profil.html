@@ -624,6 +624,39 @@
     }
     .tabs-toolbar .view-switch svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.7; }
 
+    /* Visibilité de la liste — toggle Publique / Privée */
+    .visibility-toggle {
+      appearance: none;
+      display: inline-flex; align-items: center; gap: 7px;
+      min-height: 36px;
+      padding: 0 12px;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      background: var(--bg-elevated);
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: var(--tracking-caps);
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .visibility-toggle:hover { border-color: var(--brand-primary); color: var(--ink-strong); }
+    .visibility-toggle .vis-ic { display: inline-grid; place-items: center; width: 15px; height: 15px; }
+    .visibility-toggle .vis-ic svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .visibility-toggle .ic-private { display: none; }
+    /* PUBLIQUE */
+    .visibility-toggle[data-state="public"] {
+      color: var(--mousse-700);
+      border-color: color-mix(in oklab, var(--mousse-500) 45%, transparent);
+      background: color-mix(in oklab, var(--mousse-500) 10%, transparent);
+    }
+    [data-theme="dark"] .visibility-toggle[data-state="public"] { color: var(--mousse-300); }
+    /* PRIVÉE */
+    .visibility-toggle[data-state="private"] { color: var(--ink-muted); }
+    .visibility-toggle[data-state="private"] .ic-public { display: none; }
+    .visibility-toggle[data-state="private"] .ic-private { display: inline; }
+
     /* ============================================================
        TAB PANELS — grilles compactes de livres
        ============================================================ */
@@ -2365,7 +2398,6 @@
           <div class="hero-identity">
             <div class="role-line">
               <span class="badge badge-role-mod"><span class="dot" aria-hidden="true"></span>Modérateur</span>
-              <span class="level">Compagnon · <strong>Niveau 4</strong></span>
             </div>
             <h1 id="hero-title">
               Marius Aubry
@@ -2509,6 +2541,13 @@
             <strong>il y a 2&nbsp;j.</strong>
           </div>
           <div class="actions">
+            <button class="visibility-toggle" id="listVisibility" type="button" data-state="public" title="Visibilité de cette liste">
+              <span class="vis-ic" aria-hidden="true">
+                <svg class="ic-public" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="ic-private" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+              </span>
+              <span class="vis-label">Publique</span>
+            </button>
             <select class="select-sort" aria-label="Trier">
               <option>Récemment ajoutés</option>
               <option>Note décroissante</option>
@@ -3334,7 +3373,6 @@
                   <div class="label">Adresse email</div>
                   <div class="value">marius.aubry@protonmail.com <span class="verified">vérifiée</span></div>
                 </div>
-                <div class="action"><button class="btn-tiny" type="button">Changer</button></div>
               </div>
               <div class="param-row">
                 <div>
@@ -3348,7 +3386,7 @@
                   <div class="label">Photo de profil</div>
                   <div class="value">Sceau personnalisé "MA"</div>
                 </div>
-                <div class="action"><button class="btn-tiny" type="button">Téléverser</button></div>
+                <div class="action"><button class="btn-tiny" type="button">Modifier</button></div>
               </div>
               <div class="param-row">
                 <div>
@@ -3471,7 +3509,35 @@
       const unitMap = { collection: 'ouvrages', tolire: 'à lire', toacheter: 'à acheter', favoris: 'favoris' };
       const unitEl = document.querySelector('.tabs-toolbar .breadcrumb span:nth-of-type(1)');
 
+      // Visibilité par liste (publique / privée), persistée.
+      const visBtn = document.getElementById('listVisibility');
+      const visLabel = visBtn ? visBtn.querySelector('.vis-label') : null;
+      const VIS_KEY = 'lca.profil.listVisibility';
+      let visState = { collection: 'public', tolire: 'private', toacheter: 'private', favoris: 'public' };
+      try {
+        const saved = JSON.parse(localStorage.getItem(VIS_KEY) || 'null');
+        if (saved) visState = Object.assign(visState, saved);
+      } catch (e) {}
+      let currentKey = 'collection';
+
+      function syncVisibility() {
+        if (!visBtn) return;
+        const state = visState[currentKey] || 'public';
+        visBtn.dataset.state = state;
+        if (visLabel) visLabel.textContent = (state === 'public') ? 'Publique' : 'Privée';
+        visBtn.setAttribute('aria-label', 'Visibilité de cette liste : ' + (state === 'public' ? 'publique' : 'privée') + ' — cliquer pour basculer');
+        visBtn.title = (state === 'public')
+          ? 'Liste publique — visible sur votre profil public'
+          : 'Liste privée — visible de vous seul';
+      }
+      if (visBtn) visBtn.addEventListener('click', function () {
+        visState[currentKey] = (visState[currentKey] === 'public') ? 'private' : 'public';
+        try { localStorage.setItem(VIS_KEY, JSON.stringify(visState)); } catch (e) {}
+        syncVisibility();
+      });
+
       function activate(key) {
+        currentKey = key;
         buttons.forEach(b => {
           const on = b.dataset.tab === key;
           b.setAttribute('aria-selected', on ? 'true' : 'false');
@@ -3483,6 +3549,7 @@
         });
         if (counterEl) counterEl.textContent = counts[key];
         if (unitEl) unitEl.textContent = unitMap[key];
+        syncVisibility();
       }
 
       buttons.forEach(b => b.addEventListener('click', () => activate(b.dataset.tab)));

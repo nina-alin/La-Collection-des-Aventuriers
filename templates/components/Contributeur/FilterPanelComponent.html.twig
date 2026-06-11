@@ -31,7 +31,7 @@
                value="{{ collectionSearch }}">
         {% for coll in this.getVisibleCollections() %}
         <label class="choice filter-row">
-          <span>
+          <span class="d-flex align-items-center gap-2">
             <input type="checkbox"
                    data-model="selectedCollectionIds[]"
                    value="{{ coll.id }}"

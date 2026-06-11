@@ -42,4 +42,15 @@ class UserCollectionSubscriptionRepository extends ServiceEntityRepository
 
         return array_values(array_map(static fn(array $r) => (string) $r['cid'], $rows));
     }
+
+    /** @return UserCollectionSubscription[] */
+    public function findFollowedByUser(User $user): array
+    {
+        return $this->findBy(['user' => $user], ['createdAt' => 'DESC']);
+    }
+
+    public function findByUserAndCollection(User $user, Collection $collection): ?UserCollectionSubscription
+    {
+        return $this->findOneBy(['user' => $user, 'collection' => $collection]);
+    }
 }
