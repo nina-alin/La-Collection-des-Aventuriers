@@ -3,6 +3,7 @@
 {% block title %}Créateurs — La Collection des Aventuriers{% endblock %}
 
 {% block body %}
+{% include 'components/_follow_login_modal.html.twig' %}
 <meta name="createurs-count" content="{{ contributors|length }}">
 
 <div data-controller="createurs"
@@ -226,7 +227,12 @@
                             : (primaryRole == 'Illustrator' ? path('app_illustrator_show', {slug: c.slug})
                             : path('app_traductor_show', {slug: c.slug})) %}
 
-          <a class="card card-creator" href="{{ detailPath }}">
+          <a class="card card-creator" href="{{ detailPath }}"
+             data-controller="follow"
+             data-follow-url-value="{{ path('follow_contributor_toggle', {id: c.id}) }}"
+             data-follow-token-value="{{ csrf_token('follow_contributor_' ~ c.id) }}"
+             data-follow-followed-value="{{ (c.id ~ '') in followedContributorIds ? 'true' : 'false' }}"
+             data-follow-authenticated-value="{{ isAuthenticated ? 'true' : 'false' }}">
             <div class="cc-top">
               <span class="cc-portrait" aria-hidden="true">
                 {% if c.firstName %}{{ c.firstName|slice(0,1)|upper }}{% endif %}{% if c.lastName %}{{ c.lastName|slice(0,1)|upper }}{% endif %}
@@ -291,17 +297,24 @@
               </div>
               <button class="cc-follow"
                       type="button"
-                      aria-pressed="false"
-                      aria-label="Suivre {{ c.firstName }} {{ c.lastName }}">
-                <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9C1 8.5 3 5 6.5 5c2 0 3.5 1 5.5 3 2-2 3.5-3 5.5-3C21 5 23 8.5 21.5 12 19 16.5 12 21 12 21z"/></svg>
-                Suivre
+                      data-follow-target="button"
+                      data-action="click->follow#toggle"
+                      aria-pressed="{{ (c.id ~ '') in followedContributorIds ? 'true' : 'false' }}"
+                      aria-label="{{ (c.id ~ '') in followedContributorIds ? 'Ne plus suivre' : 'Suivre' }} {{ c.firstName }} {{ c.lastName }}">
+                <svg data-follow-target="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9C1 8.5 3 5 6.5 5c2 0 3.5 1 5.5 3 2-2 3.5-3 5.5-3C21 5 23 8.5 21.5 12 19 16.5 12 21 12 21z"/></svg>
+                <span data-follow-target="label">{{ (c.id ~ '') in followedContributorIds ? 'Suivi' : 'Suivre' }}</span>
               </button>
             </div>
           </a>
         {% else %}
           <div class="createurs-empty" style="grid-column: 1 / -1;">
-            <p>Aucun créateur ne correspond à vos filtres.</p>
-            <a href="{{ path('app_createurs') }}" class="btn btn-secondary btn-sm">Effacer les filtres</a>
+            {% if filterState.onlyFollowed %}
+              <p>Vous ne suivez encore personne. Découvrez les créateurs !</p>
+              <a href="{{ path('app_createurs') }}" class="btn btn-secondary btn-sm">Voir tous les créateurs</a>
+            {% else %}
+              <p>Aucun créateur ne correspond à vos filtres.</p>
+              <a href="{{ path('app_createurs') }}" class="btn btn-secondary btn-sm">Effacer les filtres</a>
+            {% endif %}
           </div>
         {% endfor %}
 

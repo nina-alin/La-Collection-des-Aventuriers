@@ -29,4 +29,17 @@ class UserCollectionSubscriptionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /** @return string[] UUIDs */
+    public function findFollowedCollectionIds(User $user): array
+    {
+        $rows = $this->createQueryBuilder('s')
+            ->select('IDENTITY(s.collection) AS cid')
+            ->where('s.user = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getScalarResult();
+
+        return array_values(array_map(static fn(array $r) => (string) $r['cid'], $rows));
+    }
 }

@@ -1,328 +1,370 @@
-<div id="step-2-heading">
-  <h2 class="h5 mb-3">Étape 2 : Détails</h2>
-</div>
-
-{# Pre-fill banner for correction mode #}
-{% if mode == 'CORRECTION' and originalData is not empty %}
-  <div class="prefill-banner alert alert-info mb-3" role="region" aria-label="Données pré-remplies">
-    <strong>Fiche source chargée</strong> — modifiez les champs à corriger.
-    <button type="button" class="btn btn-sm btn-ghost" aria-expanded="true"
-            aria-controls="prefill-details">Afficher / masquer</button>
-  </div>
-{% endif %}
-
-{# Source entity autocomplete (correction mode only) #}
-{% if mode == 'CORRECTION' %}
-  <div class="mb-3">
-    <label for="source-entity" class="form-label fw-semibold">Fiche à corriger</label>
-    <div {{ stimulus_controller('suggestion-autocomplete', {type: entityType|lower, createUrl: path('app_suggestions_create_entity', {type: entityType|lower})}) }}>
-      <input type="text" id="source-entity" class="input"
-             placeholder="Rechercher une fiche…"
-             aria-label="Rechercher la fiche source à corriger"
-             aria-autocomplete="list"
-             aria-expanded="false"
-             role="combobox"
-             data-suggestion-autocomplete-target="input" />
-      <ul role="listbox" class="autocomplete-dropdown d-none"
-          data-suggestion-autocomplete-target="dropdown"></ul>
-    </div>
-  </div>
-{% endif %}
-
 {# Contributor fields (AUTHOR, ILLUSTRATOR, TRADUCTOR) #}
 {% if entityType in ['AUTHOR', 'ILLUSTRATOR', 'TRADUCTOR'] %}
-  <div class="row g-3">
-
-    <div class="col-md-6">
-      <label for="field-firstName" class="form-label fw-semibold">
-        Prénom <span class="text-danger" aria-hidden="true">*</span>
-      </label>
-      <input type="text" id="field-firstName" class="input {{ errors.firstName is defined ? 'is-invalid' : '' }}"
-             data-model="formData.firstName"
-             value="{{ formData.firstName ?? '' }}"
-             aria-required="true"
-             aria-describedby="{{ errors.firstName is defined ? 'field-firstName-error' : '' }}" />
-      {% if errors.firstName is defined %}
-        <div id="field-firstName-error" class="form-help error" aria-live="assertive">{{ errors.firstName }}</div>
-      {% endif %}
+  <div class="field-block">
+    <div class="field-block-head">
+      <div class="ttl">
+        Identification
+        {% if entityType == 'AUTHOR' %}de l'auteur
+        {% elseif entityType == 'ILLUSTRATOR' %}de l'illustrateur
+        {% else %}du traducteur{% endif %}
+        <span class="step">Étape 2 / 4</span>
+      </div>
+      <div class="hint">Les champs marqués <span style="color:var(--danger)">*</span> sont nécessaires à la modération.</div>
     </div>
+    <div class="form-grid">
 
-    <div class="col-md-6">
-      <label for="field-lastName" class="form-label fw-semibold">
-        Nom <span class="text-danger" aria-hidden="true">*</span>
-      </label>
-      <input type="text" id="field-lastName" class="input {{ errors.lastName is defined ? 'is-invalid' : '' }}"
-             data-model="formData.lastName"
-             value="{{ formData.lastName ?? '' }}"
-             aria-required="true"
-             aria-describedby="{{ errors.lastName is defined ? 'field-lastName-error' : '' }}" />
-      {% if errors.lastName is defined %}
-        <div id="field-lastName-error" class="form-help error" aria-live="assertive">{{ errors.lastName }}</div>
-      {% endif %}
+      <div class="form-group">
+        <label for="field-firstName" class="form-label">
+          Prénom <span class="text-danger" aria-hidden="true">*</span>
+        </label>
+        <div class="input-wrap">
+          <input type="text" id="field-firstName" class="input {{ errors.firstName is defined ? 'is-invalid' : '' }}"
+                 data-model="formData.firstName"
+                 value="{{ formData.firstName ?? '' }}"
+                 aria-required="true"
+                 aria-describedby="{{ errors.firstName is defined ? 'field-firstName-error' : '' }}" />
+        </div>
+        {% if errors.firstName is defined %}
+          <div id="field-firstName-error" class="form-help error" aria-live="assertive">{{ errors.firstName }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="field-lastName" class="form-label">
+          Nom <span class="text-danger" aria-hidden="true">*</span>
+        </label>
+        <div class="input-wrap">
+          <input type="text" id="field-lastName" class="input {{ errors.lastName is defined ? 'is-invalid' : '' }}"
+                 data-model="formData.lastName"
+                 value="{{ formData.lastName ?? '' }}"
+                 aria-required="true"
+                 aria-describedby="{{ errors.lastName is defined ? 'field-lastName-error' : '' }}" />
+        </div>
+        {% if errors.lastName is defined %}
+          <div id="field-lastName-error" class="form-help error" aria-live="assertive">{{ errors.lastName }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="field-pseudo" class="form-label">Pseudonyme</label>
+        <div class="input-wrap">
+          <input type="text" id="field-pseudo" class="input"
+                 data-model="formData.pseudo"
+                 value="{{ formData.pseudo ?? '' }}" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="field-nationality" class="form-label">Nationalité</label>
+        <div class="input-wrap">
+          <input type="text" id="field-nationality" class="input"
+                 data-model="formData.nationality"
+                 value="{{ formData.nationality ?? '' }}"
+                 placeholder="ex. Française" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="field-birthDate" class="form-label">Date de naissance</label>
+        <div class="input-wrap">
+          <input type="date" id="field-birthDate" class="input"
+                 data-model="formData.birthDate"
+                 value="{{ formData.birthDate ?? '' }}" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="field-deathDate" class="form-label">Date de décès</label>
+        <div class="input-wrap">
+          <input type="date" id="field-deathDate" class="input"
+                 data-model="formData.deathDate"
+                 value="{{ formData.deathDate ?? '' }}" />
+        </div>
+      </div>
+
+      <div class="form-group full">
+        <label for="field-biography" class="form-label">Biographie</label>
+        <div class="textarea-wrap">
+          <textarea id="field-biography" class="input"
+                    data-model="formData.biography"
+                    rows="4"
+                    placeholder="Courte biographie…">{{ formData.biography ?? '' }}</textarea>
+        </div>
+      </div>
+
     </div>
-
-    <div class="col-md-6">
-      <label for="field-pseudo" class="form-label">Pseudonyme</label>
-      <input type="text" id="field-pseudo" class="input"
-             data-model="formData.pseudo"
-             value="{{ formData.pseudo ?? '' }}" />
-    </div>
-
-    <div class="col-md-6">
-      <label for="field-nationality" class="form-label">Nationalité</label>
-      <input type="text" id="field-nationality" class="input"
-             data-model="formData.nationality"
-             value="{{ formData.nationality ?? '' }}"
-             placeholder="ex. Française" />
-    </div>
-
-    <div class="col-md-6">
-      <label for="field-birthDate" class="form-label">Date de naissance</label>
-      <input type="date" id="field-birthDate" class="input"
-             data-model="formData.birthDate"
-             value="{{ formData.birthDate ?? '' }}" />
-    </div>
-
-    <div class="col-md-6">
-      <label for="field-deathDate" class="form-label">Date de décès</label>
-      <input type="date" id="field-deathDate" class="input"
-             data-model="formData.deathDate"
-             value="{{ formData.deathDate ?? '' }}" />
-    </div>
-
-    <div class="col-12">
-      <label for="field-biography" class="form-label">Biographie</label>
-      <textarea id="field-biography" class="input"
-                data-model="formData.biography"
-                rows="4"
-                placeholder="Courte biographie…">{{ formData.biography ?? '' }}</textarea>
-    </div>
-
   </div>
 {% endif %}
 
 {# Simple name field (EDITOR, COLLECTION) #}
 {% if entityType in ['EDITOR', 'COLLECTION'] %}
-  <div class="row g-3">
-    <div class="col-12">
-      <label for="field-name" class="form-label fw-semibold">
-        Nom <span class="text-danger" aria-hidden="true">*</span>
-      </label>
-      <input type="text" id="field-name" class="input {{ errors.name is defined ? 'is-invalid' : '' }}"
-             data-model="formData.name"
-             value="{{ formData.name ?? '' }}"
-             aria-required="true"
-             aria-describedby="{{ errors.name is defined ? 'field-name-error' : '' }}" />
-      {% if errors.name is defined %}
-        <div id="field-name-error" class="form-help error" aria-live="assertive">{{ errors.name }}</div>
-      {% endif %}
+  <div class="field-block">
+    <div class="field-block-head">
+      <div class="ttl">
+        Identification
+        {% if entityType == 'EDITOR' %}de l'éditeur{% else %}de la collection{% endif %}
+        <span class="step">Étape 2 / 4</span>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label for="field-name" class="form-label">
+          Nom <span class="text-danger" aria-hidden="true">*</span>
+        </label>
+        <div class="input-wrap">
+          <input type="text" id="field-name" class="input {{ errors.name is defined ? 'is-invalid' : '' }}"
+                 data-model="formData.name"
+                 value="{{ formData.name ?? '' }}"
+                 aria-required="true"
+                 aria-describedby="{{ errors.name is defined ? 'field-name-error' : '' }}" />
+        </div>
+        {% if errors.name is defined %}
+          <div id="field-name-error" class="form-help error" aria-live="assertive">{{ errors.name }}</div>
+        {% endif %}
+      </div>
     </div>
   </div>
 {% endif %}
 
 {# Book fields (shown when entityType = BOOK) #}
 {% if entityType == 'BOOK' or entityType is null %}
-
-  <div class="row g-3">
-
-    <div class="col-12">
-      <label for="field-title" class="form-label fw-semibold">
-        Titre <span class="text-danger" aria-hidden="true">*</span>
-      </label>
-      <input type="text" id="field-title" class="input {{ errors.title is defined ? 'is-invalid' : '' }}"
-             data-model="formData.title"
-             value="{{ formData.title ?? '' }}"
-             placeholder="ex. L'Œil d'Émeraude"
-             aria-required="true"
-             aria-describedby="field-title-help {{ errors.title is defined ? 'field-title-error' : '' }}" />
-      <div id="field-title-help" class="form-help">Titre exact tel qu'il apparaît sur la couverture.</div>
-      {% if errors.title is defined %}
-        <div id="field-title-error" class="form-help error" aria-live="assertive">{{ errors.title }}</div>
-      {% endif %}
+  <div class="field-block">
+    <div class="field-block-head">
+      <div class="ttl">Identification du livre <span class="step">Étape 2 / 4</span></div>
+      <div class="hint">Les champs marqués <span style="color:var(--danger)">*</span> sont nécessaires à la modération.</div>
     </div>
 
-    <div class="col-12">
-      <label for="field-subtitle" class="form-label">Sous-titre</label>
-      <input type="text" id="field-subtitle" class="input"
-             data-model="formData.subtitle"
-             value="{{ formData.subtitle ?? '' }}"
-             placeholder="ex. Le Cycle de l'Anneau, tome 1"
-             aria-describedby="field-subtitle-help" />
-      <div id="field-subtitle-help" class="form-help">Laissez vide si absent.</div>
-    </div>
+    <div class="form-grid">
 
-    <div class="col-md-6">
-      <label for="field-author" class="form-label fw-semibold">Auteur(s)</label>
-      <div {{ stimulus_controller('suggestion-autocomplete', {type: 'author', createUrl: path('app_suggestions_create_entity', {type: 'author'})}) }}>
-        <input type="text" id="field-author" class="input"
-               data-model="formData.author"
-               value="{{ formData.author ?? '' }}"
-               placeholder="Rechercher ou créer un auteur"
-               aria-label="Auteur(s) du livre"
-               role="combobox"
-               aria-autocomplete="list"
-               data-suggestion-autocomplete-target="input" />
-        <ul role="listbox" class="autocomplete-dropdown d-none"
-            data-suggestion-autocomplete-target="dropdown"></ul>
+      <div class="form-group full">
+        <label for="field-title" class="form-label">
+          Titre <span class="text-danger" aria-hidden="true">*</span>
+        </label>
+        <div class="input-wrap {{ errors.title is not defined and formData.title is not empty ? 'is-valid' : '' }} {{ errors.title is defined ? 'is-invalid' : '' }}">
+          <input type="text" id="field-title" class="input {{ errors.title is defined ? 'is-invalid' : '' }}"
+                 data-model="formData.title"
+                 value="{{ formData.title ?? '' }}"
+                 placeholder="ex. L'Œil d'Émeraude"
+                 aria-required="true"
+                 aria-describedby="field-title-help {{ errors.title is defined ? 'field-title-error' : '' }}" />
+          <span class="validation-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+          </span>
+        </div>
+        <div id="field-title-help" class="form-help">Titre exact tel qu'il apparaît sur la couverture.</div>
+        {% if errors.title is defined %}
+          <div id="field-title-error" class="form-help error" aria-live="assertive">{{ errors.title }}</div>
+        {% endif %}
       </div>
-    </div>
 
-    <div class="col-md-6">
-      <label for="field-illustrator" class="form-label">Illustrateur</label>
-      <div {{ stimulus_controller('suggestion-autocomplete', {type: 'illustrator', createUrl: path('app_suggestions_create_entity', {type: 'illustrator'})}) }}>
-        <input type="text" id="field-illustrator" class="input"
-               data-model="formData.illustrator"
-               value="{{ formData.illustrator ?? '' }}"
-               placeholder="Rechercher ou créer un illustrateur"
-               aria-label="Illustrateur du livre"
-               role="combobox"
-               aria-autocomplete="list"
-               data-suggestion-autocomplete-target="input" />
-        <ul role="listbox" class="autocomplete-dropdown d-none"
-            data-suggestion-autocomplete-target="dropdown"></ul>
+      <div class="form-group">
+        <label for="field-subtitle" class="form-label">
+          Sous-titre <span class="form-help" style="font-weight:400;color:var(--ink-subtle);font-size:var(--fs-xs);">(optionnel)</span>
+        </label>
+        <div class="input-wrap">
+          <input type="text" id="field-subtitle" class="input"
+                 data-model="formData.subtitle"
+                 value="{{ formData.subtitle ?? '' }}"
+                 placeholder="ex. Le Cycle de l'Anneau, tome 1"
+                 aria-describedby="field-subtitle-help" />
+        </div>
+        <div id="field-subtitle-help" class="form-help">Laissez vide si absent.</div>
       </div>
-    </div>
 
-    <div class="col-md-6">
-      <label for="field-traductor" class="form-label">Traducteur</label>
-      <div {{ stimulus_controller('suggestion-autocomplete', {type: 'traductor', createUrl: path('app_suggestions_create_entity', {type: 'traductor'})}) }}>
-        <input type="text" id="field-traductor" class="input"
-               data-model="formData.traductor"
-               value="{{ formData.traductor ?? '' }}"
-               placeholder="Rechercher ou créer un traducteur"
-               aria-label="Traducteur du livre"
-               role="combobox"
-               aria-autocomplete="list"
-               data-suggestion-autocomplete-target="input" />
-        <ul role="listbox" class="autocomplete-dropdown d-none"
-            data-suggestion-autocomplete-target="dropdown"></ul>
+      <div class="form-group">
+        <label for="field-author" class="form-label">
+          Auteur(s) <span class="text-danger" aria-hidden="true">*</span>
+        </label>
+        <div class="input-wrap {{ formData.author is not empty ? 'is-valid' : '' }}" {{ stimulus_controller('suggestion-autocomplete', {type: 'author', createUrl: path('app_suggestions_create_entity', {type: 'author'})}) }}>
+          <input type="text" id="field-author" class="input"
+                 data-model="formData.author"
+                 value="{{ formData.author ?? '' }}"
+                 placeholder="Rechercher ou créer un auteur"
+                 aria-label="Auteur(s) du livre"
+                 role="combobox"
+                 aria-autocomplete="list"
+                 data-suggestion-autocomplete-target="input" />
+          <span class="validation-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+          </span>
+          <ul role="listbox" class="autocomplete-dropdown d-none"
+              data-suggestion-autocomplete-target="dropdown"></ul>
+        </div>
+        <div class="input-helper-row">
+          <button type="button" class="helper-chip add">Ajouter un co-auteur</button>
+          <button type="button" class="helper-chip add">Créer un nouvel auteur</button>
+        </div>
       </div>
-    </div>
 
-    <div class="col-md-6">
-      <label for="field-editor" class="form-label fw-semibold">Éditeur</label>
-      <div {{ stimulus_controller('suggestion-autocomplete', {type: 'editor', createUrl: path('app_suggestions_create_entity', {type: 'editor'})}) }}>
-        <input type="text" id="field-editor" class="input"
-               data-model="formData.editor"
-               value="{{ formData.editor ?? '' }}"
-               placeholder="Rechercher ou créer un éditeur"
-               aria-label="Éditeur du livre"
-               role="combobox"
-               aria-autocomplete="list"
-               data-suggestion-autocomplete-target="input" />
-        <ul role="listbox" class="autocomplete-dropdown d-none"
-            data-suggestion-autocomplete-target="dropdown"></ul>
+      <div class="form-group">
+        <label for="field-illustrator" class="form-label">Illustrateur(s)</label>
+        <div class="input-wrap" {{ stimulus_controller('suggestion-autocomplete', {type: 'illustrator', createUrl: path('app_suggestions_create_entity', {type: 'illustrator'})}) }}>
+          <input type="text" id="field-illustrator" class="input"
+                 data-model="formData.illustrator"
+                 value="{{ formData.illustrator ?? '' }}"
+                 placeholder="Rechercher ou créer un illustrateur"
+                 aria-label="Illustrateur du livre"
+                 role="combobox"
+                 aria-autocomplete="list"
+                 data-suggestion-autocomplete-target="input" />
+          <ul role="listbox" class="autocomplete-dropdown d-none"
+              data-suggestion-autocomplete-target="dropdown"></ul>
+        </div>
       </div>
-    </div>
 
-    <div class="col-md-6">
-      <label for="field-collection" class="form-label">Collection</label>
-      <div {{ stimulus_controller('suggestion-autocomplete', {type: 'collection', createUrl: path('app_suggestions_create_entity', {type: 'collection'})}) }}>
-        <input type="text" id="field-collection" class="input"
-               data-model="formData.collection"
-               value="{{ formData.collection ?? '' }}"
-               placeholder="Rechercher ou créer une collection"
-               aria-label="Collection du livre"
-               role="combobox"
-               aria-autocomplete="list"
-               data-suggestion-autocomplete-target="input" />
-        <ul role="listbox" class="autocomplete-dropdown d-none"
-            data-suggestion-autocomplete-target="dropdown"></ul>
+      <div class="form-group">
+        <label for="field-traductor" class="form-label">Traducteur</label>
+        <div class="input-wrap" {{ stimulus_controller('suggestion-autocomplete', {type: 'traductor', createUrl: path('app_suggestions_create_entity', {type: 'traductor'})}) }}>
+          <input type="text" id="field-traductor" class="input"
+                 data-model="formData.traductor"
+                 value="{{ formData.traductor ?? '' }}"
+                 placeholder="Rechercher ou créer un traducteur"
+                 aria-label="Traducteur du livre"
+                 role="combobox"
+                 aria-autocomplete="list"
+                 data-suggestion-autocomplete-target="input" />
+          <ul role="listbox" class="autocomplete-dropdown d-none"
+              data-suggestion-autocomplete-target="dropdown"></ul>
+        </div>
       </div>
-    </div>
 
-    <div class="col-md-6">
-      <label for="field-isbn" class="form-label">ISBN</label>
-      <input type="text" id="field-isbn" class="input {{ errors.isbn is defined ? 'is-invalid' : '' }}"
-             data-model="formData.isbn"
-             value="{{ formData.isbn ?? '' }}"
-             placeholder="978-2-XXXXXXXXXX"
-             aria-label="ISBN du livre (10 ou 13 chiffres)"
-             aria-describedby="field-isbn-help {{ errors.isbn is defined ? 'field-isbn-error' : '' }}"
-             inputmode="numeric"
-             maxlength="17"
-             {{ stimulus_controller('suggestion-autocomplete', {isbnMode: true}) }} />
-      <div id="field-isbn-help" class="form-help">Format ISBN-10 ou ISBN-13 (tirets optionnels).</div>
-      {% if errors.isbn is defined %}
-        <div id="field-isbn-error" class="form-help error" aria-live="assertive">{{ errors.isbn }}</div>
-      {% endif %}
-    </div>
-
-    <div class="col-md-6">
-      <label for="field-publication-fr" class="form-label">Parution France</label>
-      <input type="number" id="field-publication-fr" class="input {{ errors.publicationFr is defined ? 'is-invalid' : '' }}"
-             data-model="formData.publicationFr"
-             value="{{ formData.publicationFr ?? '' }}"
-             placeholder="{{ 'now'|date('Y') }}"
-             min="1800" max="{{ ('now'|date('Y') + 2) }}"
-             aria-label="Année de parution en France"
-             aria-describedby="{{ errors.publicationFr is defined ? 'field-pub-fr-error' : '' }}" />
-      {% if errors.publicationFr is defined %}
-        <div id="field-pub-fr-error" class="form-help error" aria-live="assertive">{{ errors.publicationFr }}</div>
-      {% endif %}
-    </div>
-
-    <div class="col-md-6">
-      <label for="field-original-edition" class="form-label">Édition originale</label>
-      <input type="number" id="field-original-edition" class="input"
-             data-model="formData.originalEdition"
-             value="{{ formData.originalEdition ?? '' }}"
-             placeholder="ex. 1982"
-             min="1800" max="{{ ('now'|date('Y') + 2) }}"
-             aria-label="Année de l'édition originale" />
-    </div>
-
-    <div class="col-12">
-      <label for="field-paragraphs" class="form-label">
-        Nombre de paragraphes
-      </label>
-      <input type="number" id="field-paragraphs" class="input {{ errors.paragraphs is defined ? 'is-invalid' : '' }}"
-             data-model="formData.paragraphs"
-             value="{{ formData.paragraphs ?? '' }}"
-             placeholder="ex. 400"
-             min="1" max="800"
-             aria-describedby="field-paragraphs-help {{ errors.paragraphs is defined ? 'field-paragraphs-error' : '' }}"
-             aria-label="Nombre de paragraphes du livre-jeu" />
-      <div id="field-paragraphs-help" class="form-help">Maximum 800 paragraphes.</div>
-      {% if errors.paragraphs is defined %}
-        <div id="field-paragraphs-error" class="form-help error" aria-live="assertive">{{ errors.paragraphs }}</div>
-      {% endif %}
-    </div>
-
-    <div class="col-12" {{ stimulus_controller('char-counter', {max: 800}) }}>
-      <label for="field-back-cover" class="form-label">Quatrième de couverture</label>
-      <textarea id="field-back-cover"
-                class="input {{ errors.backCoverText is defined ? 'is-invalid' : '' }}"
-                data-model="formData.backCoverText"
-                rows="4"
-                data-char-counter-target="input"
-                data-action="input->char-counter#update"
-                aria-describedby="field-back-cover-count {{ errors.backCoverText is defined ? 'field-back-cover-error' : '' }}">{{ formData.backCoverText ?? '' }}</textarea>
-      <div class="form-help d-flex justify-content-end">
-        <span id="field-back-cover-count" data-char-counter-target="counter" aria-live="polite">0 / 800</span>
+      <div class="form-group">
+        <label for="field-editor" class="form-label">
+          Éditeur <span class="text-danger" aria-hidden="true">*</span>
+        </label>
+        <div class="input-wrap {{ formData.editor is not empty ? 'is-valid' : '' }}" {{ stimulus_controller('suggestion-autocomplete', {type: 'editor', createUrl: path('app_suggestions_create_entity', {type: 'editor'})}) }}>
+          <input type="text" id="field-editor" class="input"
+                 data-model="formData.editor"
+                 value="{{ formData.editor ?? '' }}"
+                 placeholder="Rechercher ou créer un éditeur"
+                 aria-label="Éditeur du livre"
+                 role="combobox"
+                 aria-autocomplete="list"
+                 data-suggestion-autocomplete-target="input" />
+          <span class="validation-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+          </span>
+          <ul role="listbox" class="autocomplete-dropdown d-none"
+              data-suggestion-autocomplete-target="dropdown"></ul>
+        </div>
       </div>
-      {% if errors.backCoverText is defined %}
-        <div id="field-back-cover-error" class="form-help error" aria-live="assertive">{{ errors.backCoverText }}</div>
-      {% endif %}
+
+      <div class="form-group">
+        <label for="field-collection" class="form-label">Collection</label>
+        <div class="input-wrap {{ formData.collection is not empty ? 'is-valid' : '' }}" {{ stimulus_controller('suggestion-autocomplete', {type: 'collection', createUrl: path('app_suggestions_create_entity', {type: 'collection'})}) }}>
+          <input type="text" id="field-collection" class="input"
+                 data-model="formData.collection"
+                 value="{{ formData.collection ?? '' }}"
+                 placeholder="Rechercher ou créer une collection"
+                 aria-label="Collection du livre"
+                 role="combobox"
+                 aria-autocomplete="list"
+                 data-suggestion-autocomplete-target="input" />
+          <span class="validation-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+          </span>
+          <ul role="listbox" class="autocomplete-dropdown d-none"
+              data-suggestion-autocomplete-target="dropdown"></ul>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="field-isbn" class="form-label">
+          ISBN <span class="text-danger" aria-hidden="true">*</span>
+        </label>
+        <div class="input-wrap {{ errors.isbn is not defined and formData.isbn is not empty ? 'is-valid' : '' }} {{ errors.isbn is defined ? 'is-invalid' : '' }}"
+             {{ stimulus_controller('suggestion-autocomplete', {isbnMode: true}) }}>
+          <input type="text" id="field-isbn" class="input {{ errors.isbn is defined ? 'is-invalid' : '' }}"
+                 data-model="formData.isbn"
+                 value="{{ formData.isbn ?? '' }}"
+                 placeholder="978-2-XXXXXXXXXX"
+                 aria-label="ISBN du livre (10 ou 13 chiffres)"
+                 aria-describedby="field-isbn-help {{ errors.isbn is defined ? 'field-isbn-error' : '' }}"
+                 inputmode="numeric"
+                 maxlength="17"
+                 style="font-family: var(--font-mono);" />
+          <span class="validation-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+          </span>
+        </div>
+        <div id="field-isbn-help" class="form-help">Format ISBN-10 ou ISBN-13 (tirets optionnels).</div>
+        {% if errors.isbn is defined %}
+          <div id="field-isbn-error" class="form-help error" aria-live="assertive">{{ errors.isbn }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="field-publication-fr" class="form-label">
+          Parution France <span class="text-danger" aria-hidden="true">*</span>
+        </label>
+        <div class="input-wrap {{ errors.publicationFr is not defined and formData.publicationFr is not empty ? 'is-valid' : '' }} {{ errors.publicationFr is defined ? 'is-invalid' : '' }}">
+          <input type="number" id="field-publication-fr" class="input {{ errors.publicationFr is defined ? 'is-invalid' : '' }}"
+                 data-model="formData.publicationFr"
+                 value="{{ formData.publicationFr ?? '' }}"
+                 placeholder="{{ 'now'|date('Y') }}"
+                 min="1800" max="{{ ('now'|date('Y') + 2) }}"
+                 aria-label="Année de parution en France"
+                 aria-describedby="{{ errors.publicationFr is defined ? 'field-pub-fr-error' : '' }}" />
+          <span class="validation-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+          </span>
+        </div>
+        {% if errors.publicationFr is defined %}
+          <div id="field-pub-fr-error" class="form-help error" aria-live="assertive">{{ errors.publicationFr }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="field-original-edition" class="form-label">Édition originale (VO)</label>
+        <div class="input-wrap">
+          <input type="number" id="field-original-edition" class="input"
+                 data-model="formData.originalEdition"
+                 value="{{ formData.originalEdition ?? '' }}"
+                 placeholder="ex. 1982"
+                 min="1800" max="{{ ('now'|date('Y') + 2) }}"
+                 aria-label="Année de l'édition originale" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="field-paragraphs" class="form-label">
+          Paragraphes <span class="text-danger" aria-hidden="true">*</span>
+        </label>
+        <div class="input-wrap {{ errors.paragraphs is defined ? 'is-invalid' : '' }}">
+          <input type="number" id="field-paragraphs" class="input {{ errors.paragraphs is defined ? 'is-invalid' : '' }}"
+                 data-model="formData.paragraphs"
+                 value="{{ formData.paragraphs ?? '' }}"
+                 placeholder="ex. 400"
+                 min="1" max="800"
+                 aria-describedby="field-paragraphs-help {{ errors.paragraphs is defined ? 'field-paragraphs-error' : '' }}"
+                 aria-label="Nombre de paragraphes du livre-jeu" />
+          <span class="validation-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 8v5M12 16v.5"/><circle cx="12" cy="12" r="9"/></svg>
+          </span>
+        </div>
+        <div id="field-paragraphs-help" class="form-help">Maximum 800 paragraphes.</div>
+        {% if errors.paragraphs is defined %}
+          <div id="field-paragraphs-error" class="form-help error" aria-live="assertive">{{ errors.paragraphs }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group full" {{ stimulus_controller('char-counter', {max: 800}) }}>
+        <label for="field-back-cover" class="form-label">Quatrième de couverture</label>
+        <div class="textarea-wrap">
+          <textarea id="field-back-cover"
+                    class="input {{ errors.backCoverText is defined ? 'is-invalid' : '' }}"
+                    data-model="formData.backCoverText"
+                    rows="4"
+                    data-char-counter-target="input"
+                    data-action="input->char-counter#update"
+                    aria-describedby="field-back-cover-count {{ errors.backCoverText is defined ? 'field-back-cover-error' : '' }}">{{ formData.backCoverText ?? '' }}</textarea>
+          <span id="field-back-cover-count" class="counter" data-char-counter-target="counter" aria-live="polite">{{ (formData.backCoverText ?? '')|length }} / 800</span>
+        </div>
+        {% if errors.backCoverText is defined %}
+          <div id="field-back-cover-error" class="form-help error" aria-live="assertive">{{ errors.backCoverText }}</div>
+        {% endif %}
+      </div>
+
     </div>
-
-  </div>{# /row #}
-
+  </div>
 {% endif %}
-
-{# Navigation #}
-<div class="d-flex justify-content-between mt-4">
-  <button type="button" class="btn"
-          data-action="live#action"
-          data-live-action-param="goToStep"
-          data-live-step-param="1">
-    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-    Précédent
-  </button>
-  <button type="button" class="btn btn-primary"
-          data-action="live#action"
-          data-live-action-param="nextStep">
-    Suivant
-    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-  </button>
-</div>

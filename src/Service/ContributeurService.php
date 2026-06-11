@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Dto\ContributorFilterState;
+use App\Entity\User;
 use App\Repository\ContributorRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
@@ -14,15 +15,15 @@ class ContributeurService
         private readonly ContributorRepository $contributorRepository,
     ) {}
 
-    public function getPaginatedResults(ContributorFilterState $state): Paginator
+    public function getPaginatedResults(ContributorFilterState $state, ?User $user = null): Paginator
     {
-        return $this->contributorRepository->findPaginatedFiltered($state);
+        return $this->contributorRepository->findPaginatedFiltered($state, $user);
     }
 
     /** @return string[] */
-    public function getAvailableLetters(ContributorFilterState $state): array
+    public function getAvailableLetters(ContributorFilterState $state, ?User $user = null): array
     {
-        return $this->contributorRepository->findAvailableLetters($state);
+        return $this->contributorRepository->findAvailableLetters($state, $user);
     }
 
     public function getCardDataBatch(array $contributorIds): array

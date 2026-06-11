@@ -1,0 +1,44 @@
+<div id="follow-login-modal"
+     {{ stimulus_controller('modal') }}
+     class="modal modal--sm"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="follow-login-modal-title"
+     {{ stimulus_action('modal', 'handleKeydown', 'keydown') }}
+     {{ stimulus_action('modal', 'handleBackdropClick', 'click') }}>
+    <div class="modal-container">
+        <div class="modal-header">
+            <h2 id="follow-login-modal-title" class="modal-title">Connexion requise</h2>
+            <button class="modal-close btn-icon btn-ghost"
+                    {{ stimulus_action('modal', 'close') }}
+                    type="button"
+                    aria-label="Fermer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>Connectez-vous pour suivre ce créateur et recevoir des alertes.</p>
+        </div>
+        <div class="modal-footer">
+            <a href="{{ path('app_login', {'_target_path': app.request.uri|url_encode}) }}"
+               class="btn btn-primary">
+                Se connecter
+            </a>
+            <button type="button"
+                    class="btn btn-ghost"
+                    {{ stimulus_action('modal', 'close') }}>
+                Annuler
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('follow:open-login-modal', function () {
+        var modal = document.getElementById('follow-login-modal');
+        if (modal) {
+            modal.classList.add('is-open');
+            document.body.style.overflow = 'hidden';
+        }
+    });
+</script>

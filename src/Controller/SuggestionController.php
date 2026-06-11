@@ -226,6 +226,197 @@ class SuggestionController extends AbstractController
         ]);
     }
 
+    #[Route('/api/suggestions/source-search', name: 'app_suggestions_source_search', methods: ['GET'])]
+    public function sourceSearch(
+        Request $request,
+        BookRepository $bookRepository,
+        ContributorRepository $contributorRepository,
+        CollectionRepository $collectionRepository,
+        EntityManagerInterface $em,
+    ): JsonResponse {
+        $q     = trim((string) $request->query->get('q', ''));
+        $scope = strtoupper((string) $request->query->get('scope', 'ALL'));
+
+        $validScopes = ['ALL', 'BOOK', 'AUTHOR', 'ILLUSTRATOR', 'TRADUCTOR', 'COLLECTION', 'EDITOR'];
+        if (!in_array($scope, $validScopes, true)) {
+            $scope = 'ALL';
+        }
+
+        if (mb_strlen($q) > 100) {
+            return $this->json(['results' => []]);
+        }
+
+        $results = [];
+
+        if ($q === '') {
+            if ($scope === 'ALL' || $scope === 'BOOK') {
+                foreach ($bookRepository->findMostPopular($scope === 'ALL' ? 6 : 10) as $book) {
+                    $contributions = $book->getContributions()->toArray();
+                    $authors = array_values(array_filter($contributions, fn ($c) => $c->getRole() === \App\Entity\Enum\ContributionRole::Author));
+                    $authorName = !empty($authors) ? trim($authors[0]->getContributor()->getFirstName() . ' ' . $authors[0]->getContributor()->getLastName()) : '';
+                    $results[] = [
+                        'id'       => (string) $book->getId(),
+                        'type'     => 'BOOK',
+                        'label'    => $book->getTitle(),
+                        'subtitle' => implode(' · ', array_filter([$authorName, $book->getFrenchPublicationYear()])),
+                        'thumb'    => $book->getCoverImage(),
+                    ];
+                }
+            }
+
+            if ($scope === 'ALL' || $scope === 'AUTHOR') {
+                $contributors = $contributorRepository->createQueryBuilder('c')
+                    ->join('c.contributions', 'contrib')
+                    ->where('contrib.role = :role')
+                    ->setParameter('role', \App\Entity\Enum\ContributionRole::Author->value)
+                    ->groupBy('c.id')
+                    ->orderBy('c.id', 'ASC')
+                    ->setMaxResults($scope === 'ALL' ? 3 : 10)
+                    ->getQuery()->getResult();
+                foreach ($contributors as $c) {
+                    $results[] = ['id' => (string) $c->getId(), 'type' => 'AUTHOR', 'label' => $c->getFirstName() . ' ' . $c->getLastName(), 'subtitle' => '', 'thumb' => null];
+                }
+            }
+
+            if ($scope === 'ALL' || $scope === 'ILLUSTRATOR') {
+                $contributors = $contributorRepository->createQueryBuilder('c')
+                    ->join('c.contributions', 'contrib')
+                    ->where('contrib.role = :role')
+                    ->setParameter('role', \App\Entity\Enum\ContributionRole::Illustrator->value)
+                    ->groupBy('c.id')
+                    ->orderBy('c.id', 'ASC')
+                    ->setMaxResults($scope === 'ALL' ? 3 : 10)
+                    ->getQuery()->getResult();
+                foreach ($contributors as $c) {
+                    $results[] = ['id' => (string) $c->getId(), 'type' => 'ILLUSTRATOR', 'label' => $c->getFirstName() . ' ' . $c->getLastName(), 'subtitle' => '', 'thumb' => null];
+                }
+            }
+
+            if ($scope === 'ALL' || $scope === 'TRADUCTOR') {
+                $contributors = $contributorRepository->createQueryBuilder('c')
+                    ->join('c.contributions', 'contrib')
+                    ->where('contrib.role = :role')
+                    ->setParameter('role', \App\Entity\Enum\ContributionRole::Traductor->value)
+                    ->groupBy('c.id')
+                    ->orderBy('c.id', 'ASC')
+                    ->setMaxResults($scope === 'ALL' ? 3 : 10)
+                    ->getQuery()->getResult();
+                foreach ($contributors as $c) {
+                    $results[] = ['id' => (string) $c->getId(), 'type' => 'TRADUCTOR', 'label' => $c->getFirstName() . ' ' . $c->getLastName(), 'subtitle' => '', 'thumb' => null];
+                }
+            }
+
+            if ($scope === 'ALL' || $scope === 'COLLECTION') {
+                $collections = $collectionRepository->createQueryBuilder('c')
+                    ->orderBy('c.id', 'ASC')
+                    ->setMaxResults($scope === 'ALL' ? 3 : 10)
+                    ->getQuery()->getResult();
+                foreach ($collections as $col) {
+                    $results[] = ['id' => (string) $col->getId(), 'type' => 'COLLECTION', 'label' => $col->getNom(), 'subtitle' => '', 'thumb' => null];
+                }
+            }
+
+            if ($scope === 'ALL' || $scope === 'EDITOR') {
+                $editors = $em->getRepository(\App\Entity\Editor::class)
+                    ->createQueryBuilder('e')
+                    ->orderBy('e.id', 'ASC')
+                    ->setMaxResults($scope === 'ALL' ? 3 : 10)
+                    ->getQuery()->getResult();
+                foreach ($editors as $editor) {
+                    $results[] = ['id' => (string) $editor->getId(), 'type' => 'EDITOR', 'label' => $editor->getName(), 'subtitle' => '', 'thumb' => null];
+                }
+            }
+
+            return $this->json(['results' => $results, 'default' => true]);
+        }
+
+        if ($scope === 'ALL' || $scope === 'BOOK') {
+            foreach ($bookRepository->findByTitleLike($q, 8) as $book) {
+                $contributions = $book->getContributions()->toArray();
+                $authors = array_values(array_filter($contributions, fn ($c) => $c->getRole() === \App\Entity\Enum\ContributionRole::Author));
+                $authorName = !empty($authors) ? trim($authors[0]->getContributor()->getFirstName() . ' ' . $authors[0]->getContributor()->getLastName()) : '';
+                $results[] = [
+                    'id'       => (string) $book->getId(),
+                    'type'     => 'BOOK',
+                    'label'    => $book->getTitle(),
+                    'subtitle' => implode(' · ', array_filter([$authorName, $book->getFrenchPublicationYear(), $book->getIsbn()])),
+                    'thumb'    => $book->getCoverImage(),
+                ];
+            }
+        }
+
+        $nameSearch = "LOWER(CONCAT(c.firstName, ' ', c.lastName)) LIKE LOWER(:q)";
+
+        if ($scope === 'AUTHOR') {
+            $contributors = $contributorRepository->createQueryBuilder('c')
+                ->join('c.contributions', 'contrib')
+                ->where($nameSearch)
+                ->andWhere('contrib.role = :role')
+                ->setParameter('q', '%' . $q . '%')
+                ->setParameter('role', \App\Entity\Enum\ContributionRole::Author->value)
+                ->groupBy('c.id')
+                ->setMaxResults(8)->getQuery()->getResult();
+            foreach ($contributors as $c) {
+                $results[] = ['id' => (string) $c->getId(), 'type' => 'AUTHOR', 'label' => $c->getFirstName() . ' ' . $c->getLastName(), 'subtitle' => '', 'thumb' => null];
+            }
+        } elseif ($scope === 'ILLUSTRATOR') {
+            $contributors = $contributorRepository->createQueryBuilder('c')
+                ->join('c.contributions', 'contrib')
+                ->where($nameSearch)
+                ->andWhere('contrib.role = :role')
+                ->setParameter('q', '%' . $q . '%')
+                ->setParameter('role', \App\Entity\Enum\ContributionRole::Illustrator->value)
+                ->groupBy('c.id')
+                ->setMaxResults(8)->getQuery()->getResult();
+            foreach ($contributors as $c) {
+                $results[] = ['id' => (string) $c->getId(), 'type' => 'ILLUSTRATOR', 'label' => $c->getFirstName() . ' ' . $c->getLastName(), 'subtitle' => '', 'thumb' => null];
+            }
+        } elseif ($scope === 'TRADUCTOR') {
+            $contributors = $contributorRepository->createQueryBuilder('c')
+                ->join('c.contributions', 'contrib')
+                ->where($nameSearch)
+                ->andWhere('contrib.role = :role')
+                ->setParameter('q', '%' . $q . '%')
+                ->setParameter('role', \App\Entity\Enum\ContributionRole::Traductor->value)
+                ->groupBy('c.id')
+                ->setMaxResults(8)->getQuery()->getResult();
+            foreach ($contributors as $c) {
+                $results[] = ['id' => (string) $c->getId(), 'type' => 'TRADUCTOR', 'label' => $c->getFirstName() . ' ' . $c->getLastName(), 'subtitle' => '', 'thumb' => null];
+            }
+        } elseif ($scope === 'ALL') {
+            $contributors = $contributorRepository->createQueryBuilder('c')
+                ->where($nameSearch)
+                ->setParameter('q', '%' . $q . '%')
+                ->setMaxResults(6)->getQuery()->getResult();
+            foreach ($contributors as $c) {
+                $results[] = ['id' => (string) $c->getId(), 'type' => 'AUTHOR', 'label' => $c->getFirstName() . ' ' . $c->getLastName(), 'subtitle' => '', 'thumb' => null];
+            }
+        }
+
+        if ($scope === 'ALL' || $scope === 'COLLECTION') {
+            $collections = $collectionRepository->createQueryBuilder('c')
+                ->where('LOWER(c.nom) LIKE LOWER(:q)')
+                ->setParameter('q', '%' . $q . '%')
+                ->setMaxResults(6)->getQuery()->getResult();
+            foreach ($collections as $col) {
+                $results[] = ['id' => (string) $col->getId(), 'type' => 'COLLECTION', 'label' => $col->getNom(), 'subtitle' => '', 'thumb' => null];
+            }
+        }
+
+        if ($scope === 'ALL' || $scope === 'EDITOR') {
+            $editors = $em->getRepository(\App\Entity\Editor::class)
+                ->createQueryBuilder('e')
+                ->where('LOWER(e.name) LIKE LOWER(:q)')
+                ->setParameter('q', '%' . $q . '%')
+                ->setMaxResults(6)->getQuery()->getResult();
+            foreach ($editors as $editor) {
+                $results[] = ['id' => (string) $editor->getId(), 'type' => 'EDITOR', 'label' => $editor->getName(), 'subtitle' => '', 'thumb' => null];
+            }
+        }
+
+        return $this->json(['results' => $results]);
+    }
+
     #[Route('/api/suggestions/autocomplete/{type}', name: 'app_suggestions_autocomplete', methods: ['GET'])]
     public function autocomplete(
         string $type,

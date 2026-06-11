@@ -33,4 +33,39 @@
     {% endif %}
   </div>
 
+  {# Wizard footer navigation #}
+  <div class="wizard-foot">
+    {% if step > 1 %}
+      <button type="button" class="btn btn-secondary btn-sm"
+              data-action="live#action"
+              data-live-action-param="goToStep"
+              data-live-step-param="{{ step - 1 }}">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        Précédent
+      </button>
+    {% endif %}
+
+    <span class="wf-meta">
+      Étape {{ step }} / 4 · Auto-sauvegardé
+    </span>
+
+    {% if step < 4 %}
+      <button type="button" class="btn btn-primary btn-sm"
+              data-action="live#action"
+              data-live-action-param="nextStep"
+              {{ (step == 1 and (mode is null or entityType is null)) ? 'disabled' : '' }}>
+        Suivant
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    {% else %}
+      <button type="button" class="btn btn-primary btn-sm {{ not canSubmit ? 'is-submit' : '' }}"
+              data-action="live#action"
+              data-live-action-param="submitSuggestion"
+              {{ not canSubmit ? 'disabled' : '' }}>
+        Soumettre
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    {% endif %}
+  </div>
+
 </div>

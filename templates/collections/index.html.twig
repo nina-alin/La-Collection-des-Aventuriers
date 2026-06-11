@@ -1,0 +1,243 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Collections — La Collection dont vous êtes le héros{% endblock %}
+
+{% block body %}
+{% include 'components/_follow_login_modal.html.twig' %}
+
+<div>
+
+  {# ======================== PAGE HEAD ======================== #}
+  <section class="page-head">
+    <p class="eyebrow">Bibliothèque des Séries</p>
+    <h1>Les <em>Collections</em></h1>
+    <p class="lede">Découvrez les séries de livres-jeux et suivez vos collections préférées.</p>
+  </section>
+
+  {# ======================== CATALOGUE GRID LAYOUT ======================== #}
+  <div class="catalogue" id="catalogue">
+
+    {# ============ FILTER PANEL ============ #}
+    <aside class="filters" id="filtersRail" aria-label="Filtres des collections">
+      <div class="filters-head">
+        <span class="filters-head-title">
+          <svg viewBox="0 0 24 24"><path d="M3 4h18M6 12h12M10 20h4"/></svg>
+          Filtrer &amp; Trier
+        </span>
+      </div>
+
+      <div class="filters-body">
+
+        {# Genre #}
+        <details class="filter-group" open>
+          <summary>
+            <span>Genre</span>
+            <span class="grp-meta">
+              {% if filterState.genre is not null %}<span class="grp-count">{{ filterState.genre }}</span>{% endif %}
+              <span class="chev" aria-hidden="true"></span>
+            </span>
+          </summary>
+          <div class="grp-body">
+            {% set genres = [
+              {value: 'medieval-fantastique', label: 'Médiéval-Fantastique'},
+              {value: 'science-fiction', label: 'Science-Fiction'},
+              {value: 'horreur', label: 'Horreur'},
+              {value: 'espionnage', label: 'Espionnage'},
+              {value: 'aventure', label: 'Aventure'},
+              {value: 'contemporain', label: 'Contemporain'},
+            ] %}
+            {% for g in genres %}
+            <label class="choice filter-row">
+              <span>
+                <input type="radio"
+                       name="genre"
+                       value="{{ g.value }}"
+                       {{ filterState.genre == g.value ? 'checked' }}
+                       onchange="window.location.href='{{ path('app_collections', filterState.toUrlParams()|merge({genre: g.value, page: 1})) }}'">
+                {{ g.label }}
+              </span>
+            </label>
+            {% endfor %}
+            {% if filterState.genre is not null %}
+            <a href="{{ path('app_collections', filterState.toUrlParams()|merge({genre: null, page: 1})) }}"
+               class="filter-show-more">Effacer le filtre genre</a>
+            {% endif %}
+          </div>
+        </details>
+
+        {# Statut #}
+        <details class="filter-group">
+          <summary>
+            <span>Statut</span>
+            <span class="grp-meta">
+              {% if filterState.statut is not null %}<span class="grp-count">{{ filterState.statut }}</span>{% endif %}
+              <span class="chev" aria-hidden="true"></span>
+            </span>
+          </summary>
+          <div class="grp-body">
+            {% set statuts = [
+              {value: 'en-cours', label: 'En cours'},
+              {value: 'terminee', label: 'Terminée'},
+              {value: 'reeditee', label: 'Rééditée'},
+            ] %}
+            {% for s in statuts %}
+            <label class="choice filter-row">
+              <span>
+                <input type="radio"
+                       name="statut"
+                       value="{{ s.value }}"
+                       {{ filterState.statut == s.value ? 'checked' }}
+                       onchange="window.location.href='{{ path('app_collections', filterState.toUrlParams()|merge({statut: s.value, page: 1})) }}'">
+                {{ s.label }}
+              </span>
+            </label>
+            {% endfor %}
+            {% if filterState.statut is not null %}
+            <a href="{{ path('app_collections', filterState.toUrlParams()|merge({statut: null, page: 1})) }}"
+               class="filter-show-more">Effacer le filtre statut</a>
+            {% endif %}
+          </div>
+        </details>
+
+        {# Suivis (authenticated only) #}
+        {% if is_granted('ROLE_USER') %}
+        <details class="filter-group">
+          <summary>
+            <span>Statut</span>
+            <span class="grp-meta"><span class="chev" aria-hidden="true"></span></span>
+          </summary>
+          <div class="grp-body">
+            <label class="switch">
+              <input type="checkbox"
+                     {{ filterState.followed ? 'checked' }}
+                     onchange="window.location.href=this.checked ? '{{ path('app_collections', filterState.toUrlParams()|merge({followed: 'true', page: 1})) }}' : '{{ path('app_collections', filterState.toUrlParams()|merge({followed: null, page: 1})) }}'">
+              <span class="track"></span>
+              <span>Uniquement ceux que je suis</span>
+            </label>
+          </div>
+        </details>
+        {% endif %}
+
+      </div>
+
+      <div class="filters-footer">
+        <a href="{{ path('app_collections') }}" class="btn btn-ghost btn-sm">Réinitialiser</a>
+      </div>
+    </aside>
+
+    {# ============ RESULTS COLUMN ============ #}
+    <section class="results" aria-label="Résultats">
+
+      {# Top bar: count #}
+      <div class="results-bar">
+        <div class="results-count">
+          <strong>{{ totalItems }}</strong>
+          <span>collection{{ totalItems > 1 ? 's' : '' }}</span>
+        </div>
+      </div>
+
+      {# ============ COLLECTION GRID ============ #}
+      <div class="grid is-collections" id="grid">
+
+        {% for c in collections %}
+          {% set cid = c.id ~ '' %}
+          {% set isFollowed = cid in followedCollectionIds %}
+
+          <div class="card card-collection"
+               data-controller="follow"
+               data-follow-url-value="{{ path('follow_collection_toggle', {id: c.id}) }}"
+               data-follow-token-value="{{ csrf_token('follow_collection_' ~ c.id) }}"
+               data-follow-followed-value="{{ isFollowed ? 'true' : 'false' }}"
+               data-follow-authenticated-value="{{ isAuthenticated ? 'true' : 'false' }}">
+            <a href="{{ path('app_collection_show', {slug: c.slug}) }}" class="card-collection-link">
+              <div class="cc-top">
+                <span class="cc-emblem" aria-hidden="true">
+                  {% if c.imageLogo %}
+                    <img src="{{ asset('uploads/collections/' ~ c.imageLogo) }}" alt="{{ c.nom }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                  {% else %}
+                    {{ c.nom|slice(0,2)|upper }}
+                  {% endif %}
+                </span>
+                <span class="cc-headings">
+                  <span class="cc-name">{{ c.nom }}</span>
+                  <span class="cc-genre">{{ c.genre.value }}</span>
+                </span>
+              </div>
+              {% if c.description %}
+              <p class="cc-blurb">{{ c.description|slice(0, 120) }}{% if c.description|length > 120 %}…{% endif %}</p>
+              {% endif %}
+            </a>
+            <div class="footer">
+              <span class="cc-statut cc-statut--{{ c.statut.value }}">{{ c.statut.value }}</span>
+              <button class="cc-follow"
+                      type="button"
+                      data-follow-target="button"
+                      data-action="click->follow#toggle"
+                      aria-pressed="{{ isFollowed ? 'true' : 'false' }}"
+                      aria-label="{{ isFollowed ? 'Ne plus suivre' : 'Suivre' }} {{ c.nom }}">
+                <svg data-follow-target="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9C1 8.5 3 5 6.5 5c2 0 3.5 1 5.5 3 2-2 3.5-3 5.5-3C21 5 23 8.5 21.5 12 19 16.5 12 21 12 21z"/></svg>
+                <span data-follow-target="label">{{ isFollowed ? 'Suivi' : 'Suivre' }}</span>
+              </button>
+            </div>
+          </div>
+        {% else %}
+          <div class="collections-empty" style="grid-column: 1 / -1;">
+            {% if filterState.followed %}
+              <p>Vous ne suivez encore aucune collection. Découvrez les collections !</p>
+              <a href="{{ path('app_collections') }}" class="btn btn-secondary btn-sm">Voir toutes les collections</a>
+            {% else %}
+              <p>Aucune collection ne correspond à vos filtres.</p>
+              <a href="{{ path('app_collections') }}" class="btn btn-secondary btn-sm">Effacer les filtres</a>
+            {% endif %}
+          </div>
+        {% endfor %}
+
+      </div>
+
+      {# ============ PAGINATION ============ #}
+      {% if totalPages > 1 %}
+      <nav class="pagination" aria-label="Pagination">
+        <div class="pagination-arrows">
+          {% if filterState.page > 1 %}
+            <a class="page-arrow prev"
+               href="{{ path('app_collections', filterState.toUrlParams()|merge({page: filterState.page - 1})) }}"
+               aria-label="Page précédente">Précédent</a>
+          {% else %}
+            <span class="page-arrow prev" aria-disabled="true">Précédent</span>
+          {% endif %}
+
+          <div class="page-numbers" role="navigation">
+            {% set maxVisible = 4 %}
+            {% for p in 1..totalPages %}
+              {% if p <= maxVisible %}
+                <a class="page-num"
+                   href="{{ path('app_collections', filterState.toUrlParams()|merge({page: p})) }}"
+                   {% if p == filterState.page %}aria-current="page"{% endif %}>{{ p }}</a>
+              {% elseif p == maxVisible + 1 and totalPages > maxVisible + 1 %}
+                <span class="page-ellipsis" aria-hidden="true">…</span>
+              {% elseif p == totalPages %}
+                <a class="page-num"
+                   href="{{ path('app_collections', filterState.toUrlParams()|merge({page: p})) }}"
+                   {% if p == filterState.page %}aria-current="page"{% endif %}>{{ p }}</a>
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          {% if filterState.page < totalPages %}
+            <a class="page-arrow next"
+               href="{{ path('app_collections', filterState.toUrlParams()|merge({page: filterState.page + 1})) }}"
+               aria-label="Page suivante">Suivant</a>
+          {% else %}
+            <span class="page-arrow next" aria-disabled="true">Suivant</span>
+          {% endif %}
+        </div>
+        <div class="pagination-meta">
+          Folio <strong>{{ filterState.page }}</strong> sur <strong>{{ totalPages }}</strong>
+        </div>
+      </nav>
+      {% endif %}
+
+    </section>
+  </div>{# /.catalogue #}
+</div>
+{% endblock %}

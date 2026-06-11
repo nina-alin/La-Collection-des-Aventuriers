@@ -9,4 +9,5 @@ enum NotificationType: string
     case BOOK_ACTIVITY          = 'book_activity';
     case MODERATION_PENDING     = 'moderation_pending';
     case RANK_UP                = 'rank_up';
+    case FOLLOW_NOVELTY        = 'follow_novelty';
 }

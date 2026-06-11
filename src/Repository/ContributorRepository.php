@@ -9,6 +9,8 @@ use App\Entity\Contribution;
 use App\Entity\Contributor;
 use App\Entity\Enum\BookStatus;
 use App\Entity\Enum\ContributionRole;
+use App\Entity\User;
+use App\Entity\UserFollowedContributor;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
@@ -206,7 +208,7 @@ class ContributorRepository extends ServiceEntityRepository
         ];
     }
 
-    public function findPaginatedFiltered(ContributorFilterState $state): Paginator
+    public function findPaginatedFiltered(ContributorFilterState $state, ?User $user = null): Paginator
     {
         $perPage = 12;
         $offset  = ($state->page - 1) * $perPage;
@@ -220,7 +222,7 @@ class ContributorRepository extends ServiceEntityRepository
             ->groupBy('c.id')
             ->setParameter('published', BookStatus::PUBLISHED);
 
-        $this->applyFilters($qb, $state);
+        $this->applyFilters($qb, $state, $user);
         $this->applyOrder($qb, $state->sort);
 
         $qb->setFirstResult($offset)->setMaxResults($perPage);
@@ -229,7 +231,7 @@ class ContributorRepository extends ServiceEntityRepository
     }
 
     /** @return string[] */
-    public function findAvailableLetters(ContributorFilterState $state): array
+    public function findAvailableLetters(ContributorFilterState $state, ?User $user = null): array
     {
         $qb = $this->getEntityManager()->createQueryBuilder()
             ->select('DISTINCT UPPER(SUBSTRING(c.lastName, 1, 1)) AS letter')
@@ -251,7 +253,7 @@ class ContributorRepository extends ServiceEntityRepository
             sort: $state->sort,
         );
 
-        $this->applyFilters($qb, $letterState);
+        $this->applyFilters($qb, $letterState, $user);
 
         $rows = $qb->getQuery()->getScalarResult();
 
@@ -450,8 +452,15 @@ class ContributorRepository extends ServiceEntityRepository
         return $groups;
     }
 
-    private function applyFilters(\Doctrine\ORM\QueryBuilder $qb, ContributorFilterState $state): void
+    private function applyFilters(\Doctrine\ORM\QueryBuilder $qb, ContributorFilterState $state, ?User $user = null): void
     {
+        if ($state->onlyFollowed && $user !== null) {
+            $qb->innerJoin(
+                UserFollowedContributor::class, 'ufc',
+                'WITH', 'ufc.contributor = c AND ufc.user = :followUser'
+            )->setParameter('followUser', $user);
+        }
+
         $roleMap = [
             'auteur'       => ContributionRole::Author->value,
             'traducteur'   => ContributionRole::Traductor->value,
@@ -526,7 +535,7 @@ class ContributorRepository extends ServiceEntityRepository
         };
     }
 
-    public function countFiltered(ContributorFilterState $state): int
+    public function countFiltered(ContributorFilterState $state, ?User $user = null): int
     {
         $qb = $this->getEntityManager()->createQueryBuilder()
             ->select('COUNT(DISTINCT c.id)')
@@ -536,7 +545,7 @@ class ContributorRepository extends ServiceEntityRepository
             ->leftJoin('b.collection', 'col')
             ->setParameter('published', BookStatus::PUBLISHED);
 
-        $this->applyFilters($qb, $state);
+        $this->applyFilters($qb, $state, $user);
 
         return (int) $qb->getQuery()->getSingleScalarResult();
     }
