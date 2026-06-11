@@ -106,6 +106,9 @@ class Book
     #[ORM\OneToMany(targetEntity: UserBook::class, mappedBy: 'book', cascade: ['remove'])]
     private Collection $userBooks;
 
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $followNotificationSentAt = null;
+
     public function __construct()
     {
         $this->contributions = new ArrayCollection();
@@ -315,6 +318,14 @@ class Book
     }
 
     public function getUpdatedAt(): ?\DateTimeImmutable { return $this->updatedAt; }
+
+    public function getFollowNotificationSentAt(): ?\DateTimeImmutable { return $this->followNotificationSentAt; }
+
+    public function setFollowNotificationSentAt(?\DateTimeImmutable $dt): static
+    {
+        $this->followNotificationSentAt = $dt;
+        return $this;
+    }
 
     public function getEditor(): ?Editor
     {

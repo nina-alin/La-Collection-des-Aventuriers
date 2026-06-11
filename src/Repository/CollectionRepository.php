@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Dto\CollectionListFilterState;
 use App\Entity\Book;
 use App\Entity\Collection;
+use App\Entity\Enum\GenreCollection;
+use App\Entity\Enum\StatutCollection;
+use App\Entity\User;
+use App\Entity\UserCollectionSubscription;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
@@ -77,6 +82,40 @@ class CollectionRepository extends ServiceEntityRepository
             'min' => $row['yearMin'] !== null ? (int) $row['yearMin'] : null,
             'max' => $row['yearMax'] !== null ? (int) $row['yearMax'] : null,
         ];
+    }
+
+    public function findPaginatedFiltered(CollectionListFilterState $state, ?User $user = null): Paginator
+    {
+        $perPage = 12;
+        $offset  = ($state->page - 1) * $perPage;
+
+        $qb = $this->createQueryBuilder('c')
+            ->orderBy('c.nom', 'ASC');
+
+        if ($state->followed && $user !== null) {
+            $qb->innerJoin(
+                UserCollectionSubscription::class, 'ucs',
+                'WITH', 'ucs.collection = c AND ucs.user = :followUser'
+            )->setParameter('followUser', $user);
+        }
+
+        if ($state->genre !== null) {
+            $genre = GenreCollection::tryFrom($state->genre);
+            if ($genre !== null) {
+                $qb->andWhere('c.genre = :genre')->setParameter('genre', $genre);
+            }
+        }
+
+        if ($state->statut !== null) {
+            $statut = StatutCollection::tryFrom($state->statut);
+            if ($statut !== null) {
+                $qb->andWhere('c.statut = :statut')->setParameter('statut', $statut);
+            }
+        }
+
+        $qb->setFirstResult($offset)->setMaxResults($perPage);
+
+        return new Paginator($qb->getQuery(), fetchJoinCollection: false);
     }
 
     public function computeAverageRating(Collection $collection): ?float

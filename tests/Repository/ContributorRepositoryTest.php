@@ -9,6 +9,8 @@ use App\Entity\Contributor;
 use App\Entity\Editor;
 use App\Entity\Enum\BookStatus;
 use App\Entity\Enum\ContributionRole;
+use App\Entity\User;
+use App\Entity\UserFollowedContributor;
 use App\Repository\ContributorRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Pagination\Paginator;
@@ -223,5 +225,70 @@ class ContributorRepositoryTest extends KernelTestCase
         $this->assertArrayHasKey('traducteur', $counts);
         $this->assertArrayHasKey('tous', $counts);
         $this->assertGreaterThanOrEqual($counts['auteur'], $counts['tous']);
+    }
+
+    public function testOnlyFollowedFilterWithNoFollowsReturnsEmpty(): void
+    {
+        $user = $this->em->getRepository(User::class)->findOneBy([]);
+        if ($user === null) {
+            $this->markTestSkipped('No user in DB.');
+        }
+
+        // Remove any existing follows for this user
+        $follows = $this->em->getRepository(UserFollowedContributor::class)->findBy(['user' => $user]);
+        foreach ($follows as $follow) {
+            $this->em->remove($follow);
+        }
+        $this->em->flush();
+
+        $state     = new ContributorFilterState(onlyFollowed: true);
+        $paginator = $this->repo->findPaginatedFiltered($state, $user);
+
+        $this->assertCount(0, $paginator);
+    }
+
+    public function testOnlyFollowedFilterReturnsOnlyFollowedContributor(): void
+    {
+        $editor      = $this->makeEditor();
+        $book        = $this->makeBook($editor, 'followed');
+        $contributor = $this->makeContributor('Follow', 'TestUser');
+        $this->makeContribution($contributor, $book, ContributionRole::Author);
+        $this->em->flush();
+
+        $user = $this->em->getRepository(User::class)->findOneBy([]);
+        if ($user === null) {
+            $this->markTestSkipped('No user in DB.');
+        }
+
+        // Remove any existing follows for this user
+        $follows = $this->em->getRepository(UserFollowedContributor::class)->findBy(['user' => $user]);
+        foreach ($follows as $follow) {
+            $this->em->remove($follow);
+        }
+
+        $follow = new UserFollowedContributor($user, $contributor);
+        $this->em->persist($follow);
+        $this->em->flush();
+
+        $state     = new ContributorFilterState(onlyFollowed: true);
+        $paginator = $this->repo->findPaginatedFiltered($state, $user);
+
+        $ids = [];
+        foreach ($paginator as $c) {
+            $ids[] = (string) $c->getId();
+        }
+
+        $this->assertContains((string) $contributor->getId(), $ids);
+
+        $this->em->remove($follow);
+        $this->em->flush();
+    }
+
+    public function testOnlyFollowedFalseWithNullUserReturnsAllContributors(): void
+    {
+        $state     = new ContributorFilterState(onlyFollowed: false);
+        $paginator = $this->repo->findPaginatedFiltered($state, null);
+
+        $this->assertInstanceOf(Paginator::class, $paginator);
     }
 }

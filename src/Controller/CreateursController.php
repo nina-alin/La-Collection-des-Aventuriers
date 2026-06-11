@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Dto\ContributorFilterState;
+use App\Repository\UserFollowedContributorRepository;
 use App\Service\ContributeurService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,13 +17,15 @@ class CreateursController extends AbstractController
 {
     public function __construct(
         private readonly ContributeurService $service,
+        private readonly UserFollowedContributorRepository $followRepository,
     ) {}
 
     #[Route('/createurs', name: 'app_createurs')]
     public function index(Request $request): Response
     {
         $state     = ContributorFilterState::fromRequest($request);
-        $paginator = $this->service->getPaginatedResults($state);
+        $user      = $this->getUser();
+        $paginator = $this->service->getPaginatedResults($state, $user);
 
         $totalItems = count($paginator);
         $perPage    = 12;
@@ -51,17 +54,23 @@ class CreateursController extends AbstractController
         ));
 
         $cardData        = $this->service->getCardDataBatch($ids);
-        $availableLetters = $this->service->getAvailableLetters($state);
+        $availableLetters = $this->service->getAvailableLetters($state, $user);
         $roleCounts      = $this->service->getRoleCounts();
 
+        $followedContributorIds = $user !== null
+            ? $this->followRepository->findFollowedContributorIds($user)
+            : [];
+
         return $this->render('createurs/index.html.twig', [
-            'filterState'      => $state,
-            'contributors'     => $contributors,
-            'cardData'         => $cardData,
-            'availableLetters' => $availableLetters,
-            'roleCounts'       => $roleCounts,
-            'totalItems'       => $totalItems,
-            'totalPages'       => $totalPages,
+            'filterState'           => $state,
+            'contributors'          => $contributors,
+            'cardData'              => $cardData,
+            'availableLetters'      => $availableLetters,
+            'roleCounts'            => $roleCounts,
+            'totalItems'            => $totalItems,
+            'totalPages'            => $totalPages,
+            'followedContributorIds' => $followedContributorIds,
+            'isAuthenticated'       => $user !== null,
         ]);
     }
 

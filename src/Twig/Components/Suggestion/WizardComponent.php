@@ -29,7 +29,7 @@ class WizardComponent extends AbstractController
     public int $step = 1;
 
     #[LiveProp(writable: true)]
-    public ?string $mode = null;
+    public ?string $mode = 'NEW_ENTRY';
 
     #[LiveProp(writable: true)]
     public ?string $entityType = null;
@@ -254,6 +254,115 @@ class WizardComponent extends AbstractController
         $this->sourceEntityId = $id;
         $this->originalData   = $data;
         $this->formData       = $data;
+    }
+
+    #[LiveAction]
+    public function setSourceById(
+        #[LiveArg] string $type,
+        #[LiveArg] string $id,
+        \App\Repository\BookRepository $bookRepository,
+        \App\Repository\ContributorRepository $contributorRepository,
+        \App\Repository\CollectionRepository $collectionRepository,
+        \Doctrine\ORM\EntityManagerInterface $em,
+    ): void {
+        $this->entityType = strtoupper($type);
+        $prefill = match (strtoupper($type)) {
+            'BOOK'        => $this->buildBookSourceData($id, $bookRepository),
+            'AUTHOR', 'ILLUSTRATOR', 'TRADUCTOR' => $this->buildContributorSourceData($type, $id, $contributorRepository),
+            'EDITOR'      => $this->buildEditorSourceData($id, $em),
+            'COLLECTION'  => $this->buildCollectionSourceData($id, $collectionRepository),
+            default       => null,
+        };
+
+        if ($prefill === null) {
+            return;
+        }
+
+        $this->sourceEntityId = $prefill['entityId'] ?? $id;
+        $this->originalData   = $prefill['formData'];
+        $this->formData       = $prefill['formData'];
+    }
+
+    private function buildBookSourceData(string $id, \App\Repository\BookRepository $bookRepository): ?array
+    {
+        $book = $bookRepository->find((int) $id);
+        if ($book === null) {
+            return null;
+        }
+
+        $contributions = $book->getContributions()->toArray();
+        $authors       = array_values(array_filter($contributions, fn ($c) => $c->getRole() === \App\Entity\Enum\ContributionRole::Author));
+        $illustrators  = array_values(array_filter($contributions, fn ($c) => $c->getRole() === \App\Entity\Enum\ContributionRole::Illustrator));
+        $traductors    = array_values(array_filter($contributions, fn ($c) => $c->getRole() === \App\Entity\Enum\ContributionRole::Traductor));
+
+        $name = static fn (?object $c): string => $c !== null
+            ? trim($c->getContributor()->getFirstName() . ' ' . $c->getContributor()->getLastName())
+            : '';
+
+        return [
+            'entityId' => (string) $book->getId(),
+            'formData' => [
+                'title'           => $book->getTitle() ?? '',
+                'subtitle'        => '',
+                'author'          => $name($authors[0] ?? null),
+                'illustrator'     => $name($illustrators[0] ?? null),
+                'traductor'       => $name($traductors[0] ?? null),
+                'editor'          => $book->getEditor()?->getName() ?? '',
+                'collection'      => $book->getCollection()?->getNom() ?? '',
+                'isbn'            => $book->getIsbn() ?? '',
+                'publicationFr'   => (string) ($book->getFrenchPublicationYear() ?? ''),
+                'originalEdition' => (string) ($book->getOriginalPublicationYear() ?? ''),
+                'paragraphs'      => (string) ($book->getParagraphs() ?? ''),
+                'backCoverText'   => $book->getSummary() ?? '',
+            ],
+        ];
+    }
+
+    private function buildContributorSourceData(string $type, string $id, \App\Repository\ContributorRepository $contributorRepository): ?array
+    {
+        $contributor = $contributorRepository->find($id);
+        if ($contributor === null) {
+            return null;
+        }
+
+        return [
+            'entityId' => (string) $contributor->getId(),
+            'formData' => [
+                'firstName'   => $contributor->getFirstName() ?? '',
+                'lastName'    => $contributor->getLastName() ?? '',
+                'pseudo'      => $contributor->getPseudo() ?? '',
+                'biography'   => $contributor->getBiography() ?? '',
+                'nationality' => $contributor->getNationality() ?? '',
+                'birthDate'   => $contributor->getBirthDate()?->format('Y-m-d') ?? '',
+                'deathDate'   => $contributor->getDeathDate()?->format('Y-m-d') ?? '',
+            ],
+        ];
+    }
+
+    private function buildEditorSourceData(string $id, \Doctrine\ORM\EntityManagerInterface $em): ?array
+    {
+        $editor = $em->getRepository(\App\Entity\Editor::class)->find((int) $id);
+        if ($editor === null) {
+            return null;
+        }
+
+        return [
+            'entityId' => (string) $editor->getId(),
+            'formData' => ['name' => $editor->getName() ?? ''],
+        ];
+    }
+
+    private function buildCollectionSourceData(string $id, \App\Repository\CollectionRepository $collectionRepository): ?array
+    {
+        $collection = $collectionRepository->find($id);
+        if ($collection === null) {
+            return null;
+        }
+
+        return [
+            'entityId' => (string) $collection->getId(),
+            'formData' => ['name' => $collection->getNom() ?? ''],
+        ];
     }
 
     #[LiveAction]
