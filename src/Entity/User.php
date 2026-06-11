@@ -232,6 +232,42 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getPreviousLoginAt(): ?\DateTimeImmutable { return $this->previousLoginAt; }
     public function setPreviousLoginAt(?\DateTimeImmutable $previousLoginAt): static { $this->previousLoginAt = $previousLoginAt; return $this; }
 
+    #[ORM\Column(options: ['default' => 0])]
+    private int $loginStreak = 0;
+
+    #[ORM\Column(type: 'date_immutable', nullable: true)]
+    private ?\DateTimeImmutable $lastLoginDate = null;
+
+    #[ORM\Column(length: 180, nullable: true)]
+    private ?string $pendingEmail = null;
+
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $emailChangeToken = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $emailTokenExpiresAt = null;
+
+    public function getLoginStreak(): int { return $this->loginStreak; }
+    public function setLoginStreak(int $loginStreak): static { $this->loginStreak = $loginStreak; return $this; }
+
+    public function getLastLoginDate(): ?\DateTimeImmutable { return $this->lastLoginDate; }
+    public function setLastLoginDate(?\DateTimeImmutable $lastLoginDate): static { $this->lastLoginDate = $lastLoginDate; return $this; }
+
+    public function getPendingEmail(): ?string { return $this->pendingEmail; }
+    public function setPendingEmail(?string $pendingEmail): static { $this->pendingEmail = $pendingEmail; return $this; }
+
+    public function getEmailChangeToken(): ?string { return $this->emailChangeToken; }
+    public function setEmailChangeToken(?string $emailChangeToken): static { $this->emailChangeToken = $emailChangeToken; return $this; }
+
+    public function getEmailTokenExpiresAt(): ?\DateTimeImmutable { return $this->emailTokenExpiresAt; }
+    public function setEmailTokenExpiresAt(?\DateTimeImmutable $emailTokenExpiresAt): static { $this->emailTokenExpiresAt = $emailTokenExpiresAt; return $this; }
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $region = null;
+
+    public function getRegion(): ?string { return $this->region; }
+    public function setRegion(?string $region): static { $this->region = $region; return $this; }
+
     /** @return Collection<int, Review> */
     public function getReviews(): Collection
     {

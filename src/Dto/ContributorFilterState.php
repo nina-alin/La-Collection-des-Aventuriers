@@ -19,6 +19,7 @@ readonly class ContributorFilterState
         public bool    $onlyFollowed     = false,
         public string  $sort             = 'az',
         public int     $page             = 1,
+        public ?string $currentUserId    = null,
     ) {}
 
     public static function fromRequest(Request $request): self

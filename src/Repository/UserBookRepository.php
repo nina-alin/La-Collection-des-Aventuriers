@@ -102,4 +102,54 @@ class UserBookRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    public function countFavoritesByUser(User $user): int
+    {
+        return (int) $this->createQueryBuilder('ub')
+            ->select('COUNT(ub.id)')
+            ->where('ub.user = :user')
+            ->andWhere('ub.isFavorite = true')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * @return UserBook[]
+     */
+    public function findPaginatedByUserAndList(
+        User $user,
+        string $listFlag,
+        int $page,
+        int $perPage = 20,
+        string $sort = 'recently_added',
+    ): array {
+        $qb = $this->createQueryBuilder('ub')
+            ->join('ub.book', 'b')
+            ->addSelect('b')
+            ->where('ub.user = :user')
+            ->andWhere(sprintf('ub.%s = true', $listFlag))
+            ->setParameter('user', $user)
+            ->setFirstResult(($page - 1) * $perPage)
+            ->setMaxResults($perPage);
+
+        match ($sort) {
+            'title_asc' => $qb->orderBy('b.title', 'ASC'),
+            'title_desc' => $qb->orderBy('b.title', 'DESC'),
+            default => $qb->orderBy('ub.createdAt', 'DESC'),
+        };
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function countByUserAndList(User $user, string $listFlag): int
+    {
+        return (int) $this->createQueryBuilder('ub')
+            ->select('COUNT(ub.id)')
+            ->where('ub.user = :user')
+            ->andWhere(sprintf('ub.%s = true', $listFlag))
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

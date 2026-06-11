@@ -488,6 +488,15 @@ class ContributorRepository extends ServiceEntityRepository
                ->setParameter('nationality', mb_strtolower($state->nationality));
         }
 
+        if ($state->onlyFollowed && $state->currentUserId !== null) {
+            $qb->innerJoin(
+                \App\Entity\UserContributorSubscription::class,
+                'ucs',
+                'WITH',
+                'ucs.contributor = c AND IDENTITY(ucs.user) = :currentUserId'
+            )->setParameter('currentUserId', $state->currentUserId);
+        }
+
         if ($state->bookCountRange !== null) {
             [$min, $max] = match ($state->bookCountRange) {
                 '1-5'  => [1, 5],

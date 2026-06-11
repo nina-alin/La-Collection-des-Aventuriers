@@ -1,0 +1,541 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Profil — La Collection des Aventuriers{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width:1240px;margin:0 auto;padding:0 1rem 4rem">
+
+  {# ======================== 1. PROFILE HERO ======================== #}
+  <section class="profile-hero" aria-labelledby="hero-title" style="padding:clamp(2rem,5vw,3rem) 0 1.5rem">
+
+    <div style="font-family:var(--font-mono);font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-muted);margin-bottom:1rem;display:flex;align-items:center;gap:10px">
+      <span style="width:28px;height:1px;background:var(--cuir-400);display:inline-block"></span>
+      <a href="{{ path('home') }}" style="color:var(--ink-muted);text-decoration:none">Accueil</a>
+      <span style="color:var(--border-strong)">›</span>
+      <span>Mon Profil</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:1.5rem;align-items:center;padding:1.5rem;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);position:relative;overflow:hidden">
+
+      {# Avatar / Seal #}
+      <span class="avatar" aria-hidden="true" data-hero-avatar style="--av-size:100px;border:3px solid var(--bg-elevated);box-shadow:0 0 0 2px var(--cuir-500)">
+        {% if app.user.avatarUrl %}
+          <img src="{{ app.user.avatarUrl }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%">
+        {% endif %}
+      </span>
+
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+          {% if is_granted('ROLE_ADMIN') %}
+            <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:var(--danger);color:#fff;border-radius:var(--radius-pill);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em">
+              <span style="width:6px;height:6px;border-radius:50%;background:#fff;display:inline-block"></span>Administrateur
+            </span>
+          {% elseif is_granted('ROLE_MODERATOR') %}
+            <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:var(--info);color:#fff;border-radius:var(--radius-pill);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em">
+              <span style="width:6px;height:6px;border-radius:50%;background:#fff;display:inline-block"></span>Modérateur
+            </span>
+          {% endif %}
+        </div>
+
+        <h1 id="hero-title" style="font-family:var(--font-display);font-size:clamp(1.5rem,3vw,2.5rem);font-weight:700;letter-spacing:0.04em;color:var(--ink-strong);margin:0 0 0.75rem">
+          {{ app.user.displayName ?? app.user.pseudo }}
+        </h1>
+
+        <div style="display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center">
+          <span style="display:inline-flex;align-items:center;gap:8px;padding:6px 12px;background:var(--bg-page);border:1px solid var(--border-default);border-radius:var(--radius-pill);font-size:var(--fs-xs);color:var(--ink-default)">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="var(--ink-muted)" stroke-width="1.7" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>
+            Inscrit <strong style="margin-left:4px">le {{ app.user.createdAt|date('d/m/Y') }}</strong>
+            <span style="color:var(--ink-subtle);font-family:var(--font-mono);font-size:10px" {{ stimulus_controller('relative-date', {date: app.user.createdAt|date('c')}) }}></span>
+          </span>
+          {% if app.user.region %}
+            <span style="display:inline-flex;align-items:center;gap:8px;padding:6px 12px;background:var(--bg-page);border:1px solid var(--border-default);border-radius:var(--radius-pill);font-size:var(--fs-xs);color:var(--ink-default)">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="var(--ink-muted)" stroke-width="1.7" stroke-linecap="round"><path d="M12 2 4 6v6c0 5 4 9 8 10 4-1 8-5 8-10V6l-8-4z"/></svg>
+              Guilde de <strong style="margin-left:4px">{{ app.user.region }}</strong>
+            </span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ======================== 2. KPI CARDS ======================== #}
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:2.5rem" role="list">
+
+    <article role="listitem" style="padding:1.25rem;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:var(--radius-lg)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
+        <span style="width:40px;height:40px;background:var(--bg-sunken);border-radius:var(--radius-md);display:grid;place-items:center">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--brand-primary)" stroke-width="1.7" stroke-linecap="round"><path d="M4 4h12a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3V4z"/><path d="M4 17a3 3 0 0 1 3-3h12"/><path d="M8 8h7"/></svg>
+        </span>
+        <span style="font-size:11px;color:var(--ink-muted);font-family:var(--font-mono)">+{{ kpiBook.addedThisMonth }} / mois</span>
+      </div>
+      <div style="font-size:var(--fs-sm);color:var(--ink-muted);margin-bottom:4px">Livres en collection</div>
+      <div style="font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--ink-strong)">{{ kpiBook.total }} <span style="font-size:var(--fs-sm);font-weight:400;font-family:var(--font-body);color:var(--ink-muted)">ouvrages</span></div>
+      <div style="font-size:var(--fs-xs);color:var(--ink-muted);margin-top:4px">
+        <strong>{{ kpiBook.toRead }}</strong> à lire · <strong>{{ kpiBook.toBuy }}</strong> à acheter
+      </div>
+    </article>
+
+    <article role="listitem" style="padding:1.25rem;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:var(--radius-lg)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
+        <span style="width:40px;height:40px;background:var(--bg-sunken);border-radius:var(--radius-md);display:grid;place-items:center">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="var(--or-500)" stroke="none"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </span>
+        {% if kpiRating.average %}
+          <span style="font-size:11px;color:var(--ink-muted);font-family:var(--font-mono)">moy. <strong style="color:var(--or-700);font-family:var(--font-display)">{{ kpiRating.average }}</strong></span>
+        {% endif %}
+      </div>
+      <div style="font-size:var(--fs-sm);color:var(--ink-muted);margin-bottom:4px">Notes déposées</div>
+      <div style="font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--ink-strong)">{{ kpiRating.count }} <span style="font-size:var(--fs-sm);font-weight:400;font-family:var(--font-body);color:var(--ink-muted)">avis</span></div>
+      <div style="font-size:var(--fs-xs);color:var(--ink-muted);margin-top:4px">
+        {% if kpiRating.average %}note moyenne : {{ kpiRating.average }}/10{% else %}Aucune note déposée{% endif %}
+      </div>
+    </article>
+
+    <article role="listitem" style="padding:1.25rem;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:var(--radius-lg)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
+        <span style="width:40px;height:40px;background:var(--bg-sunken);border-radius:var(--radius-md);display:grid;place-items:center">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--success)" stroke-width="1.7" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
+        </span>
+      </div>
+      <div style="font-size:var(--fs-sm);color:var(--ink-muted);margin-bottom:4px">Validées par la guilde</div>
+      <div style="font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--ink-strong)">{{ kpiSuggestion.validated }} <span style="font-size:var(--fs-sm);font-weight:400;font-family:var(--font-body);color:var(--ink-muted)">fiches</span></div>
+      <div style="font-size:var(--fs-xs);color:var(--ink-muted);margin-top:4px">
+        {% if kpiSuggestion.acceptanceRate %}Taux de validation · <strong>{{ kpiSuggestion.acceptanceRate }} %</strong>{% else %}Aucune suggestion soumise{% endif %}
+      </div>
+    </article>
+
+    <article role="listitem" style="padding:1.25rem;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:var(--radius-lg)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
+        <span style="width:40px;height:40px;background:var(--bg-sunken);border-radius:var(--radius-md);display:grid;place-items:center">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--warning)" stroke-width="1.7" stroke-linecap="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+        </span>
+        <span style="font-size:11px;color:var(--ink-muted);font-family:var(--font-mono)">{{ kpiStreak.loginStreak > 0 ? 'en cours' : '' }}</span>
+      </div>
+      <div style="font-size:var(--fs-sm);color:var(--ink-muted);margin-bottom:4px">Constance</div>
+      <div style="font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--ink-strong)">{{ kpiStreak.loginStreak }} <span style="font-size:var(--fs-sm);font-weight:400;font-family:var(--font-body);color:var(--ink-muted)">jours</span></div>
+      <div style="font-size:var(--fs-xs);color:var(--ink-muted);margin-top:4px">Connecté sans interruption</div>
+    </article>
+
+  </div>
+
+  {# ======================== 3. LIST TABS ======================== #}
+  <section aria-labelledby="tabs-title" style="margin-bottom:2.5rem">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+      <h2 id="tabs-title" style="font-family:var(--font-display);font-size:1.25rem;font-weight:700;color:var(--ink-strong);margin:0">
+        Mes listes
+      </h2>
+    </div>
+
+    <div role="tablist" aria-label="Mes listes" style="display:flex;gap:4px;border-bottom:1px solid var(--border-default);margin-bottom:1rem;overflow-x:auto">
+      {% for tabKey, tabLabel in {'collection': 'Ma Collection', 'to_read': 'À lire', 'to_buy': 'À acheter', 'favorites': 'Mes Favoris'} %}
+        <a href="{{ path('profile_dashboard', {tab: tabKey, page: 1, sort: sort}) }}"
+          role="tab"
+          aria-selected="{{ activeTab == tabKey ? 'true' : 'false' }}"
+          style="padding:8px 16px;border-bottom:2px solid {{ activeTab == tabKey ? 'var(--brand-primary)' : 'transparent' }};font-weight:{{ activeTab == tabKey ? '600' : '400' }};color:{{ activeTab == tabKey ? 'var(--brand-primary)' : 'var(--ink-muted)' }};text-decoration:none;white-space:nowrap;font-size:var(--fs-sm);transition:all var(--motion-fast)">
+          {{ tabLabel }}
+          {% set flagMap = {'collection': 'isOwned', 'to_read': 'isToRead', 'to_buy': 'isToBuy', 'favorites': 'isFavorite'} %}
+        </a>
+      {% endfor %}
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
+      <span style="font-size:var(--fs-sm);color:var(--ink-muted)">
+        <strong>{{ tabTotal }}</strong> {{ activeTab == 'collection' ? 'ouvrages' : (activeTab == 'to_read' ? 'à lire' : (activeTab == 'to_buy' ? 'à acheter' : 'favoris')) }}
+      </span>
+      <div style="display:flex;align-items:center;gap:8px">
+        {% set currentVisibility = listVisibilities[activeTab] is defined ? listVisibilities[activeTab].isPublic() : false %}
+        <div {{ stimulus_controller('profile-visibility', {
+          url: path('profile_list_visibility', {listType: activeTab}),
+          csrfToken: csrf_token('list_visibility_' ~ activeTab)
+        }) }}>
+          <button type="button"
+            data-profile-visibility-target="toggle"
+            data-state="{{ currentVisibility ? 'public' : 'private' }}"
+            data-action="click->profile-visibility#toggle"
+            title="{{ currentVisibility ? 'Liste publique — cliquer pour rendre privée' : 'Liste privée — cliquer pour rendre publique' }}"
+            style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--border-default);border-radius:var(--radius-pill);background:var(--bg-elevated);cursor:pointer;font-size:var(--fs-xs);color:var(--ink-default)">
+            <svg class="ic-public" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" style="{{ currentVisibility ? '' : 'display:none' }}"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="ic-private" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" style="{{ currentVisibility ? 'display:none' : '' }}"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+            <span data-profile-visibility-target="label">{{ currentVisibility ? 'Publique' : 'Privée' }}</span>
+          </button>
+        </div>
+
+        <select onchange="window.location=this.value" style="padding:6px 12px;border:1px solid var(--border-default);border-radius:var(--radius-pill);background:var(--bg-elevated);font-size:var(--fs-xs);color:var(--ink-default)">
+          {% for sortKey, sortLabel in {'recently_added': 'Récemment ajoutés', 'title_asc': 'Titre A→Z', 'title_desc': 'Titre Z→A'} %}
+            <option value="{{ path('profile_dashboard', {tab: activeTab, page: page, sort: sortKey}) }}" {{ sort == sortKey ? 'selected' : '' }}>{{ sortLabel }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    {% if tabBooks is empty %}
+      <div style="text-align:center;padding:3rem 1rem;color:var(--ink-muted)">
+        <p>Aucun ouvrage dans cette liste pour le moment.</p>
+      </div>
+    {% else %}
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem">
+        {% for userBook in tabBooks %}
+          <div style="background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:var(--radius-md);overflow:hidden">
+            {% if userBook.book.coverImage %}
+              <img src="{{ userBook.book.coverImage }}" alt="{{ userBook.book.title }}" style="width:100%;aspect-ratio:2/3;object-fit:cover">
+            {% else %}
+              <div style="width:100%;aspect-ratio:2/3;background:var(--bg-sunken);display:grid;place-items:center;color:var(--ink-subtle)">
+                <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h12a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3V4z"/></svg>
+              </div>
+            {% endif %}
+            <div style="padding:8px">
+              <div style="font-size:var(--fs-xs);font-weight:600;color:var(--ink-strong);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ userBook.book.title }}</div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      {% if totalPages > 1 %}
+        <div style="display:flex;justify-content:center;gap:8px;margin-top:1.5rem">
+          {% if page > 1 %}
+            <a href="{{ path('profile_dashboard', {tab: activeTab, page: page - 1, sort: sort}) }}" style="padding:8px 16px;border:1px solid var(--border-default);border-radius:var(--radius-pill);text-decoration:none;color:var(--ink-default);font-size:var(--fs-sm)">← Précédent</a>
+          {% endif %}
+          <span style="padding:8px 16px;font-size:var(--fs-sm);color:var(--ink-muted)">Page {{ page }} / {{ totalPages }}</span>
+          {% if page < totalPages %}
+            <a href="{{ path('profile_dashboard', {tab: activeTab, page: page + 1, sort: sort}) }}" style="padding:8px 16px;border:1px solid var(--border-default);border-radius:var(--radius-pill);text-decoration:none;color:var(--ink-default);font-size:var(--fs-sm)">Suivant →</a>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endif %}
+  </section>
+
+  {# ======================== 4. FOLLOWED AUTHORS & COLLECTIONS ======================== #}
+  <section aria-labelledby="follow-title" style="margin-bottom:2.5rem">
+    <h2 id="follow-title" style="font-family:var(--font-display);font-size:1.25rem;font-weight:700;color:var(--ink-strong);margin:0 0 1rem">
+      Mes Auteurs &amp; Collections Suivis
+    </h2>
+
+    <div style="margin-bottom:1.5rem">
+      <h3 style="font-size:var(--fs-sm);font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;margin:0 0 0.75rem">Auteurs suivis</h3>
+      {% if followedContributors is empty %}
+        <p style="color:var(--ink-muted);font-size:var(--fs-sm)">Vous ne suivez aucun auteur pour le moment.</p>
+      {% else %}
+        <div style="display:flex;flex-wrap:wrap;gap:0.75rem">
+          {% for sub in followedContributors %}
+            <div {{ stimulus_controller('profile-unfollow', {
+              url: path('profile_unfollow_contributor', {id: sub.contributor.id}),
+              csrfToken: csrf_token('unfollow_contributor_' ~ sub.contributor.id)
+            }) }}
+              style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:var(--radius-md)">
+              <span style="font-size:var(--fs-sm);color:var(--ink-strong)">{{ sub.contributor.firstName }} {{ sub.contributor.lastName }}</span>
+              <button type="button"
+                data-action="click->profile-unfollow#unfollow"
+                style="padding:4px 10px;border:1px solid var(--border-default);border-radius:var(--radius-pill);font-size:11px;background:var(--bg-page);cursor:pointer;color:var(--ink-muted)">
+                ♥ SUIVI
+              </button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div>
+      <h3 style="font-size:var(--fs-sm);font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;margin:0 0 0.75rem">Collections suivies</h3>
+      {% if followedCollections is empty %}
+        <p style="color:var(--ink-muted);font-size:var(--fs-sm)">Vous ne suivez aucune collection pour le moment.</p>
+      {% else %}
+        <div style="display:flex;flex-wrap:wrap;gap:0.75rem">
+          {% for sub in followedCollections %}
+            <div {{ stimulus_controller('profile-unfollow', {
+              url: path('profile_unfollow_collection', {id: sub.collection.id}),
+              csrfToken: csrf_token('unfollow_collection_' ~ sub.collection.id)
+            }) }}
+              style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:var(--radius-md)">
+              <span style="font-size:var(--fs-sm);color:var(--ink-strong)">{{ sub.collection.nom }}</span>
+              <button type="button"
+                data-action="click->profile-unfollow#unfollow"
+                style="padding:4px 10px;border:1px solid var(--border-default);border-radius:var(--radius-pill);font-size:11px;background:var(--bg-page);cursor:pointer;color:var(--ink-muted)">
+                ♥ SUIVI
+              </button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+  {# ======================== 5. SETTINGS & SECURITY ======================== #}
+  <section id="settings" aria-labelledby="settings-title" style="margin-bottom:2.5rem">
+    <h2 id="settings-title" style="font-family:var(--font-display);font-size:1.25rem;font-weight:700;color:var(--ink-strong);margin:0 0 1.25rem">
+      Paramètres &amp; Sécurité
+    </h2>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.25rem">
+
+      {# Account Info Card #}
+      <article style="background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:1.25rem">
+        <h3 style="font-size:var(--fs-base);font-weight:600;color:var(--ink-strong);margin:0 0 1rem">
+          <span style="color:var(--ink-muted);font-family:var(--font-mono);font-size:11px;margin-right:8px">I</span>Informations du compte
+        </h3>
+
+        {# Pseudo #}
+        <div style="margin-bottom:1rem">
+          <form method="POST" action="{{ path('profile_update_pseudo') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('update_pseudo') }}">
+            <label style="display:block;font-size:var(--fs-xs);color:var(--ink-muted);margin-bottom:4px">Pseudonyme</label>
+            <div style="display:flex;gap:8px">
+              <input type="text" name="pseudo" value="{{ app.user.pseudo }}" maxlength="30" required
+                style="flex:1;padding:8px 12px;border:1px solid var(--border-default);border-radius:var(--radius-sm);background:var(--bg-page);color:var(--ink-strong);font-size:var(--fs-sm)">
+              <button type="submit" style="padding:8px 14px;background:var(--brand-primary);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;font-size:var(--fs-xs)">Modifier</button>
+            </div>
+          </form>
+        </div>
+
+        {# Email #}
+        <div style="margin-bottom:1rem">
+          <form method="POST" action="{{ path('profile_request_email_change') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('email_change') }}">
+            <label style="display:block;font-size:var(--fs-xs);color:var(--ink-muted);margin-bottom:4px">
+              Adresse email
+              {% if app.user.pendingEmail %}
+                <span style="color:var(--warning);font-size:10px;margin-left:6px">⏳ Confirmation en attente pour {{ app.user.pendingEmail }}</span>
+              {% endif %}
+            </label>
+            <div style="display:flex;gap:8px">
+              <input type="email" name="new_email" placeholder="{{ app.user.email }}" required
+                style="flex:1;padding:8px 12px;border:1px solid var(--border-default);border-radius:var(--radius-sm);background:var(--bg-page);color:var(--ink-strong);font-size:var(--fs-sm)">
+              <button type="submit" style="padding:8px 14px;background:var(--brand-primary);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;font-size:var(--fs-xs)">Changer</button>
+            </div>
+            <p style="font-size:11px;color:var(--ink-muted);margin:4px 0 0">Un lien de confirmation sera envoyé à la nouvelle adresse.</p>
+          </form>
+        </div>
+
+        {# Region #}
+        <div style="margin-bottom:1rem">
+          <form method="POST" action="{{ path('profile_update_region') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('update_region') }}">
+            <label style="display:block;font-size:var(--fs-xs);color:var(--ink-muted);margin-bottom:4px">Région · guilde</label>
+            <div style="display:flex;gap:8px">
+              <input type="text" name="region" value="{{ app.user.region ?? '' }}" maxlength="100"
+                style="flex:1;padding:8px 12px;border:1px solid var(--border-default);border-radius:var(--radius-sm);background:var(--bg-page);color:var(--ink-strong);font-size:var(--fs-sm)">
+              <button type="submit" style="padding:8px 14px;background:var(--brand-primary);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;font-size:var(--fs-xs)">Modifier</button>
+            </div>
+          </form>
+        </div>
+
+        {# Avatar upload #}
+        <div>
+          <div {{ stimulus_controller('profile-avatar') }}>
+            <form method="POST" action="{{ path('profile_update_avatar') }}" enctype="multipart/form-data"
+              data-profile-avatar-target="form" data-action="submit->profile-avatar#submit">
+              <input type="hidden" name="_token" value="{{ csrf_token('update_avatar') }}">
+              <label style="display:block;font-size:var(--fs-xs);color:var(--ink-muted);margin-bottom:4px">Photo de profil</label>
+              <div style="display:flex;align-items:center;gap:12px">
+                <span class="avatar" aria-hidden="true" style="--av-size:48px" data-profile-avatar-target="preview">
+                  {% if app.user.avatarUrl %}
+                    <img src="{{ app.user.avatarUrl }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%">
+                  {% endif %}
+                </span>
+                <label style="padding:8px 14px;background:var(--bg-page);border:1px solid var(--border-default);border-radius:var(--radius-sm);cursor:pointer;font-size:var(--fs-xs);color:var(--ink-default)">
+                  Choisir un fichier
+                  <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp" data-profile-avatar-target="input" style="display:none">
+                </label>
+                <button type="submit" style="padding:8px 14px;background:var(--brand-primary);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;font-size:var(--fs-xs)">Enregistrer</button>
+              </div>
+              <p data-profile-avatar-target="error" hidden style="color:var(--danger);font-size:11px;margin:4px 0 0"></p>
+              <p style="font-size:11px;color:var(--ink-muted);margin:4px 0 0">JPEG, PNG ou WebP · max. 2 Mo · recadrage carré avant envoi</p>
+            </form>
+          </div>
+        </div>
+      </article>
+
+      {# Security Card #}
+      <article style="background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:1.25rem">
+        <h3 style="font-size:var(--fs-base);font-weight:600;color:var(--ink-strong);margin:0 0 1rem">
+          <span style="color:var(--ink-muted);font-family:var(--font-mono);font-size:11px;margin-right:8px">II</span>Connexion &amp; Sécurité
+        </h3>
+
+        {# Google OAuth #}
+        <div style="padding:12px;background:var(--bg-page);border:1px solid var(--border-default);border-radius:var(--radius-md);margin-bottom:1rem">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <div>
+              <div style="font-size:var(--fs-sm);font-weight:500;color:var(--ink-strong)">Connexion Google</div>
+              <div style="font-size:11px;color:var(--ink-muted)">{{ app.user.googleId ? 'Liée à ce compte' : 'Non liée' }}</div>
+            </div>
+            {% if app.user.googleId %}
+              <form method="POST" action="{{ path('profile_unlink_google') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('unlink_google') }}">
+                <button type="submit"
+                  {{ app.user.password is null ? 'disabled title="Définissez un mot de passe avant de délier votre compte Google"' : '' }}
+                  style="padding:6px 12px;border:1px solid var(--border-default);border-radius:var(--radius-pill);font-size:11px;background:var(--bg-elevated);cursor:pointer;color:var(--ink-default);{{ app.user.password is null ? 'opacity:0.5;cursor:not-allowed' : '' }}">
+                  Délier
+                </button>
+              </form>
+            {% endif %}
+          </div>
+          {% if app.user.password is null and app.user.googleId %}
+            <p style="font-size:11px;color:var(--warning);margin:8px 0 0">Définissez un mot de passe avant de délier votre compte Google.</p>
+          {% endif %}
+        </div>
+
+        {# Password change (only if user has password) #}
+        {% if app.user.password is not null %}
+          <div>
+            <form method="POST" action="{{ path('profile_update_password') }}">
+              <input type="hidden" name="_token" value="{{ csrf_token('update_password') }}">
+              <div style="margin-bottom:8px">
+                <label style="display:block;font-size:var(--fs-xs);color:var(--ink-muted);margin-bottom:4px">Mot de passe actuel</label>
+                <input type="password" name="current_password" required
+                  style="width:100%;padding:8px 12px;border:1px solid var(--border-default);border-radius:var(--radius-sm);background:var(--bg-page);color:var(--ink-strong);font-size:var(--fs-sm);box-sizing:border-box">
+              </div>
+              <div style="margin-bottom:8px">
+                <label style="display:block;font-size:var(--fs-xs);color:var(--ink-muted);margin-bottom:4px">Nouveau mot de passe (min. 8 caractères)</label>
+                <input type="password" name="new_password" minlength="8" required
+                  style="width:100%;padding:8px 12px;border:1px solid var(--border-default);border-radius:var(--radius-sm);background:var(--bg-page);color:var(--ink-strong);font-size:var(--fs-sm);box-sizing:border-box">
+              </div>
+              <button type="submit" style="padding:8px 16px;background:var(--brand-primary);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;font-size:var(--fs-sm)">Changer le mot de passe</button>
+            </form>
+          </div>
+        {% endif %}
+      </article>
+
+    </div>
+  </section>
+
+  {# ======================== 6. ROLE & PERMISSIONS ======================== #}
+  {% if permissions is not null %}
+  <section aria-labelledby="role-title" style="margin-bottom:2.5rem">
+    <h2 id="role-title" style="font-family:var(--font-display);font-size:1.25rem;font-weight:700;color:var(--ink-strong);margin:0 0 1.25rem">
+      Rôle &amp; Permissions dans la Guilde
+    </h2>
+
+    <div style="background:var(--bg-elevated);border:1px solid var(--info);border-radius:var(--radius-lg);padding:1.5rem">
+      <div style="display:flex;align-items:flex-start;gap:1rem;margin-bottom:1.25rem">
+        <span style="width:48px;height:48px;background:var(--info);border-radius:var(--radius-md);display:grid;place-items:center;flex-shrink:0">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round"><path d="M12 2 4 6v6c0 5 4 9 8 10 4-1 8-5 8-10V6l-8-4z"/><path d="m9 12 2 2 4-4"/></svg>
+        </span>
+        <div>
+          <div style="font-size:11px;color:var(--ink-muted);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">
+            Niveau {{ is_granted('ROLE_ADMIN') ? '3' : '2' }} · sur 3
+          </div>
+          <div style="font-size:1.1rem;font-weight:700;color:var(--ink-strong);text-transform:uppercase;letter-spacing:0.04em">
+            {{ is_granted('ROLE_ADMIN') ? 'Administrateur de la guilde' : 'Modérateur de la guilde' }}
+          </div>
+          <p style="font-size:var(--fs-sm);color:var(--ink-muted);margin:6px 0 0">
+            {% if is_granted('ROLE_ADMIN') %}
+              Tu gères l'ensemble du catalogue, des membres et des paramètres de la guilde.
+            {% else %}
+              Tu peux relire, valider et corriger les suggestions des aventuriers, et signaler du contenu inapproprié.
+            {% endif %}
+          </p>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px">
+        {% for perm in permissions %}
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--radius-sm);background:{{ perm.granted ? 'color-mix(in oklab,var(--success) 10%,transparent)' : 'var(--bg-page)' }};border:1px solid {{ perm.granted ? 'color-mix(in oklab,var(--success) 25%,transparent)' : 'var(--border-subtle)' }}">
+            <span style="width:16px;height:16px;flex-shrink:0;color:{{ perm.granted ? 'var(--success)' : 'var(--ink-subtle)' }}">
+              {% if perm.granted %}
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
+              {% else %}
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg>
+              {% endif %}
+            </span>
+            <span style="font-size:var(--fs-xs);color:{{ perm.granted ? 'var(--ink-strong)' : 'var(--ink-subtle)' }}">{{ perm.label }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  {# ======================== 6b. RANK PANEL (ROLE_USER only) ======================== #}
+  {% if isRoleUser %}
+  <section aria-labelledby="rank-title" style="margin-bottom:2.5rem">
+    <h2 id="rank-title" style="font-family:var(--font-display);font-size:1.25rem;font-weight:700;color:var(--ink-strong);margin:0 0 1.25rem">
+      Progression dans la Guilde
+    </h2>
+
+    <div style="background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:1.5rem">
+      {% if rankLevel is null %}
+        <p style="color:var(--ink-muted);font-size:var(--fs-sm)">Aucune donnée de rang disponible.</p>
+      {% else %}
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
+          {% include 'components/_rank_badge.html.twig' with {level: rankLevel} %}
+          <div>
+            <div style="font-size:1rem;font-weight:700;color:var(--ink-strong)">{{ rankLevel.name }}</div>
+            {% if deltaToNext is not null %}
+              <div style="font-size:var(--fs-sm);color:var(--ink-muted)">Plus que <strong>{{ deltaToNext }}</strong> fiches validées pour atteindre le rang suivant</div>
+            {% else %}
+              <div style="font-size:var(--fs-sm);color:var(--success)">Rang maximum atteint ! Félicitations.</div>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+
+  {# ======================== 7. DANGER ZONE ======================== #}
+  <div role="region" aria-label="Zone de danger"
+    style="border:1px solid var(--danger);border-radius:var(--radius-lg);padding:1.5rem;display:flex;align-items:flex-start;justify-content:space-between;gap:1.5rem;flex-wrap:wrap">
+    <div>
+      <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--danger);margin-bottom:6px">Zone de danger</div>
+      <div style="font-size:1rem;font-weight:700;color:var(--ink-strong);margin-bottom:8px">Supprimer mon compte</div>
+      <p style="font-size:var(--fs-sm);color:var(--ink-muted);margin:0;max-width:480px">
+        La suppression efface ton sceau personnel, tes notes et tes listes. Tes suggestions validées restent attribuées à <em>« un ancien aventurier »</em>. Cette action est irréversible.
+      </p>
+    </div>
+    <button type="button"
+      onclick="document.getElementById('delete-account-modal').classList.add('is-open');document.body.style.overflow='hidden'"
+      style="padding:10px 20px;background:var(--danger);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;font-weight:600;white-space:nowrap;flex-shrink:0">
+      Supprimer mon compte
+    </button>
+  </div>
+
+</div>
+
+{# ======================== DELETE ACCOUNT MODAL ======================== #}
+<div id="delete-account-modal"
+  style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;padding:1rem"
+  data-controller="modal"
+  data-action="keydown.escape->modal#close"
+  onclick="if(event.target===this){this.classList.remove('is-open');document.body.style.overflow=''}"
+  class="">
+  <style>#delete-account-modal.is-open{display:flex!important}</style>
+  <div style="background:var(--bg-elevated);border-radius:var(--radius-lg);padding:2rem;max-width:480px;width:100%">
+    <h2 style="font-family:var(--font-display);font-size:1.25rem;font-weight:700;color:var(--danger);margin:0 0 1rem">Supprimer mon compte</h2>
+    <p style="font-size:var(--fs-sm);color:var(--ink-default);margin:0 0 1.25rem">
+      Cette action est <strong>irréversible</strong>. Pour confirmer, saisissez <strong style="font-family:var(--font-mono);color:var(--danger)">SUPPRIMER</strong> ci-dessous.
+    </p>
+    <form method="POST" action="{{ path('profile_delete_account') }}" id="delete-account-form">
+      <input type="hidden" name="_token" value="{{ csrf_token('delete_account') }}">
+      <input type="text" name="confirmation" id="delete-confirm-input" placeholder="Tapez SUPPRIMER"
+        autocomplete="off" required
+        oninput="document.getElementById('delete-confirm-btn').disabled=this.value!=='SUPPRIMER'"
+        style="width:100%;padding:10px 14px;border:2px solid var(--border-default);border-radius:var(--radius-sm);font-size:var(--fs-base);margin-bottom:1rem;box-sizing:border-box;color:var(--ink-strong);background:var(--bg-page)">
+      <div style="display:flex;gap:12px;justify-content:flex-end">
+        <button type="button"
+          onclick="document.getElementById('delete-account-modal').classList.remove('is-open');document.body.style.overflow=''"
+          style="padding:10px 20px;border:1px solid var(--border-default);border-radius:var(--radius-sm);background:var(--bg-page);cursor:pointer;font-size:var(--fs-sm);color:var(--ink-default)">
+          Annuler
+        </button>
+        <button type="submit" id="delete-confirm-btn" disabled
+          style="padding:10px 20px;background:var(--danger);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;font-weight:600;opacity:0.5"
+          onenabled="this.style.opacity='1'"
+          onclick="this.disabled?event.preventDefault():null">
+          Confirmer la suppression
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.getElementById('delete-confirm-btn').addEventListener('click', function() {
+  if (this.disabled) return;
+  this.style.opacity = '1';
+});
+document.getElementById('delete-confirm-input').addEventListener('input', function() {
+  const btn = document.getElementById('delete-confirm-btn');
+  btn.disabled = this.value !== 'SUPPRIMER';
+  btn.style.opacity = btn.disabled ? '0.5' : '1';
+  btn.style.cursor = btn.disabled ? 'not-allowed' : 'pointer';
+});
+</script>
+{% endblock %}

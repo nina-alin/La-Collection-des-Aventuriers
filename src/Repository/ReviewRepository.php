@@ -20,6 +20,23 @@ class ReviewRepository extends ServiceEntityRepository
         parent::__construct($registry, Review::class);
     }
 
+    /** @return array{count: int, average: float|null} */
+    public function getStatsByUser(User $user): array
+    {
+        $result = $this->createQueryBuilder('r')
+            ->select('COUNT(r.id) as cnt, AVG(r.score) as avg_score')
+            ->where('r.user = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleResult();
+
+        $count = (int) $result['cnt'];
+        return [
+            'count' => $count,
+            'average' => $count > 0 ? round((float) $result['avg_score'], 1) : null,
+        ];
+    }
+
     public function findByUserAndBook(User $user, Book $book): ?Review
     {
         return $this->createQueryBuilder('r')

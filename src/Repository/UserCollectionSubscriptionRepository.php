@@ -29,4 +29,15 @@ class UserCollectionSubscriptionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /** @return UserCollectionSubscription[] */
+    public function findFollowedByUser(User $user): array
+    {
+        return $this->findBy(['user' => $user], ['createdAt' => 'DESC']);
+    }
+
+    public function findByUserAndCollection(User $user, Collection $collection): ?UserCollectionSubscription
+    {
+        return $this->findOneBy(['user' => $user, 'collection' => $collection]);
+    }
 }

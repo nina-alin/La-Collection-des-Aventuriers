@@ -558,6 +558,13 @@
       display: grid; place-items: center;
     }
     .correction-prefill .pf-change:hover { background: var(--bg-elevated); }
+    .correction-prefill.just-updated {
+      animation: bannerPing 0.9s var(--motion-ease, ease);
+    }
+    @keyframes bannerPing {
+      0%   { box-shadow: 0 0 0 0 color-mix(in oklab, var(--brand-primary) 45%, transparent); }
+      100% { box-shadow: 0 0 0 10px transparent; }
+    }
     @media (max-width: 540px) {
       .correction-prefill { grid-template-columns: 48px 1fr; }
       .correction-prefill .pf-change { grid-column: 1 / -1; padding: 8px; }
@@ -729,6 +736,22 @@
     @media (max-width: 600px) {
       .form-stepper .step-item span.label { display: none; }
       .form-stepper { padding: var(--sp-3) var(--sp-4); }
+    }
+
+    /* wizard footer — Précédent on the far left, primary CTA far right */
+    .wizard-foot .btn { display: inline-flex; align-items: center; gap: 8px; }
+    .wizard-foot #wizPrev[disabled] { opacity: 0.4; pointer-events: none; }
+    .wizard-foot .btn-primary.is-submit { background: var(--success); border-color: var(--success); }
+
+    /* one step visible at a time — gentle entrance */
+    @media (prefers-reduced-motion: no-preference) {
+      .panel-body .field-block.step-enter {
+        animation: stepEnter var(--motion-base, 280ms) var(--motion-ease, ease) both;
+      }
+      @keyframes stepEnter {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: none; }
+      }
     }
 
     /* Upload couverture */
@@ -1334,6 +1357,223 @@
       box-shadow: var(--shadow-md);
     }
 
+    /* ============================================================
+       FICHE PICKER — modale « Changer de fiche source »
+       ============================================================ */
+    .fiche-picker {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      display: grid;
+      place-items: center;
+      padding: var(--sp-5);
+      background: color-mix(in oklab, var(--ink-strong) 46%, transparent);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity var(--motion-base, 240ms) var(--motion-ease, ease), visibility var(--motion-base, 240ms);
+    }
+    .fiche-picker.is-open { opacity: 1; visibility: visible; }
+    .fp-dialog {
+      width: min(560px, 100%);
+      max-height: min(640px, 88vh);
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 24px 60px -12px rgba(45,24,16,0.5);
+      overflow: hidden;
+      transform: translateY(12px) scale(0.985);
+      transition: transform var(--motion-base, 240ms) var(--motion-ease, ease);
+    }
+    .fiche-picker.is-open .fp-dialog { transform: none; }
+    .fp-head {
+      display: flex; align-items: flex-start; gap: var(--sp-3);
+      padding: var(--sp-4) var(--sp-5);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .fp-head .fp-titles { flex: 1; min-width: 0; }
+    .fp-head .fp-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px; letter-spacing: var(--tracking-caps);
+      text-transform: uppercase; color: var(--brand-primary);
+      margin-bottom: 3px;
+    }
+    .fp-head h2 {
+      font-family: var(--font-display);
+      font-size: var(--fs-lg); font-weight: 700;
+      color: var(--ink-strong); margin: 0; line-height: 1.15;
+    }
+    .fp-head .fp-sub { font-size: var(--fs-xs); color: var(--ink-muted); margin-top: 3px; }
+    .fp-close {
+      flex-shrink: 0;
+      width: 32px; height: 32px;
+      display: grid; place-items: center;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-default);
+      background: var(--bg-page);
+      color: var(--ink-muted);
+      cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .fp-close:hover { background: var(--bg-sunken); color: var(--ink-strong); }
+    .fp-close svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; }
+
+    .fp-search {
+      position: relative;
+      padding: var(--sp-4) var(--sp-5) var(--sp-3);
+    }
+    .fp-search svg.loupe {
+      position: absolute;
+      left: calc(var(--sp-5) + 12px); top: 50%; transform: translateY(-50%);
+      width: 16px; height: 16px;
+      stroke: var(--ink-subtle); fill: none; stroke-width: 1.9; stroke-linecap: round;
+      pointer-events: none;
+    }
+    .fp-search input {
+      width: 100%;
+      padding: 11px 14px 11px 38px;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      background: var(--bg-page);
+      color: var(--ink-strong);
+      font-family: var(--font-body);
+      font-size: var(--fs-sm);
+    }
+    .fp-search input:focus {
+      outline: none;
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand-primary) 14%, transparent);
+    }
+
+    .fp-scope {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      padding: 0 var(--sp-5) var(--sp-3);
+    }
+    .fp-scope button {
+      appearance: none;
+      font-family: var(--font-mono);
+      font-size: 10px; letter-spacing: var(--tracking-caps); text-transform: uppercase;
+      padding: 5px 11px;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill);
+      background: var(--bg-page);
+      color: var(--ink-muted);
+      cursor: pointer;
+      transition: all var(--motion-fast) var(--motion-ease);
+    }
+    .fp-scope button:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .fp-scope button[aria-pressed="true"] {
+      background: var(--cuir-500); border-color: var(--cuir-500); color: #fbf6e9;
+    }
+    [data-theme="dark"] .fp-scope button[aria-pressed="true"] { background: var(--or-400); border-color: var(--or-400); color: #1a0e08; }
+
+    .fp-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2px var(--sp-4) var(--sp-4);
+    }
+    .fp-list .fp-group {
+      font-family: var(--font-mono);
+      font-size: 10px; letter-spacing: var(--tracking-caps); text-transform: uppercase;
+      color: var(--ink-subtle);
+      padding: var(--sp-3) var(--sp-2) 6px;
+    }
+    .fp-item {
+      display: grid;
+      grid-template-columns: 40px 1fr auto;
+      align-items: center;
+      gap: var(--sp-3);
+      width: 100%;
+      text-align: left;
+      padding: 9px var(--sp-2);
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
+      background: transparent;
+      cursor: pointer;
+      transition: background var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease);
+    }
+    .fp-item:hover, .fp-item:focus-visible { background: var(--bg-sunken); outline: none; }
+    .fp-item.is-current { border-color: color-mix(in oklab, var(--brand-primary) 40%, transparent); background: color-mix(in oklab, var(--brand-primary) 7%, transparent); }
+    .fp-thumb {
+      width: 40px; height: 52px;
+      border-radius: 3px;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+      display: grid; place-items: center;
+      color: rgba(245,236,217,0.92);
+    }
+    .fp-thumb svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .fp-thumb.round { border-radius: 50%; width: 44px; height: 44px; }
+    .fp-meta { min-width: 0; }
+    .fp-name {
+      font-family: var(--font-display);
+      font-size: var(--fs-sm); font-weight: 600;
+      color: var(--ink-strong); line-height: 1.2;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .fp-name mark { background: color-mix(in oklab, var(--or-400) 40%, transparent); color: inherit; border-radius: 2px; padding: 0 1px; }
+    .fp-sub2 { font-size: var(--fs-xs); color: var(--ink-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+    .fp-type {
+      font-family: var(--font-mono);
+      font-size: 9px; letter-spacing: var(--tracking-caps); text-transform: uppercase;
+      color: var(--ink-subtle);
+      padding: 3px 8px;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-pill);
+      white-space: nowrap;
+    }
+    .fp-item.is-current .fp-type {
+      color: var(--brand-primary);
+      border-color: color-mix(in oklab, var(--brand-primary) 40%, transparent);
+    }
+    .fp-item .fp-current-tag {
+      display: none;
+      font-family: var(--font-mono);
+      font-size: 9px; letter-spacing: var(--tracking-caps); text-transform: uppercase;
+      color: var(--brand-primary);
+    }
+    .fp-item.is-current .fp-type { display: none; }
+    .fp-item.is-current .fp-current-tag { display: inline; }
+    .fp-empty {
+      display: none;
+      text-align: center;
+      padding: var(--sp-6) var(--sp-4);
+      color: var(--ink-muted);
+      font-size: var(--fs-sm);
+    }
+    .fp-list.is-empty .fp-empty { display: block; }
+    .fp-foot {
+      display: flex; align-items: center; gap: var(--sp-3);
+      padding: var(--sp-3) var(--sp-5);
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-sunken);
+    }
+    .fp-foot .fp-hint {
+      font-family: var(--font-mono);
+      font-size: 10px; letter-spacing: var(--tracking-caps); text-transform: uppercase;
+      color: var(--ink-subtle);
+      margin-right: auto;
+      display: inline-flex; align-items: center; gap: 7px;
+    }
+    .fp-foot kbd {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 6px;
+      border: 1px solid var(--border-default);
+      border-bottom-width: 2px;
+      border-radius: 4px;
+      background: var(--bg-page);
+      color: var(--ink-muted);
+    }
+    @media (max-width: 540px) {
+      .fiche-picker { padding: 0; place-items: stretch; }
+      .fp-dialog { width: 100%; max-height: 100%; border-radius: 0; }
+      .fp-foot .fp-create-link { display: none; }
+    }
+
   </style>
 </head>
 <body>
@@ -1564,10 +1804,10 @@
           </div>
 
           <!-- Stepper -->
-          <div class="form-stepper" aria-label="Progression du formulaire">
-            <div class="step-item done"><span class="dot"><span>1</span></span><span class="label">Type</span></div>
+          <div class="form-stepper" id="formStepper" aria-label="Progression du formulaire">
+            <div class="step-item"><span class="dot"><span>1</span></span><span class="label">Type</span></div>
             <span class="step-line"></span>
-            <div class="step-item current"><span class="dot"><span>2</span></span><span class="label">Détails</span></div>
+            <div class="step-item"><span class="dot"><span>2</span></span><span class="label">Détails</span></div>
             <span class="step-line"></span>
             <div class="step-item"><span class="dot"><span>3</span></span><span class="label">Couverture</span></div>
             <span class="step-line"></span>
@@ -1613,7 +1853,7 @@
                 <div class="pf-title">Le Sorcier de la Montagne de Feu</div>
                 <div class="pf-meta">Steve Jackson · 1982 · Défis Fantastiques nº1 · ISBN&nbsp;2-7242-1147-3</div>
               </div>
-              <button type="button" class="pf-change" aria-label="Changer de fiche source">Changer<br/>de fiche</button>
+              <button type="button" class="pf-change" id="changeSourceBtn" aria-label="Changer de fiche source" aria-haspopup="dialog">Changer<br/>de fiche</button>
             </div>
 
             <!-- Type selector -->
@@ -2529,13 +2769,17 @@
             </div>
           </div>
 
-          <!-- Footer du formulaire -->
-          <div class="form-footer">
-            <span class="meta">Auto-sauvegardé · prêt à soumettre</span>
-            <button class="btn">Enregistrer le brouillon</button>
-            <button class="btn btn-primary">
+          <!-- Footer du formulaire — navigation du wizard -->
+          <div class="form-footer wizard-foot">
+            <button class="btn" type="button" id="wizPrev">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+              Précédent
+            </button>
+            <span class="meta" id="wizMeta">Étape 1 / 4 · auto-sauvegardé</span>
+            <button class="btn" type="button" id="wizDraft">Enregistrer le brouillon</button>
+            <button class="btn btn-primary" type="button" id="wizNext">
+              <span class="wiz-next-label">Suivant</span>
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-              Soumettre à la modération
             </button>
           </div>
         </section>
@@ -2825,14 +3069,7 @@
       var tr = document.getElementById('toast-recent');
       if (tc && tr) tc.addEventListener('click', function () { tr.style.display = 'none'; });
 
-      // Mode toggle controls the visibility of the "correction-prefill" banner
-      document.querySelectorAll('.mode-toggle input[name="mode"]').forEach(function (i) {
-        i.addEventListener('change', function () {
-          var prefill = document.querySelector('.correction-prefill');
-          if (i.value === 'correction' && i.checked) prefill.style.display = 'grid';
-          if (i.value === 'new' && i.checked) prefill.style.display = 'none';
-        });
-      });
+      // (La bannière « fiche source » est gérée par le contrôleur de wizard plus bas.)
 
       // Device toggle in preview
       document.querySelectorAll('.preview-head .device-toggle button').forEach(function (b) {
@@ -2842,22 +3079,108 @@
         });
       });
 
-      // Type cards keyboard activation (radio cards already work via input click)
-
-      // ── Bascule des champs selon le TYPE de fiche sélectionné ──
+      // ════════════ WIZARD — une étape visible à la fois ════════════
+      var pane = document.getElementById('pane-action');
       var typeRadios = document.querySelectorAll('.type-grid input[name="type"]');
-      function syncTypeFields(type) {
-        // Type avec un formulaire dédié ? sinon on retombe sur le formulaire « livre ».
-        var effective = document.querySelector('[data-type-block="' + type + '"]') ? type : 'livre';
-        document.querySelectorAll('[data-type-block]').forEach(function (el) {
-          el.style.display = (el.getAttribute('data-type-block') === effective) ? '' : 'none';
-        });
-      }
-      typeRadios.forEach(function (r) {
-        r.addEventListener('change', function () { if (r.checked) syncTypeFields(r.value); });
+      var modeRadios = document.querySelectorAll('.mode-toggle input[name="mode"]');
+      var stepper = document.getElementById('formStepper');
+      var stepItems = stepper ? stepper.querySelectorAll('.step-item') : [];
+      var prefill = pane.querySelector('.correction-prefill');
+      var wizPrev = document.getElementById('wizPrev');
+      var wizNext = document.getElementById('wizNext');
+      var wizMeta = document.getElementById('wizMeta');
+      var wizNextLabel = wizNext ? wizNext.querySelector('.wiz-next-label') : null;
+      var STEP_COUNT = 4;
+      var current = 1;
+
+      // Assign a step number to every field-block.
+      // Type-specific blocks carry "étape N / 4" in their .step label (2,3,4).
+      // The mode + type selectors (no data-type-block) are step 1.
+      pane.querySelectorAll('.panel-body > .field-block').forEach(function (fb) {
+        var n = 1;
+        if (fb.hasAttribute('data-type-block')) {
+          var lbl = fb.querySelector('.field-block-head .ttl .step');
+          var m = lbl && lbl.textContent.match(/(\d)\s*\/\s*4/);
+          n = m ? parseInt(m[1], 10) : 2;
+        }
+        fb.setAttribute('data-step', n);
       });
-      var checkedType = document.querySelector('.type-grid input[name="type"]:checked');
-      if (checkedType) syncTypeFields(checkedType.value);
+
+      function effectiveType() {
+        var checked = document.querySelector('.type-grid input[name="type"]:checked');
+        var t = checked ? checked.value : 'livre';
+        return document.querySelector('[data-type-block="' + t + '"]') ? t : 'livre';
+      }
+      function currentMode() {
+        var m = document.querySelector('.mode-toggle input[name="mode"]:checked');
+        return m ? m.value : 'new';
+      }
+
+      function render(animate) {
+        var type = effectiveType();
+        var mode = currentMode();
+
+        // Field-blocks : visible if its step === current AND type matches (or generic).
+        pane.querySelectorAll('.panel-body > .field-block').forEach(function (fb) {
+          var step = parseInt(fb.getAttribute('data-step'), 10);
+          var tb = fb.getAttribute('data-type-block');
+          var show = (step === current) && (!tb || tb === type);
+          fb.style.display = show ? '' : 'none';
+          fb.classList.remove('step-enter');
+          if (show && animate) { void fb.offsetWidth; fb.classList.add('step-enter'); }
+        });
+
+        // Correction source banner : only on step 1 in correction mode.
+        if (prefill) prefill.style.display = (current === 1 && mode === 'correction') ? 'grid' : 'none';
+
+        // Stepper state (reflects current step — purely visual, comme avant).
+        stepItems.forEach(function (it, i) {
+          var idx = i + 1;
+          it.classList.toggle('done', idx < current);
+          it.classList.toggle('current', idx === current);
+        });
+
+        // Footer nav.
+        if (wizPrev) wizPrev.disabled = (current === 1);
+        var last = (current === STEP_COUNT);
+        if (wizNextLabel) wizNextLabel.textContent = last ? 'Soumettre à la modération' : 'Suivant';
+        if (wizNext) wizNext.classList.toggle('is-submit', last);
+        if (wizMeta) wizMeta.textContent = 'Étape ' + current + ' / ' + STEP_COUNT + ' · auto-sauvegardé';
+      }
+
+      function goTo(step, animate) {
+        current = Math.max(1, Math.min(STEP_COUNT, step));
+        render(animate !== false);
+        // bring the form back into view on the mobile layout
+        var head = pane.querySelector('.form-stepper');
+        if (head && window.matchMedia('(max-width: 1079px)').matches) {
+          window.scrollTo({ top: head.getBoundingClientRect().top + window.scrollY - 80, behavior: 'smooth' });
+        }
+      }
+
+      if (wizPrev) wizPrev.addEventListener('click', function () { goTo(current - 1); });
+      if (wizNext) wizNext.addEventListener('click', function () {
+        if (current === STEP_COUNT) {
+          // final step → submit (mock)
+          wizNext.classList.add('is-loading');
+          wizNext.querySelector('.wiz-next-label').textContent = 'Envoi…';
+          setTimeout(function () { location.href = 'profil.html'; }, 700);
+          return;
+        }
+        goTo(current + 1);
+      });
+      // (Le stepper est purement visuel — comme avant ; la navigation se fait via les boutons.)
+
+      // Switching TYPE keeps you on the current step but swaps the dedicated form.
+      typeRadios.forEach(function (r) {
+        r.addEventListener('change', function () { if (r.checked) render(true); });
+      });
+      // Switching MODE just toggles the source banner.
+      modeRadios.forEach(function (r) {
+        r.addEventListener('change', function () { if (r.checked) render(false); });
+      });
+
+      render(false);
 
       // Compteur des biographies (auteur + illustrateur)
       document.querySelectorAll('#a-bio, #i-bio, #t-bio').forEach(function (bio) {
@@ -2912,6 +3235,252 @@
     })();
   </script>
   <div class="menu-backdrop" id="menu-backdrop" aria-hidden="true"></div>
+
+  <!-- ============================ MODALE : CHANGER DE FICHE SOURCE ============================ -->
+  <div class="fiche-picker" id="fichePicker" role="dialog" aria-modal="true" aria-labelledby="fpTitle" hidden>
+    <div class="fp-dialog" role="document">
+      <div class="fp-head">
+        <div class="fp-titles">
+          <div class="fp-eyebrow">★ Correction · fiche source</div>
+          <h2 id="fpTitle">Choisir la fiche à corriger</h2>
+          <div class="fp-sub">Le formulaire sera pré-rempli avec les données de la fiche sélectionnée.</div>
+        </div>
+        <button type="button" class="fp-close" id="fpClose" aria-label="Fermer">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+
+      <div class="fp-search">
+        <svg class="loupe" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" id="fpInput" placeholder="Rechercher un titre, un auteur, un ISBN…" autocomplete="off" aria-label="Rechercher une fiche" />
+      </div>
+
+      <div class="fp-scope" role="group" aria-label="Filtrer par type">
+        <button type="button" data-scope="tous" aria-pressed="true">Tout</button>
+        <button type="button" data-scope="livre" aria-pressed="false">Livres</button>
+        <button type="button" data-scope="auteur" aria-pressed="false">Auteurs</button>
+        <button type="button" data-scope="illustrateur" aria-pressed="false">Illustrateurs</button>
+        <button type="button" data-scope="traducteur" aria-pressed="false">Traducteurs</button>
+      </div>
+
+      <div class="fp-list" id="fpList">
+        <div class="fp-group">Consultés récemment</div>
+
+        <button class="fp-item is-current" data-type="livre" data-name="Le Sorcier de la Montagne de Feu" data-meta="Steve Jackson · 1982 · Défis Fantastiques nº1 · ISBN 2-7242-1147-3" data-grad="linear-gradient(135deg, var(--cuir-300), var(--cuir-700))">
+          <span class="fp-thumb" style="background: linear-gradient(135deg, var(--cuir-300), var(--cuir-700));"><svg viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h11v16H6a2 2 0 0 1-2-2z"/><path d="M17 4v16M9 8h5M9 12h5"/></svg></span>
+          <span class="fp-meta">
+            <span class="fp-name">Le Sorcier de la Montagne de Feu</span>
+            <span class="fp-sub2">Steve Jackson · Défis Fantastiques nº1 · 1982</span>
+          </span>
+          <span class="fp-type">Livre</span>
+          <span class="fp-current-tag">● Sélectionnée</span>
+        </button>
+
+        <button class="fp-item" data-type="livre" data-name="La Forêt de la Malédiction" data-meta="Ian Livingstone · 1983 · Défis Fantastiques nº3 · ISBN 2-7242-1149-X" data-grad="linear-gradient(135deg, var(--mousse-300), var(--mousse-700))">
+          <span class="fp-thumb" style="background: linear-gradient(135deg, var(--mousse-300), var(--mousse-700));"><svg viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h11v16H6a2 2 0 0 1-2-2z"/><path d="M17 4v16M9 8h5M9 12h5"/></svg></span>
+          <span class="fp-meta">
+            <span class="fp-name">La Forêt de la Malédiction</span>
+            <span class="fp-sub2">Ian Livingstone · Défis Fantastiques nº3 · 1983</span>
+          </span>
+          <span class="fp-type">Livre</span>
+          <span class="fp-current-tag">● Sélectionnée</span>
+        </button>
+
+        <div class="fp-group">Tous les résultats</div>
+
+        <button class="fp-item" data-type="livre" data-name="La Cité des Voleurs" data-meta="Ian Livingstone · 1983 · Défis Fantastiques nº5 · ISBN 2-7242-1151-1" data-grad="linear-gradient(135deg, var(--encre-300), var(--encre-700))">
+          <span class="fp-thumb" style="background: linear-gradient(135deg, var(--encre-300), var(--encre-700));"><svg viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h11v16H6a2 2 0 0 1-2-2z"/><path d="M17 4v16M9 8h5M9 12h5"/></svg></span>
+          <span class="fp-meta">
+            <span class="fp-name">La Cité des Voleurs</span>
+            <span class="fp-sub2">Ian Livingstone · Défis Fantastiques nº5 · 1983</span>
+          </span>
+          <span class="fp-type">Livre</span>
+          <span class="fp-current-tag">● Sélectionnée</span>
+        </button>
+
+        <button class="fp-item" data-type="livre" data-name="Le Labyrinthe de la Mort" data-meta="Ian Livingstone · 1984 · Défis Fantastiques nº6 · ISBN 2-7242-1152-X" data-grad="linear-gradient(135deg, var(--sang-300), var(--sang-700))">
+          <span class="fp-thumb" style="background: linear-gradient(135deg, var(--sang-300), var(--sang-700));"><svg viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h11v16H6a2 2 0 0 1-2-2z"/><path d="M17 4v16M9 8h5M9 12h5"/></svg></span>
+          <span class="fp-meta">
+            <span class="fp-name">Le Labyrinthe de la Mort</span>
+            <span class="fp-sub2">Ian Livingstone · Défis Fantastiques nº6 · 1984</span>
+          </span>
+          <span class="fp-type">Livre</span>
+          <span class="fp-current-tag">● Sélectionnée</span>
+        </button>
+
+        <button class="fp-item" data-type="auteur" data-name="Steve Jackson" data-meta="Auteur · Royaume-Uni · né en 1951 · 18 ouvrages" data-grad="linear-gradient(135deg, var(--encre-300), var(--encre-700))" data-round="1">
+          <span class="fp-thumb round" style="background: linear-gradient(135deg, var(--encre-300), var(--encre-700));"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg></span>
+          <span class="fp-meta">
+            <span class="fp-name">Steve Jackson</span>
+            <span class="fp-sub2">Auteur · Royaume-Uni · 18 ouvrages</span>
+          </span>
+          <span class="fp-type">Auteur</span>
+          <span class="fp-current-tag">● Sélectionnée</span>
+        </button>
+
+        <button class="fp-item" data-type="auteur" data-name="Joe Dever" data-meta="Auteur · Royaume-Uni · 1956–2016 · 28 ouvrages" data-grad="linear-gradient(135deg, var(--cuir-300), var(--cuir-700))" data-round="1">
+          <span class="fp-thumb round" style="background: linear-gradient(135deg, var(--cuir-300), var(--cuir-700));"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg></span>
+          <span class="fp-meta">
+            <span class="fp-name">Joe Dever</span>
+            <span class="fp-sub2">Auteur · Royaume-Uni · 28 ouvrages</span>
+          </span>
+          <span class="fp-type">Auteur</span>
+          <span class="fp-current-tag">● Sélectionnée</span>
+        </button>
+
+        <button class="fp-item" data-type="illustrateur" data-name="Russ Nicholson" data-meta="Illustrateur · Royaume-Uni · 1948–2021 · 36 ouvrages" data-grad="linear-gradient(135deg, var(--mousse-300), var(--mousse-700))" data-round="1">
+          <span class="fp-thumb round" style="background: linear-gradient(135deg, var(--mousse-300), var(--mousse-700));"><svg viewBox="0 0 24 24"><path d="M3 21v-3l11-11 3 3-11 11H3z"/><path d="M14 7l3 3"/></svg></span>
+          <span class="fp-meta">
+            <span class="fp-name">Russ Nicholson</span>
+            <span class="fp-sub2">Illustrateur · Royaume-Uni · 36 ouvrages</span>
+          </span>
+          <span class="fp-type">Illustrateur</span>
+          <span class="fp-current-tag">● Sélectionnée</span>
+        </button>
+
+        <button class="fp-item" data-type="traducteur" data-name="Camille Fabien" data-meta="Traducteur · France · anglais → français · 41 ouvrages" data-grad="linear-gradient(135deg, var(--ambre-300), var(--ambre-700))" data-round="1">
+          <span class="fp-thumb round" style="background: linear-gradient(135deg, var(--ambre-300), var(--ambre-700));"><svg viewBox="0 0 24 24"><path d="M3 6h12M9 4v2M9 6c0 4-2 8-6 8M5 10c0 2 3 5 7 5"/><path d="M13 21l4-9 4 9M14.5 18h5"/></svg></span>
+          <span class="fp-meta">
+            <span class="fp-name">Camille Fabien</span>
+            <span class="fp-sub2">Traducteur · France · 41 ouvrages</span>
+          </span>
+          <span class="fp-type">Traducteur</span>
+          <span class="fp-current-tag">● Sélectionnée</span>
+        </button>
+
+        <div class="fp-empty" id="fpEmpty">Aucune fiche ne correspond. Affine ta recherche ou crée une nouvelle fiche.</div>
+      </div>
+
+      <div class="fp-foot">
+        <span class="fp-hint"><kbd>↵</kbd> sélectionner · <kbd>Échap</kbd> fermer</span>
+        <button class="btn btn-sm fp-create-link" type="button" id="fpCreateNew">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Créer une nouvelle fiche
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script src="../assets/menus.js"></script>
+  <script>
+    // ════════════ MODALE « Changer de fiche source » ════════════
+    (function () {
+      var picker  = document.getElementById('fichePicker');
+      if (!picker) return;
+      var openBtn = document.getElementById('changeSourceBtn');
+      var closeBtn= document.getElementById('fpClose');
+      var input   = document.getElementById('fpInput');
+      var list    = document.getElementById('fpList');
+      var scopeBtns = picker.querySelectorAll('.fp-scope button');
+      var items   = Array.prototype.slice.call(picker.querySelectorAll('.fp-item'));
+      var groups  = Array.prototype.slice.call(picker.querySelectorAll('.fp-group'));
+      var createNew = document.getElementById('fpCreateNew');
+      var lastFocus = null;
+      var scope = 'tous';
+
+      function open() {
+        lastFocus = document.activeElement;
+        picker.hidden = false;
+        requestAnimationFrame(function () { picker.classList.add('is-open'); });
+        document.body.style.overflow = 'hidden';
+        setTimeout(function () { input.focus(); input.select(); }, 60);
+        applyFilter();
+      }
+      function close() {
+        picker.classList.remove('is-open');
+        document.body.style.overflow = '';
+        setTimeout(function () { picker.hidden = true; }, 240);
+        if (lastFocus && lastFocus.focus) lastFocus.focus();
+      }
+
+      function matches(it) {
+        var scopeOk = (scope === 'tous') || (it.getAttribute('data-type') === scope);
+        var q = input.value.trim().toLowerCase();
+        var hay = (it.getAttribute('data-name') + ' ' + it.getAttribute('data-meta')).toLowerCase();
+        return scopeOk && (q === '' || hay.indexOf(q) !== -1);
+      }
+      function applyFilter() {
+        var anyVisible = false;
+        items.forEach(function (it) {
+          var ok = matches(it);
+          it.style.display = ok ? '' : 'none';
+          if (ok) anyVisible = true;
+        });
+        // hide a group label if no visible item follows it before the next group
+        groups.forEach(function (g) {
+          var n = g.nextElementSibling, hasVisible = false;
+          while (n && !n.classList.contains('fp-group')) {
+            if (n.classList.contains('fp-item') && n.style.display !== 'none') { hasVisible = true; break; }
+            n = n.nextElementSibling;
+          }
+          g.style.display = hasVisible ? '' : 'none';
+        });
+        list.classList.toggle('is-empty', !anyVisible);
+      }
+
+      function selectItem(it) {
+        var name = it.getAttribute('data-name');
+        var meta = it.getAttribute('data-meta');
+        var grad = it.getAttribute('data-grad');
+        var type = it.getAttribute('data-type');
+
+        // 1) update the source banner
+        var banner = document.querySelector('.correction-prefill');
+        if (banner) {
+          var cover = banner.querySelector('.pf-cover');
+          var title = banner.querySelector('.pf-title');
+          var dmeta = banner.querySelector('.pf-meta');
+          if (cover && grad) {
+            cover.style.background = grad;
+            cover.style.borderRadius = it.getAttribute('data-round') ? '50%' : '';
+          }
+          if (title) title.textContent = name;
+          if (dmeta) dmeta.innerHTML = meta.replace(/ISBN /g, 'ISBN&nbsp;');
+          banner.classList.add('just-updated');
+          setTimeout(function () { banner.classList.remove('just-updated'); }, 900);
+        }
+
+        // 2) mark current in the list
+        items.forEach(function (x) { x.classList.remove('is-current'); });
+        it.classList.add('is-current');
+
+        // 3) keep the wizard form coherent — switch the matching type
+        var radio = document.querySelector('.type-grid input[name="type"][value="' + type + '"]');
+        if (radio && !radio.checked) { radio.checked = true; radio.dispatchEvent(new Event('change', { bubbles: true })); }
+
+        close();
+      }
+
+      if (openBtn) openBtn.addEventListener('click', open);
+      if (closeBtn) closeBtn.addEventListener('click', close);
+      picker.addEventListener('click', function (e) { if (e.target === picker) close(); });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !picker.hidden) close();
+      });
+
+      input.addEventListener('input', applyFilter);
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          var first = items.filter(function (x) { return x.style.display !== 'none'; })[0];
+          if (first) selectItem(first);
+        }
+      });
+      scopeBtns.forEach(function (b) {
+        b.addEventListener('click', function () {
+          scopeBtns.forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+          b.setAttribute('aria-pressed', 'true');
+          scope = b.getAttribute('data-scope');
+          applyFilter();
+        });
+      });
+      items.forEach(function (it) { it.addEventListener('click', function () { selectItem(it); }); });
+
+      if (createNew) createNew.addEventListener('click', function () {
+        var modeNew = document.querySelector('.mode-toggle input[name="mode"][value="new"]');
+        if (modeNew) { modeNew.checked = true; modeNew.dispatchEvent(new Event('change', { bubbles: true })); }
+        close();
+      });
+    })();
+  </script>
 </body>
 </html>

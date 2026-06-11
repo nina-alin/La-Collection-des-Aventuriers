@@ -16,8 +16,8 @@ class ModerationLog
     #[ORM\Column(type: 'uuid')]
     private Uuid $id;
 
-    #[ORM\Column(length: 36)]
-    private string $moderatorId;
+    #[ORM\Column(length: 36, nullable: true)]
+    private ?string $moderatorId;
 
     #[ORM\Column(length: 10)]
     private string $actionType;
@@ -35,7 +35,7 @@ class ModerationLog
     private \DateTimeImmutable $createdAt;
 
     public function __construct(
-        string $moderatorId,
+        ?string $moderatorId,
         string $actionType,
         string $targetEntityType,
         string $targetEntityId,
@@ -67,7 +67,7 @@ class ModerationLog
         return $this->id;
     }
 
-    public function getModeratorId(): string
+    public function getModeratorId(): ?string
     {
         return $this->moderatorId;
     }

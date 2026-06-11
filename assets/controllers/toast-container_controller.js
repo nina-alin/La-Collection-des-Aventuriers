@@ -9,6 +9,10 @@ export default class extends Controller {
         });
         this.observer.observe(this.element, { childList: true });
 
+        if (this._toastHandler) {
+            document.removeEventListener('toast', this._toastHandler);
+        }
+
         this._toastHandler = (event) => {
             const { message, type } = event.detail;
             const typeClass = type === 'error' ? 'danger' : type;
@@ -29,5 +33,6 @@ export default class extends Controller {
     disconnect() {
         this.observer?.disconnect();
         document.removeEventListener('toast', this._toastHandler);
+        this._toastHandler = null;
     }
 }
